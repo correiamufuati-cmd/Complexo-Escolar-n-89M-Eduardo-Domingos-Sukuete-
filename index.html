@@ -273,5 +273,24 @@ async function updateStatistics() {
 }
 setInterval(updateStatistics, 5000);
 </script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlh0Kyd7CQf2f3H-q1TMs9E5LPa8k09QaaWLEObUDsIwIQkQ5MIHTFTnrjS6lhRvkWbw/exec";
+
+function salvarDados(dados) {
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(dados),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+  .then(response => response.text())
+  .then(data => {
+    alert("Dados guardados com sucesso!");
+  })
+  .catch(error => {
+    alert("Erro ao guardar dados!");
+  });
+}
+    </script>
 </body>
     </html>
