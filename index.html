@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC - Sistema de Lançamento de Notas com Firebase e Login</title>
+<title>SAC - Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</title>
 <style>
 body { font-family: Arial, sans-serif; margin: 20px; }
 button { padding: 10px 15px; margin: 5px; }
@@ -10,6 +10,9 @@ button { padding: 10px 15px; margin: 5px; }
 input[type=file], input[type=text], input[type=password], input[type=number], select { margin: 5px 0; padding: 5px; }
 #teacher-section { background-color: #f0f8ff; padding: 15px; margin-top: 20px; border-radius: 8px; }
 .stat { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+#header { display: flex; align-items: center; margin-bottom: 20px; }
+#logo { max-height: 80px; margin-right: 15px; }
+#school-name { font-size: 1.5em; font-weight: bold; }
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -17,7 +20,13 @@ input[type=file], input[type=text], input[type=password], input[type=number], se
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-<h1>SAC - Sistema de Lançamento de Notas</h1><div id="login-section">
+<div id="header">
+<img id="logo" src="" alt="Logotipo da Escola" class="hidden">
+<div id="school-name">Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</div>
+</div><div id="logo-upload-section">
+<label>Upload do logotipo da escola:</label>
+<input type="file" id="logo-upload" accept="image/*">
+</div><div id="login-section">
 <h2>Login Professor</h2>
 <input type="text" id="login-username" placeholder="Usuário">
 <br>
@@ -88,6 +97,20 @@ const teacherDocsList = document.getElementById('teacher-docs');
 const statsSection = document.getElementById('stats-section');
 const statsOutput = document.getElementById('stats-output');
 const disciplineSelect = document.getElementById('discipline-select');
+
+// Logo upload
+const logoUpload = document.getElementById('logo-upload');
+const logoImg = document.getElementById('logo');
+logoUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        logoImg.src = event.target.result;
+        logoImg.className = '';
+    }
+    reader.readAsDataURL(file);
+});
 
 // Login
 const loginSection = document.getElementById('login-section');
