@@ -4,20 +4,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAC - Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; }
+body { font-family: Arial, sans-serif; margin: 20px; background-color: #BFEFFF; }
 button { padding: 10px 15px; margin: 5px; }
 .hidden { display: none; }
 input[type=file], input[type=text], input[type=password], input[type=number], select { margin: 5px 0; padding: 5px; }
-#teacher-section { background-color: #f0f8ff; padding: 15px; margin-top: 20px; border-radius: 8px; }
+#teacher-section { background-color: #E0FFFF; padding: 15px; margin-top: 20px; border-radius: 8px; }
 .stat { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
 #header { display: flex; align-items: center; margin-bottom: 20px; }
 #logo { max-height: 80px; margin-right: 15px; }
 #school-name { font-size: 1.5em; font-weight: bold; }
+#admin-section { background-color: #E6F7FF; padding: 15px; border-radius: 8px; }
+#uploaded-docs, #teacher-docs { list-style-type: none; padding-left: 0; }
 </style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 <div id="header">
@@ -39,8 +37,8 @@ input[type=file], input[type=text], input[type=password], input[type=number], se
 <label>Upload de documento:</label>
 <input type="file" id="file-upload" multiple>
 <ul id="uploaded-docs"></ul>
-<h3>Gerar conta de professor</h3>
-<label>Usuário:</label>
+<h3>Gerar contas de professores</h3>
+<label>Usuário do professor:</label>
 <input type="text" id="new-user" placeholder="Nome do professor">
 <br>
 <button id="generate-password">Gerar senha</button>
@@ -48,6 +46,10 @@ input[type=file], input[type=text], input[type=password], input[type=number], se
 <div id="stats-section" class="stat hidden">
 <h3>Estatísticas por Disciplina</h3>
 <div id="stats-output"></div>
+</div>
+<div id="logo-upload-section">
+<h3>Upload do Logotipo da Escola</h3>
+<input type="file" id="logo-upload" accept="image/*">
 </div>
 </div><div id="teacher-section" class="hidden">
 <h2>Professor</h2>
@@ -69,22 +71,14 @@ input[type=file], input[type=text], input[type=password], input[type=number], se
 <input type="number" id="student-grade" min="0" max="20">
 <br>
 <button id="submit-grade">Lançar Nota</button>
-</div><div id="logo-upload-section" class="hidden">
-<h3>Upload do Logotipo da Escola</h3>
-<input type="file" id="logo-upload" accept="image/*">
 </div><script>
-// Firebase config (substitua com suas credenciais)
-const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_PROJETO.firebaseapp.com",
-    projectId: "SEU_PROJETO",
-    storageBucket: "SEU_PROJETO.appspot.com",
-    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-    appId: "SEU_APP_ID"
+// Contas iniciais de teste
+const accounts = {
+    'admin': 'Admin123'
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+
+// Contas geradas de professores
+const teacherAccounts = {};
 
 // Sistema aberto/fechado
 let systemOpen = false;
@@ -118,34 +112,33 @@ const loginSection = document.getElementById('login-section');
 const loginBtn = document.getElementById('login-btn');
 const loginMsg = document.getElementById('login-msg');
 
-loginBtn.addEventListener('click', async () => {
+loginBtn.addEventListener('click', () => {
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value.trim();
-    if(!username || !password) return loginMsg.textContent = 'Preencha usuário e senha';
 
-    try {
-        await auth.signInWithEmailAndPassword(username+'@sac.com', password);
+    if(accounts[username] && accounts[username] === password) {
         loginSection.className = 'hidden';
-        if(username.toLowerCase() === 'admin') {
-            document.getElementById('admin-section').className = '';
-            logoUploadSection.className = '';
-        } else {
-            teacherSection.className = systemOpen ? '' : 'hidden';
-        }
-    } catch (e) {
-        loginMsg.textContent = 'Usuário ou senha incorretos';
+        document.getElementById('admin-section').className = '';
+        logoUploadSection.className = '';
+        return;
     }
+
+    if(teacherAccounts[username] && teacherAccounts[username] === password) {
+        loginSection.className = 'hidden';
+        teacherSection.className = systemOpen ? '' : 'hidden';
+        return;
+    }
+
+    loginMsg.textContent = 'Usuário ou senha incorretos';
 });
 
 // Toggle sistema
-toggleBtn.addEventListener('click', async () => {
+toggleBtn.addEventListener('click', () => {
     systemOpen = !systemOpen;
     systemStatus.textContent = systemOpen ? 'Aberto' : 'Fechado';
     toggleBtn.textContent = systemOpen ? 'Fechar Sistema' : 'Ligar Sistema';
     teacherStatus.textContent = systemOpen ? 'aberto' : 'fechado';
     teacherSection.className = systemOpen ? '' : 'hidden';
-    statsSection.className = systemOpen ? '' : 'stat hidden';
-    await db.collection('system').doc('status').set({ open: systemOpen });
 });
 
 // Upload de documentos
@@ -165,17 +158,32 @@ fileUpload.addEventListener('change', (e) => {
     }
 });
 
-// Lançamento de notas
+// Gerar senha de professor
+const generateBtn = document.getElementById('generate-password');
+const newUserInput = document.getElementById('new-user');
+const generatedPasswordP = document.getElementById('generated-password');
+
+generateBtn.addEventListener('click', () => {
+    const username = newUserInput.value.trim();
+    if(!username) return alert('Digite o nome do professor');
+    const password = Math.random().toString(36).slice(-8);
+    teacherAccounts[username] = password;
+    generatedPasswordP.textContent = `Usuário: ${username} | Senha: ${password}`;
+});
+
+// Lançamento de notas (básico)
 const submitGradeBtn = document.getElementById('submit-grade');
-submitGradeBtn.addEventListener('click', async () => {
-    if (!systemOpen) return alert('O sistema está fechado!');
+submitGradeBtn.addEventListener('click', () => {
+    if(!systemOpen) return alert('O sistema está fechado!');
     const disciplina = disciplineSelect.value;
     const name = document.getElementById('student-name').value.trim();
     const gender = document.getElementById('student-gender').value;
     const grade = parseFloat(document.getElementById('student-grade').value);
-    if (!disciplina || !name || isNaN(grade)) return alert('Preencha todos os campos!');
+    if(!disciplina || !name || isNaN(grade)) return alert('Preencha todos os campos!');
 
-    await db.collection('grades').add({ disciplina, name, gender, grade });
+    const li = document.createElement('li');
+    li.textContent = `${name} (${gender}) - ${disciplina}: ${grade}`;
+    teacherDocsList.appendChild(li);
     alert('Nota lançada!');
 });
 </script></body>
