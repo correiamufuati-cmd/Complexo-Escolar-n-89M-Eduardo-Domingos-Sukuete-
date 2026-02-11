@@ -1,172 +1,153 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>SAC - Sistema de Acesso a Documentos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAC - Sistema de Lançamento de Notas</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; }
-header { background:#1e3a8a; color:#fff; padding:15px; text-align:center; }
-.container { padding:15px; max-width:900px; margin:auto; }
-.card { background:#fff; padding:15px; margin-bottom:15px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.1); }
-button { padding:10px 15px; border:none; border-radius:6px; cursor:pointer; }
-.btn { background:#1e3a8a; color:#fff; }
-.btn-red { background:#b91c1c; color:#fff; }
-input, select { width:100%; padding:8px; margin:6px 0; }
-.hidden { display:none; }
-.doc { border-bottom:1px solid #ddd; padding:8px 0; }
-small { color:#555; }
-h4 { margin-top:15px; }
+body { font-family: Arial, sans-serif; margin: 20px; }
+button { padding: 10px 15px; margin: 5px; }
+.hidden { display: none; }
+input[type=file] { margin: 10px 0; }
+ul { margin-top: 10px; }
+.stat { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
 </style>
 </head>
 <body>
-
-<header>
-<h2>SAC – Sistema de Acesso a Documentos</h2>
-</header>
-
-<div class="container">
-
-<!-- LOGIN -->
-<div class="card" id="loginCard">
-<h3>Entrar</h3>
-<button class="btn" onclick="showAdmin()">Administrador</button><br><br>
-<button class="btn" onclick="showProfessor()">Professor</button>
+<h1>SAC - Sistema de Lançamento de Notas</h1><div id="admin-section">
+<h2>Administrador</h2>
+<p>Status do sistema: <span id="system-status">Fechado</span></p>
+<button id="toggle-system">Ligar Sistema</button>
+<br>
+<label>Upload de documento:</label>
+<input type="file" id="file-upload" multiple>
+<ul id="uploaded-docs"></ul>
+<div id="stats-section" class="stat hidden">
+<h3>Estatísticas por Disciplina</h3>
+<div id="stats-output"></div>
 </div>
-
-<!-- LOGIN ADMIN -->
-<div class="card hidden" id="adminLogin">
-<h3>Login Administrador</h3>
-<input type="password" id="adminPass" placeholder="Senha do administrador">
-<button class="btn" onclick="loginAdmin()">Entrar</button>
-</div>
-
-<!-- PAINEL ADMIN -->
-<div class="card hidden" id="adminPanel">
-<h3>Painel do Administrador</h3>
-
-<p><strong>Estado do sistema:</strong> <span id="systemStatus"></span></p>
-<button class="btn" onclick="toggleSystem()">Ligar / Desligar Sistema</button>
-
-<hr>
-
-<h4>Anexar Documento</h4>
-<select id="nivel">
-  <option value="">Selecione o nível</option>
-  <option value="Ensino Primário">Ensino Primário</option>
-  <option value="1º Ciclo">1º Ciclo</option>
+</div><div id="teacher-section" class="hidden">
+<h2>Professor</h2>
+<p>O sistema está <span id="teacher-status">fechado</span>. Lançamentos não disponíveis.</p>
+<ul id="teacher-docs"></ul>
+<div>
+<label>Selecione disciplina:</label>
+<select id="discipline-select"></select>
+<br>
+<label>Aluno:</label>
+<input type="text" id="student-name" placeholder="Nome do aluno">
+<br>
+<label>Sexo:</label>
+<select id="student-gender">
+<option value="M">Masculino</option>
+<option value="F">Feminino</option>
 </select>
-<input type="text" id="docName" placeholder="Nome do documento">
-<input type="text" id="docInfo" placeholder="Disciplina / Turma / Trimestre">
-<input type="password" id="docPass" placeholder="Senha do documento">
-<input type="file" id="docFile" accept=".xls,.xlsx,.doc,.docx">
-<button class="btn" onclick="addDocument()">Adicionar</button>
-
-<hr>
-
-<h4>Documentos – Ensino Primário</h4>
-<div id="primarioList"></div>
-
-<h4>Documentos – 1º Ciclo</h4>
-<div id="cicloList"></div>
-
-<button class="btn-red" onclick="logout()">Sair</button>
+<br>
+<label>Nota:</label>
+<input type="number" id="student-grade" min="0" max="20">
+<br>
+<button id="submit-grade">Lançar Nota</button>
 </div>
+</div><script>
+// Sistema aberto/fechado
+let systemOpen = false;
+const toggleBtn = document.getElementById('toggle-system');
+const systemStatus = document.getElementById('system-status');
+const teacherSection = document.getElementById('teacher-section');
+const teacherStatus = document.getElementById('teacher-status');
+const uploadedDocsList = document.getElementById('uploaded-docs');
+const teacherDocsList = document.getElementById('teacher-docs');
+const statsSection = document.getElementById('stats-section');
+const statsOutput = document.getElementById('stats-output');
+const disciplineSelect = document.getElementById('discipline-select');
 
-<!-- PAINEL PROFESSOR -->
-<div class="card hidden" id="professorPanel">
-<h3>Acesso do Professor</h3>
-<p id="blockedMsg" class="hidden" style="color:red;">Sistema desligado.</p>
+// Toggle sistema
+toggleBtn.addEventListener('click', () => {
+    systemOpen = !systemOpen;
+    systemStatus.textContent = systemOpen ? 'Aberto' : 'Fechado';
+    toggleBtn.textContent = systemOpen ? 'Fechar Sistema' : 'Ligar Sistema';
+    teacherStatus.textContent = systemOpen ? 'aberto' : 'fechado';
+    teacherSection.className = systemOpen ? '' : 'hidden';
+    statsSection.className = systemOpen ? '' : 'stat hidden';
+});
 
-<div id="profAccess">
-<input type="password" id="profPass" placeholder="Senha do documento">
-<button class="btn" onclick="accessDoc()">Acessar</button>
-</div>
+// Upload de documentos
+const fileUpload = document.getElementById('file-upload');
+let docs = [];
+fileUpload.addEventListener('change', (e) => {
+    for (const file of e.target.files) {
+        const li = document.createElement('li');
+        li.textContent = file.name;
+        uploadedDocsList.appendChild(li);
+        docs.push(file.name);
+        const teacherLi = document.createElement('li');
+        teacherLi.textContent = file.name;
+        teacherDocsList.appendChild(teacherLi);
+        const option = document.createElement('option');
+        option.value = file.name;
+        option.textContent = file.name;
+        disciplineSelect.appendChild(option);
+    }
+});
 
-<div id="profDoc" class="hidden"></div>
+// Lançamento de notas e estatísticas
+let gradesData = {}; // { disciplina: [ {name, gender, grade} ] }
 
-<button class="btn-red" onclick="logout()">Sair</button>
-</div>
+const submitGradeBtn = document.getElementById('submit-grade');
+submitGradeBtn.addEventListener('click', () => {
+    if (!systemOpen) return alert('O sistema está fechado!');
+    const disciplina = disciplineSelect.value;
+    const name = document.getElementById('student-name').value.trim();
+    const gender = document.getElementById('student-gender').value;
+    const grade = parseFloat(document.getElementById('student-grade').value);
+    if (!disciplina || !name || isNaN(grade)) return alert('Preencha todos os campos!');
 
-</div>
+    if (!gradesData[disciplina]) gradesData[disciplina] = [];
+    gradesData[disciplina].push({name, gender, grade});
+    alert('Nota lançada!');
 
-<script>
-const ADMIN_PASSWORD = "admin123";
+    updateStatistics();
+});
 
-function getSystemState(){ return localStorage.getItem("system") !== "off"; }
-function setSystemState(on){ localStorage.setItem("system", on ? "on" : "off"); }
+function updateStatistics() {
+    statsOutput.innerHTML = '';
+    for (const disciplina in gradesData) {
+        const students = gradesData[disciplina];
+        let primario = true;
+        if (disciplina.toLowerCase().includes('1 ciclo') || disciplina.toLowerCase().includes('primeiro')) primario = false;
 
-function showAdmin(){ loginCard.classList.add("hidden"); adminLogin.classList.remove("hidden"); }
-function showProfessor(){ loginCard.classList.add("hidden"); professorPanel.classList.remove("hidden"); checkSystem(); }
+        let counts = { mau: {M:0,F:0}, medio:{M:0,F:0}, suficiente:{M:0,F:0}, bom:{M:0,F:0}, muitoBom:{M:0,F:0} };
 
-function loginAdmin(){
-  if(adminPass.value === ADMIN_PASSWORD){
-    adminLogin.classList.add("hidden");
-    adminPanel.classList.remove("hidden");
-    updateStatus(); loadDocs();
-  } else alert("Senha incorreta");
+        for (const s of students) {
+            const g = s.gender;
+            const grade = s.grade;
+            let category = '';
+            if (primario) {
+                if (grade>=0 && grade<=2) category='mau';
+                else if (grade>=3 && grade<=4) category='medio';
+                else if (grade>=5 && grade<=6) category='suficiente';
+                else if (grade>=7 && grade<=8) category='bom';
+                else if (grade>=9 && grade<=10) category='muitoBom';
+            } else {
+                if (grade>=0 && grade<=4) category='mau';
+                else if (grade>=5 && grade<=9) category='medio';
+                else if (grade>=10 && grade<=13) category='suficiente';
+                else if (grade>=14 && grade<=17) category='bom';
+                else if (grade>=18 && grade<=20) category='muitoBom';
+            }
+            if (category) counts[category][g]++;
+        }
+
+        const div = document.createElement('div');
+        div.innerHTML = `<h4>${disciplina}</h4>
+<ul>
+<li>Mau: Total=${counts.mau.M+counts.mau.F}, Masculino=${counts.mau.M}, Feminino=${counts.mau.F}</li>
+<li>Médio: Total=${counts.medio.M+counts.medio.F}, Masculino=${counts.medio.M}, Feminino=${counts.medio.F}</li>
+<li>Suficiente: Total=${counts.suficiente.M+counts.suficiente.F}, Masculino=${counts.suficiente.M}, Feminino=${counts.suficiente.F}</li>
+<li>Bom: Total=${counts.bom.M+counts.bom.F}, Masculino=${counts.bom.M}, Feminino=${counts.bom.F}</li>
+<li>Muito Bom: Total=${counts.muitoBom.M+counts.muitoBom.F}, Masculino=${counts.muitoBom.M}, Feminino=${counts.muitoBom.F}</li>
+</ul>`;
+        statsOutput.appendChild(div);
+    }
 }
-
-function logout(){ location.reload(); }
-
-function toggleSystem(){ setSystemState(!getSystemState()); updateStatus(); }
-function updateStatus(){ systemStatus.innerText = getSystemState() ? "LIGADO" : "DESLIGADO"; }
-
-function addDocument(){
-  const nivel = document.getElementById("nivel").value;
-  const file = docFile.files[0];
-  if(!nivel || !file) return alert("Preencha todos os campos");
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const docs = JSON.parse(localStorage.getItem("docs") || "[]");
-    docs.push({
-      nivel,
-      name: docName.value,
-      info: docInfo.value,
-      pass: docPass.value,
-      fileName: file.name,
-      data: reader.result
-    });
-    localStorage.setItem("docs", JSON.stringify(docs));
-    docName.value = docInfo.value = docPass.value = "";
-    docFile.value = "";
-    document.getElementById("nivel").value = "";
-    loadDocs();
-  };
-  reader.readAsDataURL(file);
-}
-
-function loadDocs(){
-  primarioList.innerHTML = "";
-  cicloList.innerHTML = "";
-  const docs = JSON.parse(localStorage.getItem("docs") || "[]");
-  docs.forEach(d=>{
-    const div = document.createElement("div");
-    div.className = "doc";
-    div.innerHTML = `<strong>${d.name}</strong><br><small>${d.info}</small>`;
-    (d.nivel === "Ensino Primário" ? primarioList : cicloList).appendChild(div);
-  });
-}
-
-function checkSystem(){
-  if(!getSystemState()){
-    blockedMsg.classList.remove("hidden");
-    profAccess.classList.add("hidden");
-  }
-}
-
-function accessDoc(){
-  const pass = profPass.value;
-  const docs = JSON.parse(localStorage.getItem("docs") || "[]");
-  const doc = docs.find(d=>d.pass === pass);
-  if(!doc) return alert("Senha inválida");
-
-  profDoc.innerHTML = `<h4>${doc.name}</h4><p>${doc.info}</p>
-  <a href="${doc.data}" download="${doc.fileName}">📥 Baixar documento</a>`;
-  profDoc.classList.remove("hidden");
-}
-</script>
-
-</body>
-  </html>
+</script></body>
+                   </html>
