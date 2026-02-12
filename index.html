@@ -42,6 +42,9 @@ section { padding:15px;}
 <button id="btn-statistics">Estatísticas</button>
 </div>
 
+<!-- BOTÃO VOLTAR -->
+<button id="btn-back" class="hidden">← Voltar</button>
+
 <!-- LOGIN ADMIN -->
 <section id="login-section" class="hidden">
 <h2>Login Administrador</h2>
@@ -92,7 +95,7 @@ section { padding:15px;}
 <p>Sistema: <span id="teacher-status">Fechado</span></p>
 <label>Código da Pauta:</label>
 <input type="text" id="pauta-input"><br>
-<label>Classe/Nível:</label>
+<label>Classe / Nível:</label>
 <select id="class-select"></select><br>
 <label>Disciplina:</label>
 <select id="discipline-select"></select><br>
@@ -142,6 +145,7 @@ const btnTeacher = document.getElementById("btn-teacher");
 const btnResults = document.getElementById("btn-results");
 const btnPublications = document.getElementById("btn-publications");
 const btnStatistics = document.getElementById("btn-statistics");
+const btnBack = document.getElementById("btn-back");
 
 const loginSection = document.getElementById("login-section");
 const adminSection = document.getElementById("admin-section");
@@ -149,11 +153,15 @@ const teacherSection = document.getElementById("teacher-section");
 const resultsSection = document.getElementById("results-section");
 const publicationsSection = document.getElementById("publications-section");
 
-btnLoginAdmin.addEventListener("click",()=>{ hideAllSections(); loginSection.classList.remove("hidden"); });
-btnTeacher.addEventListener("click",()=>{ hideAllSections(); teacherSection.classList.remove("hidden"); });
-btnResults.addEventListener("click",()=>{ hideAllSections(); resultsSection.classList.remove("hidden"); });
-btnPublications.addEventListener("click",()=>{ hideAllSections(); publicationsSection.classList.remove("hidden"); });
-btnStatistics.addEventListener("click",()=>{ hideAllSections(); adminSection.classList.remove("hidden"); });
+btnLoginAdmin.addEventListener("click",()=>{ hideAllSections(); loginSection.classList.remove("hidden"); showBack(true); });
+btnTeacher.addEventListener("click",()=>{ hideAllSections(); teacherSection.classList.remove("hidden"); showBack(true); });
+btnResults.addEventListener("click",()=>{ hideAllSections(); resultsSection.classList.remove("hidden"); showBack(true); });
+btnPublications.addEventListener("click",()=>{ hideAllSections(); publicationsSection.classList.remove("hidden"); showBack(true); });
+btnStatistics.addEventListener("click",()=>{ hideAllSections(); adminSection.classList.remove("hidden"); showBack(true); });
+
+btnBack.addEventListener("click",()=>{
+  hideAllSections(); showBack(false);
+});
 
 function hideAllSections(){
   loginSection.classList.add("hidden");
@@ -162,6 +170,8 @@ function hideAllSections(){
   resultsSection.classList.add("hidden");
   publicationsSection.classList.add("hidden");
 }
+
+function showBack(show){ btnBack.classList.toggle("hidden",!show); }
 
 // ========================== LOGIN ADMIN ==========================
 const ADMIN_USER = "admin";
@@ -173,7 +183,7 @@ adminLoginBtn.addEventListener("click",()=>{
   const user = document.getElementById("admin-username").value.trim();
   const pass = document.getElementById("admin-password").value.trim();
   if(user===ADMIN_USER && pass===ADMIN_PASS){
-    hideAllSections(); adminSection.classList.remove("hidden"); loadPublications(); 
+    hideAllSections(); adminSection.classList.remove("hidden"); showBack(true); loadPublications(); 
   } else loginMsg.textContent = "Usuário ou senha incorretos";
 });
 
