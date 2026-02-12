@@ -16,90 +16,76 @@ input[type=file], input[type=text], input[type=password], input[type=number], se
 #school-name { font-size: 1.5em; font-weight: bold; }
 #admin-section { background-color: #E6F7FF; padding: 15px; border-radius: 8px; }
 #uploaded-docs, #teacher-docs { list-style-type: none; padding-left: 0; }
-a { color: #0077b6; text-decoration: none; }
-a:hover { text-decoration: underline; }
 </style>
+<!-- SheetJS para manipulação de Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+
 <div id="header">
 <img id="logo" src="" alt="Logotipo da Escola" class="hidden">
 <div id="school-name">Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</div>
 </div>
 
+<!-- Login -->
 <div id="login-section">
 <h2>Login</h2>
-<input type="text" id="login-username" placeholder="Usuário">
-<br>
-<input type="password" id="login-password" placeholder="Senha">
-<br>
+<input type="text" id="login-username" placeholder="Usuário"><br>
+<input type="password" id="login-password" placeholder="Senha"><br>
 <button id="login-btn">Entrar</button>
 <p id="login-msg"></p>
 </div>
 
+<!-- Administração -->
 <div id="admin-section" class="hidden">
 <h2>Administrador</h2>
-<p>Status do sistema: <span id="system-status">Fechado</span></p>
-<button id="toggle-system">Ligar Sistema</button>
-<br>
-<label>Upload de documento:</label>
-<input type="file" id="file-upload" multiple>
+<label>Upload de planilha Excel:</label>
+<input type="file" id="file-upload" accept=".xlsx,.xls"><br>
 <ul id="uploaded-docs"></ul>
-<h3>Gerar contas de professores</h3>
+<h3>Gerar conta de professor</h3>
 <label>Usuário do professor:</label>
-<input type="text" id="new-user" placeholder="Nome do professor">
-<br>
+<input type="text" id="new-user" placeholder="Nome do professor"><br>
 <button id="generate-password">Gerar senha</button>
 <p id="generated-password"></p>
-
-<div id="stats-section" class="stat hidden">
-<h3>Estatísticas por Disciplina</h3>
-<div id="stats-output"></div>
-</div>
-
 <div id="logo-upload-section">
 <h3>Upload do Logotipo da Escola</h3>
 <input type="file" id="logo-upload" accept="image/*">
 </div>
 </div>
 
+<!-- Professores -->
 <div id="teacher-section" class="hidden">
 <h2>Professor</h2>
-<p>O sistema está <span id="teacher-status">fechado</span>. Lançamentos não disponíveis.</p>
+<p>Selecione a planilha:</p>
+<select id="excel-select"></select>
+<button id="load-excel">Carregar</button>
 <ul id="teacher-docs"></ul>
+
+<div id="grade-section" class="hidden">
 <label>Selecione disciplina:</label>
-<select id="discipline-select"></select>
-<br>
+<select id="discipline-select"></select><br>
 <label>Aluno:</label>
-<input type="text" id="student-name" placeholder="Nome do aluno">
-<br>
+<input type="text" id="student-name" placeholder="Nome do aluno"><br>
 <label>Sexo:</label>
 <select id="student-gender">
 <option value="M">Masculino</option>
 <option value="F">Feminino</option>
-</select>
-<br>
+</select><br>
 <label>Nota:</label>
-<input type="number" id="student-grade" min="0" max="20">
-<br>
+<input type="number" id="student-grade" min="0" max="20"><br>
 <button id="submit-grade">Lançar Nota</button>
+<button id="download-excel">Baixar Pauta Atualizada</button>
+</div>
 </div>
 
 <script>
 // Contas iniciais
-const accounts = { 'admin': 'Admin123' };
-const teacherAccounts = {};
+const adminAccount = { username: 'admin', password: 'Admin123' };
+const teacherAccounts = {}; // preenchido pelo admin
 
-// Sistema aberto/fechado
-let systemOpen = false;
-const toggleBtn = document.getElementById('toggle-system');
-const systemStatus = document.getElementById('system-status');
-const teacherSection = document.getElementById('teacher-section');
-const teacherStatus = document.getElementById('teacher-status');
-const uploadedDocsList = document.getElementById('uploaded-docs');
-const teacherDocsList = document.getElementById('teacher-docs');
-const statsSection = document.getElementById('stats-section');
-const statsOutput = document.getElementById('stats-output');
-const disciplineSelect = document.getElementById('discipline-select');
+let loadedWorkbook = null;
+let loadedJson = [];
+let systemOpen = true;
 
 // Logo upload
 const logoUpload = document.getElementById('logo-upload');
@@ -119,52 +105,30 @@ logoUpload.addEventListener('change', e => {
 const loginSection = document.getElementById('login-section');
 const loginBtn = document.getElementById('login-btn');
 const loginMsg = document.getElementById('login-msg');
+const adminSection = document.getElementById('admin-section');
+const teacherSection = document.getElementById('teacher-section');
 
 loginBtn.addEventListener('click', () => {
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value.trim();
-    if(accounts[username] && accounts[username] === password) {
+
+    if(username === adminAccount.username && password === adminAccount.password){
         loginSection.className = 'hidden';
-        document.getElementById('admin-section').className = '';
+        adminSection.className = '';
         return;
     }
-    if(teacherAccounts[username] && teacherAccounts[username] === password) {
+
+    if(teacherAccounts[username] && teacherAccounts[username] === password){
         loginSection.className = 'hidden';
-        teacherSection.className = systemOpen ? '' : 'hidden';
+        teacherSection.className = '';
+        populateExcelSelect();
         return;
     }
+
     loginMsg.textContent = 'Usuário ou senha incorretos';
 });
 
-// Toggle sistema
-toggleBtn.addEventListener('click', () => {
-    systemOpen = !systemOpen;
-    systemStatus.textContent = systemOpen ? 'Aberto' : 'Fechado';
-    toggleBtn.textContent = systemOpen ? 'Fechar Sistema' : 'Ligar Sistema';
-    teacherStatus.textContent = systemOpen ? 'aberto' : 'fechado';
-    teacherSection.className = systemOpen ? '' : 'hidden';
-});
-
-// Upload de documentos
-const fileUpload = document.getElementById('file-upload');
-fileUpload.addEventListener('change', e => {
-    for (const file of e.target.files) {
-        const liAdmin = document.createElement('li');
-        liAdmin.textContent = file.name;
-        uploadedDocsList.appendChild(liAdmin);
-
-        const liTeacher = document.createElement('li');
-        liTeacher.textContent = file.name;
-        teacherDocsList.appendChild(liTeacher);
-
-        const option = document.createElement('option');
-        option.value = file.name;
-        option.textContent = file.name;
-        disciplineSelect.appendChild(option);
-    }
-});
-
-// Gerar contas de professores
+// Gerar senha professor
 const generateBtn = document.getElementById('generate-password');
 const newUserInput = document.getElementById('new-user');
 const generatedPasswordP = document.getElementById('generated-password');
@@ -177,39 +141,89 @@ generateBtn.addEventListener('click', () => {
     generatedPasswordP.textContent = `Usuário: ${username} | Senha: ${password}`;
 });
 
-// --- INÍCIO DA PARTE GOOGLE SHEETS ---
-// Substitua pelo link do seu script do Google Apps
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIbTr7v2QxEfGtG0Z3XH5Ws29FvFvFWF6gRuYkbpm-O9jNTw4OCpVhJLNJDZI9QdauCA/exec";
+// Upload Excel
+const fileUpload = document.getElementById('file-upload');
+const uploadedDocsList = document.getElementById('uploaded-docs');
+const excelSelect = document.getElementById('excel-select');
+const disciplineSelect = document.getElementById('discipline-select');
+let excelFiles = {};
 
-function salvarDados(dados) {
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(dados),
-    headers: { "Content-Type": "application/json" }
-  })
-  .then(response => response.text())
-  .then(data => console.log("Dados guardados com sucesso!"))
-  .catch(err => console.error("Erro ao guardar dados: " + err));
+fileUpload.addEventListener('change', e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(event){
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        excelFiles[file.name] = workbook;
+        const li = document.createElement('li');
+        li.textContent = file.name;
+        uploadedDocsList.appendChild(li);
+    }
+    reader.readAsArrayBuffer(file);
+});
+
+function populateExcelSelect(){
+    excelSelect.innerHTML = '';
+    for(const name in excelFiles){
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        excelSelect.appendChild(option);
+    }
 }
 
-// Lançamento de notas
+// Carregar Excel
+const gradeSection = document.getElementById('grade-section');
+const loadExcelBtn = document.getElementById('load-excel');
+loadExcelBtn.addEventListener('click', () => {
+    const selected = excelSelect.value;
+    if(!selected) return alert('Selecione uma planilha');
+    loadedWorkbook = excelFiles[selected];
+    const firstSheet = loadedWorkbook.SheetNames[0];
+    loadedJson = XLSX.utils.sheet_to_json(loadedWorkbook.Sheets[firstSheet]);
+    populateDisciplineSelect();
+    gradeSection.className = '';
+});
+
+// Popular disciplinas
+function populateDisciplineSelect(){
+    disciplineSelect.innerHTML = '';
+    const disciplines = [...new Set(loadedJson.map(r=>r.Disciplina || ''))];
+    disciplines.forEach(d => {
+        const option = document.createElement('option');
+        option.value = d;
+        option.textContent = d;
+        disciplineSelect.appendChild(option);
+    });
+}
+
+// Lançar nota
 const submitGradeBtn = document.getElementById('submit-grade');
 submitGradeBtn.addEventListener('click', () => {
-    if(!systemOpen) return alert('O sistema está fechado!');
     const disciplina = disciplineSelect.value;
     const name = document.getElementById('student-name').value.trim();
     const gender = document.getElementById('student-gender').value;
     const grade = parseFloat(document.getElementById('student-grade').value);
-    const classe = "1ª Classe"; // ou selecione dinamicamente
-
     if(!disciplina || !name || isNaN(grade)) return alert('Preencha todos os campos!');
 
-    const li = document.createElement('li');
-    li.textContent = `${name} (${gender}) - ${disciplina}: ${grade}`;
-    teacherDocsList.appendChild(li);
+    const student = loadedJson.find(s => s.Nome === name && s.Disciplina === disciplina);
+    if(student){
+        student.Nota = grade;
+    } else {
+        loadedJson.push({ Nome:name, Disciplina:disciplina, Sexo:gender, Nota:grade });
+    }
+    alert('Nota lançada!');
+});
 
-    salvarDados({ classe: classe, aluno: name, sexo: gender, disciplina: disciplina, nota: grade });
-    alert('Nota lançada e salva online!');
+// Baixar Excel atualizado
+const downloadBtn = document.getElementById('download-excel');
+downloadBtn.addEventListener('click', () => {
+    if(!loadedWorkbook) return alert('Carregue uma planilha primeiro!');
+    const newSheet = XLSX.utils.json_to_sheet(loadedJson);
+    const newWB = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(newWB, newSheet, 'Pauta Atualizada');
+    XLSX.writeFile(newWB, 'pauta_atualizada.xlsx');
 });
 </script>
 </body>
