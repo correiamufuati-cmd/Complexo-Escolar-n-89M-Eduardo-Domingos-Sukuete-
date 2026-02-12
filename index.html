@@ -21,68 +21,54 @@ input,select{padding:6px;margin:5px}
 </head>
 <body><header>
 <h1>Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</h1>
-<p id="frase"></p>
+<p>Portal Oficial de Lançamento de Notas</p>
 </header><nav>
 <button onclick="mostrar('inicio')">Início</button>
 <button onclick="mostrar('professorArea')">Lançamento de Notas</button>
 <button onclick="mostrar('resultados')">Ver Resultados</button>
-<button onclick="mostrar('publicacoes')">Publicações</button>
 <button onclick="mostrar('adminLogin')">Área do Administrador</button>
-</nav><!-- PÁGINA INICIAL --><section id="inicio" class="active">
+</nav><!-- INICIO --><section id="inicio" class="active">
 <div class="card">
-<h2>Bem-vindo ao Portal Escolar</h2>
-<p>"Educação é a arma mais poderosa que você pode usar para mudar o mundo."</p>
+<h2>Bem-vindo</h2>
+<p>Educação é a base do desenvolvimento.</p>
 </div>
 </section><!-- LOGIN ADMIN --><section id="adminLogin">
 <h2>Área do Administrador</h2>
-<input type="password" id="adminSenha" placeholder="Digite a senha">
+<input type="password" id="adminSenha" placeholder="Senha">
 <button onclick="entrarAdmin()">Entrar</button>
 </section><!-- PAINEL ADMIN --><section id="adminPainel">
-<h2>Painel de Gestão</h2>
-<div class="admin-box">
-<h3>Gerar Login para Professor</h3>
-<input type="text" id="novoProfessor" placeholder="Nome do Professor">
-<button onclick="gerarLogin()">Gerar</button>
-<div id="listaLogins"></div>
-</div><div class="admin-box">
+<h2>Painel do Administrador</h2><div class="admin-box">
 <h3>Carregar Pauta (Excel)</h3>
+<select id="nivelSelect">
+<option value="Primario">Ensino Primário</option>
+<option value="Ciclo">1º Ciclo</option>
+</select>
+<input type="text" id="classeNome" placeholder="Nome da Classe (ex: 7ªA)">
+<input type="password" id="senhaClasse" placeholder="Senha para esta pauta">
 <input type="file" id="excelUpload" accept=".xlsx,.xls">
-</div><div class="admin-box">
-<h3>Publicar Documento (PDF)</h3>
-<input type="file" id="pdfUpload" accept="application/pdf">
-<div id="listaPDF"></div>
+<button onclick="registarPauta()">Registar Pauta</button>
+<div id="listaPautas"></div>
 </div><button onclick="mostrar('inicio')">Voltar</button>
 
 </section><!-- ÁREA PROFESSOR --><section id="professorArea">
-<h2>Lançamento de Notas</h2>
-<div id="loginProfessor">
-<input type="text" id="profUser" placeholder="Usuário">
-<input type="password" id="profPass" placeholder="Senha">
-<button onclick="loginProfessor()">Entrar</button>
-</div>
-<div id="areaNotas" style="display:none">
+<h2>Lançamento de Notas</h2><label>Nível:</label> <select id="nivelProfessor"></select>
+
+<label>Classe:</label> <select id="classeProfessor"></select>
+
+<input type="password" id="senhaProfessor" placeholder="Senha da Classe">
+<button onclick="acessarPauta()">Entrar</button><div id="areaNotas" style="display:none">
+<h3>Pauta</h3>
 <div id="tabelaContainer"></div>
 <button onclick="baixarExcel()">Guardar Alterações</button>
 </div>
 </section><!-- RESULTADOS --><section id="resultados">
 <h2>Resultados Públicos</h2>
 <div id="tabelaResultados"></div>
-</section><!-- PUBLICAÇÕES --><section id="publicacoes">
-<h2>Publicações</h2>
-<div id="publicacoesLista"></div>
 </section><script>
-let workbook, worksheet, dadosTabela=[];
 let adminPassword="Admin123";
-let professores={};
-
-const frases=[
-"Educar é transformar vidas.",
-"O sucesso começa na escola.",
-"Conhecimento é poder."
-];
-setInterval(()=>{
-document.getElementById('frase').innerText=frases[Math.floor(Math.random()*frases.length)];
-},4000);
+let pautas={};
+let dadosTabela=[];
+let workbookAtual;
 
 function mostrar(id){
 document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
@@ -95,35 +81,57 @@ mostrar('adminPainel');
 }else alert('Senha incorreta');
 }
 
-function gerarLogin(){
-let nome=document.getElementById('novoProfessor').value.trim();
-if(!nome) return alert('Digite o nome');
-let senha=Math.random().toString(36).slice(-6);
-professores[nome]=senha;
-document.getElementById('listaLogins').innerHTML+=`<p>${nome} | Senha: ${senha}</p>`;
-}
+function registarPauta(){
+let nivel=document.getElementById('nivelSelect').value;
+let classe=document.getElementById('classeNome').value.trim();
+let senha=document.getElementById('senhaClasse').value.trim();
+let file=document.getElementById('excelUpload').files[0];
+if(!classe||!senha||!file) return alert('Preencha tudo');
 
-function loginProfessor(){
-let u=document.getElementById('profUser').value.trim();
-let p=document.getElementById('profPass').value.trim();
-if(professores[u] && professores[u]===p){
-document.getElementById('loginProfessor').style.display='none';
-document.getElementById('areaNotas').style.display='block';
-}else alert('Login inválido');
-}
-
-// Carregar Excel
-document.getElementById('excelUpload').addEventListener('change',function(e){
 const reader=new FileReader();
-reader.onload=function(evt){
-const data=new Uint8Array(evt.target.result);
-workbook=XLSX.read(data,{type:'array'});
-worksheet=workbook.Sheets[workbook.SheetNames[0]];
-dadosTabela=XLSX.utils.sheet_to_json(worksheet,{header:1});
-renderTabela();
+reader.onload=function(e){
+const data=new Uint8Array(e.target.result);
+let wb=XLSX.read(data,{type:'array'});
+pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
+atualizarListas();
+alert('Pauta registada com sucesso');
+};
+reader.readAsArrayBuffer(file);
 }
-reader.readAsArrayBuffer(e.target.files[0]);
+
+function atualizarListas(){
+let nivelProf=document.getElementById('nivelProfessor');
+let classeProf=document.getElementById('classeProfessor');
+nivelProf.innerHTML='';
+classeProf.innerHTML='';
+let niveis=[...new Set(Object.values(pautas).map(p=>p.nivel))];
+niveis.forEach(n=>{
+let op=document.createElement('option');
+op.value=n;op.textContent=n;nivelProf.appendChild(op);
 });
+Object.keys(pautas).forEach(c=>{
+let op=document.createElement('option');
+op.value=c;op.textContent=c;classeProf.appendChild(op);
+});
+
+let lista=document.getElementById('listaPautas');
+lista.innerHTML='';
+Object.keys(pautas).forEach(c=>{
+lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
+});
+}
+
+function acessarPauta(){
+let classe=document.getElementById('classeProfessor').value;
+let senha=document.getElementById('senhaProfessor').value;
+if(!pautas[classe]||pautas[classe].senha!==senha) return alert('Senha incorreta');
+
+workbookAtual=pautas[classe].workbook;
+let sheet=workbookAtual.Sheets[workbookAtual.SheetNames[0]];
+dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
+renderTabela();
+document.getElementById('areaNotas').style.display='block';
+}
 
 function renderTabela(){
 let html='<table>';
@@ -145,22 +153,10 @@ dadosTabela[i][j]=valor;
 }
 
 function baixarExcel(){
-const novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
-const novoBook=XLSX.utils.book_new();
+let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
+let novoBook=XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');
 XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
 }
-
-// Upload PDF
-document.getElementById('pdfUpload').addEventListener('change',function(e){
-const file=e.target.files[0];
-const url=URL.createObjectURL(file);
-const link=document.createElement('a');
-link.href=url;
-link.textContent=file.name;
-link.target='_blank';
-document.getElementById('listaPDF').appendChild(link);
-});
-
 </script></body>
     </html>
