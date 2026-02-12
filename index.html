@@ -1,17 +1,19 @@
-<!DOCTYPE html><html lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC - Complexo Escolar N° 89M</title>
-<script type="module">
-// Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";const firebaseConfig = { apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw", authDomain: "sac-escolar.firebaseapp.com", projectId: "sac-escolar", storageBucket: "sac-escolar.appspot.com", messagingSenderId: "507793955855", appId: "1:507793955855:web:405579f5e01b3f90cc577a", measurementId: "G-5TWFNGZMBQ" };
+<meta charset="UTF‑8">
+<meta name="viewport" content="width=device‑width, initial‑scale=1.0">
+<title>SAC – Complexo Escolar N° 89M</title>
 
-const app = initializeApp(firebaseConfig); const db = getDatabase(app); const storage = getStorage(app); </script>
+<!-- Firebase compat -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><style>
+<!-- XLSX -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
 body{font-family:Arial;margin:0;background:#BFEFFF}
 header{background:#0077b6;color:white;padding:20px;text-align:center}
 #logo{max-height:90px;display:block;margin:10px auto}
@@ -22,144 +24,226 @@ section{display:none;padding:20px}
 table{border-collapse:collapse;width:100%;background:white}
 th,td{border:1px solid #ccc;padding:8px;text-align:left}
 th{background:#caf0f8}
-input,select,textarea{padding:6px;margin:5px}
+input,select,textarea{padding:6px;margin:5px;width:100%}
 .card{background:white;padding:15px;border-radius:8px;margin:10px 0}
-.admin-box{background:#ffffff;padding:15px;border-radius:8px;margin-top:15px}
-.status{font-weight:bold;font-size:18px}
+.admin-box{background:white;padding:15px;border-radius:8px;margin-top:15px}
 .publicacoes-container{margin-top:15px}
-.publicacao-item{background:white;padding:10px;margin-bottom:10px;border-radius:5px}
-</style></head>
-<body><header>
-<img id="logo" src="">
-<h1>Complexo Escolar N° 89M \"Eduardo Domingos Sukuete\"</h1>
-<p>Portal Oficial de Lançamento de Notas</p>
-<div id="publicacoesInicio" class="publicacoes-container"></div>
-</header><nav>
-<button onclick="mostrar('inicio')">Início</button>
-<button onclick="mostrar('professorArea')">Lançamento</button>
-<button onclick="mostrar('resultados')">Resultados</button>
-<button onclick="mostrar('publicacoes')">Publicações</button>
-<button onclick="mostrar('adminLogin')">Administrador</button>
-</nav><section id="inicio" class="active">
-<div class="card">
-<h2>Bem-vindo</h2>
-<p>Educação é a base do desenvolvimento.</p>
-<p class="status">Sistema: <span id="estadoSistema">Fechado</span></p>
-</div>
-</section><section id="adminLogin">
-<h2>Área do Administrador</h2>
-<input type="password" id="adminSenha" placeholder="Senha">
-<button onclick="entrarAdmin()">Entrar</button>
-</section><section id="adminPainel">
-<h2>Painel do Administrador</h2>
-<div class="admin-box">
-<h3>Logotipo da Escola</h3>
-<input type="file" id="logoUpload" accept="image/*">
-</div>
-<div class="admin-box">
-<h3>Controlar Sistema</h3>
-<button onclick="toggleSistema()">Alternar Sistema</button>
-</div>
-<div class="admin-box">
-<h3>Registar Pauta (Excel)</h3>
-<label>Nível:</label>
-<select id="nivelSelect"><option value="Primario">Ensino Primário</option><option value="Ciclo">1º Ciclo</option></select>
-<input type="text" id="classeNome" placeholder="Classe (ex: 7ªA)">
-<input type="password" id="senhaClasse" placeholder="Senha da Classe">
-<input type="file" id="excelUpload" accept=".xlsx,.xls">
-<button onclick="registarPauta()">Registar</button>
-<div id="listaPautas"></div>
-</div>
-<div class="admin-box">
-<h3>Publicações</h3>
-<input type="file" id="publicacaoFile" accept=".pdf,image/*">
-<input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
-<textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%"></textarea>
-<button onclick="adicionarPublicacao(true)">Publicar</button>
-<div id="listaPublicacoes"></div>
-</div>
-<button onclick="mostrar('inicio')">Voltar</button>
-</section><section id="professorArea">
-<h2>Lançamento de Notas</h2>
-<label>Classe:</label>
-<select id="classeProfessor"></select>
-<input type="password" id="senhaProfessor" placeholder="Senha da Classe">
-<button onclick="acessarPauta()">Entrar</button>
-<div id="areaNotas" style="display:none">
-<h3>Pauta</h3>
-<div id="tabelaContainer"></div>
-<button onclick="baixarExcel()">Guardar Alterações</button>
-</div>
-</section><section id="resultados">
-<h2>Resultados Públicos</h2>
-<div id="tabelaResultados"></div>
-</section><section id="publicacoes">
-<h2>Publicações</h2>
-<div id="publicacoesContainer" class="publicacoes-container"></div>
-</section><script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js"></script><script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js"></script><script>
-let adminPassword="Admin123";
-let pautas={};
-let dadosTabela=[];
-let workbookAtual;
-let sistemaAberto=false;
+.publicacao-item{background:white;padding:10px;border-radius:5px;margin-bottom:10px}
+</style>
+</head>
+<body>
 
-function mostrar(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+<header>
+  <img id="logo" src="">
+  <h1>Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</h1>
+  <p>Portal Oficial de Lançamento de Notas</p>
+  <div id="publicacoesInicio" class="publicacoes-container"></div>
+</header>
 
-function entrarAdmin(){if(document.getElementById('adminSenha').value===adminPassword){mostrar('adminPainel');carregarPautasFirebase();carregarPublicacoes();carregarLogo();}else alert('Senha incorreta');}
+<nav>
+  <button onclick="mostrar('inicio')">Início</button>
+  <button onclick="mostrar('professorArea')">Lançamento</button>
+  <button onclick="mostrar('resultados')">Resultados</button>
+  <button onclick="mostrar('publicacoes')">Publicações</button>
+  <button onclick="mostrar('adminLogin')">Administrador</button>
+</nav>
+
+<section id="inicio" class="active">
+  <div class="card">
+    <h2>Bem‑vindo</h2>
+    <p>Educação é a base do desenvolvimento.</p>
+    <p class="status">Sistema: <span id="estadoSistema">Fechado</span></p>
+  </div>
+</section>
+
+<section id="adminLogin">
+  <h2>Área do Administrador</h2>
+  <input type="password" id="adminSenha" placeholder="Senha">
+  <button onclick="entrarAdmin()">Entrar</button>
+</section>
+
+<section id="adminPainel">
+  <h2>Painel do Administrador</h2>
+
+  <div class="admin-box">
+    <h3>Logotipo da Escola</h3>
+    <input type="file" id="logoUpload" accept="image/*">
+  </div>
+
+  <div class="admin-box">
+    <h3>Controlar Sistema</h3>
+    <button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
+  </div>
+
+  <div class="admin-box">
+    <h3>Registar Pauta (Excel)</h3>
+    <label>Nível:</label>
+    <select id="nivelSelect">
+      <option value="Primario">Ensino Primário</option>
+      <option value="Ciclo">1º Ciclo</option>
+    </select>
+    <input type="text" id="classeNome" placeholder="Classe (ex: 7ªA)">
+    <input type="password" id="senhaClasse" placeholder="Senha da Classe">
+    <input type="file" id="excelUpload" accept=".xlsx,.xls">
+    <button onclick="registarPauta()">Registar</button>
+    <div id="listaPautas"></div>
+  </div>
+
+  <div class="admin-box">
+    <h3>Publicações</h3>
+    <input type="file" id="publicacaoFile" accept=".pdf,image/*">
+    <input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
+    <textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3"></textarea>
+    <button onclick="adicionarPublicacao()">Publicar</button>
+    <div id="listaPublicacoes"></div>
+  </div>
+
+  <button onclick="mostrar('inicio')">Voltar ao Início</button>
+</section>
+
+<section id="professorArea">
+  <h2>Lançamento de Notas</h2>
+  <label>Classe:</label><select id="classeProfessor"></select>
+  <input type="password" id="senhaProfessor" placeholder="Senha da Classe">
+  <button onclick="acessarPauta()">Entrar</button>
+  <div id="areaNotas" style="display:none">
+    <h3>Pauta</h3>
+    <div id="tabelaContainer"></div>
+    <button onclick="baixarExcel()">Guardar Alterações</button>
+  </div>
+</section>
+
+<section id="resultados">
+  <h2>Resultados</h2>
+  <div id="tabelaResultados"></div>
+</section>
+
+<section id="publicacoes">
+  <h2>Publicações</h2>
+  <div id="publicacoesContainer" class="publicacoes-container"></div>
+</section>
+
+<script>
+// Inicializar Firebase
+firebase.initializeApp({
+  apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
+  authDomain: "sac-escolar.firebaseapp.com",
+  projectId: "sac-escolar",
+  storageBucket: "sac-escolar.appspot.com",
+  messagingSenderId: "507793955855",
+  appId: "1:507793955855:web:405579f5e01b3f90cc577a",
+  measurementId: "G-5TWFNGZMBQ"
+});
+const db = firebase.database();
+const storage = firebase.storage();
+
+let adminPassword = "Admin123";
+let pautas = {};
+let dadosTabela = [];
+let sistemaAberto = false;
+
+// Navegação
+function mostrar(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// Login admin
+function entrarAdmin(){
+  if(document.getElementById('adminSenha').value === adminPassword){
+    mostrar('adminPainel');
+    carregarPautasFirebase();
+    carregarPublicacoes();
+    carregarLogo();
+  } else alert("Senha incorreta");
+}
 
 // Logotipo
-document.getElementById('logoUpload').addEventListener('change',function(e){
-  const file=e.target.files[0];
-  const storageRef=sRef(storage,'logo/'+file.name);
-  uploadBytes(storageRef,file).then(()=>getDownloadURL(storageRef).then(url=>{document.getElementById('logo').src=url;}));
+document.getElementById('logoUpload').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  const refLogo = storage.ref('logo/'+file.name);
+  refLogo.put(file).then(()=>{
+    refLogo.getDownloadURL().then(url=>{
+      document.getElementById('logo').src=url;
+      document.getElementById('logo').style.display='block';
+      db.ref('logo').set(url);
+    });
+  });
 });
 
-function toggleSistema(){sistemaAberto=!sistemaAberto;document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';}
+function carregarLogo(){
+  db.ref('logo').once('value').then(s=>{
+    if(s.exists()) document.getElementById('logo').src=s.val();
+  });
+}
 
+// Sistema
+function toggleSistema(){
+  sistemaAberto = !sistemaAberto;
+  document.getElementById('estadoSistema').innerText = sistemaAberto ? "Aberto" : "Fechado";
+}
+
+// Registar pauta
 function registarPauta(){
-  let nivel=document.getElementById('nivelSelect').value;
-  let classe=document.getElementById('classeNome').value.trim();
-  let senha=document.getElementById('senhaClasse').value.trim();
-  let file=document.getElementById('excelUpload').files[0];
-  if(!classe||!senha||!file){alert('Preencha todos os campos.');return;}
-  const reader=new FileReader();
-  reader.onload=function(e){
+  let nivel = document.getElementById('nivelSelect').value;
+  let classe = document.getElementById('classeNome').value.trim();
+  let senha  = document.getElementById('senhaClasse').value.trim();
+  let file   = document.getElementById('excelUpload').files[0];
+  if(!classe||!senha||!file) return alert("Preencha todos os campos!");
+
+  const reader = new FileReader();
+  reader.onload = function(e){
     let data=new Uint8Array(e.target.result);
     let wb=XLSX.read(data,{type:'array'});
-    pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
-    set(ref(db,'pautas/'+classe),{nivel:nivel,senha:senha});
-    atualizarLista();
-    alert('Pauta registada e guardada no Firebase!');
+    pautas[classe] = {nivel:nivel,senha:senha,workbook:wb};
+    db.ref('pautas/'+classe).set({nivel,senha});
+    const refP = storage.ref('pautas/'+classe+'.xlsx');
+    refP.put(file).then(()=>{alert("Pauta registada!"); atualizarLista();});
   };
   reader.readAsArrayBuffer(file);
 }
 
 function atualizarLista(){
-  let select=document.getElementById('classeProfessor'); select.innerHTML='';
-  let lista=document.getElementById('listaPautas'); lista.innerHTML='';
+  let sel=document.getElementById('classeProfessor'); sel.innerHTML='';
+  let div=document.getElementById('listaPautas'); div.innerHTML='';
   Object.keys(pautas).forEach(c=>{
-    let op=document.createElement('option'); op.value=c; op.textContent=c; select.appendChild(op);
-    lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
+    let op=document.createElement('option'); op.value=c; op.textContent=c; sel.appendChild(op);
+    div.innerHTML += `<p>${c} - ${pautas[c].nivel}</p>`;
   });
 }
 
+function carregarPautasFirebase(){
+  db.ref('pautas').once('value').then(s=>{
+    if(s.exists()){
+      pautas={}; s.forEach(ch=>pautas[ch.key]=ch.val());
+      atualizarLista();
+    }
+  });
+}
+
+// Acessar pauta professor
 function acessarPauta(){
-  if(!sistemaAberto){alert('Sistema fechado pelo admin.');return;}
-  let classe=document.getElementById('classeProfessor').value;
+  if(!sistemaAberto) return alert("Sistema fechado!");
+  let c=document.getElementById('classeProfessor').value;
   let senha=document.getElementById('senhaProfessor').value;
-  if(!pautas[classe]||pautas[classe].senha!==senha){alert('Senha incorreta');return;}
-  workbookAtual=pautas[classe].workbook;
-  let sheet=workbookAtual.Sheets[workbookAtual.SheetNames[0]];
-  dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
-  renderTabela();
-  document.getElementById('areaNotas').style.display='block';
+  if(!pautas[c] || pautas[c].senha!==senha) return alert("Senha incorreta");
+  let refX = storage.ref('pautas/'+c+'.xlsx');
+  refX.getDownloadURL().then(url=>{
+    fetch(url).then(r=>r.arrayBuffer()).then(ab=>{
+      let wb=XLSX.read(ab,{type:'array'});
+      let sheet=wb.Sheets[wb.SheetNames[0]];
+      dadosTabela = XLSX.utils.sheet_to_json(sheet,{header:1});
+      renderTabela();
+      document.getElementById('areaNotas').style.display="block";
+    });
+  });
 }
 
 function renderTabela(){
   let html='<table>';
-  dadosTabela.forEach((linha,i)=>{
+  dadosTabela.forEach((l,i)=>{
     html+='<tr>';
-    linha.forEach((cel,j)=>{html+=i===0?`<th>${cel||''}</th>`:`<td contenteditable oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;});
+    l.forEach((c,j)=>{html+=i===0?`<th>${c}</th>`:`<td contenteditable>${c||''}</td>`;});
     html+='</tr>';
   });
   html+='</table>';
@@ -167,35 +251,41 @@ function renderTabela(){
   document.getElementById('tabelaResultados').innerHTML=html;
 }
 
-function editar(i,j,val){dadosTabela[i][j]=val;}
-function baixarExcel(){let nova=XLSX.utils.aoa_to_sheet(dadosTabela);let novoBook=XLSX.utils.book_new();XLSX.utils.book_append_sheet(novoBook,nova,'Pauta');XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');}
+function baixarExcel(){
+  let nova=XLSX.utils.aoa_to_sheet(dadosTabela);
+  let wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,nova,'Pauta');
+  XLSX.writeFile(wb,'Pauta_Atualizada.xlsx');
+}
 
-function adicionarPublicacao(admin){
+// Publicações
+function adicionarPublicacao(){
   let file=document.getElementById('publicacaoFile').files[0];
   let titulo=document.getElementById('publicacaoTitulo').value;
   let texto=document.getElementById('publicacaoTexto').value;
-  if(!file||!titulo) return alert('Escolha ficheiro e título');
-  const storageRef=sRef(storage,'publicacoes/'+file.name);
-  uploadBytes(storageRef,file).then(()=>getDownloadURL(storageRef).then(url=>{
-    let novaPub={titulo:titulo,texto:texto,url:url,admin:admin};
-    push(ref(db,'publicacoes'),novaPub);
+  if(!file||!titulo) return alert("Arquivo e título obrigatórios!");
+  const refPub=storage.ref('publicacoes/'+file.name);
+  refPub.put(file).then(()=>refPub.getDownloadURL().then(url=>{
+    db.ref('publicacoes').push({titulo,texto,url});
     carregarPublicacoes();
   }));
 }
 
 function carregarPublicacoes(){
-  get(child(ref(db), 'publicacoes')).then(snap=>{
-    let container=document.getElementById('publicacoesInicio'); container.innerHTML='';
-    if(snap.exists()){
-      Object.values(snap.val()).forEach(pub=>{
-        container.innerHTML+=`<div class='publicacao-item'><strong>${pub.titulo}</strong><p>${pub.texto||''}</p><a href='${pub.url}' target='_blank'>Abrir ficheiro</a></div>`;
+  let contI=document.getElementById('publicacoesInicio'); contI.innerHTML='';
+  let cont=document.getElementById('publicacoesContainer'); cont.innerHTML='';
+  db.ref('publicacoes').once('value').then(s=>{
+    if(s.exists()){
+      s.forEach(ch=>{
+        let p=ch.val();
+        let item=`<div class="publicacao-item"><strong>${p.titulo}</strong><p>${p.texto}</p><a href="${p.url}" target="_blank">Ver</a></div>`;
+        contI.innerHTML+=item; cont.innerHTML+=item;
       });
     }
   });
 }
 
-function carregarLogo(){
-  get(child(ref(db),'logo')).then(snap=>{if(snap.exists())document.getElementById('logo').src=snap.val();});
-}
-</script></body>
+window.onload=function(){carregarLogo();carregarPautasFirebase();carregarPublicacoes();};
+</script>
+</body>
   </html>
