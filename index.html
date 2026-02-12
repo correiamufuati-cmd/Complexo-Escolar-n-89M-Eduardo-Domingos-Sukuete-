@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -153,44 +152,48 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 let adminPassword="Admin123";
+let sistemaAberto=false;
 let pautas={};
 let workbookAtual=null;
 let planilhaAtual='';
-let sistemaAberto=false;
 
-// ---------------- NAV ----------------
-function mostrar(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-
-// ---------------- ADMIN ----------------
-function entrarAdmin(){
-    if(document.getElementById('adminSenha').value===adminPassword){
-        mostrar('adminPainel');
-        atualizarLista();
-        carregarPublicacoesAdmin();
-    } else { alert('Senha incorreta'); }
-}
-
-// Expor funções globais para os botões HTML
-window.mostrar = mostrar;
-window.entrarAdmin = entrarAdmin;
-
-// ---------------- LOGO ----------------
-const logoInput = document.getElementById('logoUpload');
 const logoImg = document.getElementById('logo');
 const publicacoesInicio = document.getElementById('publicacoesInicio');
 
-logoInput.addEventListener('change', async function(e){
+function mostrar(id){
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+window.mostrar = mostrar;
+
+async function entrarAdmin(){
+    if(document.getElementById('adminSenha').value===adminPassword){
+        mostrar('adminPainel');
+        await carregarPublicacoesAdmin();
+        alert('Bem-vindo, Administrador!');
+    } else { alert('Senha incorreta'); }
+}
+window.entrarAdmin = entrarAdmin;
+
+function toggleSistema(){
+    sistemaAberto=!sistemaAberto;
+    document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
+}
+window.toggleSistema = toggleSistema;
+
+// Logo Firebase
+document.getElementById('logoUpload').addEventListener('change', async function(e){
     const file = e.target.files[0];
     if(!file) return;
-    const storageRef = ref(storage, 'logo/logo.png');
-    await uploadBytes(storageRef, file);
+    const storageRef = ref(storage,'logo/logo.png');
+    await uploadBytes(storageRef,file);
     const url = await getDownloadURL(storageRef);
     logoImg.src = url;
     logoImg.style.display='block';
     await setDoc(doc(db,'config','logo'),{url});
 });
 
-// ---------------- PUBLICAÇÕES ----------------
+// Publicações Firebase
 async function carregarPublicacoesInicio(){
     publicacoesInicio.innerHTML='';
     const snap = await getDocs(collection(db,'publicacoes'));
@@ -203,6 +206,7 @@ async function carregarPublicacoesInicio(){
         publicacoesInicio.appendChild(div);
     });
 }
+window.carregarPublicacoesInicio = carregarPublicacoesInicio;
 
 async function adicionarPublicacao(isAdmin){
     let titulo=isAdmin?document.getElementById('publicacaoTitulo').value:document.getElementById('publicacaoTituloUsuario').value;
@@ -218,8 +222,8 @@ async function adicionarPublicacao(isAdmin){
     carregarPublicacoesInicio();
     if(isAdmin) carregarPublicacoesAdmin();
 }
+window.adicionarPublicacao = adicionarPublicacao;
 
-// Função para carregar publicações no painel do admin
 async function carregarPublicacoesAdmin(){
     const lista = document.getElementById('listaPublicacoes');
     lista.innerHTML='';
@@ -233,22 +237,14 @@ async function carregarPublicacoesAdmin(){
         lista.appendChild(li);
     });
 }
-
-// Expor funções globais
-window.carregarPublicacoesInicio = carregarPublicacoesInicio;
-window.adicionarPublicacao = adicionarPublicacao;
 window.carregarPublicacoesAdmin = carregarPublicacoesAdmin;
 
-// Remover publicação
 async function removerPublicacao(id){
     await deleteDoc(doc(db,'publicacoes',id));
     carregarPublicacoesInicio();
     carregarPublicacoesAdmin();
 }
 window.removerPublicacao = removerPublicacao;
-
-// Inicializar
-carregarPublicacoesInicio();
 </script>
 </body>
   </html>
