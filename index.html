@@ -68,6 +68,10 @@ input,select,textarea{padding:6px;margin:5px}
 <textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
 <button onclick="adicionarPublicacao(true)">Publicar</button>
 <div id="publicacoesLista"><h4>Publicações já feitas:</h4><ul id="listaPublicacoes"></ul></div>
+</div><div class="admin-box">
+<h3>Ver todas as pautas lançadas</h3>
+<select id="selecionaClasseAdm" onchange="verPautaAdm()"></select>
+<div id="pautaAdmContainer"></div>
 </div><button onclick="mostrar('inicio')">Voltar</button>
 
 </section><section id="professorArea">
@@ -77,13 +81,16 @@ input,select,textarea{padding:6px;margin:5px}
 <input type="password" id="senhaProfessor" placeholder="Senha da Classe">
 <button onclick="acessarPauta()">Entrar</button>
 <div id="areaNotas" style="display:none">
+<label>Selecionar Planilha:</label>
+<select id="planilhaSelect" onchange="selecionarPlanilha()"></select>
 <h3>Pauta</h3>
 <div id="tabelaContainer"></div>
-<button onclick="baixarExcel()" id="btnGuardar">Guardar Alterações</button>
+<button onclick="confirmarGuardar()" id="btnGuardar">Guardar Alterações</button>
 </div>
 </section><section id="resultados">
 <h2>Resultados Públicos</h2>
 <div id="tabelaResultados"></div>
+<div id="estatisticasResultados"></div>
 </section><section id="publicacoes">
 <h2>Publicações</h2>
 <p>Qualquer pessoa pode publicar aqui:</p>
@@ -99,23 +106,13 @@ let dadosTabela=[];
 let workbookAtual;
 let sistemaAberto=false;
 let publicacoes=[];
+let planilhaAtual='';
 
-function mostrar(id){
-document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-}
+function mostrar(id){document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-function entrarAdmin(){
-if(document.getElementById('adminSenha').value===adminPassword){
-mostrar('adminPainel');
-}else{alert('Senha incorreta');}
-}
+function entrarAdmin(){if(document.getElementById('adminSenha').value===adminPassword){mostrar('adminPainel');atualizarLista();}else{alert('Senha incorreta');}}
 
-document.getElementById('logoUpload').addEventListener('change',function(e){
-const reader=new FileReader();
-reader.onload=function(evt){document.getElementById('logo').src=evt.target.result;document.getElementById('logo').style.display='block';};
-reader.readAsDataURL(e.target.files[0]);
-});
+document.getElementById('logoUpload').addEventListener('change',function(e){const reader=new FileReader();reader.onload=function(evt){document.getElementById('logo').src=evt.target.result;document.getElementById('logo').style.display='block';};reader.readAsDataURL(e.target.files[0]);});
 
 function toggleSistema(){sistemaAberto=!sistemaAberto;document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';}
 
@@ -126,15 +123,28 @@ let senha=document.getElementById('senhaClasse').value.trim();
 let file=document.getElementById('excelUpload').files[0];
 if(!classe||!senha||!file){alert('Preencha todos os campos e selecione o ficheiro Excel.');return;}
 const reader=new FileReader();
-reader.onload=function(e){let data=new Uint8Array(e.target.result);let wb;try{wb=XLSX.read(data,{type:'array'});}catch(err){alert('Erro ao ler o ficheiro Excel.');return;}
-pautas[classe]={nivel:nivel,senha:senha,workbook:wb};atualizarLista();alert(`Pauta da classe ${classe} registada com sucesso!`);};reader.readAsArrayBuffer(file);
+reader.onload=function(e){
+try{
+let data=new Uint8Array(e.target.result);
+let wb=XLSX.read(data,{type:'array'});
+if(!wb.SheetNames.length){alert('O ficheiro Excel não tem abas.');return;}
+pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
+atualizarLista();
+alert(`Pauta da classe ${classe} registada com sucesso!`);
+}catch(err){alert('Erro ao ler o ficheiro Excel. Verifique se é um ficheiro válido.');}
+};reader.readAsArrayBuffer(file);
 }
 
 function atualizarLista(){
-let select=document.getElementById('classeProfessor');select.innerHTML='';
-let lista=document.getElementById('listaPautas');lista.innerHTML='';
+let select=document.getElementById('classeProfessor');
+let selectAdm=document.getElementById('selecionaClasseAdm');
+select.innerHTML='';
+selectAdm.innerHTML='';
+let lista=document.getElementById('listaPautas');
+lista.innerHTML='';
 Object.keys(pautas).forEach(c=>{
 let op=document.createElement('option');op.value=c;op.textContent=c;select.appendChild(op);
+let op2=document.createElement('option');op2.value=c;op2.textContent=c;selectAdm.appendChild(op2);
 lista.innerHTML+=`<p>Classe: ${c} - Nível: ${pautas[c].nivel}</p>`;
 });
 }
@@ -145,10 +155,25 @@ let classe=document.getElementById('classeProfessor').value;
 let senha=document.getElementById('senhaProfessor').value;
 if(!pautas[classe]||pautas[classe].senha!==senha){alert("Senha incorreta");return;}
 workbookAtual=pautas[classe].workbook;
-let sheet=workbookAtual.Sheets[workbookAtual.SheetNames[0]];
-dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
+planilhaAtual=workbookAtual.SheetNames[0];
+atualizarPlanilhas();
 renderTabela();
 document.getElementById('areaNotas').style.display='block';
+}
+
+function atualizarPlanilhas(){
+let select=document.getElementById('planilhaSelect');
+select.innerHTML='';
+workbookAtual.SheetNames.forEach(nome=>{
+let op=document.createElement('option');op.value=nome;op.textContent=nome;select.appendChild(op);
+});
+}
+
+function selecionarPlanilha(){
+planilhaAtual=document.getElementById('planilhaSelect').value;
+let sheet=workbookAtual.Sheets[planilhaAtual];
+dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
+renderTabela();
 }
 
 function renderTabela(){
@@ -158,15 +183,47 @@ linha.forEach((cel,j)=>{html+=i===0?`<th>${cel||''}</th>`:`<td contenteditable="
 html+='</table>';
 document.getElementById('tabelaContainer').innerHTML=html;
 document.getElementById('tabelaResultados').innerHTML=html;
+renderEstatisticas();
 }
 
 function editar(i,j,valor){dadosTabela[i][j]=valor;}
 
-function baixarExcel(){if(!sistemaAberto){alert("Sistema fechado.");return;}
+function confirmarGuardar(){
+if(confirm('Deseja guardar as alterações?')){baixarExcel();}}
+
+function baixarExcel(){
 let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
-let novoBook=XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');
-XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
+XLSX.utils.book_append_sheet(workbookAtual,novaSheet,planilhaAtual);
+XLSX.writeFile(workbookAtual,'Pauta_Atualizada.xlsx');
+alert('Arquivo guardado com sucesso!');
+}
+
+function verPautaAdm(){
+let classe=document.getElementById('selecionaClasseAdm').value;
+let sheetNames=pautas[classe].workbook.SheetNames;
+let html='';
+sheetNames.forEach(nome=>{
+let dados=XLSX.utils.sheet_to_json(pautas[classe].workbook.Sheets[nome],{header:1});
+html+=`<h4>${nome}</h4><table>`;
+dados.forEach((linha,i)=>{html+='<tr>';linha.forEach(c=>{html+=i===0?`<th>${c||''}</th>`:`<td>${c||''}</td>`;});html+='</tr>';});html+='</table>';
+});
+document.getElementById('pautaAdmContainer').innerHTML=html;
+}
+
+function renderEstatisticas(){
+let html='<h3>Estatísticas por Nível e Disciplina</h3>';
+let niveis={};
+dadosTabela.forEach((linha,i)=>{if(i===0)return;
+let classe=linha[0];let disciplina=linha[1];let nota=parseFloat(linha[2]);let sexo=linha[3];
+if(!niveis[classe]) niveis[classe]={};
+if(!niveis[classe][disciplina]) niveis[classe][disciplina]={M:0,F:0,total:0};
+if(sexo==='M') niveis[classe][disciplina].M++; else niveis[classe][disciplina].F++;
+niveis[classe][disciplina].total++;
+});
+for(let c in niveis){html+=`<h4>Classe ${c}</h4>`;
+for(let d in niveis[c]){let est=niveis[c][d];
+html+=`<p>Disciplina ${d}: Masculino ${est.M} / Feminino ${est.F} / Total ${est.total}</p>`;}}
+document.getElementById('estatisticasResultados').innerHTML=html;
 }
 
 function adicionarPublicacao(admin){
@@ -177,7 +234,7 @@ if(!file && !texto){alert('Insira um arquivo ou mensagem');return;}
 let leitor=new FileReader();
 leitor.onload=function(e){
 let url=file?e.target.result:'';
-let pub={titulo,tipo:file?file.type:'text',url,texto,admin};
+let pub={titulo,texto,tipo:file?file.type:'text',url,admin};
 publicacoes.push(pub);
 atualizarPublicacoes();
 alert('Publicação adicionada!');
@@ -192,15 +249,13 @@ let lista=document.getElementById('listaPublicacoes');
 lista.innerHTML='';
 publicacoes.forEach((p,i)=>{
 let li=document.createElement('li');
-li.innerHTML=`${p.titulo} <button class='delete-btn' onclick="removerPublicacao(${i})">Eliminar</button> <button onclick="verPublicacao(${i})">Ver</button>`;
+li.innerHTML=`${p.titulo} <button class='delete-btn' onclick="removerPublicacao(${i})">Eliminar</button>`;
 lista.appendChild(li);
 });
 renderPublicacoesPublicas();
 }
 
 function removerPublicacao(i){publicacoes.splice(i,1);atualizarPublicacoes();}
-
-function verPublicacao(i){let p=publicacoes[i];let conteudo='';if(p.tipo.startsWith('image')) conteudo=`<img src="${p.url}" style="max-width:100%">`; else if(p.tipo==='application/pdf') conteudo=`<embed src="${p.url}" width="100%" height="500px" type="application/pdf">`; else conteudo=`<p>${p.texto}</p>`;alert(`Título: ${p.titulo}\nConteúdo será exibido na área pública.`);}
 
 function renderPublicacoesPublicas(){
 let container=document.getElementById('publicacoesContainer');
@@ -212,11 +267,10 @@ let div=document.createElement('div');div.className='card';
 let conteudo='';
 if(p.tipo.startsWith('image')) conteudo=`<img src="${p.url}" style="max-width:100%">`;
 else if(p.tipo==='application/pdf') conteudo=`<embed src="${p.url}" width="100%" height="500px" type="application/pdf">`;
-else conteudo=`<p>${p.texto}</p>`;
 div.innerHTML=`<h3>${p.titulo}</h3>${conteudo}<p>${p.texto}</p>`;
 container.appendChild(div);
 inicio.appendChild(div.cloneNode(true));
 });
 }
 </script></body>
-    </html>
+          </html>
