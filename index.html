@@ -1,269 +1,239 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Escolar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAC - Complexo Escolar N° 89M</title><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<style>
-body{
-    font-family: Arial;
-    margin:0;
-    background:#f2f2f2;
-}
-header{
-    background:#004080;
-    color:white;
-    padding:15px;
-    text-align:center;
-}
-nav{
-    background:#003060;
-    padding:10px;
-    text-align:center;
-}
-nav button{
-    padding:10px;
-    margin:5px;
-    border:none;
-    background:white;
-    cursor:pointer;
-    border-radius:5px;
-}
-section{
-    display:none;
-    padding:20px;
-}
-.active{
-    display:block;
-}
-.card{
-    background:white;
-    padding:15px;
-    margin:10px 0;
-    border-radius:8px;
-}
-input, select, textarea{
-    width:100%;
-    padding:8px;
-    margin:5px 0;
-}
-button{
-    padding:10px;
-    margin-top:5px;
-    cursor:pointer;
-}
-#logo{
-    max-width:150px;
-    display:block;
-    margin:auto;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-<h2>Sistema Escolar</h2>
-<img id="logo">
-</header>
-
-<nav>
-<button onclick="mostrar('inicio')">Início</button>
-<button onclick="mostrar('adminLogin')">Administrador</button>
-</nav>
-
-<!-- INICIO -->
-<section id="inicio" class="active">
-<h3>Publicações</h3>
-<div id="publicacoesInicio"></div>
-</section>
-
-<!-- LOGIN ADMIN -->
-<section id="adminLogin">
-<h3>Login Administrador</h3>
-<input type="password" id="adminSenha" placeholder="Digite a senha">
-<button onclick="entrarAdmin()">Entrar</button>
-</section>
-
-<!-- PAINEL ADMIN -->
-<section id="adminPainel">
-<h3>Painel Administrador</h3>
-
-<button onclick="mostrar('inicio')">Voltar</button>
-
-<h4>Carregar Logotipo</h4>
-<input type="file" id="logoUpload">
-
-<h4>Registar Pauta</h4>
-<select id="nivelSelect">
-<option value="Iniciação">Iniciação</option>
-<option value="Primário">Primário</option>
-<option value="Iº Ciclo">Iº Ciclo</option>
-<option value="IIº Ciclo">IIº Ciclo</option>
-</select>
-<input type="text" id="classeNome" placeholder="Nome da Classe">
-<input type="text" id="senhaClasse" placeholder="Senha da Classe">
-<input type="file" id="excelUpload">
-<button onclick="registarPauta()">Registar</button>
-
-<h4>Nova Publicação</h4>
-<input type="text" id="tituloPub" placeholder="Título">
-<textarea id="textoPub" placeholder="Texto"></textarea>
-<button onclick="publicar()">Publicar</button>
-
-<h4>Publicações Antigas</h4>
-<div id="listaPublicacoesAdmin"></div>
-
-</section>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
   authDomain: "sac-escolar.firebaseapp.com",
   projectId: "sac-escolar",
   storageBucket: "sac-escolar.firebasestorage.app",
   messagingSenderId: "507793955855",
-  appId: "1:507793955855:web:405579f5e01b3f90cc577a",
-  measurementId: "G-5TWFNGZMBQ"
+  appId: "1:507793955855:web:405579f5e01b3f90cc577a"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-let adminPassword = "Admin123";
-
-// NAVEGAÇÃO
-window.mostrar = function(id){
-    document.querySelectorAll("section").forEach(sec=>{
-        sec.classList.remove("active");
-    });
-    document.getElementById(id).classList.add("active");
+window.db = db;
+window.collection = collection;
+window.addDoc = addDoc;
+window.getDocs = getDocs;
+window.doc = doc;
+window.setDoc = setDoc;
+window.getDoc = getDoc;
+</script><style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Segoe UI", Arial, sans-serif;
+  background:linear-gradient(135deg,#e3f2fd,#f1f8ff);
 }
 
-// LOGIN
-window.entrarAdmin = function(){
-    const senha = document.getElementById("adminSenha").value;
-    if(senha === adminPassword){
-        mostrar("adminPainel");
-        carregarPublicacoesAdmin();
-    }else{
-        alert("Senha incorreta");
-    }
+header{
+  background:linear-gradient(90deg,#023e8a,#0077b6);
+  color:white;
+  padding:25px 15px;
+  text-align:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
-// LOGO
-document.getElementById("logoUpload").addEventListener("change", async function(e){
-    const file = e.target.files[0];
-    const storageRef = ref(storage,"logo/logo.png");
-    await uploadBytes(storageRef,file);
-    const url = await getDownloadURL(storageRef);
-    await setDoc(doc(db,"config","logo"),{url});
-    carregarLogo();
-    alert("Logotipo atualizado");
+#logo{
+  max-height:90px;
+  display:block;
+  margin:10px auto;
+}
+
+nav{
+  background:white;
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  padding:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  flex-wrap:wrap;
+}
+
+nav button{
+  padding:10px 18px;
+  border:none;
+  background:#0077b6;
+  color:white;
+  border-radius:6px;
+  cursor:pointer;
+  transition:0.3s;
+  font-weight:500;
+}
+
+nav button:hover{
+  background:#023e8a;
+  transform:translateY(-2px);
+}
+
+section{
+  display:none;
+  padding:30px 15px;
+  max-width:1000px;
+  margin:auto;
+}
+
+.active{display:block}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  margin:15px 0;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.admin-box{
+  background:#ffffff;
+  padding:20px;
+  border-radius:10px;
+  margin-top:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+input, textarea{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+button{
+  padding:10px 18px;
+  border:none;
+  background:#0077b6;
+  color:white;
+  border-radius:6px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#023e8a;
+}
+
+.status{
+  font-weight:bold;
+  color:#023e8a;
+}
+
+footer{
+  text-align:center;
+  padding:20px;
+  margin-top:40px;
+  background:#023e8a;
+  color:white;
+}
+
+@media(max-width:600px){
+  nav{flex-direction:column}
+}
+</style></head><body><header>
+<img id="logo" src="" style="display:none">
+<h1>Complexo Escolar N° 89M</h1>
+<p>Portal Oficial de Lançamento de Notas e Publicações</p>
+</header><nav>
+<button onclick="mostrar('inicio')">Início</button>
+<button onclick="mostrar('publico')">Publicações</button>
+<button onclick="mostrar('adminLogin')">Administrador</button>
+</nav><section id="inicio" class="active">
+<div class="card">
+<h2>Bem-vindo</h2>
+<p>Educação é a base do desenvolvimento nacional.</p>
+<p class="status">Sistema Online Integrado</p>
+</div>
+</section><section id="publico">
+<h2>Publicações Oficiais</h2>
+<div id="listaPublicacoesPublico"></div>
+</section><section id="adminLogin">
+<h2>Área do Administrador</h2>
+<input type="password" id="adminSenha" placeholder="Senha do administrador">
+<button onclick="entrarAdmin()">Entrar</button>
+</section><section id="adminPainel">
+<h2>Painel Administrativo</h2><div class="admin-box">
+<h3>Alterar Logotipo</h3>
+<input type="file" id="logoUpload" accept="image/*">
+</div><div class="admin-box">
+<h3>Nova Publicação</h3>
+<input type="text" id="tituloPub" placeholder="Título da publicação">
+<textarea id="textoPub" placeholder="Conteúdo da publicação"></textarea>
+<button onclick="publicar()">Publicar</button>
+</div><button onclick="mostrar('inicio')">Voltar ao Início</button>
+
+</section><footer>
+© 2026 Complexo Escolar N° 89M - Sistema Académico
+</footer><script>
+let adminPassword="Admin123";
+
+function mostrar(id){
+document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+}
+
+function entrarAdmin(){
+if(document.getElementById('adminSenha').value===adminPassword){
+mostrar('adminPainel');
+}else alert('Senha incorreta');
+}
+
+logoUpload.addEventListener('change', async function(e){
+const reader=new FileReader();
+reader.onload=async function(evt){
+let base64=evt.target.result;
+await setDoc(doc(db,"config","principal"),{logo:base64});
+document.getElementById('logo').src=base64;
+document.getElementById('logo').style.display='block';
+};
+reader.readAsDataURL(e.target.files[0]);
 });
 
-async function carregarLogo(){
-    const snap = await getDoc(doc(db,"config","logo"));
-    if(snap.exists()){
-        document.getElementById("logo").src = snap.data().url;
-    }
+window.addEventListener("load", async()=>{
+const snap=await getDoc(doc(db,"config","principal"));
+if(snap.exists()){
+let dados=snap.data();
+if(dados.logo){
+document.getElementById('logo').src=dados.logo;
+document.getElementById('logo').style.display='block';
 }
-carregarLogo();
+}
+carregarPublicacoes();
+});
 
-// REGISTAR PAUTA
-window.registarPauta = async function(){
-    const nivel = document.getElementById("nivelSelect").value;
-    const classe = document.getElementById("classeNome").value;
-    const senha = document.getElementById("senhaClasse").value;
-    const file = document.getElementById("excelUpload").files[0];
-
-    if(!classe || !senha || !file){
-        alert("Preencha todos os campos");
-        return;
-    }
-
-    const storageRef = ref(storage,"pautas/"+classe+".xlsx");
-    await uploadBytes(storageRef,file);
-    const url = await getDownloadURL(storageRef);
-
-    await setDoc(doc(db,"pautas",classe),{
-        nivel, senha, url
-    });
-
-    alert("Pauta registada com sucesso");
+async function publicar(){
+let titulo=document.getElementById('tituloPub').value;
+let texto=document.getElementById('textoPub').value;
+if(!titulo||!texto){alert('Preencha os campos');return;}
+await addDoc(collection(db,"publicacoes"),{
+titulo:titulo,
+texto:texto,
+data:new Date()
+});
+alert('Publicado com sucesso');
+carregarPublicacoes();
 }
 
-// PUBLICAR
-window.publicar = async function(){
-    const titulo = document.getElementById("tituloPub").value;
-    const texto = document.getElementById("textoPub").value;
-
-    await addDoc(collection(db,"publicacoes"),{
-        titulo,
-        texto,
-        data:new Date()
-    });
-
-    carregarPublicacoesInicio();
-    carregarPublicacoesAdmin();
-    alert("Publicado com sucesso");
+async function carregarPublicacoes(){
+let listaAdmin=document.getElementById('listaPublicacoesPublico');
+listaAdmin.innerHTML="";
+let querySnapshot=await getDocs(collection(db,"publicacoes"));
+querySnapshot.forEach(docu=>{
+let d=docu.data();
+listaAdmin.innerHTML+=`<div class='card'><h4>${d.titulo}</h4><p>${d.texto}</p></div>`;
+});
 }
-
-// CARREGAR PUBLICAÇÕES
-async function carregarPublicacoesInicio(){
-    const container = document.getElementById("publicacoesInicio");
-    container.innerHTML="";
-    const snap = await getDocs(collection(db,"publicacoes"));
-    snap.forEach(docu=>{
-        const data = docu.data();
-        const div = document.createElement("div");
-        div.className="card";
-        div.innerHTML=`<h4>${data.titulo}</h4><p>${data.texto}</p>`;
-        container.appendChild(div);
-    });
-}
-carregarPublicacoesInicio();
-
-async function carregarPublicacoesAdmin(){
-    const container = document.getElementById("listaPublicacoesAdmin");
-    container.innerHTML="";
-    const snap = await getDocs(collection(db,"publicacoes"));
-    snap.forEach(docu=>{
-        const data = docu.data();
-        const div = document.createElement("div");
-        div.className="card";
-        div.innerHTML=`
-        <strong>${data.titulo}</strong>
-        <button onclick="removerPublicacao('${docu.id}')">Remover</button>
-        `;
-        container.appendChild(div);
-    });
-}
-
-window.removerPublicacao = async function(id){
-    await deleteDoc(doc(db,"publicacoes",id));
-    carregarPublicacoesInicio();
-    carregarPublicacoesAdmin();
-}
-
-</script>
-
-</body>
-  </html>
+</script></body>
+    </html>
