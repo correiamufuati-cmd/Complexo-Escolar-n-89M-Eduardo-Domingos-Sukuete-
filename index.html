@@ -1,12 +1,15 @@
-<!DOCTYPE html><html lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAC - Complexo Escolar N° 89M</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <style>
 body{font-family:Arial;margin:0;background:#BFEFFF}
 header{background:#0077b6;color:white;padding:20px;text-align:center}
+#logo{max-height:90px;display:none;margin:10px auto}
 nav{background:#023e8a;padding:10px;text-align:center}
 nav button{margin:5px;padding:10px 15px;border:none;background:white;cursor:pointer;border-radius:5px}
 section{display:none;padding:20px}
@@ -17,58 +20,105 @@ th{background:#caf0f8}
 input,select{padding:6px;margin:5px}
 .card{background:white;padding:15px;border-radius:8px;margin:10px 0}
 .admin-box{background:#ffffff;padding:15px;border-radius:8px;margin-top:15px}
+.status{font-weight:bold;font-size:18px}
 </style>
 </head>
-<body><header>
+
+<body>
+
+<header>
+<img id="logo">
 <h1>Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</h1>
 <p>Portal Oficial de Lançamento de Notas</p>
-</header><nav>
+</header>
+
+<nav>
 <button onclick="mostrar('inicio')">Início</button>
-<button onclick="mostrar('professorArea')">Lançamento de Notas</button>
-<button onclick="mostrar('resultados')">Ver Resultados</button>
-<button onclick="mostrar('adminLogin')">Área do Administrador</button>
-</nav><!-- INICIO --><section id="inicio" class="active">
+<button onclick="mostrar('professorArea')">Lançamento</button>
+<button onclick="mostrar('resultados')">Resultados</button>
+<button onclick="mostrar('adminLogin')">Administrador</button>
+</nav>
+
+<!-- INICIO -->
+<section id="inicio" class="active">
 <div class="card">
 <h2>Bem-vindo</h2>
 <p>Educação é a base do desenvolvimento.</p>
+<p class="status">Sistema: <span id="estadoSistema">Fechado</span></p>
 </div>
-</section><!-- LOGIN ADMIN --><section id="adminLogin">
+</section>
+
+<!-- LOGIN ADMIN -->
+<section id="adminLogin">
 <h2>Área do Administrador</h2>
 <input type="password" id="adminSenha" placeholder="Senha">
 <button onclick="entrarAdmin()">Entrar</button>
-</section><!-- PAINEL ADMIN --><section id="adminPainel">
-<h2>Painel do Administrador</h2><div class="admin-box">
-<h3>Carregar Pauta (Excel)</h3>
+</section>
+
+<!-- PAINEL ADMIN -->
+<section id="adminPainel">
+<h2>Painel do Administrador</h2>
+
+<div class="admin-box">
+<h3>Logotipo</h3>
+<input type="file" id="logoUpload" accept="image/*">
+</div>
+
+<div class="admin-box">
+<h3>Controlar Sistema</h3>
+<button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
+</div>
+
+<div class="admin-box">
+<h3>Registar Pauta (Excel)</h3>
+
+<label>Nível:</label>
 <select id="nivelSelect">
 <option value="Primario">Ensino Primário</option>
 <option value="Ciclo">1º Ciclo</option>
 </select>
-<input type="text" id="classeNome" placeholder="Nome da Classe (ex: 7ªA)">
-<input type="password" id="senhaClasse" placeholder="Senha para esta pauta">
+
+<input type="text" id="classeNome" placeholder="Classe (ex: 7ªA)">
+<input type="password" id="senhaClasse" placeholder="Senha da Classe">
 <input type="file" id="excelUpload" accept=".xlsx,.xls">
-<button onclick="registarPauta()">Registar Pauta</button>
+<button onclick="registarPauta()">Registar</button>
+
 <div id="listaPautas"></div>
-</div><button onclick="mostrar('inicio')">Voltar</button>
+</div>
 
-</section><!-- ÁREA PROFESSOR --><section id="professorArea">
-<h2>Lançamento de Notas</h2><label>Nível:</label> <select id="nivelProfessor"></select>
+<button onclick="mostrar('inicio')">Voltar</button>
+</section>
 
-<label>Classe:</label> <select id="classeProfessor"></select>
+<!-- PROFESSOR -->
+<section id="professorArea">
+<h2>Lançamento de Notas</h2>
+
+<label>Classe:</label>
+<select id="classeProfessor"></select>
 
 <input type="password" id="senhaProfessor" placeholder="Senha da Classe">
-<button onclick="acessarPauta()">Entrar</button><div id="areaNotas" style="display:none">
+<button onclick="acessarPauta()">Entrar</button>
+
+<div id="areaNotas" style="display:none">
 <h3>Pauta</h3>
 <div id="tabelaContainer"></div>
-<button onclick="baixarExcel()">Guardar Alterações</button>
+<button onclick="baixarExcel()" id="btnGuardar">Guardar Alterações</button>
 </div>
-</section><!-- RESULTADOS --><section id="resultados">
+</section>
+
+<!-- RESULTADOS -->
+<section id="resultados">
 <h2>Resultados Públicos</h2>
 <div id="tabelaResultados"></div>
-</section><script>
+</section>
+
+<script>
+
 let adminPassword="Admin123";
 let pautas={};
 let dadosTabela=[];
 let workbookAtual;
+let sistemaAberto=false;
 
 function mostrar(id){
 document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
@@ -78,53 +128,82 @@ document.getElementById(id).classList.add('active');
 function entrarAdmin(){
 if(document.getElementById('adminSenha').value===adminPassword){
 mostrar('adminPainel');
-}else alert('Senha incorreta');
+}else{
+alert('Senha incorreta');
+}
 }
 
+// LOGOTIPO
+document.getElementById('logoUpload').addEventListener('change',function(e){
+const reader=new FileReader();
+reader.onload=function(evt){
+let logo=document.getElementById('logo');
+logo.src=evt.target.result;
+logo.style.display='block';
+};
+reader.readAsDataURL(e.target.files[0]);
+});
+
+// SISTEMA
+function toggleSistema(){
+sistemaAberto=!sistemaAberto;
+document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
+}
+
+// REGISTAR PAUTA
 function registarPauta(){
 let nivel=document.getElementById('nivelSelect').value;
 let classe=document.getElementById('classeNome').value.trim();
 let senha=document.getElementById('senhaClasse').value.trim();
 let file=document.getElementById('excelUpload').files[0];
-if(!classe||!senha||!file) return alert('Preencha tudo');
+
+if(!classe||!senha||!file){
+alert('Preencha tudo.');
+return;
+}
 
 const reader=new FileReader();
 reader.onload=function(e){
 const data=new Uint8Array(e.target.result);
 let wb=XLSX.read(data,{type:'array'});
 pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
-atualizarListas();
-alert('Pauta registada com sucesso');
+atualizarLista();
+alert('Pauta registada.');
 };
 reader.readAsArrayBuffer(file);
 }
 
-function atualizarListas(){
-let nivelProf=document.getElementById('nivelProfessor');
-let classeProf=document.getElementById('classeProfessor');
-nivelProf.innerHTML='';
-classeProf.innerHTML='';
-let niveis=[...new Set(Object.values(pautas).map(p=>p.nivel))];
-niveis.forEach(n=>{
-let op=document.createElement('option');
-op.value=n;op.textContent=n;nivelProf.appendChild(op);
-});
-Object.keys(pautas).forEach(c=>{
-let op=document.createElement('option');
-op.value=c;op.textContent=c;classeProf.appendChild(op);
-});
-
+function atualizarLista(){
+let select=document.getElementById('classeProfessor');
+select.innerHTML='';
 let lista=document.getElementById('listaPautas');
 lista.innerHTML='';
+
 Object.keys(pautas).forEach(c=>{
-lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
+let op=document.createElement('option');
+op.value=c;
+op.textContent=c;
+select.appendChild(op);
+
+lista.innerHTML+=`<p>${c}</p>`;
 });
 }
 
+// ACESSAR
 function acessarPauta(){
+
+if(!sistemaAberto){
+alert("Sistema fechado pelo administrador.");
+return;
+}
+
 let classe=document.getElementById('classeProfessor').value;
 let senha=document.getElementById('senhaProfessor').value;
-if(!pautas[classe]||pautas[classe].senha!==senha) return alert('Senha incorreta');
+
+if(!pautas[classe]||pautas[classe].senha!==senha){
+alert("Senha incorreta");
+return;
+}
 
 workbookAtual=pautas[classe].workbook;
 let sheet=workbookAtual.Sheets[workbookAtual.SheetNames[0]];
@@ -133,6 +212,7 @@ renderTabela();
 document.getElementById('areaNotas').style.display='block';
 }
 
+// TABELA
 function renderTabela(){
 let html='<table>';
 dadosTabela.forEach((linha,i)=>{
@@ -152,11 +232,19 @@ function editar(i,j,valor){
 dadosTabela[i][j]=valor;
 }
 
+// BAIXAR
 function baixarExcel(){
+if(!sistemaAberto){
+alert("Sistema fechado.");
+return;
+}
 let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
 let novoBook=XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');
 XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
 }
-</script></body>
+
+</script>
+
+</body>
     </html>
