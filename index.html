@@ -4,27 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAC - Complexo Escolar N° 89M</title>
+
+<!-- XLSX -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module">
-  // --- FIREBASE ---
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getDatabase, ref, set, get, child, push, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-  import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
-    authDomain: "sac-escolar.firebaseapp.com",
-    databaseURL: "https://sac-escolar-default-rtdb.firebaseio.com",
-    projectId: "sac-escolar",
-    storageBucket: "sac-escolar.appspot.com",
-    messagingSenderId: "507793955855",
-    appId: "1:507793955855:web:405579f5e01b3f90cc577a"
-  };
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const storage = getStorage(app);
-</script>
 <style>
 body{font-family:Arial;margin:0;background:#BFEFFF}
 header{background:#0077b6;color:white;padding:20px;text-align:center}
@@ -57,7 +45,6 @@ input,select{padding:6px;margin:5px}
 <button onclick="mostrar('adminLogin')">Administrador</button>
 </nav>
 
-<!-- INÍCIO -->
 <section id="inicio" class="active">
 <div class="card">
 <h2>Bem-vindo</h2>
@@ -67,14 +54,12 @@ input,select{padding:6px;margin:5px}
 </div>
 </section>
 
-<!-- LOGIN ADMIN -->
 <section id="adminLogin">
 <h2>Área do Administrador</h2>
 <input type="password" id="adminSenha" placeholder="Senha">
 <button onclick="entrarAdmin()">Entrar</button>
 </section>
 
-<!-- PAINEL ADMIN -->
 <section id="adminPainel">
 <h2>Painel do Administrador</h2>
 
@@ -113,7 +98,6 @@ input,select{padding:6px;margin:5px}
 <button onclick="mostrar('inicio')">Voltar</button>
 </section>
 
-<!-- ÁREA PROFESSOR -->
 <section id="professorArea">
 <h2>Lançamento de Notas</h2>
 <label>Classe:</label>
@@ -128,192 +112,192 @@ input,select{padding:6px;margin:5px}
 </div>
 </section>
 
-<!-- RESULTADOS -->
 <section id="resultados">
 <h2>Resultados Públicos</h2>
 <div id="tabelaResultados"></div>
 <div id="estatisticas"></div>
 </section>
 
-<script type="module">
-// --- VARIÁVEIS ---
-let adminPassword="Admin123";
-let pautas={};
-let dadosTabela=[];
-let workbookAtual;
-let sistemaAberto=false;
+<script>
+  // --- FIREBASE CONFIG ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
+    authDomain: "sac-escolar.firebaseapp.com",
+    databaseURL: "https://sac-escolar-default-rtdb.firebaseio.com",
+    projectId: "sac-escolar",
+    storageBucket: "sac-escolar.appspot.com",
+    messagingSenderId: "507793955855",
+    appId: "1:507793955855:web:405579f5e01b3f90cc577a"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const storage = firebase.storage();
 
-// --- FUNÇÕES GERAIS ---
-function mostrar(id){
-document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-}
+  // --- VARIÁVEIS ---
+  let adminPassword = "Admin123";
+  let pautas = {};
+  let dadosTabela = [];
+  let workbookAtual;
+  let sistemaAberto = false;
 
-// --- ADMIN ---
-function entrarAdmin(){
-if(document.getElementById('adminSenha').value===adminPassword){
-mostrar('adminPainel');
-carregarLogo();
-carregarPublicacoes();
-atualizarListaPautas();
-}else alert('Senha incorreta');
-}
+  // --- FUNÇÕES ---
+  function mostrar(id){
+    document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
 
-// --- SISTEMA ---
-function toggleSistema(){
-sistemaAberto=!sistemaAberto;
-document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
-}
+  function entrarAdmin(){
+    if(document.getElementById('adminSenha').value === adminPassword){
+      mostrar('adminPainel');
+      carregarLogo();
+      carregarPublicacoes();
+      atualizarListaPautas();
+    } else alert('Senha incorreta');
+  }
 
-// --- LOGO ---
-document.getElementById('logoUpload').addEventListener('change', function(e){
-const file = e.target.files[0];
-if(!file) return;
-const logoRef = sRef(storage, 'logo/logo.png');
-uploadBytes(logoRef, file).then(() => {
-getDownloadURL(logoRef).then(url => {
-document.getElementById('logo').src = url;
-document.getElementById('logo').style.display='block';
-set(ref(db, 'logo/url'), url);
-});
-});
-});
+  function toggleSistema(){
+    sistemaAberto = !sistemaAberto;
+    document.getElementById('estadoSistema').innerText = sistemaAberto ? 'Aberto' : 'Fechado';
+  }
 
-// --- PUBLICAÇÕES ---
-function publicar(){
-const file = document.getElementById('publicacaoUpload').files[0];
-const titulo = document.getElementById('tituloPub').value;
-const desc = document.getElementById('descPub').value;
-if(!file || !titulo) return alert('Selecione arquivo e título');
+  // --- LOGO ---
+  document.getElementById('logoUpload').addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const logoRef = storage.ref('logo/logo.png');
+    logoRef.put(file).then(() => {
+      logoRef.getDownloadURL().then(url => {
+        document.getElementById('logo').src = url;
+        document.getElementById('logo').style.display = 'block';
+        db.ref('logo/url').set(url);
+      });
+    });
+  });
 
-const fileRef = sRef(storage, 'publicacoes/' + file.name);
-uploadBytes(fileRef, file).then(() => {
-getDownloadURL(fileRef).then(url => {
-const newPubRef = push(ref(db, 'publicacoes'));
-set(newPubRef, {titulo, descricao: desc, url, data: Date.now()});
-carregarPublicacoes();
-});
-});
-}
+  // --- PUBLICAÇÕES ---
+  function publicar(){
+    const file = document.getElementById('publicacaoUpload').files[0];
+    const titulo = document.getElementById('tituloPub').value;
+    const desc = document.getElementById('descPub').value;
+    if(!file || !titulo) return alert('Selecione arquivo e título');
+    const fileRef = storage.ref('publicacoes/' + file.name);
+    fileRef.put(file).then(() => {
+      fileRef.getDownloadURL().then(url => {
+        const newPubRef = db.ref('publicacoes').push();
+        newPubRef.set({titulo, descricao: desc, url, data: Date.now()});
+        carregarPublicacoes();
+      });
+    });
+  }
 
-function carregarPublicacoes(){
-get(ref(db, 'publicacoes')).then(snapshot=>{
-if(snapshot.exists()){
-const container = document.getElementById('publicacoesContainer');
-container.innerHTML='';
-const pubs = snapshot.val();
-for(const key in pubs){
-container.innerHTML+=`<p><b>${pubs[key].titulo}</b>: ${pubs[key].descricao} 
-<a href="${pubs[key].url}" target="_blank">Ver/Download</a></p>`;
-}
-}
-});
-}
+  function carregarPublicacoes(){
+    db.ref('publicacoes').once('value').then(snapshot=>{
+      if(snapshot.exists()){
+        const container = document.getElementById('publicacoesContainer');
+        container.innerHTML = '';
+        const pubs = snapshot.val();
+        for(const key in pubs){
+          container.innerHTML += `<p><b>${pubs[key].titulo}</b>: ${pubs[key].descricao} 
+          <a href="${pubs[key].url}" target="_blank">Ver/Download</a></p>`;
+        }
+      }
+    });
+  }
 
-// --- PAUTAS ---
-function registarPauta(){
-let nivel = document.getElementById('nivelSelect').value;
-let classe = document.getElementById('classeNome').value.trim();
-let senha = document.getElementById('senhaClasse').value.trim();
-let file = document.getElementById('excelUpload').files[0];
-if(!classe||!senha||!file) return alert('Preencha todos os campos');
+  // --- PAUTAS ---
+  function registarPauta(){
+    let nivel = document.getElementById('nivelSelect').value;
+    let classe = document.getElementById('classeNome').value.trim();
+    let senha = document.getElementById('senhaClasse').value.trim();
+    let file = document.getElementById('excelUpload').files[0];
+    if(!classe || !senha || !file) return alert('Preencha todos os campos');
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const data = new Uint8Array(e.target.result);
+      let wb = XLSX.read(data,{type:'array'});
+      pautas[classe] = {nivel, senha, workbook: wb};
+      atualizarListaPautas();
+      alert('Pauta registada com sucesso!');
+    };
+    reader.readAsArrayBuffer(file);
+  }
 
-const reader = new FileReader();
-reader.onload = function(e){
-const data = new Uint8Array(e.target.result);
-let wb = XLSX.read(data,{type:'array'});
-pautas[classe] = {nivel, senha, workbook: wb};
-atualizarListaPautas();
-alert('Pauta registada com sucesso!');
-};
-reader.readAsArrayBuffer(file);
-}
+  function atualizarListaPautas(){
+    let select = document.getElementById('classeProfessor');
+    select.innerHTML = '';
+    let lista = document.getElementById('listaPautas');
+    lista.innerHTML = '';
+    Object.keys(pautas).forEach(c=>{
+      let op = document.createElement('option');
+      op.value = c; op.textContent = c; select.appendChild(op);
+      lista.innerHTML += `<p>${c} - ${pautas[c].nivel}</p>`;
+    });
+  }
 
-function atualizarListaPautas(){
-let select = document.getElementById('classeProfessor');
-select.innerHTML='';
-let lista = document.getElementById('listaPautas');
-lista.innerHTML='';
-Object.keys(pautas).forEach(c=>{
-let op = document.createElement('option');
-op.value=c; op.textContent=c; select.appendChild(op);
-lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
-});
-}
+  // --- PROFESSOR ---
+  function acessarPauta(){
+    if(!sistemaAberto) return alert('Sistema fechado');
+    let classe = document.getElementById('classeProfessor').value;
+    let senha = document.getElementById('senhaProfessor').value;
+    if(!pautas[classe] || pautas[classe].senha!==senha) return alert('Senha incorreta');
+    workbookAtual = pautas[classe].workbook;
+    let sheet = workbookAtual.Sheets[workbookAtual.SheetNames[0]];
+    dadosTabela = XLSX.utils.sheet_to_json(sheet,{header:1});
+    renderTabela();
+    document.getElementById('areaNotas').style.display='block';
+  }
 
-// --- PROFESSOR ---
-function acessarPauta(){
-if(!sistemaAberto) return alert('Sistema fechado');
-let classe = document.getElementById('classeProfessor').value;
-let senha = document.getElementById('senhaProfessor').value;
-if(!pautas[classe]||pautas[classe].senha!==senha) return alert('Senha incorreta');
+  function renderTabela(){
+    let html='<table>';
+    dadosTabela.forEach((linha,i)=>{
+      html+='<tr>';
+      linha.forEach((cel,j)=>{
+        if(i===0) html+=`<th>${cel||''}</th>`;
+        else html+=`<td contenteditable="true" oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;
+      });
+      html+='</tr>';
+    });
+    html+='</table>';
+    document.getElementById('tabelaContainer').innerHTML = html;
+    document.getElementById('tabelaResultados').innerHTML = html;
+    atualizarEstatisticas();
+  }
 
-workbookAtual = pautas[classe].workbook;
-let sheet = workbookAtual.Sheets[workbookAtual.SheetNames[0]];
-dadosTabela = XLSX.utils.sheet_to_json(sheet,{header:1});
-renderTabela();
-document.getElementById('areaNotas').style.display='block';
-}
+  function editar(i,j,valor){ dadosTabela[i][j]=valor; }
 
-// --- TABELAS ---
-function renderTabela(){
-let html='<table>';
-dadosTabela.forEach((linha,i)=>{
-html+='<tr>';
-linha.forEach((cel,j)=>{
-if(i===0) html+=`<th>${cel||''}</th>`;
-else html+=`<td contenteditable="true" oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;
-});
-html+='</tr>';
-});
-html+='</table>';
-document.getElementById('tabelaContainer').innerHTML=html;
-document.getElementById('tabelaResultados').innerHTML=html;
-atualizarEstatisticas();
-}
+  function baixarExcel(){
+    if(!sistemaAberto) return alert('Sistema fechado');
+    let novaSheet = XLSX.utils.aoa_to_sheet(dadosTabela);
+    let novoBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(novoBook, novaSheet,'Pauta');
+    XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
+  }
 
-function editar(i,j,valor){
-dadosTabela[i][j]=valor;
-}
+  // --- ESTATÍSTICAS ---
+  function atualizarEstatisticas(){
+    const container = document.getElementById('estatisticas');
+    container.innerHTML = '<h3>Estatísticas</h3>';
+    if(!dadosTabela.length) return;
+    let html='<table><tr>';
+    dadosTabela[0].forEach(h=> html+=`<th>${h}</th>`);
+    html+='</tr>';
+    dadosTabela.slice(1).forEach(linha=>{
+      html+='<tr>'; linha.forEach(c=> html+=`<td>${c}</td>`); html+='</tr>';
+    });
+    html+='</table>';
+    container.innerHTML = html;
+  }
 
-function baixarExcel(){
-if(!sistemaAberto) return alert('Sistema fechado');
-let novaSheet = XLSX.utils.aoa_to_sheet(dadosTabela);
-let novoBook = XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(novoBook, novaSheet, 'Pauta');
-XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
-}
-
-// --- ESTATÍSTICAS ---
-function atualizarEstatisticas(){
-const container = document.getElementById('estatisticas');
-container.innerHTML='<h3>Estatísticas</h3>';
-if(!dadosTabela.length) return;
-let html='<table><tr>';
-dadosTabela[0].forEach(h=> html+=`<th>${h}</th>`);
-html+='</tr>';
-dadosTabela.slice(1).forEach(linha=>{
-html+='<tr>';
-linha.forEach(c=> html+=`<td>${c}</td>`);
-html+='</tr>';
-});
-html+='</table>';
-container.innerHTML = html;
-}
-
-// --- CARREGAR LOGO ---
-function carregarLogo(){
-get(ref(db, 'logo/url')).then(snapshot=>{
-if(snapshot.exists()){
-document.getElementById('logo').src = snapshot.val();
-document.getElementById('logo').style.display='block';
-}
-});
-
-// carregar publicações também
-carregarPublicacoes();
-}
-
+  // --- CARREGAR LOGO ---
+  function carregarLogo(){
+    db.ref('logo/url').once('value').then(snapshot=>{
+      if(snapshot.exists()){
+        document.getElementById('logo').src = snapshot.val();
+        document.getElementById('logo').style.display='block';
+      }
+    });
+    carregarPublicacoes();
+  }
 </script>
 
 </body>
