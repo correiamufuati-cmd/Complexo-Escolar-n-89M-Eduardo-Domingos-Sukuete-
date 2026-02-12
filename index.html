@@ -2,19 +2,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC - Complexo Escolar N° 89M</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script type="module">
-  // Firebase Config
+<title>SAC - Complexo Escolar N° 89M</title><!-- Firebase SDK --><script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-storage.js";const firebaseConfig = { apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw", authDomain: "sac-escolar.firebaseapp.com", projectId: "sac-escolar", storageBucket: "sac-escolar.firebasestorage.app", messagingSenderId: "507793955855", appId: "1:507793955855:web:405579f5e01b3f90cc577a", measurementId: "G-5TWFNGZMBQ" };
+  import { getDatabase, ref, set, get, child, push } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+  import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-storage.js";
 
-const app = initializeApp(firebaseConfig); const db = getFirestore(app); const storage = getStorage(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
+    authDomain: "sac-escolar.firebaseapp.com",
+    projectId: "sac-escolar",
+    storageBucket: "sac-escolar.firebasestorage.app",
+    messagingSenderId: "507793955855",
+    appId: "1:507793955855:web:405579f5e01b3f90cc577a",
+    measurementId: "G-5TWFNGZMBQ"
+  };
 
-window.firebaseDB = db; window.firebaseStorage = storage; </script>
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const storage = getStorage(app);
 
-<style>
+  window.db = database;
+  window.st = storage;
+</script><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><style>
 body{font-family:Arial;margin:0;background:#BFEFFF}
 header{background:#0077b6;color:white;padding:20px;text-align:center}
 #logo{max-height:90px;display:none;margin:10px auto}
@@ -75,15 +84,8 @@ input,select,textarea{padding:6px;margin:5px}
 <input type="file" id="excelUpload" accept=".xlsx,.xls">
 <button onclick="registarPauta()">Registar</button>
 <div id="listaPautas"></div>
-</div><div class="admin-box">
-<h3>Publicações</h3>
-<input type="file" id="publicacaoFile" accept=".pdf,image/*">
-<input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
-<textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
-<button onclick="adicionarPublicacao(true)">Publicar</button>
-<div id="publicacoesLista"><h4>Publicações já feitas:</h4><ul id="listaPublicacoes"></ul></div>
-</div><button onclick="mostrar('inicio')">Voltar</button>
-
+</div>
+<button onclick="mostrar('inicio')">Voltar</button>
 </section><section id="professorArea">
 <h2>Lançamento de Notas</h2>
 <label>Classe:</label>
@@ -92,39 +94,39 @@ input,select,textarea{padding:6px;margin:5px}
 <button onclick="acessarPauta()">Entrar</button>
 <div id="areaNotas" style="display:none">
 <h3>Pauta</h3>
-<label>Selecionar Planilha:</label>
-<select id="planilhaSelect" onchange="selecionarPlanilha()"></select>
 <div id="tabelaContainer"></div>
-<button onclick="confirmarGuardar()" id="btnGuardar">Guardar Alterações</button>
+<button onclick="baixarExcel()" id="btnGuardar">Guardar Alterações</button>
 </div>
 </section><section id="resultados">
-<h2>Resultados Finais</h2>
+<h2>Resultados Finais (PDF não editável)</h2>
 <div id="tabelaResultadosContainer"></div>
-</section><script type="module">
-import { firebaseDB, firebaseStorage } from "";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-storage.js";
-import { doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
-
+</section><section id="publicacoes">
+<h2>Publicações</h2>
+<input type="file" id="publicacaoFile" accept=".pdf,image/*">
+<input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
+<textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
+<button onclick="adicionarPublicacao()">Publicar</button>
+<div id="publicacoesLista" class="publicacoes-container"></div>
+</section><script>
 let adminPassword="Admin123";
 let pautas={};
-let publicacoes=[];
+let workbookAtual=null;
 let dadosTabela=[];
-let workbookAtual;
-let planilhaAtual='';
 let sistemaAberto=false;
+let publicacoes=[];
 
-function mostrar(id){document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function mostrar(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-function entrarAdmin(){if(document.getElementById('adminSenha').value===adminPassword){mostrar('adminPainel');atualizarListaPublicacoes();}else alert('Senha incorreta');}
+function entrarAdmin(){if(document.getElementById('adminSenha').value===adminPassword){mostrar('adminPainel');atualizarLista();}else{alert('Senha incorreta');}}
 
 // LOGO
-document.getElementById('logoUpload').addEventListener('change', async function(e){
-  const file=e.target.files[0];
-  const storageRef=ref(firebaseStorage,'logo/'+file.name);
-  await uploadBytes(storageRef,file);
-  const url=await getDownloadURL(storageRef);
-  document.getElementById('logo').src=url;
-  document.getElementById('logo').style.display='block';
+document.getElementById('logoUpload').addEventListener('change',async function(e){
+const file=e.target.files[0];
+const storageRef=sRef(st,'logo/'+file.name);
+await uploadBytes(storageRef,file);
+const url=await getDownloadURL(storageRef);
+document.getElementById('logo').src=url;
+document.getElementById('logo').style.display='block';
 });
 
 function toggleSistema(){sistemaAberto=!sistemaAberto;document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';}
@@ -137,25 +139,22 @@ let file=document.getElementById('excelUpload').files[0];
 if(!classe||!senha||!file){alert('Preencha todos os campos e selecione o ficheiro.');return;}
 const reader=new FileReader();
 reader.onload=async function(e){
-  const data=new Uint8Array(e.target.result);
-  let wb=XLSX.read(data,{type:'array'});
-  pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
-  // Guardar no Firestore
-  await setDoc(doc(firebaseDB,'pautas',classe),{nivel,nome:classe,senha});
-  alert('Pauta registada com sucesso!');
-  atualizarLista();
+let data=new Uint8Array(e.target.result);
+let wb=XLSX.read(data,{type:'array'});
+pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
+await set(ref(db,'pautas/'+classe),{nivel:nivel,senha:senha});
+atualizarLista();
+alert('Pauta registada com sucesso!');
 };
 reader.readAsArrayBuffer(file);
 }
 
 function atualizarLista(){
-let selProf=document.getElementById('classeProfessor');
-selProf.innerHTML='';
-let lista=document.getElementById('listaPautas');
-lista.innerHTML='';
+let sel=document.getElementById('classeProfessor');sel.innerHTML='';
+let lista=document.getElementById('listaPautas');lista.innerHTML='';
 Object.keys(pautas).forEach(c=>{
-  let op=document.createElement('option'); op.value=c; op.textContent=c; selProf.appendChild(op);
-  lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
+let op=document.createElement('option');op.value=c;op.textContent=c;sel.appendChild(op);
+lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
 });
 }
 
@@ -165,22 +164,12 @@ let classe=document.getElementById('classeProfessor').value;
 let senha=document.getElementById('senhaProfessor').value;
 if(!pautas[classe]||pautas[classe].senha!==senha){alert('Senha incorreta');return;}
 workbookAtual=pautas[classe].workbook;
-planilhaAtual=workbookAtual.SheetNames[0];
-atualizarPlanilhas();
+dadosTabela=XLSX.utils.sheet_to_json(workbookAtual.Sheets[workbookAtual.SheetNames[0]],{header:1});
 renderTabela();
 document.getElementById('areaNotas').style.display='block';
 }
 
-function atualizarPlanilhas(){
-let sel=document.getElementById('planilhaSelect');sel.innerHTML='';
-workbookAtual.SheetNames.forEach(n=>{let op=document.createElement('option');op.value=n;op.textContent=n;sel.appendChild(op);});
-}
-
-function selecionarPlanilha(){planilhaAtual=document.getElementById('planilhaSelect').value;renderTabela();}
-
 function renderTabela(){
-let sheet=workbookAtual.Sheets[planilhaAtual];
-dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
 let html='<table>';
 dadosTabela.forEach((linha,i)=>{html+='<tr>';linha.forEach((cel,j)=>{html+=i===0?`<th>${cel||''}</th>`:`<td contenteditable='true' oninput='editar(${i},${j},this.innerText)'>${cel||''}</td>`;});html+='</tr>';});
 html+='</table>';
@@ -188,10 +177,42 @@ document.getElementById('tabelaContainer').innerHTML=html;
 document.getElementById('tabelaResultadosContainer').innerHTML=html;
 }
 
-function editar(i,j,valor){dadosTabela[i][j]=valor;}
+function editar(i,j,val){dadosTabela[i][j]=val;}
 
-function confirmarGuardar(){if(confirm('Deseja guardar alterações?')){baixarExcel();}}
+function baixarExcel(){
+let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
+let novoBook=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');
+XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
+}
 
-function baixarExcel(){let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);let novoBook=XLSX.utils.book_new();XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');}
+async function adicionarPublicacao(){
+let file=document.getElementById('publicacaoFile').files[0];
+let titulo=document.getElementById('publicacaoTitulo').value.trim();
+let texto=document.getElementById('publicacaoTexto').value.trim();
+if(!file||!titulo){alert('Selecione arquivo e título');return;}
+const storageRef=sRef(st,'publicacoes/'+file.name);
+await uploadBytes(storageRef,file);
+const url=await getDownloadURL(storageRef);
+const novaPub=push(ref(db,'publicacoes'));
+await set(novaPub,{titulo:titulo,texto:texto,url:url});
+mostrarPublicacoes();
+alert('Publicação adicionada!');
+}
+
+async function mostrarPublicacoes(){
+const snapshot=await get(child(ref(db), 'publicacoes'));
+const container=document.getElementById('publicacoesInicio');
+container.innerHTML='';
+if(snapshot.exists()){
+Object.values(snapshot.val()).forEach(pub=>{
+const div=document.createElement('div');div.className='publicacao-item';
+div.innerHTML=`<h4>${pub.titulo}</h4><p>${pub.texto||''}</p><a href='${pub.url}' target='_blank'>Abrir arquivo</a>`;
+container.appendChild(div);
+});
+}
+}
+
+mostrarPublicacoes();
 </script></body>
   </html>
