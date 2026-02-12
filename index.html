@@ -102,17 +102,19 @@ input,select,textarea{padding:6px;margin:5px}
 </section><script>
 let adminPassword="Admin123";
 let pautas={};
-let dadosTabela=[];
-let workbookAtual;
+let workbookAtual=null;
+let planilhaAtual='';
 let sistemaAberto=false;
 let publicacoes=[];
-let planilhaAtual='';
 
-function mostrar(id){document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function mostrar(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-function entrarAdmin(){if(document.getElementById('adminSenha').value===adminPassword){mostrar('adminPainel');atualizarLista();}else{alert('Senha incorreta');}}
+function entrarAdmin(){
+if(document.getElementById('adminSenha').value===adminPassword){mostrar('adminPainel');atualizarLista();}else{alert('Senha incorreta');}}
 
-document.getElementById('logoUpload').addEventListener('change',function(e){const reader=new FileReader();reader.onload=function(evt){document.getElementById('logo').src=evt.target.result;document.getElementById('logo').style.display='block';};reader.readAsDataURL(e.target.files[0]);});
+document.getElementById('logoUpload').addEventListener('change',function(e){
+const reader=new FileReader();reader.onload=function(evt){document.getElementById('logo').src=evt.target.result;document.getElementById('logo').style.display='block';};reader.readAsDataURL(e.target.files[0]);
+});
 
 function toggleSistema(){sistemaAberto=!sistemaAberto;document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';}
 
@@ -127,33 +129,29 @@ reader.onload=function(e){
 try{
 let data=new Uint8Array(e.target.result);
 let wb=XLSX.read(data,{type:'array'});
-if(!wb.SheetNames.length){alert('O ficheiro Excel não tem abas.');return;}
 pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
 atualizarLista();
 alert(`Pauta da classe ${classe} registada com sucesso!`);
-}catch(err){alert('Erro ao ler o ficheiro Excel. Verifique se é um ficheiro válido.');}
+}catch(err){alert('Erro ao ler o ficheiro Excel.');}
 };reader.readAsArrayBuffer(file);
 }
 
 function atualizarLista(){
-let select=document.getElementById('classeProfessor');
-let selectAdm=document.getElementById('selecionaClasseAdm');
-select.innerHTML='';
-selectAdm.innerHTML='';
-let lista=document.getElementById('listaPautas');
-lista.innerHTML='';
+let selProf=document.getElementById('classeProfessor');
+let selAdm=document.getElementById('selecionaClasseAdm');
+selProf.innerHTML='';selAdm.innerHTML='';
+let lista=document.getElementById('listaPautas');lista.innerHTML='';
 Object.keys(pautas).forEach(c=>{
-let op=document.createElement('option');op.value=c;op.textContent=c;select.appendChild(op);
-let op2=document.createElement('option');op2.value=c;op2.textContent=c;selectAdm.appendChild(op2);
+let op=document.createElement('option');op.value=c;op.textContent=c;selProf.appendChild(op);
+let op2=document.createElement('option');op2.value=c;op2.textContent=c;selAdm.appendChild(op2);
 lista.innerHTML+=`<p>Classe: ${c} - Nível: ${pautas[c].nivel}</p>`;
 });
 }
 
 function acessarPauta(){
-if(!sistemaAberto){alert("Sistema fechado pelo administrador.");return;}
 let classe=document.getElementById('classeProfessor').value;
 let senha=document.getElementById('senhaProfessor').value;
-if(!pautas[classe]||pautas[classe].senha!==senha){alert("Senha incorreta");return;}
+if(!pautas[classe]||pautas[classe].senha!==senha){alert('Senha incorreta');return;}
 workbookAtual=pautas[classe].workbook;
 planilhaAtual=workbookAtual.SheetNames[0];
 atualizarPlanilhas();
@@ -162,24 +160,20 @@ document.getElementById('areaNotas').style.display='block';
 }
 
 function atualizarPlanilhas(){
-let select=document.getElementById('planilhaSelect');
-select.innerHTML='';
-workbookAtual.SheetNames.forEach(nome=>{
-let op=document.createElement('option');op.value=nome;op.textContent=nome;select.appendChild(op);
-});
+let sel=document.getElementById('planilhaSelect');sel.innerHTML='';
+workbookAtual.SheetNames.forEach(n=>{let op=document.createElement('option');op.value=n;op.textContent=n;sel.appendChild(op);});
 }
 
 function selecionarPlanilha(){
 planilhaAtual=document.getElementById('planilhaSelect').value;
-let sheet=workbookAtual.Sheets[planilhaAtual];
-dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
 renderTabela();
 }
 
 function renderTabela(){
+let sheet=workbookAtual.Sheets[planilhaAtual];
+dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
 let html='<table>';
-dadosTabela.forEach((linha,i)=>{html+='<tr>';
-linha.forEach((cel,j)=>{html+=i===0?`<th>${cel||''}</th>`:`<td contenteditable="true" oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;});html+='</tr>';});
+dadosTabela.forEach((linha,i)=>{html+='<tr>';linha.forEach((cel,j)=>{html+=i===0?`<th>${cel||''}</th>`:`<td contenteditable="true" oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;});html+='</tr>';});
 html+='</table>';
 document.getElementById('tabelaContainer').innerHTML=html;
 document.getElementById('tabelaResultados').innerHTML=html;
@@ -188,41 +182,32 @@ renderEstatisticas();
 
 function editar(i,j,valor){dadosTabela[i][j]=valor;}
 
-function confirmarGuardar(){
-if(confirm('Deseja guardar as alterações?')){baixarExcel();}}
+function confirmarGuardar(){if(confirm('Deseja guardar as alterações?')){baixarExcel();}}
 
 function baixarExcel(){
 let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
-XLSX.utils.book_append_sheet(workbookAtual,novaSheet,planilhaAtual);
+workbookAtual.Sheets[planilhaAtual]=novaSheet;
 XLSX.writeFile(workbookAtual,'Pauta_Atualizada.xlsx');
 alert('Arquivo guardado com sucesso!');
 }
 
 function verPautaAdm(){
 let classe=document.getElementById('selecionaClasseAdm').value;
-let sheetNames=pautas[classe].workbook.SheetNames;
 let html='';
-sheetNames.forEach(nome=>{
+pautas[classe].workbook.SheetNames.forEach(nome=>{
 let dados=XLSX.utils.sheet_to_json(pautas[classe].workbook.Sheets[nome],{header:1});
 html+=`<h4>${nome}</h4><table>`;
-dados.forEach((linha,i)=>{html+='<tr>';linha.forEach(c=>{html+=i===0?`<th>${c||''}</th>`:`<td>${c||''}</td>`;});html+='</tr>';});html+='</table>';
-});
+dados.forEach((linha,i)=>{html+='<tr>';linha.forEach(c=>{html+=i===0?`<th>${c||''}</th>`:`<td>${c||''}</td>`;});html+='</tr>';});
+html+='</table>';});
 document.getElementById('pautaAdmContainer').innerHTML=html;
 }
 
 function renderEstatisticas(){
 let html='<h3>Estatísticas por Nível e Disciplina</h3>';
 let niveis={};
-dadosTabela.forEach((linha,i)=>{if(i===0)return;
-let classe=linha[0];let disciplina=linha[1];let nota=parseFloat(linha[2]);let sexo=linha[3];
-if(!niveis[classe]) niveis[classe]={};
-if(!niveis[classe][disciplina]) niveis[classe][disciplina]={M:0,F:0,total:0};
-if(sexo==='M') niveis[classe][disciplina].M++; else niveis[classe][disciplina].F++;
-niveis[classe][disciplina].total++;
-});
-for(let c in niveis){html+=`<h4>Classe ${c}</h4>`;
-for(let d in niveis[c]){let est=niveis[c][d];
-html+=`<p>Disciplina ${d}: Masculino ${est.M} / Feminino ${est.F} / Total ${est.total}</p>`;}}
+dadosTabela.forEach((linha,i)=>{if(i===0)return;let classe=linha[0];let disciplina=linha[1];let sexo=linha[3];if(!niveis[classe]) niveis[classe]={};
+if(!niveis[classe][disciplina]) niveis[classe][disciplina]={M:0,F:0,total:0};if(sexo==='M') niveis[classe][disciplina].M++; else niveis[classe][disciplina].F++;niveis[classe][disciplina].total++;});
+for(let c in niveis){html+=`<h4>Classe ${c}</h4>`;for(let d in niveis[c]){let est=niveis[c][d];html+=`<p>Disciplina ${d}: Masculino ${est.M} / Feminino ${est.F} / Total ${est.total}</p>`;}}
 document.getElementById('estatisticasResultados').innerHTML=html;
 }
 
@@ -240,17 +225,14 @@ atualizarPublicacoes();
 alert('Publicação adicionada!');
 if(admin){document.getElementById('publicacaoFile').value='';document.getElementById('publicacaoTitulo').value='';document.getElementById('publicacaoTexto').value='';}
 else{document.getElementById('publicacaoFileUsuario').value='';document.getElementById('publicacaoTituloUsuario').value='';document.getElementById('publicacaoTextoUsuario').value='';}
-}
+};
 if(file) leitor.readAsDataURL(file); else leitor.onload();
 }
 
 function atualizarPublicacoes(){
-let lista=document.getElementById('listaPublicacoes');
-lista.innerHTML='';
+let lista=document.getElementById('listaPublicacoes');lista.innerHTML='';
 publicacoes.forEach((p,i)=>{
-let li=document.createElement('li');
-li.innerHTML=`${p.titulo} <button class='delete-btn' onclick="removerPublicacao(${i})">Eliminar</button>`;
-lista.appendChild(li);
+let li=document.createElement('li');li.innerHTML=`${p.titulo} <button class='delete-btn' onclick="removerPublicacao(${i})">Eliminar</button>`;lista.appendChild(li);
 });
 renderPublicacoesPublicas();
 }
@@ -258,10 +240,8 @@ renderPublicacoesPublicas();
 function removerPublicacao(i){publicacoes.splice(i,1);atualizarPublicacoes();}
 
 function renderPublicacoesPublicas(){
-let container=document.getElementById('publicacoesContainer');
-container.innerHTML='';
-let inicio=document.getElementById('publicacoesInicio');
-inicio.innerHTML='';
+let container=document.getElementById('publicacoesContainer');container.innerHTML='';
+let inicio=document.getElementById('publicacoesInicio');inicio.innerHTML='';
 publicacoes.forEach(p=>{
 let div=document.createElement('div');div.className='card';
 let conteudo='';
