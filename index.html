@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAC - Complexo Escolar N° 89M</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 <style>
 body{font-family:Arial;margin:0;background:#BFEFFF}
 header{background:#0077b6;color:white;padding:20px;text-align:center}
@@ -17,108 +15,83 @@ section{display:none;padding:20px}
 table{border-collapse:collapse;width:100%;background:white}
 th,td{border:1px solid #ccc;padding:8px;text-align:left}
 th{background:#caf0f8}
-input,select{padding:6px;margin:5px}
+input,select,textarea{padding:6px;margin:5px}
 .card{background:white;padding:15px;border-radius:8px;margin:10px 0}
 .admin-box{background:#ffffff;padding:15px;border-radius:8px;margin-top:15px}
-.status{font-weight:bold;font-size:18px}
 </style>
 </head>
-
-<body>
-
-<header>
+<body><header>
 <img id="logo">
 <h1>Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</h1>
 <p>Portal Oficial de Lançamento de Notas</p>
-</header>
-
-<nav>
+</header><nav>
 <button onclick="mostrar('inicio')">Início</button>
 <button onclick="mostrar('professorArea')">Lançamento</button>
 <button onclick="mostrar('resultados')">Resultados</button>
+<button onclick="mostrar('publicacoes')">Publicações</button>
 <button onclick="mostrar('adminLogin')">Administrador</button>
-</nav>
-
-<!-- INICIO -->
-<section id="inicio" class="active">
+</nav><section id="inicio" class="active">
 <div class="card">
 <h2>Bem-vindo</h2>
 <p>Educação é a base do desenvolvimento.</p>
 <p class="status">Sistema: <span id="estadoSistema">Fechado</span></p>
 </div>
-</section>
-
-<!-- LOGIN ADMIN -->
-<section id="adminLogin">
+</section><section id="adminLogin">
 <h2>Área do Administrador</h2>
 <input type="password" id="adminSenha" placeholder="Senha">
 <button onclick="entrarAdmin()">Entrar</button>
-</section>
-
-<!-- PAINEL ADMIN -->
-<section id="adminPainel">
-<h2>Painel do Administrador</h2>
-
-<div class="admin-box">
+</section><section id="adminPainel">
+<h2>Painel do Administrador</h2><div class="admin-box">
 <h3>Logotipo</h3>
 <input type="file" id="logoUpload" accept="image/*">
-</div>
-
-<div class="admin-box">
+</div><div class="admin-box">
 <h3>Controlar Sistema</h3>
 <button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
-</div>
-
-<div class="admin-box">
+</div><div class="admin-box">
 <h3>Registar Pauta (Excel)</h3>
-
 <label>Nível:</label>
 <select id="nivelSelect">
 <option value="Primario">Ensino Primário</option>
 <option value="Ciclo">1º Ciclo</option>
 </select>
-
 <input type="text" id="classeNome" placeholder="Classe (ex: 7ªA)">
 <input type="password" id="senhaClasse" placeholder="Senha da Classe">
 <input type="file" id="excelUpload" accept=".xlsx,.xls">
 <button onclick="registarPauta()">Registar</button>
-
 <div id="listaPautas"></div>
-</div>
+</div><div class="admin-box">
+<h3>Publicações</h3>
+<input type="file" id="publicacaoFile" accept=".pdf,image/*">
+<input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
+<textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
+<button onclick="adicionarPublicacao()">Publicar</button>
+<div id="publicacoesLista"><h4>Publicações já feitas:</h4><ul id="listaPublicacoes"></ul></div>
+</div><button onclick="mostrar('inicio')">Voltar</button>
 
-<button onclick="mostrar('inicio')">Voltar</button>
-</section>
-
-<!-- PROFESSOR -->
-<section id="professorArea">
+</section><section id="professorArea">
 <h2>Lançamento de Notas</h2>
-
 <label>Classe:</label>
 <select id="classeProfessor"></select>
-
 <input type="password" id="senhaProfessor" placeholder="Senha da Classe">
 <button onclick="acessarPauta()">Entrar</button>
-
 <div id="areaNotas" style="display:none">
 <h3>Pauta</h3>
 <div id="tabelaContainer"></div>
 <button onclick="baixarExcel()" id="btnGuardar">Guardar Alterações</button>
 </div>
-</section>
-
-<!-- RESULTADOS -->
-<section id="resultados">
+</section><section id="resultados">
 <h2>Resultados Públicos</h2>
 <div id="tabelaResultados"></div>
-</section>
-
-<script>
-
+</section><section id="publicacoes">
+<h2>Publicações</h2>
+<div id="publicacoesContainer"></div>
+</section><script>
 let adminPassword="Admin123";
 let pautas={};
 let dadosTabela=[];
 let workbookAtual;
 let sistemaAberto=false;
+let publicacoes=[];
 
 function mostrar(id){
 document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
@@ -133,7 +106,6 @@ alert('Senha incorreta');
 }
 }
 
-// LOGOTIPO
 document.getElementById('logoUpload').addEventListener('change',function(e){
 const reader=new FileReader();
 reader.onload=function(evt){
@@ -144,31 +116,24 @@ logo.style.display='block';
 reader.readAsDataURL(e.target.files[0]);
 });
 
-// SISTEMA
 function toggleSistema(){
 sistemaAberto=!sistemaAberto;
 document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
 }
 
-// REGISTAR PAUTA
 function registarPauta(){
 let nivel=document.getElementById('nivelSelect').value;
 let classe=document.getElementById('classeNome').value.trim();
 let senha=document.getElementById('senhaClasse').value.trim();
 let file=document.getElementById('excelUpload').files[0];
-
-if(!classe||!senha||!file){
-alert('Preencha tudo.');
-return;
-}
-
+if(!classe||!senha||!file){alert('Preencha todos os campos.');return;}
 const reader=new FileReader();
 reader.onload=function(e){
 const data=new Uint8Array(e.target.result);
 let wb=XLSX.read(data,{type:'array'});
 pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
 atualizarLista();
-alert('Pauta registada.');
+alert('Pauta registada com sucesso!');
 };
 reader.readAsArrayBuffer(file);
 }
@@ -178,33 +143,20 @@ let select=document.getElementById('classeProfessor');
 select.innerHTML='';
 let lista=document.getElementById('listaPautas');
 lista.innerHTML='';
-
 Object.keys(pautas).forEach(c=>{
 let op=document.createElement('option');
 op.value=c;
 op.textContent=c;
 select.appendChild(op);
-
-lista.innerHTML+=`<p>${c}</p>`;
+lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
 });
 }
 
-// ACESSAR
 function acessarPauta(){
-
-if(!sistemaAberto){
-alert("Sistema fechado pelo administrador.");
-return;
-}
-
+if(!sistemaAberto){alert("Sistema fechado pelo administrador.");return;}
 let classe=document.getElementById('classeProfessor').value;
 let senha=document.getElementById('senhaProfessor').value;
-
-if(!pautas[classe]||pautas[classe].senha!==senha){
-alert("Senha incorreta");
-return;
-}
-
+if(!pautas[classe]||pautas[classe].senha!==senha){alert("Senha incorreta");return;}
 workbookAtual=pautas[classe].workbook;
 let sheet=workbookAtual.Sheets[workbookAtual.SheetNames[0]];
 dadosTabela=XLSX.utils.sheet_to_json(sheet,{header:1});
@@ -212,7 +164,6 @@ renderTabela();
 document.getElementById('areaNotas').style.display='block';
 }
 
-// TABELA
 function renderTabela(){
 let html='<table>';
 dadosTabela.forEach((linha,i)=>{
@@ -232,19 +183,68 @@ function editar(i,j,valor){
 dadosTabela[i][j]=valor;
 }
 
-// BAIXAR
 function baixarExcel(){
-if(!sistemaAberto){
-alert("Sistema fechado.");
-return;
-}
+if(!sistemaAberto){alert("Sistema fechado.");return;}
 let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
 let novoBook=XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');
 XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
 }
 
-</script>
+// Publicações
+function adicionarPublicacao(){
+let file=document.getElementById('publicacaoFile').files[0];
+let titulo=document.getElementById('publicacaoTitulo').value.trim();
+let texto=document.getElementById('publicacaoTexto').value.trim();
+if(!file && !texto){alert('Insira um arquivo ou mensagem');return;}
+let leitor=new FileReader();
+leitor.onload=function(e){
+let url=e.target.result;
+let pub={titulo,tipo:file?file.type:'text',url,texto};
+publicacoes.push(pub);
+atualizarPublicacoes();
+alert('Publicação adicionada!');
+document.getElementById('publicacaoFile').value='';
+document.getElementById('publicacaoTitulo').value='';
+document.getElementById('publicacaoTexto').value='';
+}
+if(file) leitor.readAsDataURL(file);
+else leitor.onload();
+}
 
-</body>
+function atualizarPublicacoes(){
+let lista=document.getElementById('listaPublicacoes');
+lista.innerHTML='';
+publicacoes.forEach((p,i)=>{
+let li=document.createElement('li');
+li.innerHTML=`${p.titulo} <button onclick="verPublicacao(${i})">Ver</button>`;
+lista.appendChild(li);
+});
+renderPublicacoesPublicas();
+}
+
+function verPublicacao(i){
+let p=publicacoes[i];
+let conteudo='';
+if(p.tipo.startsWith('image')) conteudo=`<img src="${p.url}" style="max-width:100%">`;
+else if(p.tipo==='application/pdf') conteudo=`<embed src="${p.url}" width="100%" height="500px" type="application/pdf">`;
+else conteudo=`<p>${p.texto}</p>`;
+alert(`Título: ${p.titulo}\nConteúdo será exibido na área pública.`);
+}
+
+function renderPublicacoesPublicas(){
+let container=document.getElementById('publicacoesContainer');
+container.innerHTML='';
+publicacoes.forEach(p=>{
+let div=document.createElement('div');
+div.className='card';
+let conteudo='';
+if(p.tipo.startsWith('image')) conteudo=`<img src="${p.url}" style="max-width:100%">`;
+else if(p.tipo==='application/pdf') conteudo=`<embed src="${p.url}" width="100%" height="500px" type="application/pdf">`;
+else conteudo=`<p>${p.texto}</p>`;
+div.innerHTML=`<h3>${p.titulo}</h3>${conteudo}<p>${p.texto}</p>`;
+container.appendChild(div);
+});
+}
+</script></body>
     </html>
