@@ -5,226 +5,249 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAC - Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; background-color: #BFEFFF; }
-button { padding: 10px 15px; margin: 5px; cursor: pointer; }
-.hidden { display: none; }
-input[type=file], input[type=text], input[type=password], input[type=number], select { margin: 5px 0; padding: 5px; }
-#teacher-section { background-color: #E0FFFF; padding: 15px; margin-top: 20px; border-radius: 8px; }
-.stat { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
-#header { display: flex; align-items: center; margin-bottom: 20px; }
+body { font-family: Arial, sans-serif; margin: 0; background-color: #BFEFFF; color: #023E8A; }
+header { background-color: #90E0EF; padding: 20px; display: flex; align-items: center; }
 #logo { max-height: 80px; margin-right: 15px; }
-#school-name { font-size: 1.5em; font-weight: bold; }
-#admin-section { background-color: #E6F7FF; padding: 15px; border-radius: 8px; }
+#school-name { font-size: 1.8em; font-weight: bold; }
+.container { padding: 20px; }
+button { padding: 10px 15px; margin: 5px; cursor: pointer; background-color: #48CAE4; border: none; color: white; border-radius: 5px; }
+button:hover { background-color: #0096C7; }
+.hidden { display: none; }
+input, select { margin: 5px 0; padding: 5px; width: 100%; max-width: 300px; }
+.stat { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; background-color: #E0FFFF; }
+#teacher-section { background-color: #CAF0F8; padding: 15px; margin-top: 20px; border-radius: 8px; }
+#admin-section { background-color: #ADE8F4; padding: 15px; border-radius: 8px; }
 #uploaded-docs, #teacher-docs { list-style-type: none; padding-left: 0; }
+a { color: #0077b6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.motivacao { font-style: italic; margin: 15px 0; }
 </style>
-<!-- SheetJS para manipulação de Excel -->
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 </head>
 <body>
 
-<div id="header">
+<header>
 <img id="logo" src="" alt="Logotipo da Escola" class="hidden">
 <div id="school-name">Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</div>
-</div>
+</header>
 
-<!-- Login -->
+<div class="container">
+<p class="motivacao">"Educação é a arma mais poderosa para mudar o mundo." – Nelson Mandela</p>
+
 <div id="login-section">
 <h2>Login</h2>
-<input type="text" id="login-username" placeholder="Usuário"><br>
-<input type="password" id="login-password" placeholder="Senha"><br>
+<input type="text" id="login-username" placeholder="Usuário">
+<input type="password" id="login-password" placeholder="Senha">
+<br>
 <button id="login-btn">Entrar</button>
 <p id="login-msg"></p>
 </div>
 
-<!-- Administração -->
+<!-- ADMINISTRADOR -->
 <div id="admin-section" class="hidden">
 <h2>Administrador</h2>
-<label>Upload de planilha Excel:</label>
-<input type="file" id="file-upload" accept=".xlsx,.xls"><br>
+<p>Status do sistema: <span id="system-status">Fechado</span></p>
+<button id="toggle-system">Ligar Sistema</button>
+<button id="logout-admin">Sair</button>
+<br>
+<label>Upload de documentos (Excel ou PDF):</label>
+<input type="file" id="file-upload" multiple>
 <ul id="uploaded-docs"></ul>
-<h3>Gerar conta de professor</h3>
+
+<h3>Gerar contas de professores</h3>
 <label>Usuário do professor:</label>
-<input type="text" id="new-user" placeholder="Nome do professor"><br>
+<input type="text" id="new-user" placeholder="Nome do professor">
+<br>
 <button id="generate-password">Gerar senha</button>
 <p id="generated-password"></p>
-<div id="logo-upload-section">
+
+<div id="stats-section" class="stat hidden">
+<h3>Estatísticas por Disciplina</h3>
+<div id="stats-output"></div>
+</div>
+
 <h3>Upload do Logotipo da Escola</h3>
 <input type="file" id="logo-upload" accept="image/*">
 </div>
-</div>
 
-<!-- Professores -->
+<!-- PROFESSOR -->
 <div id="teacher-section" class="hidden">
 <h2>Professor</h2>
-<p>Selecione a planilha:</p>
-<select id="excel-select"></select>
-<button id="load-excel">Carregar</button>
+<p>O sistema está <span id="teacher-status">fechado</span>. Lançamentos não disponíveis.</p>
+<select id="nivel-ensino">
+    <option value="">Selecione o Nível de Ensino</option>
+    <option value="primario">Ensino Primário</option>
+    <option value="1ciclo">1º Ciclo</option>
+</select>
+
+<div id="senha-primario-section" class="hidden">
+<input type="text" id="senha-professor" placeholder="Senha do professor">
+</div>
+
+<div id="senha-1ciclo-section" class="hidden">
+<input type="text" id="senha-classe" placeholder="Senha da classe">
+<label>Selecione disciplina:</label>
+<select id="discipline-select"></select>
+</div>
+
+<br>
+<button id="lancar-nota-btn" class="hidden">Lançar Nota</button>
+<button id="ver-resultados">Ver Resultados</button>
+<button id="download-pauta">Download Pauta</button>
+<button id="logout-teacher">Sair</button>
+
 <ul id="teacher-docs"></ul>
 
-<div id="grade-section" class="hidden">
-<label>Selecione disciplina:</label>
-<select id="discipline-select"></select><br>
 <label>Aluno:</label>
-<input type="text" id="student-name" placeholder="Nome do aluno"><br>
+<input type="text" id="student-name" placeholder="Nome do aluno">
 <label>Sexo:</label>
 <select id="student-gender">
 <option value="M">Masculino</option>
 <option value="F">Feminino</option>
-</select><br>
+</select>
 <label>Nota:</label>
-<input type="number" id="student-grade" min="0" max="20"><br>
+<input type="number" id="student-grade" min="0" max="20">
+<br>
 <button id="submit-grade">Lançar Nota</button>
-<button id="download-excel">Baixar Pauta Atualizada</button>
-</div>
 </div>
 
 <script>
-// Contas iniciais
-const adminAccount = { username: 'admin', password: 'Admin123' };
-const teacherAccounts = {}; // preenchido pelo admin
+// CONFIGURAÇÃO FIREBASE
+const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJETO.firebaseapp.com",
+    projectId: "SEU_PROJETO",
+    storageBucket: "SEU_PROJETO.appspot.com",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
+};
 
-let loadedWorkbook = null;
-let loadedJson = [];
-let systemOpen = true;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-// Logo upload
+// CONTROLES
+let systemOpen = false;
+const toggleBtn = document.getElementById('toggle-system');
+const systemStatus = document.getElementById('system-status');
+const teacherSection = document.getElementById('teacher-section');
+const teacherStatus = document.getElementById('teacher-status');
+const uploadedDocsList = document.getElementById('uploaded-docs');
+const teacherDocsList = document.getElementById('teacher-docs');
+const statsSection = document.getElementById('stats-section');
+const statsOutput = document.getElementById('stats-output');
+const disciplineSelect = document.getElementById('discipline-select');
+
+// Contas geradas
+const teacherAccounts = {};
+
+// LOGO
 const logoUpload = document.getElementById('logo-upload');
 const logoImg = document.getElementById('logo');
 logoUpload.addEventListener('change', e => {
     const file = e.target.files[0];
-    if (!file) return;
+    if(!file) return;
     const reader = new FileReader();
-    reader.onload = function(event) {
-        logoImg.src = event.target.result;
-        logoImg.className = '';
-    }
+    reader.onload = e => { logoImg.src = e.target.result; logoImg.className = ''; };
     reader.readAsDataURL(file);
 });
 
-// Login
-const loginSection = document.getElementById('login-section');
+// LOGIN
 const loginBtn = document.getElementById('login-btn');
 const loginMsg = document.getElementById('login-msg');
-const adminSection = document.getElementById('admin-section');
-const teacherSection = document.getElementById('teacher-section');
 
-loginBtn.addEventListener('click', () => {
+loginBtn.addEventListener('click', async () => {
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value.trim();
+    if(!username || !password) return loginMsg.textContent = 'Preencha usuário e senha';
 
-    if(username === adminAccount.username && password === adminAccount.password){
-        loginSection.className = 'hidden';
-        adminSection.className = '';
-        return;
-    }
-
-    if(teacherAccounts[username] && teacherAccounts[username] === password){
-        loginSection.className = 'hidden';
-        teacherSection.className = '';
-        populateExcelSelect();
-        return;
-    }
-
-    loginMsg.textContent = 'Usuário ou senha incorretos';
+    try {
+        await auth.signInWithEmailAndPassword(username+'@sac.com', password);
+        loginMsg.textContent = '';
+        document.getElementById('login-section').className = 'hidden';
+        if(username.toLowerCase() === 'admin') {
+            document.getElementById('admin-section').className = '';
+        } else {
+            teacherSection.className = systemOpen ? '' : 'hidden';
+        }
+    } catch(e) { loginMsg.textContent = 'Usuário ou senha incorretos'; }
 });
 
-// Gerar senha professor
-const generateBtn = document.getElementById('generate-password');
-const newUserInput = document.getElementById('new-user');
-const generatedPasswordP = document.getElementById('generated-password');
+// LOGOUT
+document.getElementById('logout-admin').addEventListener('click', () => location.reload());
+document.getElementById('logout-teacher').addEventListener('click', () => location.reload());
 
-generateBtn.addEventListener('click', () => {
-    const username = newUserInput.value.trim();
+// TOGGLE SISTEMA
+toggleBtn.addEventListener('click', async () => {
+    systemOpen = !systemOpen;
+    systemStatus.textContent = systemOpen ? 'Aberto' : 'Fechado';
+    toggleBtn.textContent = systemOpen ? 'Fechar Sistema' : 'Ligar Sistema';
+    teacherStatus.textContent = systemOpen ? 'aberto' : 'fechado';
+    teacherSection.className = systemOpen ? '' : 'hidden';
+    await db.collection('system').doc('status').set({ open: systemOpen });
+});
+
+// GERAR SENHA PROFESSOR
+document.getElementById('generate-password').addEventListener('click', async () => {
+    const username = document.getElementById('new-user').value.trim();
     if(!username) return alert('Digite o nome do professor');
     const password = Math.random().toString(36).slice(-8);
     teacherAccounts[username] = password;
-    generatedPasswordP.textContent = `Usuário: ${username} | Senha: ${password}`;
+    document.getElementById('generated-password').textContent = `Usuário: ${username} | Senha: ${password}`;
+    try { await auth.createUserWithEmailAndPassword(username+'@sac.com', password); alert('Professor cadastrado com sucesso!'); } 
+    catch(e){ alert('Erro: '+e.message); }
 });
 
-// Upload Excel
-const fileUpload = document.getElementById('file-upload');
-const uploadedDocsList = document.getElementById('uploaded-docs');
-const excelSelect = document.getElementById('excel-select');
-const disciplineSelect = document.getElementById('discipline-select');
-let excelFiles = {};
+// UPLOAD ARQUIVOS (Excel e PDF)
+document.getElementById('file-upload').addEventListener('change', async e => {
+    for(const file of e.target.files){
+        const storageRef = storage.ref('documents/'+file.name);
+        await storageRef.put(file);
+        const url = await storageRef.getDownloadURL();
 
-fileUpload.addEventListener('change', e => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(event){
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        excelFiles[file.name] = workbook;
-        const li = document.createElement('li');
-        li.textContent = file.name;
-        uploadedDocsList.appendChild(li);
+        // Lista admin
+        const liAdmin = document.createElement('li');
+        liAdmin.innerHTML = `<a href="${url}" target="_blank">${file.name}</a>`;
+        uploadedDocsList.appendChild(liAdmin);
+
+        // Lista professor
+        const liTeacher = document.createElement('li');
+        liTeacher.innerHTML = `<a href="${url}" target="_blank">${file.name}</a>`;
+        teacherDocsList.appendChild(liTeacher);
+
+        // Disciplina se Excel
+        if(file.name.endsWith('.xlsx')){
+            const option = document.createElement('option');
+            option.value = file.name;
+            option.textContent = file.name;
+            disciplineSelect.appendChild(option);
+        }
     }
-    reader.readAsArrayBuffer(file);
 });
 
-function populateExcelSelect(){
-    excelSelect.innerHTML = '';
-    for(const name in excelFiles){
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        excelSelect.appendChild(option);
-    }
-}
+// DOWNLOAD Pauta (Excel/PDF) por senha
+document.getElementById('download-pauta').addEventListener('click', async () => {
+    const senha = document.getElementById('senha-professor').value || document.getElementById('senha-classe').value;
+    const arquivo = Object.keys(teacherAccounts).find(u => teacherAccounts[u] === senha);
+    if(!arquivo){ alert('Senha incorreta ou arquivo não encontrado'); return; }
 
-// Carregar Excel
-const gradeSection = document.getElementById('grade-section');
-const loadExcelBtn = document.getElementById('load-excel');
-loadExcelBtn.addEventListener('click', () => {
-    const selected = excelSelect.value;
-    if(!selected) return alert('Selecione uma planilha');
-    loadedWorkbook = excelFiles[selected];
-    const firstSheet = loadedWorkbook.SheetNames[0];
-    loadedJson = XLSX.utils.sheet_to_json(loadedWorkbook.Sheets[firstSheet]);
-    populateDisciplineSelect();
-    gradeSection.className = '';
+    try{
+        const url = await storage.ref('documents/'+arquivo).getDownloadURL();
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = arquivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }catch(e){ alert('Erro ao baixar arquivo: '+e.message); }
 });
 
-// Popular disciplinas
-function populateDisciplineSelect(){
-    disciplineSelect.innerHTML = '';
-    const disciplines = [...new Set(loadedJson.map(r=>r.Disciplina || ''))];
-    disciplines.forEach(d => {
-        const option = document.createElement('option');
-        option.value = d;
-        option.textContent = d;
-        disciplineSelect.appendChild(option);
-    });
-}
-
-// Lançar nota
-const submitGradeBtn = document.getElementById('submit-grade');
-submitGradeBtn.addEventListener('click', () => {
-    const disciplina = disciplineSelect.value;
-    const name = document.getElementById('student-name').value.trim();
-    const gender = document.getElementById('student-gender').value;
-    const grade = parseFloat(document.getElementById('student-grade').value);
-    if(!disciplina || !name || isNaN(grade)) return alert('Preencha todos os campos!');
-
-    const student = loadedJson.find(s => s.Nome === name && s.Disciplina === disciplina);
-    if(student){
-        student.Nota = grade;
-    } else {
-        loadedJson.push({ Nome:name, Disciplina:disciplina, Sexo:gender, Nota:grade });
-    }
-    alert('Nota lançada!');
-});
-
-// Baixar Excel atualizado
-const downloadBtn = document.getElementById('download-excel');
-downloadBtn.addEventListener('click', () => {
-    if(!loadedWorkbook) return alert('Carregue uma planilha primeiro!');
-    const newSheet = XLSX.utils.json_to_sheet(loadedJson);
-    const newWB = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(newWB, newSheet, 'Pauta Atualizada');
-    XLSX.writeFile(newWB, 'pauta_atualizada.xlsx');
-});
+// AQUI você pode adicionar funções de lançamento de notas, estatísticas e visualização
 </script>
 </body>
     </html>
