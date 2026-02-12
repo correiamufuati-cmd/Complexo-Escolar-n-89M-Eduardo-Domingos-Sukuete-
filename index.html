@@ -2,240 +2,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC - Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</title>
+<title>SAC - Complexo Escolar N° 89M</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; background-color: #BFEFFF; }
-button { padding: 10px 15px; margin: 5px; cursor: pointer; }
-.hidden { display: none; }
-input[type=file], input[type=text], input[type=password], input[type=number], select, textarea { margin: 5px 0; padding: 5px; }
-#teacher-section, #admin-section, #results-section, #publication-section { padding: 15px; margin-top: 20px; border-radius: 8px; background-color: #E0FFFF; }
-#header { display: flex; align-items: center; margin-bottom: 20px; }
-#logo { max-height: 80px; margin-right: 15px; }
-#school-name { font-size: 1.5em; font-weight: bold; }
-ul { list-style-type: none; padding-left: 0; }
-a { color: #0077b6; text-decoration: none; }
-a:hover { text-decoration: underline; }
-#nav-buttons { margin-top: 15px; }
-#motivational { margin-top: 15px; font-size: 1.2em; font-style: italic; color: #034f84; }
-#motivational img { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; }
-table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-td, th { border: 1px solid #0077b6; padding: 5px; text-align: center; }
+body{font-family:Arial;margin:0;background:#BFEFFF}
+header{background:#0077b6;color:white;padding:20px;text-align:center}
+nav{background:#023e8a;padding:10px;text-align:center}
+nav button{margin:5px;padding:10px 15px;border:none;background:white;cursor:pointer;border-radius:5px}
+section{display:none;padding:20px}
+.active{display:block}
+table{border-collapse:collapse;width:100%;background:white}
+th,td{border:1px solid #ccc;padding:8px;text-align:left}
+th{background:#caf0f8}
+input,select{padding:6px;margin:5px}
+.card{background:white;padding:15px;border-radius:8px;margin:10px 0}
+.admin-box{background:#ffffff;padding:15px;border-radius:8px;margin-top:15px}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
-<body>
-<div id="header">
-<img id="logo" src="" alt="Logotipo da Escola" class="hidden">
-<div id="school-name">Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</div>
-</div><div id="motivational">
-<span id="motivational-text"></span>
-<img id="motivational-img" src="" alt="Imagem Educacional" class="hidden">
-</div><div id="nav-buttons">
-<button id="btn-launch">Lançamento de Notas</button>
-<button id="btn-results">Ver Resultados</button>
-<button id="btn-publication">Publicações</button>
-</div><div id="login-section" class="hidden">
-<h2>Login Administrador</h2>
-<input type="text" id="login-username" placeholder="Usuário">
-<br>
-<input type="password" id="login-password" placeholder="Senha">
-<br>
-<button id="login-btn">Entrar</button>
-<p id="login-msg"></p>
-<button id="back-to-home-login">Voltar</button>
-</div><div id="admin-section" class="hidden">
-<h2>Administrador</h2>
-<p>Status do sistema: <span id="system-status">Fechado</span></p>
-<button id="toggle-system">Ligar Sistema</button>
-<br>
-<label>Upload de documento (Excel/PDF):</label>
-<input type="file" id="file-upload" multiple>
-<ul id="uploaded-docs"></ul>
-<h3>Gerar contas de professores</h3>
-<label>Usuário do professor:</label>
-<input type="text" id="new-user" placeholder="Nome do professor">
-<br>
-<button id="generate-password">Gerar senha</button>
-<p id="generated-password"></p>
-<div id="logo-upload-section">
-<h3>Upload do Logotipo da Escola</h3>
-<input type="file" id="logo-upload" accept="image/*">
+<body><header>
+<h1>Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</h1>
+<p id="frase"></p>
+</header><nav>
+<button onclick="mostrar('inicio')">Início</button>
+<button onclick="mostrar('professorArea')">Lançamento de Notas</button>
+<button onclick="mostrar('resultados')">Ver Resultados</button>
+<button onclick="mostrar('publicacoes')">Publicações</button>
+<button onclick="mostrar('adminLogin')">Área do Administrador</button>
+</nav><!-- PÁGINA INICIAL --><section id="inicio" class="active">
+<div class="card">
+<h2>Bem-vindo ao Portal Escolar</h2>
+<p>"Educação é a arma mais poderosa que você pode usar para mudar o mundo."</p>
 </div>
-<button id="back-to-home-admin">Voltar</button>
-</div><div id="teacher-section" class="hidden">
+</section><!-- LOGIN ADMIN --><section id="adminLogin">
+<h2>Área do Administrador</h2>
+<input type="password" id="adminSenha" placeholder="Digite a senha">
+<button onclick="entrarAdmin()">Entrar</button>
+</section><!-- PAINEL ADMIN --><section id="adminPainel">
+<h2>Painel de Gestão</h2>
+<div class="admin-box">
+<h3>Gerar Login para Professor</h3>
+<input type="text" id="novoProfessor" placeholder="Nome do Professor">
+<button onclick="gerarLogin()">Gerar</button>
+<div id="listaLogins"></div>
+</div><div class="admin-box">
+<h3>Carregar Pauta (Excel)</h3>
+<input type="file" id="excelUpload" accept=".xlsx,.xls">
+</div><div class="admin-box">
+<h3>Publicar Documento (PDF)</h3>
+<input type="file" id="pdfUpload" accept="application/pdf">
+<div id="listaPDF"></div>
+</div><button onclick="mostrar('inicio')">Voltar</button>
+
+</section><!-- ÁREA PROFESSOR --><section id="professorArea">
 <h2>Lançamento de Notas</h2>
-<label>Selecione nível de ensino:</label>
-<select id="level-select">
-<option value="primario">Ensino Primário</option>
-<option value="1ciclo">1º Ciclo</option>
-</select>
-<br>
-<label>Selecione classe:</label>
-<select id="class-select"></select>
-<br>
-<label>Senha da classe/professor:</label>
-<input type="password" id="class-password" placeholder="Senha">
-<br>
-<label>Disciplina:</label>
-<select id="discipline-select"></select>
-<br>
-<label>Upload da Pauta Excel existente:</label>
-<input type="file" id="excel-upload">
-<br>
-<label>Aluno:</label>
-<input type="text" id="student-name" placeholder="Nome do aluno">
-<br>
-<label>Sexo:</label>
-<select id="student-gender">
-<option value="M">Masculino</option>
-<option value="F">Feminino</option>
-</select>
-<br>
-<label>Nota:</label>
-<input type="number" id="student-grade" min="0" max="20">
-<br>
-<button id="submit-grade">Lançar Nota</button>
-<button id="back-to-home-teacher">Voltar</button>
-<ul id="teacher-docs"></ul>
-</div><div id="results-section" class="hidden">
-<h2>Resultados</h2>
-<label>Selecione nível de ensino:</label>
-<select id="results-level">
-<option value="primario">Ensino Primário</option>
-<option value="1ciclo">1º Ciclo</option>
-</select>
-<br>
-<button id="show-results">Mostrar Resultados</button>
-<button id="back-to-home-results">Voltar</button>
-<div id="results-output"></div>
-<button id="download-results">Baixar Resultados Consolidado</button>
-</div><div id="publication-section" class="hidden">
+<div id="loginProfessor">
+<input type="text" id="profUser" placeholder="Usuário">
+<input type="password" id="profPass" placeholder="Senha">
+<button onclick="loginProfessor()">Entrar</button>
+</div>
+<div id="areaNotas" style="display:none">
+<div id="tabelaContainer"></div>
+<button onclick="baixarExcel()">Guardar Alterações</button>
+</div>
+</section><!-- RESULTADOS --><section id="resultados">
+<h2>Resultados Públicos</h2>
+<div id="tabelaResultados"></div>
+</section><!-- PUBLICAÇÕES --><section id="publicacoes">
 <h2>Publicações</h2>
-<label>Título:</label>
-<input type="text" id="pub-title" placeholder="Título da publicação">
-<br>
-<label>Mensagem:</label>
-<textarea id="pub-message" placeholder="Mensagem"></textarea>
-<br>
-<label>Upload de arquivo (opcional):</label>
-<input type="file" id="pub-file">
-<br>
-<button id="submit-publication">Publicar</button>
-<button id="back-to-home-publication">Voltar</button>
-<ul id="pub-list"></ul>
-</div><script>
-// Motivacional
-const motivationalTexts=["Educação é a chave para o sucesso!","Aprender é crescer a cada dia!","A persistência transforma o impossível em possível!"];
-const motivationalImages=["https://i.imgur.com/1.jpg","https://i.imgur.com/2.jpg","https://i.imgur.com/3.jpg"];
-function showMotivational(){
-const text=motivationalTexts[Math.floor(Math.random()*motivationalTexts.length)];
-const img=motivationalImages[Math.floor(Math.random()*motivationalImages.length)];
-document.getElementById('motivational-text').textContent=text;
-const imgEl=document.getElementById('motivational-img'); imgEl.src=img; imgEl.className='';
+<div id="publicacoesLista"></div>
+</section><script>
+let workbook, worksheet, dadosTabela=[];
+let adminPassword="Admin123";
+let professores={};
+
+const frases=[
+"Educar é transformar vidas.",
+"O sucesso começa na escola.",
+"Conhecimento é poder."
+];
+setInterval(()=>{
+document.getElementById('frase').innerText=frases[Math.floor(Math.random()*frases.length)];
+},4000);
+
+function mostrar(id){
+document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
+document.getElementById(id).classList.add('active');
 }
-showMotivational();
-setInterval(showMotivational,10000);
 
-// Navegação
-const btnLaunch=document.getElementById('btn-launch');
-const btnResults=document.getElementById('btn-results');
-const btnPublication=document.getElementById('btn-publication');
-const loginSection=document.getElementById('login-section');
-const adminSection=document.getElementById('admin-section');
-const teacherSection=document.getElementById('teacher-section');
-const resultsSection=document.getElementById('results-section');
-const publicationSection=document.getElementById('publication-section');
-function hideAllSections(){loginSection.className='hidden';adminSection.className='hidden';teacherSection.className='hidden';resultsSection.className='hidden';publicationSection.className='hidden';}
-btnLaunch.addEventListener('click',()=>{hideAllSections();teacherSection.className='';});
-btnResults.addEventListener('click',()=>{hideAllSections();resultsSection.className='';});
-btnPublication.addEventListener('click',()=>{hideAllSections();publicationSection.className='';});
-const backButtons=document.querySelectorAll('[id^="back-to-home"]');
-backButtons.forEach(btn=>{btn.addEventListener('click',()=>{hideAllSections();});});
+function entrarAdmin(){
+if(document.getElementById('adminSenha').value===adminPassword){
+mostrar('adminPainel');
+}else alert('Senha incorreta');
+}
 
-// Logo
-const logoUpload=document.getElementById('logo-upload');
-const logoImg=document.getElementById('logo');
-logoUpload.addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=event=>{logoImg.src=event.target.result;logoImg.className='';};reader.readAsDataURL(file);});
+function gerarLogin(){
+let nome=document.getElementById('novoProfessor').value.trim();
+if(!nome) return alert('Digite o nome');
+let senha=Math.random().toString(36).slice(-6);
+professores[nome]=senha;
+document.getElementById('listaLogins').innerHTML+=`<p>${nome} | Senha: ${senha}</p>`;
+}
 
-// Upload arquivos
-const fileUpload=document.getElementById('file-upload');
-const uploadedDocsList=document.getElementById('uploaded-docs');
-const teacherDocsList=document.getElementById('teacher-docs');
-fileUpload.addEventListener('change',e=>{for(const file of e.target.files){const li=document.createElement('li');li.textContent=file.name;uploadedDocsList.appendChild(li);const liTeacher=document.createElement('li');liTeacher.textContent=file.name;teacherDocsList.appendChild(liTeacher);}});
+function loginProfessor(){
+let u=document.getElementById('profUser').value.trim();
+let p=document.getElementById('profPass').value.trim();
+if(professores[u] && professores[u]===p){
+document.getElementById('loginProfessor').style.display='none';
+document.getElementById('areaNotas').style.display='block';
+}else alert('Login inválido');
+}
 
-// Professor Accounts
-const teacherAccounts={};
-const generateBtn=document.getElementById('generate-password');
-const newUserInput=document.getElementById('new-user');
-const generatedPasswordP=document.getElementById('generated-password');
-generateBtn.addEventListener('click',()=>{const username=newUserInput.value.trim();if(!username)return alert('Digite o nome do professor');const password=Math.random().toString(36).slice(-8);teacherAccounts[username]=password;generatedPasswordP.textContent=`Usuário: ${username} | Senha: ${password}`;});
-
-// Estrutura de classes por nível
-const classes={primario:[],"1ciclo":[]};
-const classSelect=document.getElementById('class-select');
-document.getElementById('level-select').addEventListener('change',e=>{
-const level=e.target.value; classSelect.innerHTML=''; classes[level].forEach(c=>{const opt=document.createElement('option'); opt.value=c.name; opt.textContent=c.name; classSelect.appendChild(opt);});
-});
-
-// Lançamento via Excel
-let excelData=[];
-let consolidatedData=[];
-const excelUpload=document.getElementById('excel-upload');
-excelUpload.addEventListener('change',e=>{
-const file=e.target.files[0];
-if(!file)return;
+// Carregar Excel
+document.getElementById('excelUpload').addEventListener('change',function(e){
 const reader=new FileReader();
 reader.onload=function(evt){
 const data=new Uint8Array(evt.target.result);
-const workbook=XLSX.read(data,{type:'array'});
-const sheetName=workbook.SheetNames[0];
-excelData=XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-alert('Pauta carregada com '+excelData.length+' alunos.');
-};
-reader.readAsArrayBuffer(file);
+workbook=XLSX.read(data,{type:'array'});
+worksheet=workbook.Sheets[workbook.SheetNames[0]];
+dadosTabela=XLSX.utils.sheet_to_json(worksheet,{header:1});
+renderTabela();
+}
+reader.readAsArrayBuffer(e.target.files[0]);
 });
 
-const submitGradeBtn=document.getElementById('submit-grade');
-submitGradeBtn.addEventListener('click',()=>{
-const student=document.getElementById('student-name').value.trim();
-const grade=parseFloat(document.getElementById('student-grade').value);
-if(!student||isNaN(grade))return alert('Preencha nome e nota!');
-const record=excelData.find(r=>r.Nome===student);
-if(record){record.Nota=grade;consolidatedData.push({Nome:student, Nota:grade}); alert('Nota lançada com sucesso!');} else {alert('Aluno não encontrado na pauta!');}
+function renderTabela(){
+let html='<table>';
+dadosTabela.forEach((linha,i)=>{
+html+='<tr>';
+linha.forEach((cel,j)=>{
+if(i===0) html+=`<th>${cel||''}</th>`;
+else html+=`<td contenteditable="true" oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;
+});
+html+='</tr>';
+});
+html+='</table>';
+document.getElementById('tabelaContainer').innerHTML=html;
+document.getElementById('tabelaResultados').innerHTML=html;
+}
+
+function editar(i,j,valor){
+dadosTabela[i][j]=valor;
+}
+
+function baixarExcel(){
+const novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
+const novoBook=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');
+XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
+}
+
+// Upload PDF
+document.getElementById('pdfUpload').addEventListener('change',function(e){
+const file=e.target.files[0];
+const url=URL.createObjectURL(file);
+const link=document.createElement('a');
+link.href=url;
+link.textContent=file.name;
+link.target='_blank';
+document.getElementById('listaPDF').appendChild(link);
 });
 
-// Resultados
-const showResultsBtn=document.getElementById('show-results');
-const resultsOutput=document.getElementById('results-output');
-showResultsBtn.addEventListener('click',()=>{
-resultsOutput.innerHTML='';
-if(consolidatedData.length===0){resultsOutput.textContent='Nenhuma nota lançada.'; return;}
-const table=document.createElement('table');
-const header=table.insertRow(); header.insertCell().textContent='Nome'; header.insertCell().textContent='Nota';
-consolidatedData.forEach(r=>{const row=table.insertRow(); row.insertCell().textContent=r.Nome; row.insertCell().textContent=r.Nota;});
-resultsOutput.appendChild(table);
-});
-
-// Download consolidado
-const downloadBtn=document.getElementById('download-results');
-downloadBtn.addEventListener('click',()=>{
-if(consolidatedData.length===0){alert('Nenhuma nota para baixar!'); return;}
-const wb=XLSX.utils.book_new();
-const ws=XLSX.utils.json_to_sheet(consolidatedData);
-XLSX.utils.book_append_sheet(wb,ws,'Resultados');
-XLSX.writeFile(wb,'ResultadosConsolidados.xlsx');
-});
-
-// Publicações
-const submitPublicationBtn=document.getElementById('submit-publication');
-const pubList=document.getElementById('pub-list');
-submitPublicationBtn.addEventListener('click',()=>{
-const title=document.getElementById('pub-title').value.trim();
-const msg=document.getElementById('pub-message').value.trim();
-if(!title||!msg)return alert('Preencha título e mensagem!');
-const li=document.createElement('li'); li.textContent=`${title}: ${msg}`; pubList.appendChild(li);
-alert('Publicação feita!');
-});
 </script></body>
     </html>
