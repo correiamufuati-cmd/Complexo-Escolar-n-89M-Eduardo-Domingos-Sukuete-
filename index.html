@@ -2,9 +2,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC - Complexo Escolar N° 89M</title><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script type="module">
+<title>SAC - Complexo Escolar Nº 89M</title><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
@@ -18,222 +18,147 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.db = db;
-window.collection = collection;
-window.addDoc = addDoc;
-window.getDocs = getDocs;
-window.doc = doc;
-window.setDoc = setDoc;
-window.getDoc = getDoc;
+window.db=db;
+window.collection=collection;
+window.addDoc=addDoc;
+window.getDocs=getDocs;
+window.doc=doc;
+window.setDoc=setDoc;
+window.getDoc=getDoc;
+window.deleteDoc=deleteDoc;
 </script><style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:"Segoe UI", Arial, sans-serif;
-  background:linear-gradient(135deg,#e3f2fd,#f1f8ff);
-}
-
-header{
-  background:linear-gradient(90deg,#023e8a,#0077b6);
-  color:white;
-  padding:25px 15px;
-  text-align:center;
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
-
-#logo{
-  max-height:90px;
-  display:block;
-  margin:10px auto;
-}
-
-nav{
-  background:white;
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  padding:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  flex-wrap:wrap;
-}
-
-nav button{
-  padding:10px 18px;
-  border:none;
-  background:#0077b6;
-  color:white;
-  border-radius:6px;
-  cursor:pointer;
-  transition:0.3s;
-  font-weight:500;
-}
-
-nav button:hover{
-  background:#023e8a;
-  transform:translateY(-2px);
-}
-
-section{
-  display:none;
-  padding:30px 15px;
-  max-width:1000px;
-  margin:auto;
-}
-
+body{margin:0;font-family:Segoe UI,Arial;background:#eef4ff}
+header{background:#002855;color:white;text-align:center;padding:25px}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;background:white;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+nav button{padding:10px 18px;border:none;background:#003e7e;color:white;border-radius:6px;cursor:pointer}
+nav button:hover{background:#001f4d}
+section{display:none;padding:25px;max-width:1100px;margin:auto}
 .active{display:block}
-
-.card{
-  background:white;
-  padding:20px;
-  border-radius:10px;
-  margin:15px 0;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-
-.admin-box{
-  background:#ffffff;
-  padding:20px;
-  border-radius:10px;
-  margin-top:20px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-
-input, textarea{
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  border-radius:6px;
-  border:1px solid #ccc;
-  font-size:14px;
-}
-
-textarea{
-  min-height:100px;
-  resize:vertical;
-}
-
-button{
-  padding:10px 18px;
-  border:none;
-  background:#0077b6;
-  color:white;
-  border-radius:6px;
-  cursor:pointer;
-  transition:0.3s;
-}
-
-button:hover{
-  background:#023e8a;
-}
-
-.status{
-  font-weight:bold;
-  color:#023e8a;
-}
-
-footer{
-  text-align:center;
-  padding:20px;
-  margin-top:40px;
-  background:#023e8a;
-  color:white;
-}
-
-@media(max-width:600px){
-  nav{flex-direction:column}
-}
-</style></head><body><header>
-<img id="logo" src="" style="display:none">
-<h1>Complexo Escolar N° 89M</h1>
-<p>Portal Oficial de Lançamento de Notas e Publicações</p>
+.card{background:white;padding:20px;border-radius:10px;margin:15px 0;box-shadow:0 4px 10px rgba(0,0,0,0.08)}
+input,select,textarea{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ccc}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #ccc;padding:8px;text-align:left}
+th{background:#003e7e;color:white}
+footer{text-align:center;background:#002855;color:white;padding:15px;margin-top:40px}
+</style></head>
+<body><header>
+<h1>Complexo Escolar Nº 89M</h1>
+<p>Sistema Académico Completo</p>
 </header><nav>
 <button onclick="mostrar('inicio')">Início</button>
-<button onclick="mostrar('publico')">Publicações</button>
+<button onclick="mostrar('publicacoes')">Publicações</button>
+<button onclick="mostrar('professor')">Professor</button>
 <button onclick="mostrar('adminLogin')">Administrador</button>
 </nav><section id="inicio" class="active">
 <div class="card">
-<h2>Bem-vindo</h2>
-<p>Educação é a base do desenvolvimento nacional.</p>
-<p class="status">Sistema Online Integrado</p>
+<h2>Bem‑vindo ao Sistema Académico</h2>
+<p>Portal oficial para gestão de notas e comunicações escolares.</p>
 </div>
-</section><section id="publico">
+</section><section id="publicacoes">
 <h2>Publicações Oficiais</h2>
-<div id="listaPublicacoesPublico"></div>
+<div id="listaPublica"></div>
+</section><section id="professor">
+<h2>Área do Professor</h2>
+<input type="text" id="nomeClasse" placeholder="Nome da Classe (ex: 7ªA)">
+<input type="password" id="senhaClasse" placeholder="Senha da Classe">
+<button onclick="abrirPauta()">Abrir Pauta</button>
+<div id="areaTabela"></div>
+<button onclick="guardarPauta()">Guardar no Firebase</button>
 </section><section id="adminLogin">
-<h2>Área do Administrador</h2>
-<input type="password" id="adminSenha" placeholder="Senha do administrador">
-<button onclick="entrarAdmin()">Entrar</button>
-</section><section id="adminPainel">
-<h2>Painel Administrativo</h2><div class="admin-box">
-<h3>Alterar Logotipo</h3>
-<input type="file" id="logoUpload" accept="image/*">
-</div><div class="admin-box">
-<h3>Nova Publicação</h3>
-<input type="text" id="tituloPub" placeholder="Título da publicação">
-<textarea id="textoPub" placeholder="Conteúdo da publicação"></textarea>
-<button onclick="publicar()">Publicar</button>
-</div><button onclick="mostrar('inicio')">Voltar ao Início</button>
-
-</section><footer>
-© 2026 Complexo Escolar N° 89M - Sistema Académico
+<h2>Login Administrador</h2>
+<input type="password" id="senhaAdmin" placeholder="Senha">
+<button onclick="loginAdmin()">Entrar</button>
+</section><section id="admin">
+<h2>Painel Administrativo</h2><div class="card">
+<h3>Criar Publicação</h3>
+<input type="text" id="tituloPub" placeholder="Título">
+<textarea id="textoPub" placeholder="Texto"></textarea>
+<button onclick="criarPublicacao()">Publicar</button>
+</div><div class="card">
+<h3>Eliminar Publicações</h3>
+<div id="listaAdmin"></div>
+</div></section><footer>
+© 2026 Complexo Escolar Nº 89M
 </footer><script>
-let adminPassword="Admin123";
+let senhaAdminSistema="Admin123";
+let dadosTabela=[];
 
 function mostrar(id){
-document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
+document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 }
 
-function entrarAdmin(){
-if(document.getElementById('adminSenha').value===adminPassword){
-mostrar('adminPainel');
+function loginAdmin(){
+if(document.getElementById('senhaAdmin').value===senhaAdminSistema){
+mostrar('admin');
+carregarAdmin();
 }else alert('Senha incorreta');
 }
 
-logoUpload.addEventListener('change', async function(e){
-const reader=new FileReader();
-reader.onload=async function(evt){
-let base64=evt.target.result;
-await setDoc(doc(db,"config","principal"),{logo:base64});
-document.getElementById('logo').src=base64;
-document.getElementById('logo').style.display='block';
-};
-reader.readAsDataURL(e.target.files[0]);
-});
-
-window.addEventListener("load", async()=>{
-const snap=await getDoc(doc(db,"config","principal"));
-if(snap.exists()){
-let dados=snap.data();
-if(dados.logo){
-document.getElementById('logo').src=dados.logo;
-document.getElementById('logo').style.display='block';
+function abrirPauta(){
+dadosTabela=[["Nome","Nota 1","Nota 2","Média"]];
+renderTabela();
 }
-}
-carregarPublicacoes();
-});
 
-async function publicar(){
+function renderTabela(){
+let html='<table>';
+dadosTabela.forEach((l,i)=>{
+html+='<tr>';
+l.forEach((c,j)=>{
+if(i==0) html+=`<th>${c}</th>`;
+else html+=`<td contenteditable oninput="editar(${i},${j},this.innerText)">${c||''}</td>`;
+});
+html+='</tr>';
+});
+html+='</table>';
+document.getElementById('areaTabela').innerHTML=html;
+}
+
+function editar(i,j,v){dadosTabela[i][j]=v}
+
+async function guardarPauta(){
+let classe=document.getElementById('nomeClasse').value;
+let senha=document.getElementById('senhaClasse').value;
+if(!classe||!senha){alert('Preencha os campos');return}
+await setDoc(doc(db,"pautas",classe),{senha:senha,dados:dadosTabela});
+alert('Pauta guardada com sucesso');
+}
+
+async function criarPublicacao(){
 let titulo=document.getElementById('tituloPub').value;
 let texto=document.getElementById('textoPub').value;
-if(!titulo||!texto){alert('Preencha os campos');return;}
-await addDoc(collection(db,"publicacoes"),{
-titulo:titulo,
-texto:texto,
-data:new Date()
-});
-alert('Publicado com sucesso');
-carregarPublicacoes();
+await addDoc(collection(db,"publicacoes"),{titulo,texto,data:new Date()});
+alert('Publicação criada');
+carregarPublica();
+carregarAdmin();
 }
 
-async function carregarPublicacoes(){
-let listaAdmin=document.getElementById('listaPublicacoesPublico');
-listaAdmin.innerHTML="";
-let querySnapshot=await getDocs(collection(db,"publicacoes"));
-querySnapshot.forEach(docu=>{
-let d=docu.data();
-listaAdmin.innerHTML+=`<div class='card'><h4>${d.titulo}</h4><p>${d.texto}</p></div>`;
+async function carregarPublica(){
+let lista=document.getElementById('listaPublica');
+lista.innerHTML='';
+let snap=await getDocs(collection(db,"publicacoes"));
+snap.forEach(d=>{
+let dados=d.data();
+lista.innerHTML+=`<div class='card'><h4>${dados.titulo}</h4><p>${dados.texto}</p></div>`;
 });
 }
+
+async function carregarAdmin(){
+let lista=document.getElementById('listaAdmin');
+lista.innerHTML='';
+let snap=await getDocs(collection(db,"publicacoes"));
+snap.forEach(d=>{
+lista.innerHTML+=`<div class='card'><b>${d.data().titulo}</b><br><button onclick="apagar('${d.id}')">Eliminar</button></div>`;
+});
+}
+
+async function apagar(id){
+await deleteDoc(doc(db,"publicacoes",id));
+carregarPublica();
+carregarAdmin();
+}
+
+window.onload=()=>{carregarPublica()}
 </script></body>
-    </html>
+  </html>
