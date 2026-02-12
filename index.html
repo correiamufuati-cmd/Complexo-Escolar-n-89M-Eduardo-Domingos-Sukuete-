@@ -18,12 +18,14 @@ th{background:#caf0f8}
 input,select,textarea{padding:6px;margin:5px}
 .card{background:white;padding:15px;border-radius:8px;margin:10px 0}
 .admin-box{background:#ffffff;padding:15px;border-radius:8px;margin-top:15px}
+.delete-btn{background:#e63946;color:white;border:none;padding:5px 8px;margin-left:5px;border-radius:3px;cursor:pointer}
 </style>
 </head>
 <body><header>
 <img id="logo">
 <h1>Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</h1>
 <p>Portal Oficial de Lançamento de Notas</p>
+<div id="publicacoesInicio"></div>
 </header><nav>
 <button onclick="mostrar('inicio')">Início</button>
 <button onclick="mostrar('professorArea')">Lançamento</button>
@@ -64,7 +66,7 @@ input,select,textarea{padding:6px;margin:5px}
 <input type="file" id="publicacaoFile" accept=".pdf,image/*">
 <input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
 <textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
-<button onclick="adicionarPublicacao()">Publicar</button>
+<button onclick="adicionarPublicacao(true)">Publicar</button>
 <div id="publicacoesLista"><h4>Publicações já feitas:</h4><ul id="listaPublicacoes"></ul></div>
 </div><button onclick="mostrar('inicio')">Voltar</button>
 
@@ -84,6 +86,11 @@ input,select,textarea{padding:6px;margin:5px}
 <div id="tabelaResultados"></div>
 </section><section id="publicacoes">
 <h2>Publicações</h2>
+<p>Qualquer pessoa pode publicar aqui:</p>
+<input type="file" id="publicacaoFileUsuario" accept=".pdf,image/*">
+<input type="text" id="publicacaoTituloUsuario" placeholder="Título da Publicação">
+<textarea id="publicacaoTextoUsuario" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
+<button onclick="adicionarPublicacao(false)">Publicar</button>
 <div id="publicacoesContainer"></div>
 </section><script>
 let adminPassword="Admin123";
@@ -101,54 +108,34 @@ document.getElementById(id).classList.add('active');
 function entrarAdmin(){
 if(document.getElementById('adminSenha').value===adminPassword){
 mostrar('adminPainel');
-}else{
-alert('Senha incorreta');
-}
+}else{alert('Senha incorreta');}
 }
 
 document.getElementById('logoUpload').addEventListener('change',function(e){
 const reader=new FileReader();
-reader.onload=function(evt){
-let logo=document.getElementById('logo');
-logo.src=evt.target.result;
-logo.style.display='block';
-};
+reader.onload=function(evt){document.getElementById('logo').src=evt.target.result;document.getElementById('logo').style.display='block';};
 reader.readAsDataURL(e.target.files[0]);
 });
 
-function toggleSistema(){
-sistemaAberto=!sistemaAberto;
-document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
-}
+function toggleSistema(){sistemaAberto=!sistemaAberto;document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';}
 
 function registarPauta(){
 let nivel=document.getElementById('nivelSelect').value;
 let classe=document.getElementById('classeNome').value.trim();
 let senha=document.getElementById('senhaClasse').value.trim();
 let file=document.getElementById('excelUpload').files[0];
-if(!classe||!senha||!file){alert('Preencha todos os campos.');return;}
+if(!classe||!senha||!file){alert('Preencha todos os campos e selecione o ficheiro Excel.');return;}
 const reader=new FileReader();
-reader.onload=function(e){
-const data=new Uint8Array(e.target.result);
-let wb=XLSX.read(data,{type:'array'});
-pautas[classe]={nivel:nivel,senha:senha,workbook:wb};
-atualizarLista();
-alert('Pauta registada com sucesso!');
-};
-reader.readAsArrayBuffer(file);
+reader.onload=function(e){let data=new Uint8Array(e.target.result);let wb;try{wb=XLSX.read(data,{type:'array'});}catch(err){alert('Erro ao ler o ficheiro Excel.');return;}
+pautas[classe]={nivel:nivel,senha:senha,workbook:wb};atualizarLista();alert(`Pauta da classe ${classe} registada com sucesso!`);};reader.readAsArrayBuffer(file);
 }
 
 function atualizarLista(){
-let select=document.getElementById('classeProfessor');
-select.innerHTML='';
-let lista=document.getElementById('listaPautas');
-lista.innerHTML='';
+let select=document.getElementById('classeProfessor');select.innerHTML='';
+let lista=document.getElementById('listaPautas');lista.innerHTML='';
 Object.keys(pautas).forEach(c=>{
-let op=document.createElement('option');
-op.value=c;
-op.textContent=c;
-select.appendChild(op);
-lista.innerHTML+=`<p>${c} - ${pautas[c].nivel}</p>`;
+let op=document.createElement('option');op.value=c;op.textContent=c;select.appendChild(op);
+lista.innerHTML+=`<p>Classe: ${c} - Nível: ${pautas[c].nivel}</p>`;
 });
 }
 
@@ -166,50 +153,38 @@ document.getElementById('areaNotas').style.display='block';
 
 function renderTabela(){
 let html='<table>';
-dadosTabela.forEach((linha,i)=>{
-html+='<tr>';
-linha.forEach((cel,j)=>{
-if(i===0) html+=`<th>${cel||''}</th>`;
-else html+=`<td contenteditable="true" oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;
-});
-html+='</tr>';
-});
+dadosTabela.forEach((linha,i)=>{html+='<tr>';
+linha.forEach((cel,j)=>{html+=i===0?`<th>${cel||''}</th>`:`<td contenteditable="true" oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;});html+='</tr>';});
 html+='</table>';
 document.getElementById('tabelaContainer').innerHTML=html;
 document.getElementById('tabelaResultados').innerHTML=html;
 }
 
-function editar(i,j,valor){
-dadosTabela[i][j]=valor;
-}
+function editar(i,j,valor){dadosTabela[i][j]=valor;}
 
-function baixarExcel(){
-if(!sistemaAberto){alert("Sistema fechado.");return;}
+function baixarExcel(){if(!sistemaAberto){alert("Sistema fechado.");return;}
 let novaSheet=XLSX.utils.aoa_to_sheet(dadosTabela);
 let novoBook=XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(novoBook,novaSheet,'Pauta');
 XLSX.writeFile(novoBook,'Pauta_Atualizada.xlsx');
 }
 
-// Publicações
-function adicionarPublicacao(){
-let file=document.getElementById('publicacaoFile').files[0];
-let titulo=document.getElementById('publicacaoTitulo').value.trim();
-let texto=document.getElementById('publicacaoTexto').value.trim();
+function adicionarPublicacao(admin){
+let file=admin?document.getElementById('publicacaoFile').files[0]:document.getElementById('publicacaoFileUsuario').files[0];
+let titulo=admin?document.getElementById('publicacaoTitulo').value.trim():document.getElementById('publicacaoTituloUsuario').value.trim();
+let texto=admin?document.getElementById('publicacaoTexto').value.trim():document.getElementById('publicacaoTextoUsuario').value.trim();
 if(!file && !texto){alert('Insira um arquivo ou mensagem');return;}
 let leitor=new FileReader();
 leitor.onload=function(e){
-let url=e.target.result;
-let pub={titulo,tipo:file?file.type:'text',url,texto};
+let url=file?e.target.result:'';
+let pub={titulo,tipo:file?file.type:'text',url,texto,admin};
 publicacoes.push(pub);
 atualizarPublicacoes();
 alert('Publicação adicionada!');
-document.getElementById('publicacaoFile').value='';
-document.getElementById('publicacaoTitulo').value='';
-document.getElementById('publicacaoTexto').value='';
+if(admin){document.getElementById('publicacaoFile').value='';document.getElementById('publicacaoTitulo').value='';document.getElementById('publicacaoTexto').value='';}
+else{document.getElementById('publicacaoFileUsuario').value='';document.getElementById('publicacaoTituloUsuario').value='';document.getElementById('publicacaoTextoUsuario').value='';}
 }
-if(file) leitor.readAsDataURL(file);
-else leitor.onload();
+if(file) leitor.readAsDataURL(file); else leitor.onload();
 }
 
 function atualizarPublicacoes(){
@@ -217,33 +192,30 @@ let lista=document.getElementById('listaPublicacoes');
 lista.innerHTML='';
 publicacoes.forEach((p,i)=>{
 let li=document.createElement('li');
-li.innerHTML=`${p.titulo} <button onclick="verPublicacao(${i})">Ver</button>`;
+li.innerHTML=`${p.titulo} <button class='delete-btn' onclick="removerPublicacao(${i})">Eliminar</button> <button onclick="verPublicacao(${i})">Ver</button>`;
 lista.appendChild(li);
 });
 renderPublicacoesPublicas();
 }
 
-function verPublicacao(i){
-let p=publicacoes[i];
-let conteudo='';
-if(p.tipo.startsWith('image')) conteudo=`<img src="${p.url}" style="max-width:100%">`;
-else if(p.tipo==='application/pdf') conteudo=`<embed src="${p.url}" width="100%" height="500px" type="application/pdf">`;
-else conteudo=`<p>${p.texto}</p>`;
-alert(`Título: ${p.titulo}\nConteúdo será exibido na área pública.`);
-}
+function removerPublicacao(i){publicacoes.splice(i,1);atualizarPublicacoes();}
+
+function verPublicacao(i){let p=publicacoes[i];let conteudo='';if(p.tipo.startsWith('image')) conteudo=`<img src="${p.url}" style="max-width:100%">`; else if(p.tipo==='application/pdf') conteudo=`<embed src="${p.url}" width="100%" height="500px" type="application/pdf">`; else conteudo=`<p>${p.texto}</p>`;alert(`Título: ${p.titulo}\nConteúdo será exibido na área pública.`);}
 
 function renderPublicacoesPublicas(){
 let container=document.getElementById('publicacoesContainer');
 container.innerHTML='';
+let inicio=document.getElementById('publicacoesInicio');
+inicio.innerHTML='';
 publicacoes.forEach(p=>{
-let div=document.createElement('div');
-div.className='card';
+let div=document.createElement('div');div.className='card';
 let conteudo='';
 if(p.tipo.startsWith('image')) conteudo=`<img src="${p.url}" style="max-width:100%">`;
 else if(p.tipo==='application/pdf') conteudo=`<embed src="${p.url}" width="100%" height="500px" type="application/pdf">`;
 else conteudo=`<p>${p.texto}</p>`;
 div.innerHTML=`<h3>${p.titulo}</h3>${conteudo}<p>${p.texto}</p>`;
 container.appendChild(div);
+inicio.appendChild(div.cloneNode(true));
 });
 }
 </script></body>
