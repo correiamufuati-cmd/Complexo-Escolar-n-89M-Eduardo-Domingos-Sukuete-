@@ -156,27 +156,72 @@ let pautas={};
 let workbookAtual=null;
 let planilhaAtual='';
 let sistemaAberto=false;
+let publicacoes=[];
 
-// NAVEGAÇÃO
+// ---------------- NAV ----------------
 function mostrar(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 window.mostrar = mostrar;
 
-// LOGOTIPO
+// ---------------- ADMIN ----------------
+function entrarAdmin(){
+    if(document.getElementById('adminSenha').value===adminPassword){
+        mostrar('adminPainel');
+        atualizarLista();
+        carregarPublicacoesAdmin();
+    } else { alert('Senha incorreta'); }
+}
+
+function toggleSistema(){
+    sistemaAberto=!sistemaAberto;
+    document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
+}
+
+// ---------------- LOGO ----------------
 const logoInput = document.getElementById('logoUpload');
 const logoImg = document.getElementById('logo');
 const publicacoesInicio = document.getElementById('publicacoesInicio');
 
-window.addEventListener('load', async ()=>{
-    const logoData = await getDoc(doc(db,'config','logo'));
-    if(logoData.exists()){
-        logoImg.src = logoData.data().url;
-        logoImg.style.display='block';
-    }
-    carregarPublicacoesInicio();
+logoInput.addEventListener('change', async function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const storageRef = ref(storage, 'logo/logo.png');
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    logoImg.src = url;
+    logoImg.style.display='block';
+    await setDoc(doc(db,'config','logo'),{url});
 });
 
-// ... [O restante do código de publicações, admin, professor, Excel e estatísticas permanece igual e funcional] ...
+// ---------------- PUBLICAÇÕES ----------------
+async function carregarPublicacoesInicio(){
+    publicacoesInicio.innerHTML='';
+    const snap = await getDocs(collection(db,'publicacoes'));
+    snap.forEach(docu=>{
+        const data = docu.data();
+        const div = document.createElement('div');
+        div.className='publicacao-item';
+        div.innerHTML=`<strong>${data.titulo}</strong><p>${data.texto||''}</p>`;
+        if(data.url) div.innerHTML+=`<a href="${data.url}" target="_blank">Arquivo</a>`;
+        publicacoesInicio.appendChild(div);
+    });
+}
 
+async function adicionarPublicacao(isAdmin){
+    let titulo=isAdmin?document.getElementById('publicacaoTitulo').value:document.getElementById('publicacaoTituloUsuario').value;
+    let texto=isAdmin?document.getElementById('publicacaoTexto').value:document.getElementById('publicacaoTextoUsuario').value;
+    let file=isAdmin?document.getElementById('publicacaoFile').files[0]:document.getElementById('publicacaoFileUsuario').files[0];
+    let url='';
+    if(file){
+        const storageRef = ref(storage,'publicacoes/'+file.name);
+        await uploadBytes(storageRef,file);
+        url = await getDownloadURL(storageRef);
+    }
+    await addDoc(collection(db,'publicacoes'),{titulo,texto,url});
+    carregarPublicacoesInicio();
+    if(isAdmin) carregarPublicacoesAdmin();
+}
+
+// ---------------- AINDA FALTA: Excel, professor, estatísticas, PDF ----------------
 </script>
 </body>
-               </html>
+  </html>
