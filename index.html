@@ -45,6 +45,7 @@ input,select{padding:6px;margin:5px}
 <button onclick="mostrar('adminLogin')">Administrador</button>
 </nav>
 
+<!-- INÍCIO -->
 <section id="inicio" class="active">
 <div class="card">
 <h2>Bem-vindo</h2>
@@ -54,12 +55,14 @@ input,select{padding:6px;margin:5px}
 </div>
 </section>
 
+<!-- LOGIN ADMIN -->
 <section id="adminLogin">
 <h2>Área do Administrador</h2>
 <input type="password" id="adminSenha" placeholder="Senha">
 <button onclick="entrarAdmin()">Entrar</button>
 </section>
 
+<!-- PAINEL ADMIN -->
 <section id="adminPainel">
 <h2>Painel do Administrador</h2>
 
@@ -79,6 +82,7 @@ input,select{padding:6px;margin:5px}
 <input type="text" id="tituloPub" placeholder="Título">
 <input type="text" id="descPub" placeholder="Descrição">
 <button onclick="publicar()">Publicar</button>
+<div id="adminPublicacoes"></div>
 </div>
 
 <div class="admin-box">
@@ -98,6 +102,7 @@ input,select{padding:6px;margin:5px}
 <button onclick="mostrar('inicio')">Voltar</button>
 </section>
 
+<!-- ÁREA PROFESSOR -->
 <section id="professorArea">
 <h2>Lançamento de Notas</h2>
 <label>Classe:</label>
@@ -113,6 +118,7 @@ input,select{padding:6px;margin:5px}
 </div>
 </section>
 
+<!-- RESULTADOS -->
 <section id="resultados">
 <h2>Resultados Públicos</h2>
 <div id="tabelaResultados"></div>
@@ -133,12 +139,14 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
 
+// --- VARIÁVEIS ---
 let adminPassword="Admin123";
-let pautas={};
+let pautas={}; // objeto classe -> {nivel, senha, workbook}
 let dadosTabela=[];
 let workbookAtual;
 let sistemaAberto=false;
 
+// --- FUNÇÕES GERAIS ---
 function mostrar(id){
 document.querySelectorAll('section').forEach(sec=>sec.classList.remove('active'));
 document.getElementById(id).classList.add('active');
@@ -160,7 +168,7 @@ document.getElementById('estadoSistema').innerText = sistemaAberto ? 'Aberto' : 
 
 // --- LOGO ---
 document.getElementById('logoUpload').addEventListener('change', function(e){
-const file = e.target.files[0];
+const file=e.target.files[0];
 if(!file) return;
 const logoRef = storage.ref('logo/logo.png');
 logoRef.put(file).then(()=> logoRef.getDownloadURL().then(url=>{
@@ -181,6 +189,7 @@ fileRef.put(file).then(()=>fileRef.getDownloadURL().then(url=>{
 const newPubRef=db.ref('publicacoes').push();
 newPubRef.set({titulo,descricao:desc,url,data:Date.now()});
 carregarPublicacoes();
+carregarAdminPublicacoes();
 }));
 }
 
@@ -195,6 +204,27 @@ container.innerHTML+=`<p><b>${pubs[key].titulo}</b>: ${pubs[key].descricao} <a h
 }
 }
 });
+
+}
+
+// Admin ver e remover publicações
+function carregarAdminPublicacoes(){
+db.ref('publicacoes').once('value').then(snapshot=>{
+if(snapshot.exists()){
+const container=document.getElementById('adminPublicacoes');
+container.innerHTML='';
+const pubs=snapshot.val();
+for(const key in pubs){
+container.innerHTML+=`<p><b>${pubs[key].titulo}</b>: ${pubs[key].descricao} 
+<a href="${pubs[key].url}" target="_blank">Ver/Download</a>
+<button onclick="removerPub('${key}')">Eliminar</button></p>`;
+}
+}
+});
+}
+
+function removerPub(id){
+db.ref('publicacoes/'+id).remove().then(()=>{carregarPublicacoes();carregarAdminPublicacoes();});
 }
 
 // --- PAUTAS ---
@@ -210,6 +240,7 @@ const data=new Uint8Array(e.target.result);
 let wb=XLSX.read(data,{type:'array'});
 pautas[classe]={nivel,senha,workbook:wb};
 atualizarListaPautas();
+db.ref('pautas/'+classe).set({nivel,senha}); // salvar permanência
 alert('Pauta registada com sucesso!');
 };
 reader.readAsArrayBuffer(file);
@@ -240,6 +271,7 @@ renderTabela();
 document.getElementById('areaNotas').style.display='block';
 }
 
+// --- TABELAS E ESTATÍSTICAS ---
 function renderTabela(){
 let html='<table>';
 dadosTabela.forEach((linha,i)=>{
@@ -289,6 +321,7 @@ document.getElementById('logo').src=snapshot.val();
 document.getElementById('logo').style.display='block';
 }
 carregarPublicacoes();
+carregarAdminPublicacoes();
 }
 </script>
 
