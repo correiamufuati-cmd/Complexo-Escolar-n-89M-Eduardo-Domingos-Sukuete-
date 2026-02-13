@@ -8,7 +8,7 @@
 <!-- XLSX -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-<!-- Firebase Firestore -->
+<!-- Firebase Firestore + Storage -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -27,10 +27,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-window.db = db; window.storage = storage;
-window.collection = collection; window.doc = doc; window.setDoc = setDoc;
-window.getDocs = getDocs; window.addDoc = addDoc; window.getDoc = getDoc; window.deleteDoc = deleteDoc;
-window.ref = ref; window.uploadBytes = uploadBytes; window.getDownloadURL = getDownloadURL;
+window.db=db; window.storage=storage;
+window.collection=collection; window.doc=doc; window.setDoc=setDoc;
+window.getDocs=getDocs; window.addDoc=addDoc; window.getDoc=getDoc; window.deleteDoc=deleteDoc;
+window.ref=ref; window.uploadBytes=uploadBytes; window.getDownloadURL=getDownloadURL;
 </script>
 
 <style>
@@ -102,12 +102,6 @@ img#logo{max-height:90px;display:block;margin:15px auto}
 <h2>Painel Administrativo</h2>
 
 <div class="card">
-<h3>Atualizar Logo</h3>
-<input type="file" id="logoUpload">
-<button onclick="uploadLogo()">Atualizar Logo</button>
-</div>
-
-<div class="card">
 <h3>Ligar/Desligar Sistema</h3>
 <button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
 </div>
@@ -129,6 +123,13 @@ img#logo{max-height:90px;display:block;margin:15px auto}
 <h3>Estatísticas</h3>
 <div id="estatisticas"></div>
 </div>
+
+<div class="card">
+<h3>Ver Resultados</h3>
+<button onclick="verResultadosAdmin()">Mostrar Resultados</button>
+<div id="resultadosAdmin"></div>
+</div>
+
 </section>
 
 <footer>
@@ -139,192 +140,163 @@ img#logo{max-height:90px;display:block;margin:15px auto}
 // --- Sistema ---
 let sistemaAberto=false;
 function toggleSistema(){
-    sistemaAberto = !sistemaAberto;
-    document.getElementById('estadoSistema').innerText = sistemaAberto ? 'Aberto' : 'Fechado';
+sistemaAberto=!sistemaAberto;
+document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
 }
 
 // --- Menu ---
 function mostrar(id){
-    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
 }
 
 // --- Admin ---
-const senhaAdminSistema = "Admin123";
+const senhaAdminSistema="Admin123";
 
 function loginAdmin(){
-    if(document.getElementById('senhaAdmin').value === senhaAdminSistema){
-        mostrar('admin');
-        carregarLogoAdmin();
-        carregarPublicacoesAdmin();
-    } else alert('Senha incorreta');
+if(document.getElementById('senhaAdmin').value===senhaAdminSistema){
+mostrar('admin');
+carregarPublicacoesAdmin();
+}else alert('Senha incorreta');
 }
 
-async function uploadLogo(){
-    const file = document.getElementById('logoUpload').files[0];
-    if(!file) return alert('Selecione uma imagem');
-    const logoRef = ref(storage,'logo/logo.png');
-    await uploadBytes(logoRef,file);
-    const url = await getDownloadURL(logoRef);
-    document.getElementById('logo').src = url;
-    alert('Logo atualizado');
-}
-
-// --- Publicação ---
 async function publicarUsuario(){
-    const titulo = document.getElementById('tituloPub').value.trim();
-    const texto = document.getElementById('textoPub').value.trim();
-    const arquivo = document.getElementById('arquivoPub').files[0];
-
-    if(!titulo && !texto && !arquivo){
-        alert('Escreva algo ou selecione um ficheiro');
-        return;
-    }
-
-    let url = '';
-    if(arquivo){
-        const fileRef = ref(storage,'publicacoes/'+Date.now()+'_'+arquivo.name);
-        await uploadBytes(fileRef,arquivo);
-        url = await getDownloadURL(fileRef);
-    }
-
-    await addDoc(collection(db,'publicacoes'),{
-        titulo, texto, url, data: new Date()
-    });
-
-    alert('Publicação criada');
-    document.getElementById('tituloPub').value = '';
-    document.getElementById('textoPub').value = '';
-    document.getElementById('arquivoPub').value = '';
-
-    carregarPublica();
-    carregarPublicacoesAdmin();
+const titulo=document.getElementById('tituloPub').value;
+const texto=document.getElementById('textoPub').value;
+const arquivo=document.getElementById('arquivoPub').files[0];
+let url='';
+if(arquivo){
+const fileRef=ref(storage,'publicacoes/'+arquivo.name);
+await uploadBytes(fileRef,arquivo);
+url=await getDownloadURL(fileRef);
+}
+await addDoc(collection(db,'publicacoes'),{titulo,texto,url,data:new Date()});
+alert('Publicação criada');
+document.getElementById('tituloPub').value='';
+document.getElementById('textoPub').value='';
+document.getElementById('arquivoPub').value='';
+carregarPublica();
+carregarPublicacoesAdmin();
 }
 
 async function carregarPublica(){
-    const lista = document.getElementById('listaPublica');
-    lista.innerHTML = '';
-    const snap = await getDocs(collection(db,'publicacoes'));
-    snap.forEach(d=>{
-        const data = d.data();
-        lista.innerHTML += `<div class='card'>
-            <h4>${data.titulo||''}</h4>
-            <p>${data.texto||''}</p>
-            ${data.url ? `<br><a href="${data.url}" target="_blank">Abrir Arquivo</a>` : ''}
-        </div>`;
-    });
+const lista=document.getElementById('listaPublica');
+lista.innerHTML='';
+const snap=await getDocs(collection(db,'publicacoes'));
+snap.forEach(d=>{
+const data=d.data();
+lista.innerHTML+=`<div class='card'><h4>${data.titulo}</h4><p>${data.texto}</p>${data.url?`<br><a href="${data.url}" target="_blank">Arquivo</a>`:''}</div>`;
+});
 }
 
 async function carregarPublicacoesAdmin(){
-    const lista = document.getElementById('listaAdmin');
-    lista.innerHTML = '';
-    const snap = await getDocs(collection(db,'publicacoes'));
-    snap.forEach(d=>{
-        lista.innerHTML += `<div class='card'>
-            <b>${d.data().titulo||'Sem título'}</b><br>
-            <button onclick="apagar('${d.id}')">Eliminar</button>
-        </div>`;
-    });
+const lista=document.getElementById('listaAdmin');
+lista.innerHTML='';
+const snap=await getDocs(collection(db,'publicacoes'));
+snap.forEach(d=>{
+lista.innerHTML+=`<div class='card'><b>${d.data().titulo}</b><br><button onclick="apagar('${d.id}')">Eliminar</button></div>`;
+});
 }
 
 async function apagar(id){
-    await deleteDoc(doc(db,'publicacoes',id));
-    carregarPublica();
-    carregarPublicacoesAdmin();
+await deleteDoc(doc(db,'publicacoes',id));
+carregarPublica();
+carregarPublicacoesAdmin();
 }
 
 // --- Professor / Pauta ---
-let dadosTabela = [];
+let dadosTabela=[];
+let workbookAtual;
 
-async function abrirPauta(){
-    if(!sistemaAberto){ alert('Sistema fechado'); return; }
-
-    const classe = document.getElementById('nomeClasse').value.trim();
-    const senha = document.getElementById('senhaClasse').value.trim();
-    if(!classe || !senha){ alert('Preencha os campos'); return; }
-
-    const docSnap = await getDoc(doc(db,'pautas',classe));
-    if(!docSnap.exists()){ alert('Pauta não encontrada'); return; }
-
-    const data = docSnap.data();
-    if(data.senha !== senha){ alert('Senha incorreta'); return; }
-
-    dadosTabela = data.dados || [];
-    renderTabela();
+function abrirPauta(){
+if(!sistemaAberto){alert('Sistema fechado'); return;}
+const classe=document.getElementById('nomeClasse').value;
+const senha=document.getElementById('senhaClasse').value;
+if(!classe||!senha){alert('Preencha os campos'); return;}
+getDoc(doc(db,'pautas',classe)).then(docSnap=>{
+if(!docSnap.exists()){alert('Pauta não encontrada'); return;}
+const data=docSnap.data();
+if(data.senha!==senha){alert('Senha incorreta'); return;}
+workbookAtual=XLSX.utils.book_new();
+dadosTabela=data.dados;
+renderTabela();
+});
 }
 
 function renderTabela(){
-    let html = '<table>';
-    dadosTabela.forEach((linha,i)=>{
-        html += '<tr>';
-        linha.forEach((cel,j)=>{
-            if(i===0) html += `<th>${cel}</th>`;
-            else html += `<td contenteditable oninput="editar(${i},${j},this.innerText)">${cel||''}</td>`;
-        });
-        html += '</tr>';
-    });
-    html += '</table>';
-    document.getElementById('areaTabela').innerHTML = html;
-    atualizarEstatisticas();
+let html='<table>';
+dadosTabela.forEach((l,i)=>{
+html+='<tr>';
+l.forEach((c,j)=>{
+if(i==0) html+=`<th>${c}</th>`;
+else html+=`<td contenteditable oninput="editar(${i},${j},this.innerText)">${c||''}</td>`;
+});
+html+='</tr>';
+});
+html+='</table>';
+document.getElementById('areaTabela').innerHTML=html;
+atualizarEstatisticas();
 }
 
-function editar(i,j,valor){ dadosTabela[i][j] = valor; }
+function editar(i,j,v){dadosTabela[i][j]=v;}
 
 async function guardarPauta(){
-    const classe = document.getElementById('nomeClasse').value;
-    const senha = document.getElementById('senhaClasse').value;
-    await setDoc(doc(db,'pautas',classe),{ senha, dados: dadosTabela });
-    alert('Pauta guardada');
+const classe=document.getElementById('nomeClasse').value;
+await setDoc(doc(db,'pautas',classe),{senha:document.getElementById('senhaClasse').value,dados:dadosTabela});
+alert('Pauta guardada');
 }
 
 // --- Upload Pauta Admin ---
 async function uploadPauta(){
-    const file = document.getElementById('arquivoPauta').files[0];
-    const classe = document.getElementById('classePauta').value.trim();
-    const senha = document.getElementById('senhaPauta').value.trim();
-    if(!file || !classe || !senha){ alert('Preencha todos os campos'); return; }
-
-    const reader = new FileReader();
-    reader.onload = async function(e){
-        const data = new Uint8Array(e.target.result);
-        const wb = XLSX.read(data,{type:'array'});
-        const sheet = wb.Sheets[wb.SheetNames[0]];
-        dadosTabela = XLSX.utils.sheet_to_json(sheet,{header:1});
-        await setDoc(doc(db,'pautas',classe),{ senha, dados: dadosTabela });
-        renderTabela();
-        alert('Pauta carregada com sucesso');
-    };
-    reader.readAsArrayBuffer(file);
+const file=document.getElementById('arquivoPauta').files[0];
+const classe=document.getElementById('classePauta').value;
+const senha=document.getElementById('senhaPauta').value;
+if(!file||!classe||!senha){alert('Preencha todos os campos'); return;}
+const reader=new FileReader();
+reader.onload=function(e){
+const data=new Uint8Array(e.target.result);
+const wb=XLSX.read(data,{type:'array'});
+dadosTabela=[];
+wb.SheetNames.forEach(s=>{
+dadosTabela.push([s]); 
+});
+setDoc(doc(db,'pautas',classe),{senha,dados:wb.Sheets[wb.SheetNames[0]]});
+alert('Pauta carregada');
+};
+reader.readAsArrayBuffer(file);
 }
 
 // --- Estatísticas ---
 function atualizarEstatisticas(){
-    const container = document.getElementById('estatisticas');
-    container.innerHTML = '<h3>Estatísticas</h3>';
-    if(!dadosTabela.length) return;
-    let html = '<table><tr>';
-    dadosTabela[0].forEach(h => html += `<th>${h}</th>`);
-    html += '</tr>';
-    dadosTabela.slice(1).forEach(l=>{
-        html += '<tr>'; l.forEach(c=> html+= `<td>${c}</td>`); html += '</tr>';
-    });
-    html += '</table>';
-    container.innerHTML += html;
+const container=document.getElementById('estatisticas');
+container.innerHTML='<h3>Estatísticas</h3>';
+if(!dadosTabela.length) return;
+let html='<table><tr>';
+dadosTabela[0].forEach(h=>html+=`<th>${h}</th>`);
+html+='</tr>';
+dadosTabela.slice(1).forEach(l=>{
+html+='<tr>'; l.forEach(c=>html+=`<td>${c}</td>`); html+='</tr>';
+});
+html+='</table>';
+container.innerHTML=html;
 }
 
-// --- Logo Admin ---
-function carregarLogoAdmin(){
-    getDownloadURL(ref(storage,'logo/logo.png')).then(url=>{
-        document.getElementById('logo').src = url;
-    }).catch(()=>{});
+// --- Ver Resultados Admin ---
+async function verResultadosAdmin(){
+const container=document.getElementById('resultadosAdmin');
+container.innerHTML='<h3>Resultados</h3>';
+const snap=await getDocs(collection(db,'pautas'));
+snap.forEach(d=>{
+const dados=d.data();
+container.innerHTML+=`<div class='card'><b>Classe:</b> ${d.id}<br><b>Pauta:</b><pre>${JSON.stringify(dados.dados,null,2)}</pre></div>`;
+});
 }
 
 // --- Inicialização ---
-window.onload = ()=>{
-    carregarPublica();
-    carregarPublicacoesAdmin();
-    carregarLogoAdmin();
-};
+window.onload=()=>{
+carregarPublica();
+carregarPublicacoesAdmin();
+}
 </script>
 
 </body>
