@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC - Complexo Escolar Nº 89M</title>
-
-<style>
+<title>SAC - Complexo Escolar Nº 89M</title><!-- XLSX --><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><style>
 body{margin:0;font-family:Segoe UI,Arial;background:#eef4ff}
 header{background:#002855;color:white;text-align:center;padding:25px}
 nav{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;background:white;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
@@ -19,33 +16,23 @@ table{width:100%;border-collapse:collapse;margin-top:15px}
 th,td{border:1px solid #ccc;padding:8px;text-align:left}
 th{background:#003e7e;color:white}
 footer{text-align:center;background:#002855;color:white;padding:15px;margin-top:40px}
-img#logo{max-height:90px;display:block;margin:15px auto}
-</style>
-</head>
-<body>
-
-<header>
-<img id="logo" src="">
+td.bom{background:#c6f6d5} td.medio{background:#fefcbf} td.baixo{background:#feb2b2}
+</style></head>
+<body><header>
 <h1>Complexo Escolar Nº 89M</h1>
 <p>Sistema Académico Completo</p>
-</header>
-
-<nav>
+</header><nav>
 <button onclick="mostrar('inicio')">Início</button>
 <button onclick="mostrar('publicacoes')">Publicações</button>
 <button onclick="mostrar('professor')">Professor</button>
 <button onclick="mostrar('adminLogin')">Administrador</button>
-</nav>
-
-<section id="inicio" class="active">
+</nav><section id="inicio" class="active">
 <div class="card">
-<h2>Bem‑vindo</h2>
+<h2>Bem-vindo</h2>
 <p>Portal oficial para gestão de notas e comunicações escolares.</p>
 <p>Sistema: <span id="estadoSistema">Fechado</span></p>
 </div>
-</section>
-
-<section id="publicacoes">
+</section><section id="publicacoes">
 <h2>Publicações</h2>
 <div id="listaPublica"></div>
 <h3>Nova Publicação</h3>
@@ -53,227 +40,192 @@ img#logo{max-height:90px;display:block;margin:15px auto}
 <textarea id="textoPub" placeholder="Texto"></textarea>
 <input type="file" id="arquivoPub">
 <button onclick="publicarUsuario()">Publicar</button>
-</section>
-
-<section id="professor">
+</section><section id="professor">
 <h2>Área do Professor</h2>
 <input type="text" id="nomeClasse" placeholder="Nome da Classe (ex: 7ªA)">
 <input type="password" id="senhaClasse" placeholder="Senha da Classe">
 <button onclick="abrirPauta()">Abrir Pauta</button>
-<div id="disciplinasLista"></div>
 <div id="areaTabela"></div>
 <button onclick="guardarPauta()">Guardar Alterações</button>
-</section>
-
-<section id="adminLogin">
+</section><section id="adminLogin">
 <h2>Login Administrador</h2>
 <input type="password" id="senhaAdmin" placeholder="Senha">
 <button onclick="loginAdmin()">Entrar</button>
-</section>
-
-<section id="admin">
+</section><section id="admin">
 <h2>Painel Administrativo</h2>
-
 <div class="card">
 <h3>Ligar/Desligar Sistema</h3>
 <button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
 </div>
-
 <div class="card">
-<h3>Gerir Publicações</h3>
-<div id="listaAdmin"></div>
+<h3>Upload Pauta</h3>
+<input type="file" id="arquivoPauta">
+<input type="text" id="classePauta" placeholder="Classe">
+<input type="password" id="senhaPauta" placeholder="Senha do Professor">
+<button onclick="uploadPauta()">Carregar Pauta</button>
 </div>
-
 <div class="card">
 <h3>Ver Resultados</h3>
 <div id="resultadosAdmin"></div>
 </div>
-</section>
-
-<footer>
+<div class="card">
+<h3>Publicações</h3>
+<div id="listaAdmin"></div>
+</div>
+</section><footer>
 © 2026 Complexo Escolar Nº 89M
-</footer>
-
-<script>
-// --- Inicialização ---
-if(!localStorage.getItem('SAC')){
-    localStorage.setItem('SAC', JSON.stringify({
-        sistemaAberto:false,
-        pautas:{},
-        publicacoes:[],
-        logo:''
-    }));
-}
-
-function getData(){return JSON.parse(localStorage.getItem('SAC'));}
-function setData(d){localStorage.setItem('SAC', JSON.stringify(d));}
-
+</footer><script>
 // --- Sistema ---
+let sistemaAberto=false;
 function toggleSistema(){
-    let data=getData();
-    data.sistemaAberto=!data.sistemaAberto;
-    document.getElementById('estadoSistema').innerText=data.sistemaAberto?'Aberto':'Fechado';
-    setData(data);
+sistemaAberto=!sistemaAberto;
+document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
 }
-document.getElementById('estadoSistema').innerText=getData().sistemaAberto?'Aberto':'Fechado';
 
 // --- Menu ---
 function mostrar(id){
-    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
 }
 
 // --- Admin ---
-const senhaAdminSistema="Admin123";
+const senhaAdminSistema='Admin123';
+let pautas={}; // armazena os dados de todas as turmas
+
 function loginAdmin(){
-    if(document.getElementById('senhaAdmin').value===senhaAdminSistema){
-        mostrar('admin');
-        carregarPublicacoesAdmin();
-        mostrarResultadosAdmin();
-    } else alert('Senha incorreta');
+if(document.getElementById('senhaAdmin').value===senhaAdminSistema){
+mostrar('admin');
+carregarPublica();
+}else alert('Senha incorreta');
 }
 
 // --- Publicações ---
+let publicacoes=[];
 function publicarUsuario(){
-    let titulo=document.getElementById('tituloPub').value;
-    let texto=document.getElementById('textoPub').value;
-    let arquivo=document.getElementById('arquivoPub').files[0];
-    let data=getData();
-    let url='';
-    if(arquivo){
-        const reader=new FileReader();
-        reader.onload=function(e){
-            url=e.target.result;
-            data.publicacoes.push({titulo,texto,url,data:new Date().toISOString()});
-            setData(data);
-            document.getElementById('tituloPub').value='';
-            document.getElementById('textoPub').value='';
-            document.getElementById('arquivoPub').value='';
-            carregarPublica();
-            carregarPublicacoesAdmin();
-        }
-        reader.readAsDataURL(arquivo);
-    } else {
-        data.publicacoes.push({titulo,texto,url,data:new Date().toISOString()});
-        setData(data);
-        document.getElementById('tituloPub').value='';
-        document.getElementById('textoPub').value='';
-        carregarPublica();
-        carregarPublicacoesAdmin();
-    }
+const titulo=document.getElementById('tituloPub').value;
+const texto=document.getElementById('textoPub').value;
+const arquivo=document.getElementById('arquivoPub').files[0];
+let url='';
+if(arquivo){
+url = URL.createObjectURL(arquivo);
+}
+publicacoes.push({titulo,texto,url});
+document.getElementById('tituloPub').value='';
+document.getElementById('textoPub').value='';
+document.getElementById('arquivoPub').value='';
+carregarPublica();
+carregarPublicacoesAdmin();
 }
 
 function carregarPublica(){
-    let lista=document.getElementById('listaPublica');
-    lista.innerHTML='';
-    let data=getData();
-    data.publicacoes.forEach(p=>{
-        lista.innerHTML+=`<div class='card'><h4>${p.titulo}</h4><p>${p.texto}</p>${p.url?`<br><a href="${p.url}" target="_blank">Arquivo</a>`:''}</div>`;
-    });
+const lista=document.getElementById('listaPublica');
+lista.innerHTML='';
+publicacoes.forEach(p=>{
+lista.innerHTML+=`<div class='card'><h4>${p.titulo}</h4><p>${p.texto}</p>${p.url?`<br><a href='${p.url}' target='_blank'>Arquivo</a>`:''}</div>`;
+});
 }
 
 function carregarPublicacoesAdmin(){
-    let lista=document.getElementById('listaAdmin');
-    lista.innerHTML='';
-    let data=getData();
-    data.publicacoes.forEach((p,i)=>{
-        lista.innerHTML+=`<div class='card'><b>${p.titulo}</b><br><button onclick="apagarPublicacao(${i})">Eliminar</button></div>`;
-    });
+const lista=document.getElementById('listaAdmin');
+lista.innerHTML='';
+publicacoes.forEach((p,i)=>{
+lista.innerHTML+=`<div class='card'><b>${p.titulo}</b><br><button onclick='removerPublicacao(${i})'>Eliminar</button></div>`;
+});
+}
+function removerPublicacao(i){
+publicacoes.splice(i,1);
+carregarPublica();
+carregarPublicacoesAdmin();
 }
 
-function apagarPublicacao(i){
-    let data=getData();
-    data.publicacoes.splice(i,1);
-    setData(data);
-    carregarPublica();
-    carregarPublicacoesAdmin();
-}
-
-// --- Professor ---
-let turmaAtual='';
-let disciplinaAtual='';
+// --- Professor / Pauta ---
 let dadosTabela=[];
-
 function abrirPauta(){
-    let data=getData();
-    if(!data.sistemaAberto){alert('Sistema fechado'); return;}
-    let classe=document.getElementById('nomeClasse').value;
-    let senha=document.getElementById('senhaClasse').value;
-    if(!classe||!senha){alert('Preencha os campos'); return;}
-    if(!data.pautas[classe] || data.pautas[classe].senha!==senha){alert('Senha incorreta ou turma não existe'); return;}
-    turmaAtual=classe;
-    dadosTabela=data.pautas[classe].disciplinas;
-    // listar disciplinas
-    let discHtml='<p>Disciplinas:</p>';
-    Object.keys(dadosTabela).forEach(d=>{
-        discHtml+=`<button onclick="abrirDisciplina('${d}')">${d}</button> `;
-    });
-    document.getElementById('disciplinasLista').innerHTML=discHtml;
+if(!sistemaAberto){alert('Sistema fechado'); return;}
+const turma=document.getElementById('nomeClasse').value;
+const senha=document.getElementById('senhaClasse').value;
+if(!turma||!senha){alert('Preencha os campos'); return;}
+if(!pautas[turma]){alert('Pauta não encontrada'); return;}
+if(pautas[turma].senha!==senha){alert('Senha incorreta'); return;}
+dadosTabela = JSON.parse(JSON.stringify(pautas[turma].dados));
+renderTabela();
 }
 
-function abrirDisciplina(d){
-    disciplinaAtual=d;
-    renderTabela(dadosTabela[d]);
+function renderTabela(){
+let html='<table>';
+dadosTabela.forEach((linha,i)=>{
+html+='<tr>';
+linha.forEach(valor=>{
+let classe='';
+let n=parseFloat(valor);
+if(!isNaN(n)){
+if(n>=14) classe='bom';
+else if(n>=10) classe='medio';
+else classe='baixo';
+}
+html+=`<td class='${classe}' contenteditable oninput='editar(${i},this)'>${valor}</td>`;
+});
+html+='</tr>';
+});
+html+='</table>';
+document.getElementById('areaTabela').innerHTML=html;
+atualizarResultadosAdmin();
 }
 
-function renderTabela(tabela){
-    let html='<table>';
-    tabela.forEach((l,i)=>{
-        html+='<tr>';
-        l.forEach(c=>{
-            html+=`<td contenteditable oninput="editarTabela(${i},this.innerText)">${c}</td>`;
-        });
-        html+='</tr>';
-    });
-    html+='</table>';
-    document.getElementById('areaTabela').innerHTML=html;
-}
-
-function editarTabela(i,v){
-    if(disciplinaAtual && turmaAtual){
-        dadosTabela[disciplinaAtual][i]=v.split('\t');
-        atualizarResultados();
-    }
+function editar(i,td){
+dadosTabela[i][td.cellIndex]=td.innerText;
 }
 
 function guardarPauta(){
-    if(turmaAtual && disciplinaAtual){
-        let data=getData();
-        data.pautas[turmaAtual].disciplinas= dadosTabela;
-        setData(data);
-        alert('Pauta guardada!');
-        mostrarResultadosAdmin();
-    }
+const turma=document.getElementById('nomeClasse').value;
+pautas[turma]={senha:document.getElementById('senhaClasse').value,dados:dadosTabela};
+alert('Pauta guardada');
+atualizarResultadosAdmin();
 }
 
-// --- Resultados Admin ---
-function mostrarResultadosAdmin(){
-    let container=document.getElementById('resultadosAdmin');
-    let data=getData();
-    container.innerHTML='<h3>Resultados das Turmas</h3>';
-    Object.keys(data.pautas).forEach(t=>{
-        container.innerHTML+=`<h4>Turma: ${t}</h4>`;
-        let disciplinas=data.pautas[t].disciplinas;
-        Object.keys(disciplinas).forEach(d=>{
-            container.innerHTML+=`<b>Disciplina: ${d}</b>`;
-            let tabela=disciplinas[d];
-            let html='<table>';
-            tabela.forEach(l=>{
-                html+='<tr>';
-                l.forEach(c=>html+=`<td>${c}</td>`);
-                html+='</tr>';
-            });
-            html+='</table>';
-            container.innerHTML+=html;
-        });
-    });
+function uploadPauta(){
+const file=document.getElementById('arquivoPauta').files[0];
+const turma=document.getElementById('classePauta').value;
+const senha=document.getElementById('senhaPauta').value;
+if(!file||!turma||!senha){alert('Preencha todos os campos'); return;}
+const reader=new FileReader();
+reader.onload=function(e){
+const data=new Uint8Array(e.target.result);
+const wb=XLSX.read(data,{type:'array'});
+let sheet=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
+pautas[turma]={senha,dados:sheet};
+alert('Pauta carregada');
+}
+reader.readAsArrayBuffer(file);
 }
 
-// --- Inicialização ---
-window.onload=()=>{
-    carregarPublica();
+// --- Estatísticas ---
+function atualizarResultadosAdmin(){
+const container=document.getElementById('resultadosAdmin');
+container.innerHTML='';
+Object.keys(pautas).forEach(turma=>{
+container.innerHTML+=`<h4>Turma: ${turma}</h4>`;
+let dados=pautas[turma].dados;
+dados[0].forEach((col,j)=>{}); // cabeçalhos
+let html='<table>';
+dados.forEach((linha,i)=>{
+html+='<tr>';
+linha.forEach(valor=>{
+let classe='';
+let n=parseFloat(valor);
+if(!isNaN(n)){
+if(n>=14) classe='bom';
+else if(n>=10) classe='medio';
+else classe='baixo';
 }
-</script>
+html+=`<td class='${classe}'>${valor}</td>`;
+});
+html+='</tr>';
+});
+html+='</table>';
+container.innerHTML+=html;
+});
+}
 
-</body>
-  </html>
+</script></body>
+          </html>
