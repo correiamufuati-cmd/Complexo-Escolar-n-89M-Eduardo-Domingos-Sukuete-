@@ -1,231 +1,116 @@
-<!DOCTYPE html><html lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC - Complexo Escolar Nº 89M</title><!-- XLSX --><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><style>
-body{margin:0;font-family:Segoe UI,Arial;background:#eef4ff}
-header{background:#002855;color:white;text-align:center;padding:25px}
-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;background:white;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
-nav button{padding:10px 18px;border:none;background:#003e7e;color:white;border-radius:6px;cursor:pointer}
-nav button:hover{background:#001f4d}
-section{display:none;padding:25px;max-width:1100px;margin:auto}
-.active{display:block}
-.card{background:white;padding:20px;border-radius:10px;margin:15px 0;box-shadow:0 4px 10px rgba(0,0,0,0.08)}
-input,select,textarea{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ccc}
-table{width:100%;border-collapse:collapse;margin-top:15px}
-th,td{border:1px solid #ccc;padding:8px;text-align:left}
-th{background:#003e7e;color:white}
-footer{text-align:center;background:#002855;color:white;padding:15px;margin-top:40px}
-td.bom{background:#c6f6d5} td.medio{background:#fefcbf} td.baixo{background:#feb2b2}
-</style></head>
-<body><header>
-<h1>Complexo Escolar Nº 89M</h1>
-<p>Sistema Académico Completo</p>
-</header><nav>
+<title>SAC - Complexo Escolar N° 89M</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+<body>
+
+<header>
+<img id="logo">
+<h1>Complexo Escolar N° 89M "Eduardo Domingos Sukuete"</h1>
+<p>Portal Oficial de Lançamento de Notas</p>
+<div id="publicacoesInicio" class="publicacoes-container"></div>
+</header>
+
+<nav>
 <button onclick="mostrar('inicio')">Início</button>
+<button onclick="mostrar('professorArea')">Lançamento</button>
+<button onclick="mostrar('resultados')">Resultados</button>
 <button onclick="mostrar('publicacoes')">Publicações</button>
-<button onclick="mostrar('professor')">Professor</button>
 <button onclick="mostrar('adminLogin')">Administrador</button>
-</nav><section id="inicio" class="active">
+</nav>
+
+<section id="inicio" class="active">
 <div class="card">
 <h2>Bem-vindo</h2>
-<p>Portal oficial para gestão de notas e comunicações escolares.</p>
-<p>Sistema: <span id="estadoSistema">Fechado</span></p>
+<p>Educação é a base do desenvolvimento.</p>
+<p class="status">Sistema: <span id="estadoSistema">Fechado</span></p>
 </div>
-</section><section id="publicacoes">
-<h2>Publicações</h2>
-<div id="listaPublica"></div>
-<h3>Nova Publicação</h3>
-<input type="text" id="tituloPub" placeholder="Título">
-<textarea id="textoPub" placeholder="Texto"></textarea>
-<input type="file" id="arquivoPub">
-<button onclick="publicarUsuario()">Publicar</button>
-</section><section id="professor">
-<h2>Área do Professor</h2>
-<input type="text" id="nomeClasse" placeholder="Nome da Classe (ex: 7ªA)">
+</section>
+
+<section id="adminLogin">
+<h2>Área do Administrador</h2>
+<input type="password" id="adminSenha" placeholder="Senha">
+<button onclick="entrarAdmin()">Entrar</button>
+</section>
+
+<section id="adminPainel">
+<h2>Painel do Administrador</h2>
+
+<div class="admin-box">
+<h3>Logotipo</h3>
+<input type="file" id="logoUpload" accept="image/*">
+</div>
+
+<div class="admin-box">
+<h3>Controlar Sistema</h3>
+<button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
+</div>
+
+<div class="admin-box">
+<h3>Registar Pauta (Excel)</h3>
+<label>Nível:</label>
+<select id="nivelSelect">
+<option value="Primario">Ensino Primário</option>
+<option value="Ciclo">1º Ciclo</option>
+</select>
+<input type="text" id="classeNome" placeholder="Classe (ex: 7ªA)">
 <input type="password" id="senhaClasse" placeholder="Senha da Classe">
-<button onclick="abrirPauta()">Abrir Pauta</button>
-<div id="areaTabela"></div>
-<button onclick="guardarPauta()">Guardar Alterações</button>
-</section><section id="adminLogin">
-<h2>Login Administrador</h2>
-<input type="password" id="senhaAdmin" placeholder="Senha">
-<button onclick="loginAdmin()">Entrar</button>
-</section><section id="admin">
-<h2>Painel Administrativo</h2>
-<div class="card">
-<h3>Ligar/Desligar Sistema</h3>
-<button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
+<input type="file" id="excelUpload" accept=".xlsx,.xls">
+<button onclick="registarPauta()">Registar</button>
+<div id="listaPautas"></div>
 </div>
-<div class="card">
-<h3>Upload Pauta</h3>
-<input type="file" id="arquivoPauta">
-<input type="text" id="classePauta" placeholder="Classe">
-<input type="password" id="senhaPauta" placeholder="Senha do Professor">
-<button onclick="uploadPauta()">Carregar Pauta</button>
-</div>
-<div class="card">
-<h3>Ver Resultados</h3>
-<div id="resultadosAdmin"></div>
-</div>
-<div class="card">
+
+<div class="admin-box">
 <h3>Publicações</h3>
-<div id="listaAdmin"></div>
+<input type="file" id="publicacaoFile" accept=".pdf,image/*">
+<input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
+<textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
+<button onclick="adicionarPublicacao(true)">Publicar</button>
+<div id="publicacoesLista"><h4>Publicações já feitas:</h4><ul id="listaPublicacoes"></ul></div>
 </div>
-</section><footer>
-© 2026 Complexo Escolar Nº 89M
-</footer><script>
-// --- Sistema ---
-let sistemaAberto=false;
-function toggleSistema(){
-sistemaAberto=!sistemaAberto;
-document.getElementById('estadoSistema').innerText=sistemaAberto?'Aberto':'Fechado';
-}
 
-// --- Menu ---
-function mostrar(id){
-document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-}
+<button onclick="mostrar('inicio')">Voltar</button>
+</section>
 
-// --- Admin ---
-const senhaAdminSistema='Admin123';
-let pautas={}; // armazena os dados de todas as turmas
+<section id="professorArea">
+<h2>Lançamento de Notas</h2>
+<label>Classe:</label>
+<select id="classeProfessor"></select>
+<input type="password" id="senhaProfessor" placeholder="Senha da Classe">
+<button onclick="acessarPauta()">Entrar</button>
+<div id="areaNotas" style="display:none">
+<label>Selecionar Planilha:</label>
+<select id="planilhaSelect" onchange="selecionarPlanilha()"></select>
+<h3>Pauta</h3>
+<div id="tabelaContainer"></div>
+<button onclick="confirmarGuardar()" id="btnGuardar">Guardar Alterações</button>
+</div>
+</section>
 
-function loginAdmin(){
-if(document.getElementById('senhaAdmin').value===senhaAdminSistema){
-mostrar('admin');
-carregarPublica();
-}else alert('Senha incorreta');
-}
+<section id="resultados">
+<h2>Resultados Finais (PDF não editável)</h2>
+<div id="tabelaResultadosContainer"></div>
+</section>
 
-// --- Publicações ---
-let publicacoes=[];
-function publicarUsuario(){
-const titulo=document.getElementById('tituloPub').value;
-const texto=document.getElementById('textoPub').value;
-const arquivo=document.getElementById('arquivoPub').files[0];
-let url='';
-if(arquivo){
-url = URL.createObjectURL(arquivo);
-}
-publicacoes.push({titulo,texto,url});
-document.getElementById('tituloPub').value='';
-document.getElementById('textoPub').value='';
-document.getElementById('arquivoPub').value='';
-carregarPublica();
-carregarPublicacoesAdmin();
-}
+<section id="publicacoes">
+<h2>Publicações</h2>
+<p>Qualquer pessoa pode publicar aqui:</p>
+<input type="file" id="publicacaoFileUsuario" accept=".pdf,image/*">
+<input type="text" id="publicacaoTituloUsuario" placeholder="Título da Publicação">
+<textarea id="publicacaoTextoUsuario" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
+<button onclick="adicionarPublicacao(false)">Publicar</button>
+<div id="publicacoesContainer" class="publicacoes-container"></div>
+</section>
 
-function carregarPublica(){
-const lista=document.getElementById('listaPublica');
-lista.innerHTML='';
-publicacoes.forEach(p=>{
-lista.innerHTML+=`<div class='card'><h4>${p.titulo}</h4><p>${p.texto}</p>${p.url?`<br><a href='${p.url}' target='_blank'>Arquivo</a>`:''}</div>`;
-});
-}
-
-function carregarPublicacoesAdmin(){
-const lista=document.getElementById('listaAdmin');
-lista.innerHTML='';
-publicacoes.forEach((p,i)=>{
-lista.innerHTML+=`<div class='card'><b>${p.titulo}</b><br><button onclick='removerPublicacao(${i})'>Eliminar</button></div>`;
-});
-}
-function removerPublicacao(i){
-publicacoes.splice(i,1);
-carregarPublica();
-carregarPublicacoesAdmin();
-}
-
-// --- Professor / Pauta ---
-let dadosTabela=[];
-function abrirPauta(){
-if(!sistemaAberto){alert('Sistema fechado'); return;}
-const turma=document.getElementById('nomeClasse').value;
-const senha=document.getElementById('senhaClasse').value;
-if(!turma||!senha){alert('Preencha os campos'); return;}
-if(!pautas[turma]){alert('Pauta não encontrada'); return;}
-if(pautas[turma].senha!==senha){alert('Senha incorreta'); return;}
-dadosTabela = JSON.parse(JSON.stringify(pautas[turma].dados));
-renderTabela();
-}
-
-function renderTabela(){
-let html='<table>';
-dadosTabela.forEach((linha,i)=>{
-html+='<tr>';
-linha.forEach(valor=>{
-let classe='';
-let n=parseFloat(valor);
-if(!isNaN(n)){
-if(n>=14) classe='bom';
-else if(n>=10) classe='medio';
-else classe='baixo';
-}
-html+=`<td class='${classe}' contenteditable oninput='editar(${i},this)'>${valor}</td>`;
-});
-html+='</tr>';
-});
-html+='</table>';
-document.getElementById('areaTabela').innerHTML=html;
-atualizarResultadosAdmin();
-}
-
-function editar(i,td){
-dadosTabela[i][td.cellIndex]=td.innerText;
-}
-
-function guardarPauta(){
-const turma=document.getElementById('nomeClasse').value;
-pautas[turma]={senha:document.getElementById('senhaClasse').value,dados:dadosTabela};
-alert('Pauta guardada');
-atualizarResultadosAdmin();
-}
-
-function uploadPauta(){
-const file=document.getElementById('arquivoPauta').files[0];
-const turma=document.getElementById('classePauta').value;
-const senha=document.getElementById('senhaPauta').value;
-if(!file||!turma||!senha){alert('Preencha todos os campos'); return;}
-const reader=new FileReader();
-reader.onload=function(e){
-const data=new Uint8Array(e.target.result);
-const wb=XLSX.read(data,{type:'array'});
-let sheet=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
-pautas[turma]={senha,dados:sheet};
-alert('Pauta carregada');
-}
-reader.readAsArrayBuffer(file);
-}
-
-// --- Estatísticas ---
-function atualizarResultadosAdmin(){
-const container=document.getElementById('resultadosAdmin');
-container.innerHTML='';
-Object.keys(pautas).forEach(turma=>{
-container.innerHTML+=`<h4>Turma: ${turma}</h4>`;
-let dados=pautas[turma].dados;
-dados[0].forEach((col,j)=>{}); // cabeçalhos
-let html='<table>';
-dados.forEach((linha,i)=>{
-html+='<tr>';
-linha.forEach(valor=>{
-let classe='';
-let n=parseFloat(valor);
-if(!isNaN(n)){
-if(n>=14) classe='bom';
-else if(n>=10) classe='medio';
-else classe='baixo';
-}
-html+=`<td class='${classe}'>${valor}</td>`;
-});
-html+='</tr>';
-});
-html+='</table>';
-container.innerHTML+=html;
-});
-}
-
-</script></body>
+<script type="module" src="script.js"></script>
+</body>
           </html>
