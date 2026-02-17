@@ -282,3 +282,15 @@ window.gerarPDFAvancado = async function () {
 
   docPDF.save(`${classe}_Resultados_Estatisticas.pdf`);
         }
+
+// Expor funções para os botões do HTML
+window.entrarAdmin = entrarAdmin;
+window.adicionarPublicacao = adicionarPublicacao;
+window.toggleSistema = toggleSistema;
+window.acessarPauta = acessarPauta;
+window.confirmarGuardar = confirmarGuardar;
+window.registarPauta = registarPauta;
+window.gerarPDF = gerarPDF;
+window.gerarPDFAvancado = gerarPDFAvancado;
+window.removerPublicacao = removerPublicacao;
+window.mostrar = mostrar;
