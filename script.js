@@ -23,13 +23,13 @@ let pautas = {};
 let workbookAtual = null;
 let planilhaAtual = '';
 let sistemaAberto = false;
+let pautaAtual = null;
 
 // === NAVEGAÇÃO ===
 function mostrar(id) {
   document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-window.mostrar = mostrar;
 
 // === LOGO E PUBLICAÇÕES ===
 const logoInput = document.getElementById('logoUpload');
@@ -119,7 +119,7 @@ async function carregarPublicacoesAdmin() {
   });
 }
 
-window.removerPublicacao = async function (id) {
+async function removerPublicacao(id) {
   if (!confirm('Remover publicação?')) return;
   await deleteDoc(doc(db, 'publicacoes', id));
   carregarPublicacoesInicio();
@@ -140,8 +140,8 @@ function toggleSistema() {
   document.getElementById('estadoSistema').innerText = sistemaAberto ? 'Aberto' : 'Fechado';
 }
 
-// === PAUTAS / LANÇAMENTO DE NOTAS ===
-window.carregarClasses = async function () {
+// === CLASSES / PAUTAS ===
+async function carregarClasses() {
   const select = document.getElementById('classeProfessor');
   select.innerHTML = '';
   const snapshot = await getDocs(collection(db, 'pautas'));
@@ -153,7 +153,7 @@ window.carregarClasses = async function () {
   });
 }
 
-window.acessarPauta = async function () {
+async function acessarPauta() {
   if (!sistemaAberto) { alert('Sistema fechado!'); return; }
   const classe = document.getElementById('classeProfessor').value;
   const senha = document.getElementById('senhaProfessor').value;
@@ -161,20 +161,19 @@ window.acessarPauta = async function () {
   const docSnap = await getDoc(docRef);
   if (!docSnap.exists()) { alert('Classe não encontrada'); return; }
   if (docSnap.data().senha !== senha) { alert('Senha incorreta'); return; }
-  window.pautaAtual = docSnap.data().dados;
+  pautaAtual = docSnap.data().dados;
   renderTabela();
   document.getElementById('areaNotas').style.display = 'block';
 }
 
 function renderTabela() {
   const container = document.getElementById('tabelaContainer');
-  const dados = window.pautaAtual;
   let html = '<table>';
-  dados.forEach((linha, i) => {
+  pautaAtual.forEach((linha, i) => {
     html += '<tr>';
-    linha.forEach((celula, j) => {
-      if (i === 0) html += `<th>${celula}</th>`;
-      else html += `<td contenteditable oninput="editarCelula(${i},${j},this.innerText)">${celula || ''}</td>`;
+    linha.forEach((cel, j) => {
+      if (i === 0) html += `<th>${cel}</th>`;
+      else html += `<td contenteditable oninput="editarCelula(${i},${j},this.innerText)">${cel || ''}</td>`;
     });
     html += '</tr>';
   });
@@ -182,16 +181,16 @@ function renderTabela() {
   container.innerHTML = html;
 }
 
-window.editarCelula = function (i, j, valor) { window.pautaAtual[i][j] = valor; }
+function editarCelula(i, j, valor) { pautaAtual[i][j] = valor; }
 
-window.confirmarGuardar = async function () {
+async function confirmarGuardar() {
   const classe = document.getElementById('classeProfessor').value;
   const senhaClasse = (await getDoc(doc(db, 'pautas', classe))).data().senha;
-  await setDoc(doc(db, 'pautas', classe), { senha: senhaClasse, dados: window.pautaAtual });
+  await setDoc(doc(db, 'pautas', classe), { senha: senhaClasse, dados: pautaAtual });
   alert('Pauta guardada com sucesso!');
 }
 
-window.registarPauta = async function () {
+async function registarPauta() {
   const fileInput = document.getElementById('excelUpload');
   const file = fileInput.files[0];
   if (!file) return alert('Selecione um arquivo Excel');
@@ -212,12 +211,11 @@ window.registarPauta = async function () {
   reader.readAsArrayBuffer(file);
 }
 
-// === GERAR PDF SIMPLES ===
-window.gerarPDF = async function () {
+// === GERAR PDF ===
+async function gerarPDF() {
   const classe = document.getElementById('classeProfessor').value;
   if (!classe) return alert('Selecione uma classe primeiro!');
-  const docRef = doc(db, 'pautas', classe);
-  const docSnap = await getDoc(docRef);
+  const docSnap = await getDoc(doc(db, 'pautas', classe));
   if (!docSnap.exists()) return alert('Classe não encontrada');
   const dados = docSnap.data().dados;
   if (!dados || dados.length < 2) return alert('Não há notas lançadas');
@@ -229,18 +227,16 @@ window.gerarPDF = async function () {
   docPDF.setFontSize(12);
   let startY = 30;
   const rowHeight = 8;
-
-  dados[0].forEach((header, i) => { docPDF.text(String(header), 14 + i * 40, startY); });
-  dados.slice(1).forEach((linha, j) => { linha.forEach((cel, i) => { docPDF.text(String(cel || ''), 14 + i * 40, startY + (j + 1) * rowHeight); }); });
+  dados[0].forEach((header, i) => docPDF.text(String(header), 14 + i * 40, startY));
+  dados.slice(1).forEach((linha, j) => linha.forEach((cel, i) => docPDF.text(String(cel || ''), 14 + i * 40, startY + (j + 1) * rowHeight)));
   docPDF.save(`${classe}_Resultados.pdf`);
 }
 
 // === GERAR PDF AVANÇADO COM ESTATÍSTICAS ===
-window.gerarPDFAvancado = async function () {
+async function gerarPDFAvancado() {
   const classe = document.getElementById('classeProfessor').value;
   if (!classe) return alert('Selecione uma classe primeiro!');
-  const docRef = doc(db, 'pautas', classe);
-  const docSnap = await getDoc(docRef);
+  const docSnap = await getDoc(doc(db, 'pautas', classe));
   if (!docSnap.exists()) return alert('Classe não encontrada');
   const dados = docSnap.data().dados;
   if (!dados || dados.length < 2) return alert('Não há notas lançadas');
@@ -257,33 +253,22 @@ window.gerarPDFAvancado = async function () {
   docPDF.text(`Resultados Finais - ${classe}`, margin + 40, startY + 15);
   startY += 40;
 
-  // Cabeçalho da tabela
   docPDF.setFontSize(12);
   docPDF.setFillColor(60, 130, 200);
   docPDF.setTextColor(255, 255, 255);
-  dados[0].forEach((header, i) => {
-    docPDF.rect(margin + i * colWidth, startY, colWidth, rowHeight, 'F');
-    docPDF.text(String(header), margin + i * colWidth + 2, startY + 6);
-  });
-
+  dados[0].forEach((header, i) => { docPDF.rect(margin + i * colWidth, startY, colWidth, rowHeight, 'F'); docPDF.text(String(header), margin + i * colWidth + 2, startY + 6); });
   docPDF.setTextColor(0, 0, 0);
-  // Dados da tabela
-  dados.slice(1).forEach((linha, j) => {
-    linha.forEach((cel, i) => {
-      docPDF.text(String(cel || ''), margin + i * colWidth + 2, startY + (j + 1) * rowHeight + 6);
-    });
-  });
+  dados.slice(1).forEach((linha, j) => linha.forEach((cel, i) => docPDF.text(String(cel || ''), margin + i * colWidth + 2, startY + (j + 1) * rowHeight + 6)));
 
-  // Estatísticas simples: Média da primeira nota (assumindo coluna 1)
   const notas = dados.slice(1).map(l => parseFloat(l[1])).filter(n => !isNaN(n));
   const media = notas.reduce((a, b) => a + b, 0) / notas.length;
   docPDF.setFontSize(12);
   docPDF.text(`Média da primeira nota: ${media.toFixed(2)}`, margin, startY + (dados.length + 2) * rowHeight);
 
   docPDF.save(`${classe}_Resultados_Estatisticas.pdf`);
-        }
+}
 
-// Expor funções para os botões do HTML
+// === EXPOR FUNÇÕES AO WINDOW PARA BOTÕES ===
 window.entrarAdmin = entrarAdmin;
 window.adicionarPublicacao = adicionarPublicacao;
 window.toggleSistema = toggleSistema;
@@ -294,3 +279,4 @@ window.gerarPDF = gerarPDF;
 window.gerarPDFAvancado = gerarPDFAvancado;
 window.removerPublicacao = removerPublicacao;
 window.mostrar = mostrar;
+window.carregarClasses = carregarClasses;
