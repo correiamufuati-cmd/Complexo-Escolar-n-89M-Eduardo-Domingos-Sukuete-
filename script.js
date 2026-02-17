@@ -116,23 +116,34 @@ window.removerPublicacao = async function(id){
 }
 
 // REGISTAR PAUTA EXCEL
-async function registarPauta(){
-  alert("Registar foi clicado");
-  const input = document.getElementById('excelUpload');
-  const file = input.files[0];
-  if(!file) return alert('Selecione um ficheiro Excel');
-  const reader = new FileReader();
-  reader.onload = async e => {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data,{type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const json = XLSX.utils.sheet_to_json(ws,{header:1});
-    const classe = document.getElementById('classeNome').value.trim();
-    if(!classe) return alert('Preencha a classe');
-    await setDoc(doc(db,'pautas',classe), { dados: json, timestamp: Date.now() });
-    alert('Pauta registada com sucesso!');
-    input.value='';
-  };
-  reader.readAsArrayBuffer(file);
+async function registarPauta() {
+    alert("Registar foi clicado");
+
+    const file = document.getElementById('excelUpload').files[0];
+    if (!file) return alert("Selecione um ficheiro Excel");
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array' });
+
+        // Pegamos a primeira planilha
+        const sheetName = wb.SheetNames[0];
+        const sheet = wb.Sheets[sheetName];
+
+        // Convertemos para JSON
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        console.log("Dados da Pauta:", json); // 🔹 LOG AQUI
+
+        const classe = document.getElementById('classeNome').value.trim();
+        const senha = document.getElementById('senhaClasse').value.trim();
+
+        if (!classe || !senha) return alert("Preencha classe e senha");
+
+        // Salvar no Firestore
+        await setDoc(doc(db, "pautas", classe), { senha: senha, dados: json });
+        alert("Pauta registrada com sucesso!");
+    };
+    reader.readAsArrayBuffer(file);
 }
 window.registarPauta = registarPauta;
