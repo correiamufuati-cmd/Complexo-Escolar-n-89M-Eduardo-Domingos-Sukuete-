@@ -4,10 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAC - Complexo Escolar N° 89M</title>
+
+<!-- Estilo separado -->
 <link rel="stylesheet" href="style.css">
-<script type="module" src="script.js"></script>
+
+<!-- Bibliotecas -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module" src="script.js"></script>
 </head>
 <body>
 
@@ -26,6 +29,7 @@
 <button onclick="mostrar('adminLogin')">Administrador</button>
 </nav>
 
+<!-- Seções -->
 <section id="inicio" class="active">
 <div class="card">
 <h2>Bem-vindo</h2>
@@ -69,9 +73,8 @@
 
 <div class="admin-box">
 <h3>Publicações</h3>
-<input type="file" id="publicacaoFile" accept=".pdf,image/*">
 <input type="text" id="publicacaoTitulo" placeholder="Título da Publicação">
-<textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3"></textarea>
+<textarea id="publicacaoTexto" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
 <button onclick="adicionarPublicacao(true)">Publicar</button>
 <div id="publicacoesLista"><h4>Publicações já feitas:</h4><ul id="listaPublicacoes"></ul></div>
 </div>
@@ -102,9 +105,8 @@
 <section id="publicacoes">
 <h2>Publicações</h2>
 <p>Qualquer pessoa pode publicar aqui:</p>
-<input type="file" id="publicacaoFileUsuario" accept=".pdf,image/*">
 <input type="text" id="publicacaoTituloUsuario" placeholder="Título da Publicação">
-<textarea id="publicacaoTextoUsuario" placeholder="Mensagem ou descrição" rows="3"></textarea>
+<textarea id="publicacaoTextoUsuario" placeholder="Mensagem ou descrição" rows="3" style="width:100%;margin:5px 0"></textarea>
 <button onclick="adicionarPublicacao(false)">Publicar</button>
 <div id="publicacoesContainer" class="publicacoes-container"></div>
 </section>
