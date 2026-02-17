@@ -117,6 +117,7 @@ window.removerPublicacao = async function(id){
 
 // REGISTAR PAUTA EXCEL
 async function registarPauta(){
+  alert("Registar foi clicado");
   const input = document.getElementById('excelUpload');
   const file = input.files[0];
   if(!file) return alert('Selecione um ficheiro Excel');
