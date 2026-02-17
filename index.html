@@ -4,12 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAC - Complexo Escolar N° 89M</title>
-
 <link rel="stylesheet" href="style.css">
-
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 </head>
 <body>
 
@@ -99,6 +96,8 @@
 <section id="resultados">
 <h2>Resultados Finais (PDF não editável)</h2>
 <div id="tabelaResultadosContainer"></div>
+<button onclick="gerarPDF()">Gerar PDF Simples</button>
+<button onclick="gerarPDFAvancado()">Gerar PDF Avançado (com Estatísticas)</button>
 </section>
 
 <section id="publicacoes">
