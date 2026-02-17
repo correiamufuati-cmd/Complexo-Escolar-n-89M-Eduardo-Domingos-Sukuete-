@@ -37,15 +37,19 @@ const logoImg = document.getElementById('logo');
 const publicacoesInicio = document.getElementById('publicacoesInicio');
 
 window.addEventListener('load', async () => {
+  // Carrega logotipo
   const logoData = await getDoc(doc(db, 'config', 'logo'));
   if (logoData.exists()) {
     logoImg.src = logoData.data().url;
     logoImg.style.display = 'block';
+    publicacoesInicio.prepend(logoImg);
   }
+
   carregarPublicacoesInicio();
   carregarClasses();
 });
 
+// Upload do logotipo
 logoInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return alert('Selecione uma imagem');
@@ -55,6 +59,7 @@ logoInput.addEventListener('change', async (e) => {
   await setDoc(doc(db, 'config', 'logo'), { url });
   logoImg.src = url;
   logoImg.style.display = 'block';
+  publicacoesInicio.prepend(logoImg);
   alert('Logotipo carregado e salvo!');
 });
 
@@ -79,8 +84,10 @@ async function adicionarPublicacao(admin) {
     arquivoURL,
     timestamp: Date.now()
   });
+
   alert('Publicação adicionada!');
 
+  // Limpar inputs
   if (admin) {
     document.getElementById('publicacaoTitulo').value = '';
     document.getElementById('publicacaoTexto').value = '';
@@ -95,8 +102,12 @@ async function adicionarPublicacao(admin) {
   carregarPublicacoesAdmin();
 }
 
+// Carregar publicações no início
 async function carregarPublicacoesInicio() {
   publicacoesInicio.innerHTML = '';
+  const logoData = await getDoc(doc(db, 'config', 'logo'));
+  if (logoData.exists()) publicacoesInicio.prepend(logoImg);
+
   const snapshot = await getDocs(collection(db, 'publicacoes'));
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
@@ -107,6 +118,7 @@ async function carregarPublicacoesInicio() {
   });
 }
 
+// Carregar publicações no painel admin
 async function carregarPublicacoesAdmin() {
   const lista = document.getElementById('listaPublicacoes');
   lista.innerHTML = '';
@@ -190,10 +202,12 @@ async function confirmarGuardar() {
   alert('Pauta guardada com sucesso!');
 }
 
+// Registar pauta (Excel)
 async function registarPauta() {
   const fileInput = document.getElementById('excelUpload');
   const file = fileInput.files[0];
   if (!file) return alert('Selecione um arquivo Excel');
+
   const reader = new FileReader();
   reader.onload = async function (e) {
     const data = new Uint8Array(e.target.result);
@@ -203,69 +217,13 @@ async function registarPauta() {
     const classe = document.getElementById('classeNome').value.trim();
     const senha = document.getElementById('senhaClasse').value.trim();
     if (!classe || !senha) return alert('Preencha classe e senha');
-    await setDoc(doc(db, 'pautas', classe), { senha: senha, dados: sheet });
+
+    await setDoc(doc(db, 'pautas', classe), { senha, dados: sheet });
     alert('Pauta registrada com sucesso!');
     carregarClasses();
     fileInput.value = '';
   }
   reader.readAsArrayBuffer(file);
-}
-
-// === GERAR PDF ===
-async function gerarPDF() {
-  const classe = document.getElementById('classeProfessor').value;
-  if (!classe) return alert('Selecione uma classe primeiro!');
-  const docSnap = await getDoc(doc(db, 'pautas', classe));
-  if (!docSnap.exists()) return alert('Classe não encontrada');
-  const dados = docSnap.data().dados;
-  if (!dados || dados.length < 2) return alert('Não há notas lançadas');
-
-  const { jsPDF } = window.jspdf;
-  const docPDF = new jsPDF();
-  docPDF.setFontSize(16);
-  docPDF.text(`Resultados Finais - ${classe}`, 14, 20);
-  docPDF.setFontSize(12);
-  let startY = 30;
-  const rowHeight = 8;
-  dados[0].forEach((header, i) => docPDF.text(String(header), 14 + i * 40, startY));
-  dados.slice(1).forEach((linha, j) => linha.forEach((cel, i) => docPDF.text(String(cel || ''), 14 + i * 40, startY + (j + 1) * rowHeight)));
-  docPDF.save(`${classe}_Resultados.pdf`);
-}
-
-// === GERAR PDF AVANÇADO COM ESTATÍSTICAS ===
-async function gerarPDFAvancado() {
-  const classe = document.getElementById('classeProfessor').value;
-  if (!classe) return alert('Selecione uma classe primeiro!');
-  const docSnap = await getDoc(doc(db, 'pautas', classe));
-  if (!docSnap.exists()) return alert('Classe não encontrada');
-  const dados = docSnap.data().dados;
-  if (!dados || dados.length < 2) return alert('Não há notas lançadas');
-
-  const { jsPDF } = window.jspdf;
-  const docPDF = new jsPDF('p', 'mm', 'a4');
-  const margin = 14;
-  let startY = 20;
-  const rowHeight = 8;
-  const colWidth = 40;
-
-  if (logoImg.src) docPDF.addImage(logoImg.src, 'PNG', margin, startY, 30, 30);
-  docPDF.setFontSize(18);
-  docPDF.text(`Resultados Finais - ${classe}`, margin + 40, startY + 15);
-  startY += 40;
-
-  docPDF.setFontSize(12);
-  docPDF.setFillColor(60, 130, 200);
-  docPDF.setTextColor(255, 255, 255);
-  dados[0].forEach((header, i) => { docPDF.rect(margin + i * colWidth, startY, colWidth, rowHeight, 'F'); docPDF.text(String(header), margin + i * colWidth + 2, startY + 6); });
-  docPDF.setTextColor(0, 0, 0);
-  dados.slice(1).forEach((linha, j) => linha.forEach((cel, i) => docPDF.text(String(cel || ''), margin + i * colWidth + 2, startY + (j + 1) * rowHeight + 6)));
-
-  const notas = dados.slice(1).map(l => parseFloat(l[1])).filter(n => !isNaN(n));
-  const media = notas.reduce((a, b) => a + b, 0) / notas.length;
-  docPDF.setFontSize(12);
-  docPDF.text(`Média da primeira nota: ${media.toFixed(2)}`, margin, startY + (dados.length + 2) * rowHeight);
-
-  docPDF.save(`${classe}_Resultados_Estatisticas.pdf`);
 }
 
 // === EXPOR FUNÇÕES AO WINDOW PARA BOTÕES ===
@@ -275,8 +233,6 @@ window.toggleSistema = toggleSistema;
 window.acessarPauta = acessarPauta;
 window.confirmarGuardar = confirmarGuardar;
 window.registarPauta = registarPauta;
-window.gerarPDF = gerarPDF;
-window.gerarPDFAvancado = gerarPDFAvancado;
 window.removerPublicacao = removerPublicacao;
 window.mostrar = mostrar;
 window.carregarClasses = carregarClasses;
