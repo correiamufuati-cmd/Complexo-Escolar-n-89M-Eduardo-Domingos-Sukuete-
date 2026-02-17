@@ -153,63 +153,31 @@ function toggleSistema(){
 window.toggleSistema = toggleSistema;
 
 // ================= REGISTAR PAUTA =================
+
+window.registarPauta = registarPauta;
+
+// ================= PROFESSOR =================
 async function registarPauta() {
     alert("Registar foi clicado");
 
     const file = document.getElementById('excelUpload').files[0];
     if (!file) return alert("Selecione um ficheiro Excel");
 
+    console.log("Arquivo selecionado:", file.name); // 🔹 debug
+
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
         const data = new Uint8Array(e.target.result);
         const wb = XLSX.read(data, { type: 'array' });
 
-        // Pegamos a primeira planilha
         const sheetName = wb.SheetNames[0];
         const sheet = wb.Sheets[sheetName];
-
-        // Convertemos para JSON
         const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        console.log("Dados da Pauta:", json); // debug
 
-        const classe = document.getElementById('classeNome').value.trim();
-        const senha = document.getElementById('senhaClasse').value.trim();
-
-        if (!classe || !senha) return alert("Preencha classe e senha");
-
-        // Salvar no Firestore
-        await setDoc(doc(db, "pautas", classe), { senha: senha, dados: json });
-        alert("Pauta registrada com sucesso!");
+        console.log("JSON da Pauta:", json); // 🔹 debug
+        alert("Arquivo lido com sucesso!");
     };
     reader.readAsArrayBuffer(file);
-}
-window.registarPauta = registarPauta;
-
-// ================= PROFESSOR =================
-async function carregarClasses() {
-    const select = document.getElementById("classeProfessor");
-    select.innerHTML = "";
-    const snapshot = await getDocs(collection(db, "pautas"));
-    snapshot.forEach(docSnap => {
-        const option = document.createElement("option");
-        option.value = docSnap.id;
-        option.textContent = docSnap.id;
-        select.appendChild(option);
-    });
-}
-
-async function acessarPauta() {
-    const classe = document.getElementById("classeProfessor").value;
-    const senhaInput = document.getElementById("senhaProfessor").value;
-
-    const docSnap = await getDoc(doc(db, "pautas", classe));
-    if (!docSnap.exists()) return alert("Classe não encontrada");
-
-    const data = docSnap.data();
-    if (data.senha !== senhaInput) return alert("Senha incorreta");
-
-    document.getElementById("areaNotas").style.display = "block";
-    renderTabela(data.dados); // função que você já tinha para renderizar tabela
 }
 window.acessarPauta = acessarPauta;
 
