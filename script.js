@@ -141,24 +141,55 @@ window.registarPauta = async function(){
     const senhaClasse = document.getElementById('senhaClasse').value.trim();
     const file = document.getElementById('excelUpload').files[0];
 
-    if(!classe || !senhaClasse || !file) return alert("Preencha todos os campos e selecione o Excel");
+    if(!classe || !senhaClasse || !file){
+        alert("Preencha todos os campos e selecione o Excel");
+        return;
+    }
 
     const reader = new FileReader();
-    reader.onload = async e=>{
-        const data = new Uint8Array(e.target.result);
-        const wb = XLSX.read(data,{type:'array'});
-        const wsName = wb.SheetNames[0];
-        const ws = wb.Sheets[wsName];
-        const dados = XLSX.utils.sheet_to_json(ws,{header:1});
-        // Salvar no Firestore
-        await setDoc(doc(db,'pautas',classe),{
-            nivel, senha: senhaClasse, dados
-        });
-        alert(`Pauta da classe ${classe} registada com sucesso!`);
-        carregarPautasAdmin();
+
+    reader.onload = async function(e){
+        try{
+            const data = new Uint8Array(e.target.result);
+            const wb = XLSX.read(data,{type:'array'});
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const dados = XLSX.utils.sheet_to_json(ws,{header:1});
+
+            await setDoc(doc(db,'pautas',classe),{
+                nivel,
+                senha: senhaClasse,
+                dados
+            });
+
+            alert("Pauta registada com sucesso!");
+
+            // 🔥 Atualiza lista do admin
+            await carregarPautasAdmin();
+
+            // 🔥 Atualiza lista do professor
+            await atualizarSelectProfessor();
+
+        }catch(error){
+            console.error(error);
+            alert("Erro ao registar pauta.");
+        }
     };
+
     reader.readAsArrayBuffer(file);
 };
+
+async function atualizarSelectProfessor(){
+    const snapshot = await getDocs(collection(db,'pautas'));
+    const select = document.getElementById('classeProfessor');
+    select.innerHTML='';
+
+    snapshot.forEach(docSnap=>{
+        const option = document.createElement('option');
+        option.value = docSnap.id;
+        option.textContent = docSnap.id;
+        select.appendChild(option);
+    });
+}
 
 // === CARREGAR PAUTAS ADMIN ===
 async function carregarPautasAdmin(){
@@ -222,9 +253,11 @@ window.confirmarGuardar = async function(){
 }
 
 // === INICIALIZAÇÃO ===
-window.addEventListener('load', async ()=>{
+window.addEventListener('load', async () => {
     carregarLogo();
     carregarPublicacoesInicio();
+    atualizarSelectProfessor();
+});
 
     // Carregar classes para select do professor
     const snapshot = await getDocs(collection(db,'pautas'));
