@@ -196,6 +196,40 @@ window.registarPauta = async function(){
     reader.readAsArrayBuffer(file);
 };
 
+async function registarPauta(){
+    console.log("Registar pauta foi clicado");
+
+    const classe = document.getElementById('classeNome').value.trim();
+    const senha = document.getElementById('senhaClasse').value.trim();
+    const file = document.getElementById('excelUpload').files[0];
+
+    if(!classe || !senha || !file){
+        alert('Preencha todos os campos e selecione um ficheiro Excel.');
+        console.log("Campos ou arquivo ausente", {classe, senha, file});
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(e){
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, {type:'array'});
+        const wsName = wb.SheetNames[0];
+        const ws = wb.Sheets[wsName];
+        const dados = XLSX.utils.sheet_to_json(ws, {header:1});
+        console.log("Dados lidos do Excel:", dados);
+
+        try {
+            await setDoc(doc(db,'pautas',classe), {senha: senha, dados: dados});
+            alert('Pauta registrada com sucesso!');
+            console.log("Pauta salva no Firestore");
+        } catch(err){
+            alert('Erro ao registar pauta');
+            console.error("Erro ao salvar no Firestore:", err);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+                }
+
 // ================= FUNÇÕES AUXILIARES =================
 async function atualizarSelectProfessor(){
     const snapshot = await getDocs(collection(db,'pautas'));
