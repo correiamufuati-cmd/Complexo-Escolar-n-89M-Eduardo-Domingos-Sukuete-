@@ -1,108 +1,37 @@
-/* Geral */
-body {
-  font-family: Arial, sans-serif;
-  background-color: #eef4ff;
-  margin: 0;
-}
+/* ===== TABELA EXCEL ===== */
 
-header {
-  background-color: #002855;
-  color: white;
-  text-align: center;
-  padding: 20px;
-}
-
-nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  background: white;
-  padding: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-nav button {
-  padding: 10px 18px;
-  border: none;
-  background: #003e7e;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-nav button:hover {
-  background: #001f4d;
-}
-
-section {
-  display: none;
-  padding: 20px;
-  max-width: 1100px;
-  margin: auto;
-}
-
-.active {
-  display: block;
-}
-
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin: 15px 0;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-/* Tabela de notas */
-.tabelaNotas {
+#tabelaExcel {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 20px;
+  background: white;
+  font-size: 14px;
 }
 
-.tabelaNotas th, .tabelaNotas td {
+#tabelaExcel th,
+#tabelaExcel td {
   border: 1px solid #ccc;
-  padding: 8px;
+  padding: 6px;
   text-align: center;
+  min-width: 60px;
 }
 
-.tabelaNotas th {
+#tabelaExcel th {
   background-color: #003e7e;
   color: white;
+  font-weight: bold;
 }
 
-.tabelaNotas td {
+#tabelaExcel td {
   background-color: #f9f9f9;
 }
 
-.tabelaNotas td:focus {
+#tabelaExcel td:focus {
   outline: 2px solid #003e7e;
+  background-color: #e6f0ff;
 }
 
-.tabelaNotas td:first-child {
-  width: 200px;
-  text-align: left;
+/* Container para evitar desconfiguração */
+#tabelaContainer {
+  overflow-x: auto;
 }
-
-/* Inputs e botões */
-input, select, textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-button {
-  cursor: pointer;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  background: #002855;
-  color: white;
-  padding: 15px;
-  margin-top: 40px;
-    }
