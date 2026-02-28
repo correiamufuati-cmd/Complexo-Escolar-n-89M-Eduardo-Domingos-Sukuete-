@@ -45,38 +45,48 @@ function toggleSistema() {
 
 // 🔹 Registrar pauta (Excel)
 async function registarPauta() {
-  const classe = document.getElementById("classeNome").value.trim();
-  const senha = document.getElementById("senhaClasse").value.trim();
-  const arquivo = document.getElementById("excelUpload").files[0];
+    const classe = document.getElementById("classeNome").value.trim();
+    const senha = document.getElementById("senhaClasse").value.trim();
+    const arquivo = document.getElementById("excelUpload").files[0];
 
-  if (!classe || !senha || !arquivo) {
-    alert("Preencha todos os campos e selecione um arquivo Excel.");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const dados = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      await setDoc(doc(db, "pautas", classe), { senha: senha, dados: dados });
-      alert(`Pauta da classe ${classe} registrada com sucesso!`);
-
-      document.getElementById("excelUpload").value = "";
-      document.getElementById("classeNome").value = "";
-      document.getElementById("senhaClasse").value = "";
-
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao registrar a pauta. Veja o console.");
+    if (!classe || !senha || !arquivo) {
+        alert("Preencha todos os campos e selecione um arquivo Excel.");
+        return;
     }
-  };
-  reader.readAsArrayBuffer(arquivo);
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            // 1️⃣ Lendo arquivo
+            alert("Arquivo lido com sucesso!");
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            alert("Arquivo Excel processado!");
+
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const dados = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            alert("Dados extraídos do Excel!");
+
+            // 2️⃣ Tentando salvar no Firestore
+            await setDoc(doc(db, "pautas", classe), { senha: senha, dados: dados });
+            alert(`Pauta da classe ${classe} registrada com sucesso!`);
+
+            // Limpar campos
+            document.getElementById("excelUpload").value = "";
+            document.getElementById("classeNome").value = "";
+            document.getElementById("senhaClasse").value = "";
+
+        } catch (err) {
+            alert("Erro ao registrar a pauta: " + err.message);
+            console.error(err);
+        }
+    };
+
+    reader.readAsArrayBuffer(arquivo);
 }
+
+window.registarPauta = registarPauta;
 
 // 🔹 Publicações
 async function adicionarPublicacao(isAdmin) {
