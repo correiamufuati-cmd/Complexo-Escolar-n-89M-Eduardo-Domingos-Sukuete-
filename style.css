@@ -1,37 +1,32 @@
-/* ===== TABELA EXCEL ===== */
+/* ===== MELHORIAS PARA TABELA DA PAUTA (SEM QUEBRAR DESIGN ANTIGO) ===== */
 
-#tabelaExcel {
-  width: 100%;
-  border-collapse: collapse;
+#tabelaContainer {
   margin-top: 20px;
-  background: white;
-  font-size: 14px;
+  overflow-x: auto; /* evita desconfiguração */
 }
 
+/* Mantém estrutura original do Excel */
+#tabelaExcel {
+  border-collapse: collapse;
+}
+
+/* Apenas adiciona bordas suaves */
 #tabelaExcel th,
 #tabelaExcel td {
   border: 1px solid #ccc;
   padding: 6px;
-  text-align: center;
-  min-width: 60px;
+  font-size: 14px;
 }
 
+/* Cabeçalho destacado mantendo teu padrão */
 #tabelaExcel th {
   background-color: #003e7e;
   color: white;
   font-weight: bold;
 }
 
-#tabelaExcel td {
-  background-color: #f9f9f9;
-}
-
+/* Destaque quando editar */
 #tabelaExcel td:focus {
   outline: 2px solid #003e7e;
-  background-color: #e6f0ff;
-}
-
-/* Container para evitar desconfiguração */
-#tabelaContainer {
-  overflow-x: auto;
-}
+  background-color: #eef4ff;
+  }
