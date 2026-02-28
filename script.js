@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, setDoc, 
+  getFirestore, collection, addDoc, setDoc,
   getDocs, doc, getDoc, deleteDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js";
@@ -26,8 +26,18 @@ function mostrar(id) {
     sec.classList.remove("active");
   });
 
-  const elemento = document.getElementById(id);
-  if (elemento) elemento.classList.add("active");
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+}
+
+/* ================= LOGOTIPO ================= */
+
+function carregarLogo(event) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById("logoImg").src = e.target.result;
+  };
+  reader.readAsDataURL(event.target.files[0]);
 }
 
 /* ================= REGISTRAR PAUTA ================= */
@@ -44,11 +54,10 @@ async function registarPauta() {
 
   const reader = new FileReader();
   reader.onload = async (e) => {
-
     const base64 = e.target.result.split(",")[1];
 
     await setDoc(doc(db, "pautas", classe), {
-      senha: senha,
+      senha,
       arquivo: base64
     });
 
@@ -59,7 +68,7 @@ async function registarPauta() {
   reader.readAsDataURL(arquivo);
 }
 
-/* ================= CARREGAR CLASSES ================= */
+/* ================= PROFESSOR ================= */
 
 async function carregarClassesProfessor() {
   const select = document.getElementById("classeProfessor");
@@ -68,12 +77,10 @@ async function carregarClassesProfessor() {
   select.innerHTML = "";
 
   const snap = await getDocs(collection(db, "pautas"));
-  snap.forEach(docSnap => {
-    select.innerHTML += `<option value="${docSnap.id}">${docSnap.id}</option>`;
+  snap.forEach(d => {
+    select.innerHTML += `<option value="${d.id}">${d.id}</option>`;
   });
 }
-
-/* ================= ACESSAR PAUTA ================= */
 
 async function acessarPauta() {
   const classe = document.getElementById("classeProfessor").value.trim();
@@ -84,8 +91,7 @@ async function acessarPauta() {
     return;
   }
 
-  const docRef = doc(db, "pautas", classe);
-  const docSnap = await getDoc(docRef);
+  const docSnap = await getDoc(doc(db, "pautas", classe));
 
   if (!docSnap.exists()) {
     alert("Classe não encontrada.");
@@ -105,26 +111,73 @@ async function acessarPauta() {
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
   let html = XLSX.utils.sheet_to_html(sheet);
-
-  // Remove estilos inline que quebram layout
   html = html.replace(/style="[^"]*"/g, "");
 
   document.getElementById("tabelaContainer").innerHTML = html;
 
-  // Ativar edição
   document.querySelectorAll("#tabelaContainer td").forEach(td => {
     td.contentEditable = true;
   });
+}
+
+/* ================= PUBLICAÇÕES ================= */
+
+async function adicionarPublicacao() {
+  const titulo = document.getElementById("tituloPub").value;
+  const texto = document.getElementById("textoPub").value;
+
+  if (!titulo || !texto) {
+    alert("Preencha título e texto.");
+    return;
+  }
+
+  await addDoc(collection(db, "publicacoes"), {
+    titulo,
+    texto,
+    data: new Date()
+  });
+
+  alert("Publicação adicionada!");
+  carregarPublicacoes();
+}
+
+async function carregarPublicacoes() {
+  const container = document.getElementById("listaPublicacoes");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "publicacoes"));
+  snap.forEach(docSnap => {
+    const pub = docSnap.data();
+    container.innerHTML += `
+      <div class="card">
+        <h4>${pub.titulo}</h4>
+        <p>${pub.texto}</p>
+      </div>
+    `;
+  });
+}
+
+/* ================= ESTATÍSTICA ================= */
+
+function carregarEstatistica() {
+  document.getElementById("estatisticaConteudo").innerHTML =
+    "<p>Estatísticas serão implementadas aqui.</p>";
 }
 
 /* ================= INICIALIZAÇÃO ================= */
 
 window.onload = () => {
   carregarClassesProfessor();
+  carregarPublicacoes();
 };
 
-/* ================= EXPOR FUNÇÕES ================= */
+/* ================= EXPORTAR FUNÇÕES ================= */
 
 window.mostrar = mostrar;
 window.registarPauta = registarPauta;
 window.acessarPauta = acessarPauta;
+window.adicionarPublicacao = adicionarPublicacao;
+window.carregarLogo = carregarLogo;
+window.carregarEstatistica = carregarEstatistica;
