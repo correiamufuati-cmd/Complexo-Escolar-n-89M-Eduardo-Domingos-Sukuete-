@@ -1,7 +1,7 @@
 // script.js
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, setDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, setDoc, getDocs, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ====== Inicializar Firebase ======
 const firebaseConfig = {
@@ -23,7 +23,7 @@ let sistemaAberto = false;
 function mostrar(id) {
   document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
   const sec = document.getElementById(id);
-  if(sec) sec.classList.add('active');
+  if (sec) sec.classList.add('active');
 }
 
 // ====== Admin ======
@@ -65,8 +65,8 @@ async function registarPauta() {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
 
-      // ✅ Converter Excel para array de objetos simples
-      const dados = XLSX.utils.sheet_to_json(worksheet); 
+      // Converter Excel para array de objetos simples
+      const dados = XLSX.utils.sheet_to_json(worksheet);
       alert("Dados do Excel extraídos com sucesso!");
 
       // Salvar no Firestore
@@ -77,6 +77,9 @@ async function registarPauta() {
       document.getElementById("excelUpload").value = "";
       document.getElementById("classeNome").value = "";
       document.getElementById("senhaClasse").value = "";
+
+      // Atualizar select de classes do professor
+      carregarClassesProfessor();
 
     } catch (err) {
       alert("Erro ao registrar a pauta: " + err.message);
@@ -115,7 +118,7 @@ async function carregarPublicacoes() {
 
   containerInicio.innerHTML = "";
   containerAdmin.innerHTML = "";
-  if(containerPublico) containerPublico.innerHTML = "";
+  if (containerPublico) containerPublico.innerHTML = "";
 
   const snap = await getDocs(collection(db, "publicacoes"));
   snap.forEach(d => {
@@ -125,7 +128,7 @@ async function carregarPublicacoes() {
     // Admin
     containerAdmin.innerHTML += `<li>${pub.titulo} <button onclick="apagarPublicacao('${d.id}')">Eliminar</button></li>`;
     // Público
-    if(containerPublico) containerPublico.innerHTML += `<div class="card"><h4>${pub.titulo}</h4><p>${pub.texto}</p></div>`;
+    if (containerPublico) containerPublico.innerHTML += `<div class="card"><h4>${pub.titulo}</h4><p>${pub.texto}</p></div>`;
   });
 }
 
@@ -135,74 +138,88 @@ async function apagarPublicacao(id) {
   carregarPublicacoes();
 }
 
+// ====== Carregar classes para o professor ======
+async function carregarClassesProfessor() {
+  const select = document.getElementById("classeProfessor");
+  select.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "pautas"));
+  snap.forEach(docSnap => {
+    select.innerHTML += `<option value="${docSnap.id}">${docSnap.id}</option>`;
+  });
+}
+
+// ====== Professor abrir pauta ======
+async function acessarPauta() {
+  const classe = document.getElementById("classeProfessor").value.trim();
+  const senha = document.getElementById("senhaProfessor").value.trim();
+
+  if (!classe || !senha) {
+    alert("Preencha classe e senha.");
+    return;
+  }
+
+  try {
+    const docRef = doc(db, "pautas", classe);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      alert("Classe não encontrada.");
+      return;
+    }
+
+    const dados = docSnap.data();
+
+    if (dados.senha !== senha) {
+      alert("Senha incorreta!");
+      return;
+    }
+
+    // Mostrar área de notas
+    document.getElementById("areaNotas").style.display = "block";
+
+    // Preencher select de planilhas (apenas uma por enquanto)
+    const planilhaSelect = document.getElementById("planilhaSelect");
+    planilhaSelect.innerHTML = `<option value="principal">Principal</option>`;
+
+    // Mostrar tabela de notas
+    renderizarTabelaNotas(dados.dados);
+
+  } catch (err) {
+    alert("Erro ao acessar a pauta: " + err.message);
+    console.error(err);
+  }
+}
+
+// ====== Renderizar tabela de notas ======
+function renderizarTabelaNotas(dados) {
+  const container = document.getElementById("tabelaContainer");
+  container.innerHTML = "";
+
+  if (!dados || dados.length === 0) {
+    container.innerHTML = "<p>Nenhuma nota encontrada.</p>";
+    return;
+  }
+
+  let html = "<table><tr>";
+  Object.keys(dados[0]).forEach(key => html += `<th>${key}</th>`);
+  html += "</tr>";
+
+  dados.forEach(row => {
+    html += "<tr>";
+    Object.values(row).forEach(val => html += `<td contenteditable>${val}</td>`);
+    html += "</tr>";
+  });
+
+  html += "</table>";
+  container.innerHTML = html;
+}
+
 // ====== Inicialização ======
 window.onload = () => {
   carregarPublicacoes();
+  carregarClassesProfessor();
 };
-
-// --- Função para o professor abrir a pauta ---
-async function acessarPauta() {
-    const classe = document.getElementById("classeProfessor").value.trim();
-    const senha = document.getElementById("senhaProfessor").value.trim();
-
-    if (!classe || !senha) {
-        alert("Preencha classe e senha.");
-        return;
-    }
-
-    try {
-        const docRef = doc(db, "pautas", classe);
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists()) {
-            alert("Classe não encontrada.");
-            return;
-        }
-
-        const dados = docSnap.data();
-
-        if (dados.senha !== senha) {
-            alert("Senha incorreta!");
-            return;
-        }
-
-        document.getElementById("areaNotas").style.display = "block";
-        const planilhaSelect = document.getElementById("planilhaSelect");
-        planilhaSelect.innerHTML = `<option value="principal">Principal</option>`;
-        renderizarTabelaNotas(dados.dados);
-
-    } catch (err) {
-        alert("Erro ao acessar a pauta: " + err.message);
-        console.error(err);
-    }
-}
-
-// Função auxiliar para mostrar tabela de notas
-function renderizarTabelaNotas(dados) {
-    const container = document.getElementById("tabelaContainer");
-    container.innerHTML = "";
-
-    if (!dados || dados.length === 0) {
-        container.innerHTML = "<p>Nenhuma nota encontrada.</p>";
-        return;
-    }
-
-    let html = "<table><tr>";
-    Object.keys(dados[0]).forEach(key => html += `<th>${key}</th>`);
-    html += "</tr>";
-
-    dados.forEach(row => {
-        html += "<tr>";
-        Object.values(row).forEach(val => html += `<td contenteditable>${val}</td>`);
-        html += "</tr>";
-    });
-
-    html += "</table>";
-    container.innerHTML = html;
-}
-
-// Tornar acessível ao HTML
-window.acessarPauta = acessarPauta;
 
 // ====== Tornar funções acessíveis ao HTML ======
 window.mostrar = mostrar;
@@ -212,3 +229,4 @@ window.registarPauta = registarPauta;
 window.adicionarPublicacao = adicionarPublicacao;
 window.carregarPublicacoes = carregarPublicacoes;
 window.apagarPublicacao = apagarPublicacao;
+window.acessarPauta = acessarPauta;
