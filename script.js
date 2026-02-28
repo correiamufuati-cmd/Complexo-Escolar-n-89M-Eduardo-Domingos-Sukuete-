@@ -149,24 +149,50 @@ function toggleSistema(){
 }
 
 // ----------------- REGISTAR PAUTA -----------------
-window.registarPauta = async function() {
-    const classe = document.getElementById('classeNome').value;
-    const senha = document.getElementById('senhaClasse').value;
-    const file = document.getElementById('excelUpload').files[0];
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js";
 
-    if(!classe || !senha || !file) return alert('Preencha todos os campos');
+const db = getFirestore(); // já deve ter inicializado o Firebase anteriormente
+
+export async function registarPauta() {
+    const classe = document.getElementById("classeNome").value.trim();
+    const senha = document.getElementById("senhaClasse").value.trim();
+    const arquivo = document.getElementById("excelUpload").files[0];
+
+    if (!classe || !senha || !arquivo) {
+        alert("Preencha todos os campos e selecione um arquivo Excel.");
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const wb = XLSX.read(data, {type:'array'});
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const dados = XLSX.utils.sheet_to_json(ws,{header:1});
-        await setDoc(doc(db,'pautas',classe),{senha:senha,dados:dados});
-        alert('Pauta registada com sucesso!');
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const dados = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            // Salva no Firestore
+            await setDoc(doc(db, "pautas", classe), {
+                senha: senha,
+                dados: dados
+            });
+
+            alert(`Pauta da classe ${classe} registrada com sucesso!`);
+            document.getElementById("excelUpload").value = "";
+            document.getElementById("classeNome").value = "";
+            document.getElementById("senhaClasse").value = "";
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao registrar a pauta. Veja o console para detalhes.");
+        }
     };
-    reader.readAsArrayBuffer(file);
+
+    reader.readAsArrayBuffer(arquivo);
 }
+
+window.registarPauta = registarPauta; // permite chamar do botão HTML
 
 // ----------------- ONLOAD -----------------
 window.onload = () => {
