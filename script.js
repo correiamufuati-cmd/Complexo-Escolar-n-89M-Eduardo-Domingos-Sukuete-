@@ -16,10 +16,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ====== Variáveis globais ======
 let sistemaAberto = false;
 
-// ====== Funções de menu ======
+// ====== Menu ======
 function mostrar(id) {
   document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
   const sec = document.getElementById(id);
@@ -43,7 +42,7 @@ function toggleSistema() {
   alert(`Sistema agora ${sistemaAberto ? "Aberto" : "Fechado"}`);
 }
 
-// ====== Registrar pauta (Excel) ======
+// ====== Registrar Pauta ======
 async function registarPauta() {
   const classe = document.getElementById("classeNome").value.trim();
   const senha = document.getElementById("senhaClasse").value.trim();
@@ -57,28 +56,19 @@ async function registarPauta() {
   const reader = new FileReader();
   reader.onload = async (e) => {
     try {
-      alert("Arquivo lido com sucesso!");
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
-      alert("Arquivo Excel processado!");
-
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
-
-      // Converter Excel para array de objetos simples
       const dados = XLSX.utils.sheet_to_json(worksheet);
-      alert("Dados do Excel extraídos com sucesso!");
 
-      // Salvar no Firestore
       await setDoc(doc(db, "pautas", classe), { senha: senha, dados: dados });
       alert(`Pauta da classe ${classe} registrada com sucesso!`);
 
-      // Limpar campos
       document.getElementById("excelUpload").value = "";
       document.getElementById("classeNome").value = "";
       document.getElementById("senhaClasse").value = "";
 
-      // Atualizar select de classes do professor
       carregarClassesProfessor();
 
     } catch (err) {
@@ -123,16 +113,12 @@ async function carregarPublicacoes() {
   const snap = await getDocs(collection(db, "publicacoes"));
   snap.forEach(d => {
     const pub = d.data();
-    // Início
     containerInicio.innerHTML += `<div class="card"><h4>${pub.titulo}</h4><p>${pub.texto}</p></div>`;
-    // Admin
     containerAdmin.innerHTML += `<li>${pub.titulo} <button onclick="apagarPublicacao('${d.id}')">Eliminar</button></li>`;
-    // Público
     if (containerPublico) containerPublico.innerHTML += `<div class="card"><h4>${pub.titulo}</h4><p>${pub.texto}</p></div>`;
   });
 }
 
-// ====== Apagar publicação ======
 async function apagarPublicacao(id) {
   await deleteDoc(doc(db, "publicacoes", id));
   carregarPublicacoes();
@@ -142,7 +128,6 @@ async function apagarPublicacao(id) {
 async function carregarClassesProfessor() {
   const select = document.getElementById("classeProfessor");
   select.innerHTML = "";
-
   const snap = await getDocs(collection(db, "pautas"));
   snap.forEach(docSnap => {
     select.innerHTML += `<option value="${docSnap.id}">${docSnap.id}</option>`;
@@ -169,21 +154,15 @@ async function acessarPauta() {
     }
 
     const dados = docSnap.data();
-
     if (dados.senha !== senha) {
       alert("Senha incorreta!");
       return;
     }
 
-    // Mostrar área de notas
     document.getElementById("areaNotas").style.display = "block";
-
-    // Preencher select de planilhas (apenas uma por enquanto)
     const planilhaSelect = document.getElementById("planilhaSelect");
     planilhaSelect.innerHTML = `<option value="principal">Principal</option>`;
-
-    // Mostrar tabela de notas
-    let html = `<table class="tabelaNotas"><tr>`;
+    renderizarTabelaNotas(dados.dados);
 
   } catch (err) {
     alert("Erro ao acessar a pauta: " + err.message);
@@ -191,7 +170,7 @@ async function acessarPauta() {
   }
 }
 
-// ====== Renderizar tabela de notas ======
+// ====== Renderizar tabela de notas estilizada ======
 function renderizarTabelaNotas(dados) {
   const container = document.getElementById("tabelaContainer");
   container.innerHTML = "";
@@ -201,7 +180,7 @@ function renderizarTabelaNotas(dados) {
     return;
   }
 
-  let html = "<table><tr>";
+  let html = `<table class="tabelaNotas"><tr>`;
   Object.keys(dados[0]).forEach(key => html += `<th>${key}</th>`);
   html += "</tr>";
 
