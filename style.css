@@ -1,16 +1,15 @@
-body{font-family:Arial;margin:0;background:#BFEFFF}
-header{background:#0077b6;color:white;padding:20px;text-align:center}
-#logo{max-height:90px;display:none;margin:10px auto}
-nav{background:#023e8a;padding:10px;text-align:center}
-nav button{margin:5px;padding:10px 15px;border:none;background:white;cursor:pointer;border-radius:5px}
-section{display:none;padding:20px}
-.active{display:block}
-table{border-collapse:collapse;width:100%;background:white}
-th,td{border:1px solid #ccc;padding:8px;text-align:left}
-th{background:#caf0f8}
-input,select,textarea{padding:6px;margin:5px}
-.card{background:white;padding:15px;border-radius:8px;margin:10px 0}
-.admin-box{background:#ffffff;padding:15px;border-radius:8px;margin-top:15px}
-.delete-btn{background:#e63946;color:white;border:none;padding:5px 8px;margin-left:5px;border-radius:3px;cursor:pointer}
-.publicacoes-container{margin-top:20px}
-.publicacao-item{background:#fff;padding:10px;border-radius:5px;margin-bottom:10px}
+body { font-family: Arial; margin: 0; background: #BFEFFF; }
+header { background: #0077b6; color: white; padding: 20px; text-align: center; }
+#logo { max-height: 90px; display: block; margin: 10px auto; }
+nav { background: #023e8a; padding: 10px; text-align: center; }
+nav button { margin: 5px; padding: 10px 15px; border: none; background: white; cursor: pointer; border-radius: 5px; }
+section { display: none; padding: 20px; }
+.active { display: block; }
+table { border-collapse: collapse; width: 100%; background: white; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+th { background: #caf0f8; }
+input, select, textarea { padding: 6px; margin: 5px; }
+.card, .admin-box { background: white; padding: 15px; border-radius: 8px; margin: 10px 0; }
+.delete-btn { background: #e63946; color: white; border: none; padding: 5px 8px; margin-left: 5px; border-radius: 3px; cursor: pointer; }
+.publicacoes-container { margin-top: 20px; }
+.publicacao-item { background: #fff; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
