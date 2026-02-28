@@ -140,6 +140,70 @@ window.onload = () => {
   carregarPublicacoes();
 };
 
+// --- Função para o professor abrir a pauta ---
+async function acessarPauta() {
+    const classe = document.getElementById("classeProfessor").value.trim();
+    const senha = document.getElementById("senhaProfessor").value.trim();
+
+    if (!classe || !senha) {
+        alert("Preencha classe e senha.");
+        return;
+    }
+
+    try {
+        const docRef = doc(db, "pautas", classe);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            alert("Classe não encontrada.");
+            return;
+        }
+
+        const dados = docSnap.data();
+
+        if (dados.senha !== senha) {
+            alert("Senha incorreta!");
+            return;
+        }
+
+        document.getElementById("areaNotas").style.display = "block";
+        const planilhaSelect = document.getElementById("planilhaSelect");
+        planilhaSelect.innerHTML = `<option value="principal">Principal</option>`;
+        renderizarTabelaNotas(dados.dados);
+
+    } catch (err) {
+        alert("Erro ao acessar a pauta: " + err.message);
+        console.error(err);
+    }
+}
+
+// Função auxiliar para mostrar tabela de notas
+function renderizarTabelaNotas(dados) {
+    const container = document.getElementById("tabelaContainer");
+    container.innerHTML = "";
+
+    if (!dados || dados.length === 0) {
+        container.innerHTML = "<p>Nenhuma nota encontrada.</p>";
+        return;
+    }
+
+    let html = "<table><tr>";
+    Object.keys(dados[0]).forEach(key => html += `<th>${key}</th>`);
+    html += "</tr>";
+
+    dados.forEach(row => {
+        html += "<tr>";
+        Object.values(row).forEach(val => html += `<td contenteditable>${val}</td>`);
+        html += "</tr>";
+    });
+
+    html += "</table>";
+    container.innerHTML = html;
+}
+
+// Tornar acessível ao HTML
+window.acessarPauta = acessarPauta;
+
 // ====== Tornar funções acessíveis ao HTML ======
 window.mostrar = mostrar;
 window.entrarAdmin = entrarAdmin;
