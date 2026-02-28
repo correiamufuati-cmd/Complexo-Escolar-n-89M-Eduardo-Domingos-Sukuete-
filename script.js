@@ -1,10 +1,12 @@
-// script.js
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, setDoc, getDocs, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { 
+  getFirestore, collection, addDoc, setDoc, 
+  getDocs, doc, getDoc, deleteDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js";
 
-// ===== FIREBASE =====
+/* ================= FIREBASE ================= */
+
 const firebaseConfig = {
   apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
   authDomain: "sac-escolar.firebaseapp.com",
@@ -17,14 +19,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ===== MENU =====
+/* ================= MENU ================= */
+
 function mostrar(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  const sec = document.getElementById(id);
-  if (sec) sec.classList.add("active");
+  document.querySelectorAll("section").forEach(sec => {
+    sec.classList.remove("active");
+  });
+
+  const elemento = document.getElementById(id);
+  if (elemento) elemento.classList.add("active");
 }
 
-// ===== REGISTRAR PAUTA (SALVA EXCEL INTACTO) =====
+/* ================= REGISTRAR PAUTA ================= */
+
 async function registarPauta() {
   const classe = document.getElementById("classeNome").value.trim();
   const senha = document.getElementById("senhaClasse").value.trim();
@@ -36,7 +43,8 @@ async function registarPauta() {
   }
 
   const reader = new FileReader();
-  reader.onload = async function(e) {
+  reader.onload = async (e) => {
+
     const base64 = e.target.result.split(",")[1];
 
     await setDoc(doc(db, "pautas", classe), {
@@ -51,9 +59,12 @@ async function registarPauta() {
   reader.readAsDataURL(arquivo);
 }
 
-// ===== CARREGAR CLASSES =====
+/* ================= CARREGAR CLASSES ================= */
+
 async function carregarClassesProfessor() {
   const select = document.getElementById("classeProfessor");
+  if (!select) return;
+
   select.innerHTML = "";
 
   const snap = await getDocs(collection(db, "pautas"));
@@ -62,10 +73,11 @@ async function carregarClassesProfessor() {
   });
 }
 
-// ===== PROFESSOR ABRIR PAUTA (ESTRUTURA ORIGINAL) =====
+/* ================= ACESSAR PAUTA ================= */
+
 async function acessarPauta() {
-  const classe = document.getElementById("classeProfessor").value;
-  const senha = document.getElementById("senhaProfessor").value;
+  const classe = document.getElementById("classeProfessor").value.trim();
+  const senha = document.getElementById("senhaProfessor").value.trim();
 
   if (!classe || !senha) {
     alert("Preencha classe e senha.");
@@ -89,25 +101,30 @@ async function acessarPauta() {
 
   document.getElementById("areaNotas").style.display = "block";
 
-  // Reconstruir Excel original
   const workbook = XLSX.read(dados.arquivo, { type: "base64" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-  const html = XLSX.utils.sheet_to_html(sheet, { id: "tabelaExcel" });
+  let html = XLSX.utils.sheet_to_html(sheet);
+
+  // Remove estilos inline que quebram layout
+  html = html.replace(/style="[^"]*"/g, "");
+
   document.getElementById("tabelaContainer").innerHTML = html;
 
-  // Tornar células editáveis
-  document.querySelectorAll("#tabelaExcel td").forEach(td => {
+  // Ativar edição
+  document.querySelectorAll("#tabelaContainer td").forEach(td => {
     td.contentEditable = true;
   });
 }
 
-// ===== INICIALIZAÇÃO =====
+/* ================= INICIALIZAÇÃO ================= */
+
 window.onload = () => {
   carregarClassesProfessor();
 };
 
-// ===== EXPOR FUNÇÕES =====
+/* ================= EXPOR FUNÇÕES ================= */
+
 window.mostrar = mostrar;
 window.registarPauta = registarPauta;
 window.acessarPauta = acessarPauta;
