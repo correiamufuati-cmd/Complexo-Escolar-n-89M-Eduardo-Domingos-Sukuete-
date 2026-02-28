@@ -183,7 +183,7 @@ async function acessarPauta() {
     planilhaSelect.innerHTML = `<option value="principal">Principal</option>`;
 
     // Mostrar tabela de notas
-    renderizarTabelaNotas(dados.dados);
+    let html = `<table class="tabelaNotas"><tr>`;
 
   } catch (err) {
     alert("Erro ao acessar a pauta: " + err.message);
