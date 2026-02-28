@@ -57,7 +57,6 @@ async function registarPauta() {
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
-            // 1️⃣ Lendo arquivo
             alert("Arquivo lido com sucesso!");
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: "array" });
@@ -65,10 +64,12 @@ async function registarPauta() {
 
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
-            const dados = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            alert("Dados extraídos do Excel!");
 
-            // 2️⃣ Tentando salvar no Firestore
+            // Aqui transformamos o Excel em objetos simples
+            const dados = XLSX.utils.sheet_to_json(worksheet); 
+            alert("Dados do Excel extraídos com sucesso!");
+
+            // Salvar no Firebase
             await setDoc(doc(db, "pautas", classe), { senha: senha, dados: dados });
             alert(`Pauta da classe ${classe} registrada com sucesso!`);
 
@@ -89,22 +90,22 @@ async function registarPauta() {
 window.registarPauta = registarPauta;
 
 // 🔹 Publicações
-async function adicionarPublicacao(isAdmin) {
-  const titulo = isAdmin ? document.getElementById("publicacaoTitulo").value : document.getElementById("publicacaoTituloUsuario").value;
-  const texto = isAdmin ? document.getElementById("publicacaoTexto").value : document.getElementById("publicacaoTextoUsuario").value;
+ função  assíncrona adicionarPublicacao ( isAdmin )  {
+  const  titulo = isAdmin ? document.getElementById ( " publicacaoTitulo " ) . value : document.getElementById ( " publicacaoTituloUsuario " ) . value ;
+  const  texto = isAdmin ? document.getElementById ( " publicacaoTexto " ) . value : document.getElementById ( " publicacaoTextoUsuario " ) . value ;
 
-  if (!titulo || !texto) {
-    alert("Preencha título e texto da publicação.");
-    return;
+  se  ( ! título || ! texto )  {
+    alerta ( "Preencha título e texto da publicação." ) ;
+    retornar ;
   }
 
-  try {
-    await addDoc(collection(db, "publicacoes"), { titulo, texto, data: new Date() });
-    alert("Publicação criada!");
-    carregarPublicacoes();
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao criar publicação.");
+  tentar  {
+    await  addDoc ( coleção ( db , "publicacoes" ) , {  título , texto , dados : nova  Data ( )  } ) ;
+    alert ( "Publicação criada!" ) ;
+    carregadoPublicações ( ) ;
+  }  catch  ( err )  {
+    console.error ( err ) ;​​
+    alert ( "Erro ao criar publicação." ) ;
   }
 }
 
