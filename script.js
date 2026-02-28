@@ -80,6 +80,13 @@ async function registarPauta() {
   reader.readAsArrayBuffer(arquivo);
 }
 
+import * as XLSX from 'https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js';
+
+function renderTabelaExcel(worksheet) {
+    const htmlString = XLSX.utils.sheet_to_html(worksheet);
+    document.getElementById("tabelaContainer").innerHTML = htmlString;
+      }
+
 // ====== Publicações ======
 async function adicionarPublicacao(isAdmin) {
   const titulo = isAdmin ? document.getElementById("publicacaoTitulo").value : document.getElementById("publicacaoTituloUsuario").value;
