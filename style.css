@@ -13,3 +13,34 @@ input, select, textarea { padding: 6px; margin: 5px; }
 .delete-btn { background: #e63946; color: white; border: none; padding: 5px 8px; margin-left: 5px; border-radius: 3px; cursor: pointer; }
 .publicacoes-container { margin-top: 20px; }
 .publicacao-item { background: #fff; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+
+/* Tabela de notas estilizada */
+.tabelaNotas {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.tabelaNotas th, .tabelaNotas td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.tabelaNotas th {
+  background-color: #003e7e;
+  color: white;
+}
+
+.tabelaNotas td {
+  background-color: #f9f9f9;
+}
+
+.tabelaNotas td:focus {
+  outline: 2px solid #003e7e;
+}
+
+.tabelaNotas td:first-child {
+  width: 200px;
+  text-align: left;
+}
