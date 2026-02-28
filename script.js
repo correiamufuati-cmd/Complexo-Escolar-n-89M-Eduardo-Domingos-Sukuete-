@@ -2,8 +2,9 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, setDoc, getDocs, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js";
 
-// ====== Inicializar Firebase ======
+// ===== Inicializar Firebase =====
 const firebaseConfig = {
   apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
   authDomain: "sac-escolar.firebaseapp.com",
@@ -18,22 +19,20 @@ const db = getFirestore(app);
 
 let sistemaAberto = false;
 
-// ====== Menu ======
+// ===== Menu =====
 function mostrar(id) {
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
   const sec = document.getElementById(id);
-  if (sec) sec.classList.add('active');
+  if (sec) sec.classList.add("active");
 }
 
-// ====== Admin ======
+// ===== Admin =====
 function entrarAdmin() {
   const senha = document.getElementById("adminSenha").value;
   if (senha === "Admin123") {
-    mostrar('adminPainel');
+    mostrar("adminPainel");
     alert("Bem-vindo, administrador!");
-  } else {
-    alert("Senha incorreta!");
-  }
+  } else alert("Senha incorreta!");
 }
 
 function toggleSistema() {
@@ -42,7 +41,7 @@ function toggleSistema() {
   alert(`Sistema agora ${sistemaAberto ? "Aberto" : "Fechado"}`);
 }
 
-// ====== Registrar Pauta ======
+// ===== Registrar Pauta =====
 async function registarPauta() {
   const classe = document.getElementById("classeNome").value.trim();
   const senha = document.getElementById("senhaClasse").value.trim();
@@ -60,11 +59,14 @@ async function registarPauta() {
       const workbook = XLSX.read(data, { type: "array" });
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
-      const dados = XLSX.utils.sheet_to_json(worksheet);
 
-      await setDoc(doc(db, "pautas", classe), { senha: senha, dados: dados });
+      // Salvar dados no Firestore como array de objetos simples
+      const dadosArray = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      await setDoc(doc(db, "pautas", classe), { senha, dados: dadosArray });
+
       alert(`Pauta da classe ${classe} registrada com sucesso!`);
 
+      // Limpar campos
       document.getElementById("excelUpload").value = "";
       document.getElementById("classeNome").value = "";
       document.getElementById("senhaClasse").value = "";
@@ -76,18 +78,10 @@ async function registarPauta() {
       console.error(err);
     }
   };
-
   reader.readAsArrayBuffer(arquivo);
 }
 
-import * as XLSX from 'https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js';
-
-function renderTabelaExcel(worksheet) {
-    const htmlString = XLSX.utils.sheet_to_html(worksheet);
-    document.getElementById("tabelaContainer").innerHTML = htmlString;
-      }
-
-// ====== Publicações ======
+// ===== Publicações =====
 async function adicionarPublicacao(isAdmin) {
   const titulo = isAdmin ? document.getElementById("publicacaoTitulo").value : document.getElementById("publicacaoTituloUsuario").value;
   const texto = isAdmin ? document.getElementById("publicacaoTexto").value : document.getElementById("publicacaoTextoUsuario").value;
@@ -107,7 +101,7 @@ async function adicionarPublicacao(isAdmin) {
   }
 }
 
-// ====== Carregar publicações ======
+// ===== Carregar publicações =====
 async function carregarPublicacoes() {
   const containerInicio = document.getElementById("publicacoesInicio");
   const containerAdmin = document.getElementById("listaPublicacoes");
@@ -131,7 +125,7 @@ async function apagarPublicacao(id) {
   carregarPublicacoes();
 }
 
-// ====== Carregar classes para o professor ======
+// ===== Carregar classes para professor =====
 async function carregarClassesProfessor() {
   const select = document.getElementById("classeProfessor");
   select.innerHTML = "";
@@ -141,7 +135,7 @@ async function carregarClassesProfessor() {
   });
 }
 
-// ====== Professor abrir pauta ======
+// ===== Professor abrir pauta =====
 async function acessarPauta() {
   const classe = document.getElementById("classeProfessor").value.trim();
   const senha = document.getElementById("senhaProfessor").value.trim();
@@ -166,9 +160,14 @@ async function acessarPauta() {
       return;
     }
 
+    // Mostrar área de notas
     document.getElementById("areaNotas").style.display = "block";
+
+    // Mostrar select (para futuras planilhas)
     const planilhaSelect = document.getElementById("planilhaSelect");
     planilhaSelect.innerHTML = `<option value="principal">Principal</option>`;
+
+    // Renderizar tabela intacta e editável
     renderizarTabelaNotas(dados.dados);
 
   } catch (err) {
@@ -177,7 +176,7 @@ async function acessarPauta() {
   }
 }
 
-// ====== Renderizar tabela de notas estilizada ======
+// ===== Renderizar tabela notas =====
 function renderizarTabelaNotas(dados) {
   const container = document.getElementById("tabelaContainer");
   container.innerHTML = "";
@@ -201,13 +200,13 @@ function renderizarTabelaNotas(dados) {
   container.innerHTML = html;
 }
 
-// ====== Inicialização ======
+// ===== Inicialização =====
 window.onload = () => {
   carregarPublicacoes();
   carregarClassesProfessor();
 };
 
-// ====== Tornar funções acessíveis ao HTML ======
+// ===== Tornar funções acessíveis ao HTML =====
 window.mostrar = mostrar;
 window.entrarAdmin = entrarAdmin;
 window.toggleSistema = toggleSistema;
