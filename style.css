@@ -1,92 +1,14 @@
-/* ================= LAYOUT GERAL ================= */
-
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background-color: #eef4ff;
-}
-
-header {
-  background-color: #002855;
-  color: white;
-  padding: 20px;
-  text-align: center;
-}
-
-nav {
-  background: white;
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-nav button {
-  padding: 8px 15px;
-  border: none;
-  background-color: #003e7e;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-nav button:hover {
-  background-color: #001f4d;
-}
-
-/* ================= SEÇÕES ================= */
-
-section {
-  display: none;
-  padding: 20px;
-}
-
-section.active {
-  display: block;
-}
-
-/* ================= FORMULÁRIOS ================= */
-
-input, select {
-  padding: 8px;
-  margin: 5px 0;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-button {
-  cursor: pointer;
-}
-
-/* ================= TABELA PAUTA ================= */
-
-#tabelaContainer {
-  margin-top: 20px;
-  overflow-x: auto;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-#tabelaContainer table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-#tabelaContainer th,
-#tabelaContainer td {
-  border: 1px solid #ccc;
-  padding: 6px;
-  text-align: center;
-}
-
-#tabelaContainer th {
-  background-color: #003e7e;
-  color: white;
-}
-
-#tabelaContainer td:focus {
-  outline: 2px solid #003e7e;
-  background-color: #eef4ff;
-  }
+body{margin:0;font-family:Segoe UI,Arial;background:#eef4ff;}
+header{background:#002855;color:white;text-align:center;padding:25px;}
+header img#logo{height:80px;display:block;margin:0 auto 10px;}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;background:white;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+nav button{padding:10px 18px;border:none;background:#003e7e;color:white;border-radius:6px;cursor:pointer;}
+nav button:hover{background:#001f4d;}
+section{display:none;padding:25px;max-width:1100px;margin:auto;}
+section.active{display:block;}
+.card, .admin-box{background:white;padding:20px;border-radius:10px;margin:15px 0;box-shadow:0 4px 10px rgba(0,0,0,0.08);}
+input, select, textarea{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ccc;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{border:1px solid #ccc;padding:8px;text-align:left;}
+th{background:#003e7e;color:white;}
+footer{text-align:center;background:#002855;color:white;padding:15px;margin-top:40px;}
