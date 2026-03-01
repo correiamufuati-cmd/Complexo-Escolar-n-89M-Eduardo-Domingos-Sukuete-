@@ -148,6 +148,7 @@ window.registarPauta = registarPauta;
 window.adicionarPublicacao = adicionarPublicacao;
 window.carregarPublicacoes = carregarPublicacoes;
 window.apagarPublicacao = apagarPublicacao;
+window.entrar = entrar;
 
 // código que já tens acima...
 
