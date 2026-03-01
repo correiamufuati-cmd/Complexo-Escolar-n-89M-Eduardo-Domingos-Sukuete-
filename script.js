@@ -92,6 +92,25 @@ window.registarPauta = function(){
     reader.readAsArrayBuffer(fileInput.files[0]);
 }
 
+async function carregarClassesProfessor() {
+    const select = document.getElementById("classeProfessor");
+    select.innerHTML = "<option value=''>-- Selecionar Classe --</option>";
+
+    try {
+        const snap = await getDocs(collection(db,"pautas"));
+        snap.forEach(docu => {
+            select.innerHTML += `<option value="${docu.id}">${docu.id}</option>`;
+        });
+    } catch(err){
+        console.error("Erro ao carregar classes:", err);
+    }
+}
+window.carregarClassesProfessor = carregarClassesProfessor;
+
+// Chamar esta função quando o menu Lançamento abrir
+document.querySelector("button[onclick=\"mostrar('professorArea')\"]")
+    .addEventListener("click", carregarClassesProfessor);
+
 /* ================= ACESSAR PAUTA ================= */
 window.acessarPauta = async function(){
     const classe = document.getElementById("classeProfessor").value.trim();
