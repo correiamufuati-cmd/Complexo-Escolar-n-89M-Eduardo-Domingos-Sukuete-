@@ -1,13 +1,17 @@
 /* ================= IMPORTS FIREBASE v9 ================= */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    doc, 
-    setDoc 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+/* ================= FIREBASE ================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
+  authDomain: "sac-escolar.firebaseapp.com",
+  projectId: "sac-escolar",
+  storageBucket: "sac-escolar.appspot.com",
+  messagingSenderId: "507793955855",
+  appId: "1:507793955855:web:405579f5e01b3f90cc577a"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 /* ================= CONFIG FIREBASE ================= */
 const firebaseConfig = {
