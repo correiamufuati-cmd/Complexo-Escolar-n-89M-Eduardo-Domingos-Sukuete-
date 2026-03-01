@@ -162,3 +162,24 @@ function entrar() {
 
     alert("Entrou na classe: " + classe);
   }
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const btnEntrar = document.getElementById("btnEntrarLancamento");
+
+  if (btnEntrar) {
+    btnEntrar.addEventListener("click", () => {
+
+      const classe = document.getElementById("classeSelect").value;
+
+      if (!classe) {
+        alert("Selecione uma classe primeiro!");
+        return;
+      }
+
+      alert("Entrou na classe: " + classe);
+
+    });
+  }
+
+});
