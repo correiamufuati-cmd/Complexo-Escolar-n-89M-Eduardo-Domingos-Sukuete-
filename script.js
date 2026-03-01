@@ -148,3 +148,16 @@ window.registarPauta = registarPauta;
 window.adicionarPublicacao = adicionarPublicacao;
 window.carregarPublicacoes = carregarPublicacoes;
 window.apagarPublicacao = apagarPublicacao;
+
+// código que já tens acima...
+
+function entrar() {
+    const classe = document.getElementById("classeSelect").value;
+
+    if (!classe) {
+        alert("Selecione uma classe primeiro!");
+        return;
+    }
+
+    alert("Entrou na classe: " + classe);
+  }
