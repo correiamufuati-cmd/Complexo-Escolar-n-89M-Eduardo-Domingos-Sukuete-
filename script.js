@@ -186,3 +186,10 @@ window.gerarEstatistica = async function(){
     html += "</table>";
     statsContainer.innerHTML = html;
   }
+
+// Tornar funções acessíveis aos botões HTML
+window.mostrar = mostrar;
+window.registarPauta = registarPauta;
+window.publicar = publicar;
+window.entrarAdmin = entrarAdmin;
+window.carregarClassesProfessor = carregarClassesProfessor;
