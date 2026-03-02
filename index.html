@@ -96,28 +96,19 @@
 <!-- Lançamento Professor -->
 <section id="professorArea">
   <h2>Lançamento de Notas</h2>
-
-  <!-- Seleção de classe -->
-  <label for="classeSelect">Classe:</label>
-  <select id="classeSelect">
-    <!-- Opções serão carregadas via JS -->
-  </select>
+  <label>Classe:</label>
+  <select id="classeSelect"></select>
+  <input type="password" id="senhaProfessor" placeholder="Senha da Classe">
   <button id="btnEntrarLancamento">Entrar</button>
 
-  <!-- Senha da classe -->
-  <input type="password" id="senhaProfessor" placeholder="Senha da Classe">
-
-  <!-- Área de notas (inicialmente escondida) -->
-  <div id="areaNotas" style="display:none; margin-top:20px;">
-    <label for="planilhaSelect">Selecionar Planilha:</label>
+  <div id="areaNotas" style="display:none">
+    <label>Selecionar Planilha:</label>
     <select id="planilhaSelect" onchange="selecionarPlanilha()"></select>
-
     <h3>Pauta</h3>
     <div id="tabelaContainer"></div>
-
     <button onclick="confirmarGuardar()" id="btnGuardar">Guardar Alterações</button>
   </div>
-  </section>
+</section>
 
 <!-- Resultados -->
 <section id="resultados">
