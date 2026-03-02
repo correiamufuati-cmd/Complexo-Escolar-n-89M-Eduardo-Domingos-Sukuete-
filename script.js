@@ -1,7 +1,6 @@
-// script.js
-
+// ================== script.js ==================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, setDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, setDoc, getDocs, doc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ====== Inicializar Firebase ======
 const firebaseConfig = {
@@ -19,7 +18,7 @@ const db = getFirestore(app);
 // ====== Variáveis globais ======
 let sistemaAberto = false;
 
-// ====== Funções de menu ======
+// ====== Funções de Menu ======
 function mostrar(id) {
   document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
   const sec = document.getElementById(id);
@@ -43,7 +42,7 @@ function toggleSistema() {
   alert(`Sistema agora ${sistemaAberto ? "Aberto" : "Fechado"}`);
 }
 
-// ====== Registrar pauta (Excel) ======
+// ====== Registrar Pauta ======
 async function registarPauta() {
   const classe = document.getElementById("classeNome").value.trim();
   const senha = document.getElementById("senhaClasse").value.trim();
@@ -57,17 +56,13 @@ async function registarPauta() {
   const reader = new FileReader();
   reader.onload = async (e) => {
     try {
-      alert("Arquivo lido com sucesso!");
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
-      alert("Arquivo Excel processado!");
-
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
 
-      // ✅ Converter Excel para array de objetos simples
+      // Converter Excel para array de objetos simples
       const dados = XLSX.utils.sheet_to_json(worksheet); 
-      alert("Dados do Excel extraídos com sucesso!");
 
       // Salvar no Firestore
       await setDoc(doc(db, "pautas", classe), { senha: senha, dados: dados });
@@ -77,6 +72,9 @@ async function registarPauta() {
       document.getElementById("excelUpload").value = "";
       document.getElementById("classeNome").value = "";
       document.getElementById("senhaClasse").value = "";
+
+      // Atualizar select de classes
+      carregarClasses();
 
     } catch (err) {
       alert("Erro ao registrar a pauta: " + err.message);
@@ -107,7 +105,7 @@ async function adicionarPublicacao(isAdmin) {
   }
 }
 
-// ====== Carregar publicações ======
+// ====== Carregar Publicações ======
 async function carregarPublicacoes() {
   const containerInicio = document.getElementById("publicacoesInicio");
   const containerAdmin = document.getElementById("listaPublicacoes");
@@ -129,16 +127,96 @@ async function carregarPublicacoes() {
   });
 }
 
-// ====== Apagar publicação ======
+// ====== Apagar Publicação ======
 async function apagarPublicacao(id) {
   await deleteDoc(doc(db, "publicacoes", id));
   carregarPublicacoes();
 }
 
+// ====== Renderizar Tabela de Notas ======
+function renderizarTabelaNotas(dados) {
+  const container = document.getElementById("tabelaContainer");
+  container.innerHTML = "";
+
+  if (!dados || dados.length === 0) {
+    container.innerHTML = "<p>Nenhuma nota encontrada.</p>";
+    return;
+  }
+
+  let html = "<table><tr>";
+  // Cabeçalho
+  Object.keys(dados[0]).forEach(key => html += `<th>${key}</th>`);
+  html += "</tr>";
+
+  // Linhas
+  dados.forEach(row => {
+    html += "<tr>";
+    Object.values(row).forEach(val => html += `<td contenteditable>${val}</td>`);
+    html += "</tr>";
+  });
+
+  html += "</table>";
+  container.innerHTML = html;
+}
+
+// ====== Carregar Classes ======
+async function carregarClasses() {
+  const select = document.getElementById("classeSelect");
+  select.innerHTML = "";
+  const snap = await getDocs(collection(db, "pautas"));
+  snap.forEach(docItem => {
+    const option = document.createElement("option");
+    option.value = docItem.id;
+    option.textContent = docItem.id;
+    select.appendChild(option);
+  });
+}
+
+// ====== Entrar no Lançamento ======
+async function acessarPauta() {
+  const classe = document.getElementById("classeSelect").value;
+  const senha = document.getElementById("senhaProfessor").value.trim();
+
+  if (!classe || !senha) {
+    alert("Selecione a classe e preencha a senha!");
+    return;
+  }
+
+  try {
+    const docRef = doc(db, "pautas", classe);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      alert("Classe não encontrada!");
+      return;
+    }
+
+    const dados = docSnap.data();
+    if (dados.senha !== senha) {
+      alert("Senha incorreta!");
+      return;
+    }
+
+    document.getElementById("areaNotas").style.display = "block";
+    const planilhaSelect = document.getElementById("planilhaSelect");
+    planilhaSelect.innerHTML = "<option value='principal'>Principal</option>";
+
+    renderizarTabelaNotas(dados.dados);
+
+  } catch (err) {
+    alert("Erro ao acessar a pauta: " + err.message);
+    console.error(err);
+  }
+}
+
 // ====== Inicialização ======
-window.onload = () => {
+document.addEventListener("DOMContentLoaded", () => {
   carregarPublicacoes();
-};
+  carregarClasses();
+
+  const btnEntrar = document.getElementById("btnEntrarLancamento");
+  if(btnEntrar) btnEntrar.addEventListener("click", acessarPauta);
+});
 
 // ====== Tornar funções acessíveis ao HTML ======
 window.mostrar = mostrar;
@@ -148,38 +226,4 @@ window.registarPauta = registarPauta;
 window.adicionarPublicacao = adicionarPublicacao;
 window.carregarPublicacoes = carregarPublicacoes;
 window.apagarPublicacao = apagarPublicacao;
-window.entrar = entrar;
-
-// código que já tens acima...
-
-function entrar() {
-    const classe = document.getElementById("classeSelect").value;
-
-    if (!classe) {
-        alert("Selecione uma classe primeiro!");
-        return;
-    }
-
-    alert("Entrou na classe: " + classe);
-  }
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  const btnEntrar = document.getElementById("btnEntrarLancamento");
-
-  if (btnEntrar) {
-    btnEntrar.addEventListener("click", () => {
-
-      const classe = document.getElementById("classeSelect").value;
-
-      if (!classe) {
-        alert("Selecione uma classe primeiro!");
-        return;
-      }
-
-      alert("Entrou na classe: " + classe);
-
-    });
-  }
-
-});
+window.acessarPauta = acessarPauta;
