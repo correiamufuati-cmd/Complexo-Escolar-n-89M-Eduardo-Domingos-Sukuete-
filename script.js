@@ -17,10 +17,8 @@ function mostrar(id) {
         p.classList.remove("ativa");
     });
 
-    const sec = document.getElementById(id);
-    if (sec) {
-        sec.classList.add("ativa");
-    }
+    document.getElementById(id).classList.add("ativa");
+}
 }
 
 // ================= ADMIN - CRIAR ACESSO =================
