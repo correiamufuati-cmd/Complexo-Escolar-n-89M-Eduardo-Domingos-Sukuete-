@@ -1,229 +1,101 @@
-// ================== script.js ==================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, setDoc, getDocs, doc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ====== Inicializar Firebase ======
+// 🔥 Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyC0NRCbPalAC3Yrfpc8qYdJVU6DxuEOyTw",
+  apiKey: "AIzaSy...",
   authDomain: "sac-escolar.firebaseapp.com",
-  projectId: "sac-escolar",
-  storageBucket: "sac-escolar.appspot.com",
-  messagingSenderId: "507793955855",
-  appId: "1:507793955855:web:405579f5e01b3f90cc577a"
+  projectId: "sac-escolar"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ====== Variáveis globais ======
-let sistemaAberto = false;
-
-// ====== Funções de Menu ======
+// ================= MENU =================
 function mostrar(id) {
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-  const sec = document.getElementById(id);
-  if(sec) sec.classList.add('active');
+  document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
+  document.getElementById(id).classList.add("ativa");
 }
 
-// ====== Admin ======
-function entrarAdmin() {
-  const senha = document.getElementById("adminSenha").value;
-  if (senha === "Admin123") {
-    mostrar('adminPainel');
-    alert("Bem-vindo, administrador!");
-  } else {
-    alert("Senha incorreta!");
-  }
+// ================= ADMIN - CRIAR ACESSO =================
+async function criarAcesso() {
+  const professor = document.getElementById("professor").value;
+  const disciplina = document.getElementById("disciplina").value;
+  const senha = document.getElementById("senhaAcesso").value;
+  const link = document.getElementById("linkExcel").value;
+
+  await addDoc(collection(db, "acessos"), {
+    professor,
+    disciplina,
+    senha,
+    link
+  });
+
+  alert("Acesso criado!");
 }
 
-function toggleSistema() {
-  sistemaAberto = !sistemaAberto;
-  document.getElementById("estadoSistema").innerText = sistemaAberto ? "Aberto" : "Fechado";
-  alert(`Sistema agora ${sistemaAberto ? "Aberto" : "Fechado"}`);
-}
+// ================= LOGIN PROFESSOR =================
+async function entrarProfessor() {
+  const disciplina = document.getElementById("loginDisciplina").value;
+  const senha = document.getElementById("loginSenha").value;
 
-// ====== Registrar Pauta ======
-async function registarPauta() {
-  const classe = document.getElementById("classeNome").value.trim();
-  const senha = document.getElementById("senhaClasse").value.trim();
-  const arquivo = document.getElementById("excelUpload").files[0];
+  const snap = await getDocs(collection(db, "acessos"));
 
-  if (!classe || !senha || !arquivo) {
-    alert("Preencha todos os campos e selecione um arquivo Excel.");
-    return;
-  }
+  let encontrado = null;
 
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-
-      // Converter Excel para array de objetos simples
-      const dados = XLSX.utils.sheet_to_json(worksheet); 
-
-      // Salvar no Firestore
-      await setDoc(doc(db, "pautas", classe), { senha: senha, dados: dados });
-      alert(`Pauta da classe ${classe} registrada com sucesso!`);
-
-      // Limpar campos
-      document.getElementById("excelUpload").value = "";
-      document.getElementById("classeNome").value = "";
-      document.getElementById("senhaClasse").value = "";
-
-      // Atualizar select de classes
-      carregarClasses();
-
-    } catch (err) {
-      alert("Erro ao registrar a pauta: " + err.message);
-      console.error(err);
+  snap.forEach(doc => {
+    const d = doc.data();
+    if (d.disciplina === disciplina && d.senha === senha) {
+      encontrado = d;
     }
-  };
+  });
 
-  reader.readAsArrayBuffer(arquivo);
-}
-
-// ====== Publicações ======
-async function adicionarPublicacao(isAdmin) {
-  const titulo = isAdmin ? document.getElementById("publicacaoTitulo").value : document.getElementById("publicacaoTituloUsuario").value;
-  const texto = isAdmin ? document.getElementById("publicacaoTexto").value : document.getElementById("publicacaoTextoUsuario").value;
-
-  if (!titulo || !texto) {
-    alert("Preencha título e texto da publicação.");
-    return;
-  }
-
-  try {
-    await addDoc(collection(db, "publicacoes"), { titulo, texto, data: new Date() });
-    alert("Publicação criada!");
-    carregarPublicacoes();
-  } catch (err) {
-    alert("Erro ao criar publicação.");
-    console.error(err);
+  if (encontrado) {
+    alert("Acesso permitido!");
+    window.open(encontrado.link, "_blank");
+  } else {
+    alert("Acesso negado!");
   }
 }
 
-// ====== Carregar Publicações ======
+// ================= PUBLICAÇÕES =================
+async function criarPublicacao() {
+  const titulo = document.getElementById("pubTitulo").value;
+  const texto = document.getElementById("pubTexto").value;
+
+  await addDoc(collection(db, "publicacoes"), {
+    titulo,
+    texto
+  });
+
+  carregarPublicacoes();
+}
+
+// ================= CARREGAR PUBLICAÇÕES =================
 async function carregarPublicacoes() {
-  const containerInicio = document.getElementById("publicacoesInicio");
-  const containerAdmin = document.getElementById("listaPublicacoes");
-  const containerPublico = document.getElementById("publicacoesContainer");
+  const div = document.getElementById("listaPublicacoes");
+  const feed = document.getElementById("feed");
 
-  containerInicio.innerHTML = "";
-  containerAdmin.innerHTML = "";
-  if(containerPublico) containerPublico.innerHTML = "";
+  div.innerHTML = "";
+  feed.innerHTML = "";
 
   const snap = await getDocs(collection(db, "publicacoes"));
-  snap.forEach(d => {
-    const pub = d.data();
-    // Início
-    containerInicio.innerHTML += `<div class="card"><h4>${pub.titulo}</h4><p>${pub.texto}</p></div>`;
-    // Admin
-    containerAdmin.innerHTML += `<li>${pub.titulo} <button onclick="apagarPublicacao('${d.id}')">Eliminar</button></li>`;
-    // Público
-    if(containerPublico) containerPublico.innerHTML += `<div class="card"><h4>${pub.titulo}</h4><p>${pub.texto}</p></div>`;
+
+  snap.forEach(doc => {
+    const p = doc.data();
+
+    div.innerHTML += `<p><b>${p.titulo}</b>: ${p.texto}</p>`;
+    feed.innerHTML += `<p><b>${p.titulo}</b>: ${p.texto}</p>`;
   });
 }
 
-// ====== Apagar Publicação ======
-async function apagarPublicacao(id) {
-  await deleteDoc(doc(db, "publicacoes", id));
-  carregarPublicacoes();
-}
-
-// ====== Renderizar Tabela de Notas ======
-function renderizarTabelaNotas(dados) {
-  const container = document.getElementById("tabelaContainer");
-  container.innerHTML = "";
-
-  if (!dados || dados.length === 0) {
-    container.innerHTML = "<p>Nenhuma nota encontrada.</p>";
-    return;
-  }
-
-  let html = "<table><tr>";
-  // Cabeçalho
-  Object.keys(dados[0]).forEach(key => html += `<th>${key}</th>`);
-  html += "</tr>";
-
-  // Linhas
-  dados.forEach(row => {
-    html += "<tr>";
-    Object.values(row).forEach(val => html += `<td contenteditable>${val}</td>`);
-    html += "</tr>";
-  });
-
-  html += "</table>";
-  container.innerHTML = html;
-}
-
-// ====== Carregar Classes ======
-async function carregarClasses() {
-  const select = document.getElementById("classeSelect");
-  select.innerHTML = "";
-  const snap = await getDocs(collection(db, "pautas"));
-  snap.forEach(docItem => {
-    const option = document.createElement("option");
-    option.value = docItem.id;
-    option.textContent = docItem.id;
-    select.appendChild(option);
-  });
-}
-
-// ====== Entrar no Lançamento ======
-async function acessarPauta() {
-  const classe = document.getElementById("classeSelect").value;
-  const senha = document.getElementById("senhaProfessor").value.trim();
-
-  if (!classe || !senha) {
-    alert("Selecione a classe e preencha a senha!");
-    return;
-  }
-
-  try {
-    const docRef = doc(db, "pautas", classe);
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      alert("Classe não encontrada!");
-      return;
-    }
-
-    const dados = docSnap.data();
-    if (dados.senha !== senha) {
-      alert("Senha incorreta!");
-      return;
-    }
-
-    document.getElementById("areaNotas").style.display = "block";
-    const planilhaSelect = document.getElementById("planilhaSelect");
-    planilhaSelect.innerHTML = "<option value='principal'>Principal</option>";
-
-    renderizarTabelaNotas(dados.dados);
-
-  } catch (err) {
-    alert("Erro ao acessar a pauta: " + err.message);
-    console.error(err);
-  }
-}
-
-// ====== Inicialização ======
+// ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
   carregarPublicacoes();
-  carregarClasses();
-
-  const btnEntrar = document.getElementById("btnEntrarLancamento");
-  if(btnEntrar) btnEntrar.addEventListener("click", acessarPauta);
 });
 
-// ====== Tornar funções acessíveis ao HTML ======
+// expor funções
 window.mostrar = mostrar;
-window.entrarAdmin = entrarAdmin;
-window.toggleSistema = toggleSistema;
-window.registarPauta = registarPauta;
-window.adicionarPublicacao = adicionarPublicacao;
-window.carregarPublicacoes = carregarPublicacoes;
-window.apagarPublicacao = apagarPublicacao;
-window.acessarPauta = acessarPauta;
+window.criarAcesso = criarAcesso;
+window.entrarProfessor = entrarProfessor;
+window.criarPublicacao = criarPublicacao;
