@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</title>
+<title>Complexo Escolar Nº 89M</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -14,42 +14,47 @@
 
 <nav>
   <button onclick="mostrar('home')">Início</button>
-  <button onclick="mostrar('admin')">Administrador</button>
+  <button onclick="mostrar('admin')">Admin</button>
   <button onclick="mostrar('lancamento')">Lançamento</button>
   <button onclick="mostrar('boletins')">Boletins</button>
-  <button onclick="mostrar('publicacoes')">Publicações</button>
+  <button onclick="mostrar('sobre')">Sobre</button>
+  <button onclick="mostrar('contactos')">Contactos</button>
 </nav>
 
 <!-- HOME -->
 <section id="home" class="pagina ativa">
+
+  <div class="banner">
+    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1" />
+  </div>
+
   <h2>Publicações Recentes</h2>
   <div id="feed"></div>
+
+  <!-- ADS PLACE -->
+  <div class="ads">
+    <!-- Google AdSense aqui -->
+  </div>
+
 </section>
 
 <!-- ADMIN -->
 <section id="admin" class="pagina">
   <h2>Administrador</h2>
 
-  <h3>Criar Acesso Professor</h3>
-
-  <input id="professor" placeholder="Professor">
-  <input id="disciplina" placeholder="Disciplina">
-  <input id="senhaAcesso" placeholder="Senha">
-  <input id="linkExcel" placeholder="Link Excel">
-
-  <button onclick="criarAcesso()">Criar Acesso</button>
+  <button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
 
   <h3>Publicações</h3>
-
   <input id="pubTitulo" placeholder="Título">
   <input id="pubTexto" placeholder="Texto">
-
   <button onclick="criarPublicacao()">Publicar</button>
+
+  <div id="listaPublicacoes"></div>
 </section>
 
 <!-- LANÇAMENTO -->
 <section id="lancamento" class="pagina">
-  <h2>Login Professor</h2>
+  <h2>Área do Professor</h2>
 
   <input id="loginDisciplina" placeholder="Disciplina">
   <input id="loginSenha" placeholder="Senha">
@@ -60,13 +65,19 @@
 <!-- BOLETINS -->
 <section id="boletins" class="pagina">
   <h2>Boletins</h2>
-  <p>Em construção</p>
+  <p>Sistema em desenvolvimento</p>
 </section>
 
-<!-- PUBLICAÇÕES -->
-<section id="publicacoes" class="pagina">
-  <h2>Publicações</h2>
-  <div id="listaPublicacoes"></div>
+<!-- SOBRE -->
+<section id="sobre" class="pagina">
+  <h2>Sobre o Sistema</h2>
+  <p>Plataforma escolar digital para gestão de notas e publicações.</p>
+</section>
+
+<!-- CONTACTOS -->
+<section id="contactos" class="pagina">
+  <h2>Contactos</h2>
+  <p>Email: escola@exemplo.com</p>
 </section>
 
 <script type="module" src="script.js"></script>
