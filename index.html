@@ -16,69 +16,85 @@
 <button onclick="mostrar('home')">Início</button>
 <button onclick="mostrar('admin')">Administrador</button>
 <button onclick="mostrar('lancamento')">Lançamento</button>
+<button onclick="mostrar('dashboard')">Dashboard</button>
+<button onclick="mostrar('estatistica')">Estatística</button>
 </nav>
 
 <!-- INÍCIO -->
 <section id="home" class="pagina ativa">
 
 <div class="banner">
-  <marquee>📢 Bem-vindo ao sistema escolar digital | Publicidades aqui</marquee>
+<marquee>📢 Sistema escolar digital | Publicidade aqui</marquee>
 </div>
-
-<img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1" class="img-topo">
 
 <h2>Publicações</h2>
 <div id="feed"></div>
+
+<h2>Ficheiros Privados</h2>
+<div id="ficheirosHome"></div>
 
 </section>
 
 <!-- ADMIN -->
 <section id="admin" class="pagina">
 
-<h2>Painel do Administrador</h2>
+<h2>Administrador</h2>
 
-<!-- SISTEMA -->
 <button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
 
-<!-- PUBLICAÇÕES -->
 <h3>Publicações</h3>
 <input id="pubTitulo" placeholder="Título">
 <input id="pubTexto" placeholder="Texto">
 <button onclick="criarPublicacao()">Publicar</button>
-
 <div id="listaPublicacoes"></div>
 
-<!-- ACESSOS -->
-<h3>Gerar Acesso</h3>
+<h3>Acessos</h3>
 <input id="disciplina" placeholder="Disciplina">
 <input id="senhaAcesso" placeholder="Senha">
-<button onclick="gerarSenha()">Gerar Senha</button>
+<button onclick="gerarSenha()">Gerar</button>
 <input id="linkExcel" placeholder="Link Excel">
-
-<button onclick="criarAcesso()">Guardar Acesso</button>
-
+<button onclick="criarAcesso()">Guardar</button>
 <div id="listaAcessos"></div>
 
-<!-- UPLOAD -->
-<h3>Partilhar Ficheiro</h3>
-<input type="file" id="ficheiro">
-<button onclick="alert('Upload simulado (ligar Firebase Storage depois)')">Partilhar</button>
+<h3>Ficheiros Privados</h3>
+<input id="ficheiroNome" placeholder="Nome">
+<input id="ficheiroLink" placeholder="Link">
+<input id="ficheiroSenha" placeholder="Senha">
+<button onclick="gerarSenhaFicheiro()">Gerar</button>
+<button onclick="partilharFicheiro()">Partilhar</button>
+<div id="listaFicheiros"></div>
+
+<h3>Boletins (PDF)</h3>
+<input id="boletimDisciplina" placeholder="Disciplina">
+<input id="boletimLink" placeholder="Link PDF">
+<button onclick="publicarBoletim()">Publicar</button>
+<div id="listaBoletins"></div>
 
 </section>
 
 <!-- LANÇAMENTO -->
 <section id="lancamento" class="pagina">
-
-<h2>Área do Professor</h2>
-
+<h2>Professor</h2>
 <input id="loginDisciplina" placeholder="Disciplina">
 <input id="loginSenha" placeholder="Senha">
-
 <button onclick="entrarProfessor()">Entrar</button>
+</section>
 
+<!-- DASHBOARD -->
+<section id="dashboard" class="pagina">
+<h2>Dashboard</h2>
+<div>Total Acessos: <span id="totalAcessos"></span></div>
+<div>Publicações: <span id="totalPublicacoes"></span></div>
+<div>Ficheiros: <span id="totalFicheiros"></span></div>
+</section>
+
+<!-- ESTATISTICA -->
+<section id="estatistica" class="pagina">
+<h2>Estatística</h2>
+<div id="estatisticas"></div>
 </section>
 
 <script type="module" src="./script.js"></script>
 
 </body>
-  </html>
+                                                  </html>
