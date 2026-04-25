@@ -10,7 +10,6 @@ import {
   setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// CONFIG
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "sac-escolar.firebaseapp.com",
@@ -20,13 +19,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// NAV
+// MENU
 function mostrar(id) {
   document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
   document.getElementById(id).classList.add("ativa");
 }
 
-// GERAR SENHA
+// SENHA
 function gerarSenha() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let senha = "";
@@ -40,30 +39,20 @@ function gerarSenha() {
 async function toggleSistema() {
   const ref = doc(db, "config", "system");
   const snap = await getDoc(ref);
-
   const estado = snap.exists() ? !snap.data().ativo : false;
-
   await setDoc(ref, { ativo: estado });
-
-  atualizarDashboard();
+  alert("Sistema: " + (estado ? "ATIVO" : "DESLIGADO"));
 }
 
 // ACESSOS
 async function criarAcesso() {
-  const professor = document.getElementById("professor").value;
   const disciplina = document.getElementById("disciplina").value;
   const senha = document.getElementById("senhaAcesso").value;
   const link = document.getElementById("linkExcel").value;
 
-  await addDoc(collection(db, "acessos"), {
-    professor,
-    disciplina,
-    senha,
-    link
-  });
+  await addDoc(collection(db, "acessos"), { disciplina, senha, link });
 
   carregarAcessos();
-  atualizarDashboard();
 }
 
 async function carregarAcessos() {
@@ -74,12 +63,9 @@ async function carregarAcessos() {
 
   snap.forEach(d => {
     const a = d.data();
-
     lista.innerHTML += `
       <div class="card">
-        ${a.professor} - ${a.disciplina}<br>
-        Senha: ${a.senha}<br>
-        <a href="${a.link}" target="_blank">Abrir Excel</a><br>
+        ${a.disciplina} | ${a.senha}
         <button onclick="apagarAcesso('${d.id}')">Apagar</button>
       </div>
     `;
@@ -89,21 +75,12 @@ async function carregarAcessos() {
 async function apagarAcesso(id) {
   await deleteDoc(doc(db, "acessos", id));
   carregarAcessos();
-  atualizarDashboard();
 }
 
 // LOGIN PROFESSOR
 async function entrarProfessor() {
   const disciplina = document.getElementById("loginDisciplina").value;
   const senha = document.getElementById("loginSenha").value;
-
-  const ref = doc(db, "config", "system");
-  const snapSys = await getDoc(ref);
-
-  if (snapSys.exists() && !snapSys.data().ativo) {
-    alert("Sistema desligado");
-    return;
-  }
 
   const snap = await getDocs(collection(db, "acessos"));
 
@@ -119,7 +96,7 @@ async function entrarProfessor() {
   if (acesso) {
     window.open(acesso.link, "_blank");
   } else {
-    alert("Dados incorretos");
+    alert("Acesso negado");
   }
 }
 
@@ -131,11 +108,13 @@ async function criarPublicacao() {
   await addDoc(collection(db, "publicacoes"), { titulo, texto });
 
   carregarPublicacoes();
-  atualizarDashboard();
 }
 
 async function carregarPublicacoes() {
+  const feed = document.getElementById("feed");
   const lista = document.getElementById("listaPublicacoes");
+
+  feed.innerHTML = "";
   lista.innerHTML = "";
 
   const snap = await getDocs(collection(db, "publicacoes"));
@@ -143,10 +122,11 @@ async function carregarPublicacoes() {
   snap.forEach(d => {
     const p = d.data();
 
+    feed.innerHTML += `<div class="card"><b>${p.titulo}</b><p>${p.texto}</p></div>`;
+
     lista.innerHTML += `
       <div class="card">
-        <b>${p.titulo}</b>
-        <p>${p.texto}</p>
+        ${p.titulo}
         <button onclick="apagarPublicacao('${d.id}')">Apagar</button>
       </div>
     `;
@@ -158,26 +138,10 @@ async function apagarPublicacao(id) {
   carregarPublicacoes();
 }
 
-// DASHBOARD
-async function atualizarDashboard() {
-  const acessos = await getDocs(collection(db, "acessos"));
-  document.getElementById("totalAcessos").innerText = acessos.size;
-
-  const pubs = await getDocs(collection(db, "publicacoes"));
-  document.getElementById("totalPublicacoes").innerText = pubs.size;
-
-  const ref = doc(db, "config", "system");
-  const snap = await getDoc(ref);
-
-  document.getElementById("estadoSistema").innerText =
-    snap.exists() && snap.data().ativo ? "ATIVO" : "DESLIGADO";
-}
-
 // INIT
 document.addEventListener("DOMContentLoaded", () => {
-  carregarAcessos();
   carregarPublicacoes();
-  atualizarDashboard();
+  carregarAcessos();
 });
 
 // EXPORT
