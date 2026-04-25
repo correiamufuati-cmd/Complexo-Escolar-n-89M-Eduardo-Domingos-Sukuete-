@@ -1,210 +1,221 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs,
-  deleteDoc, doc, getDoc, setDoc
+getFirestore,
+collection,
+addDoc,
+getDocs,
+deleteDoc,
+doc,
+getDoc,
+setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+import {
+getStorage,
+ref,
+uploadBytes,
+getDownloadURL,
+deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "sac-escolar.firebaseapp.com",
-  projectId: "sac-escolar"
+apiKey: "SUA_API_KEY",
+authDomain: "sac-escolar.firebaseapp.com",
+projectId: "sac-escolar"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-// MENU
+// NAV
 function mostrar(id) {
-  document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
-  document.getElementById(id).classList.add("ativa");
+document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
+document.getElementById(id).classList.add("ativa");
+}
+
+// ADMIN LOGIN
+function entrarAdmin() {
+const senha = adminSenha.value;
+if (senha === "Admin123") {
+mostrar("admin");
+} else {
+alert("Senha incorreta");
+}
 }
 
 // SENHAS
 function gerarSenha() {
-  document.getElementById("senhaAcesso").value = Math.random().toString(36).substring(2,8);
+senhaAcesso.value = Math.random().toString(36).substring(2,8);
 }
 
 function gerarSenhaFicheiro() {
-  document.getElementById("ficheiroSenha").value = Math.random().toString(36).substring(2,8);
+ficheiroSenha.value = Math.random().toString(36).substring(2,8);
 }
 
 // SISTEMA
 async function toggleSistema() {
-  const ref = doc(db,"config","system");
-  const snap = await getDoc(ref);
-  const estado = snap.exists() ? !snap.data().ativo : true;
-  await setDoc(ref,{ativo:estado});
-  alert("Sistema: "+(estado?"ATIVO":"DESLIGADO"));
+const refSys = doc(db,"config","system");
+const snap = await getDoc(refSys);
+const estado = snap.exists() ? !snap.data().ativo : true;
+await setDoc(refSys,{ativo:estado});
+alert("Sistema atualizado");
 }
 
 // ACESSOS
 async function criarAcesso() {
-  await addDoc(collection(db,"acessos"),{
-    disciplina:disciplina.value,
-    senha:senhaAcesso.value,
-    link:linkExcel.value
-  });
-  carregarAcessos();
+await addDoc(collection(db,"acessos"),{
+disciplina:disciplina.value,
+senha:senhaAcesso.value,
+link:linkExcel.value
+});
+carregarAcessos();
 }
 
-async function carregarAcessos(){
-  listaAcessos.innerHTML="";
-  const snap = await getDocs(collection(db,"acessos"));
-  snap.forEach(d=>{
-    const a=d.data();
-    listaAcessos.innerHTML+=`
-      <div class="card">
-      ${a.disciplina} | ${a.senha}
-      <button onclick="apagarAcesso('${d.id}')">Apagar</button>
-      </div>`;
-  });
+async function carregarAcessos() {
+listaAcessos.innerHTML="";
+const snap = await getDocs(collection(db,"acessos"));
+snap.forEach(d=>{
+const a=d.data();
+listaAcessos.innerHTML+=`
+<div class="card">
+${a.disciplina} | ${a.senha}
+<button onclick="apagarAcesso('${d.id}')">Apagar</button>
+</div>`;
+});
 }
 
 async function apagarAcesso(id){
-  await deleteDoc(doc(db,"acessos",id));
-  carregarAcessos();
+await deleteDoc(doc(db,"acessos",id));
+carregarAcessos();
 }
 
-// LOGIN
+// LOGIN PROFESSOR
 async function entrarProfessor(){
-  const snap = await getDocs(collection(db,"acessos"));
-  snap.forEach(d=>{
-    const a=d.data();
-    if(a.disciplina===loginDisciplina.value && a.senha===loginSenha.value){
-      window.open(a.link,"_blank");
-    }
-  });
+const snap = await getDocs(collection(db,"acessos"));
+snap.forEach(d=>{
+const a=d.data();
+if(a.disciplina===loginDisciplina.value && a.senha===loginSenha.value){
+window.open(a.link);
+}
+});
 }
 
 // PUBLICAÇÕES
 async function criarPublicacao(){
-  await addDoc(collection(db,"publicacoes"),{
-    titulo:pubTitulo.value,
-    texto:pubTexto.value
-  });
-  carregarPublicacoes();
+await addDoc(collection(db,"publicacoes"),{
+titulo:pubTitulo.value,
+texto:pubTexto.value
+});
+carregarPublicacoes();
 }
 
 async function carregarPublicacoes(){
-  feed.innerHTML="";
-  listaPublicacoes.innerHTML="";
-  const snap = await getDocs(collection(db,"publicacoes"));
-  snap.forEach(d=>{
-    const p=d.data();
-    feed.innerHTML+=`<div class="card">${p.titulo}<p>${p.texto}</p></div>`;
-    listaPublicacoes.innerHTML+=`
-    <div class="card">
-    ${p.titulo}
-    <button onclick="apagarPublicacao('${d.id}')">Apagar</button>
-    </div>`;
-  });
+feed.innerHTML="";
+listaPublicacoes.innerHTML="";
+const snap = await getDocs(collection(db,"publicacoes"));
+snap.forEach(d=>{
+const p=d.data();
+feed.innerHTML+=`<div class="card"><b>${p.titulo}</b><p>${p.texto}</p></div>`;
+});
 }
 
-async function apagarPublicacao(id){
-  await deleteDoc(doc(db,"publicacoes",id));
-  carregarPublicacoes();
-}
+// FICHEIROS (UPLOAD REAL)
+async function uploadFicheiro(){
+const file = ficheiroUpload.files[0];
+const senha = ficheiroSenha.value;
 
-// FICHEIROS
-async function partilharFicheiro(){
-  await addDoc(collection(db,"ficheiros"),{
-    nome:ficheiroNome.value,
-    link:ficheiroLink.value,
-    senha:ficheiroSenha.value
-  });
-  carregarFicheiros();
+const storageRef = ref(storage,"ficheiros/"+file.name);
+await uploadBytes(storageRef,file);
+const url = await getDownloadURL(storageRef);
+
+await addDoc(collection(db,"ficheiros"),{
+nome:file.name,
+link:url,
+senha:senha
+});
+
+carregarFicheiros();
 }
 
 async function carregarFicheiros(){
-  listaFicheiros.innerHTML="";
-  ficheirosHome.innerHTML="";
+ficheirosHome.innerHTML="";
+const snap = await getDocs(collection(db,"ficheiros"));
+snap.forEach(d=>{
+const f=d.data();
 
-  const snap = await getDocs(collection(db,"ficheiros"));
-
-  snap.forEach(d=>{
-    const f=d.data();
-
-    listaFicheiros.innerHTML+=`
-    <div class="card">
-    ${f.nome}
-    <button onclick="apagarFicheiro('${d.id}')">Apagar</button>
-    </div>`;
-
-    ficheirosHome.innerHTML+=`
-    <div class="card">
-    ${f.nome}
-    <button onclick="abrirFicheiro('${f.link}','${f.senha}')">Abrir</button>
-    </div>`;
-  });
-}
-
-function abrirFicheiro(link,senhaReal){
-  const s=prompt("Senha:");
-  if(s===senhaReal) window.open(link);
-}
-
-async function apagarFicheiro(id){
-  await deleteDoc(doc(db,"ficheiros",id));
-  carregarFicheiros();
+ficheirosHome.innerHTML+=`
+<div class="card">
+📄 ${f.nome}
+<button onclick="abrirPDF('${f.link}','${f.senha}')">Ver</button>
+</div>`;
+});
 }
 
 // BOLETINS
 async function publicarBoletim(){
-  await addDoc(collection(db,"boletins"),{
-    disciplina:boletimDisciplina.value,
-    link:boletimLink.value
-  });
-  carregarBoletins();
+await addDoc(collection(db,"boletins"),{
+disciplina:boletimDisciplina.value,
+link:boletimLink.value
+});
+carregarBoletins();
 }
 
 async function carregarBoletins(){
-  listaBoletins.innerHTML="";
-  const snap=await getDocs(collection(db,"boletins"));
-
-  snap.forEach(d=>{
-    const b=d.data();
-    listaBoletins.innerHTML+=`
-    <div class="card">
-    ${b.disciplina}
-    <a href="${b.link}" target="_blank">Ver PDF</a>
-    <button onclick="apagarBoletim('${d.id}')">Apagar</button>
-    </div>`;
-  });
+feed.innerHTML="";
+const snap = await getDocs(collection(db,"boletins"));
+snap.forEach(d=>{
+const b=d.data();
+feed.innerHTML+=`
+<div class="card">
+📘 ${b.disciplina}
+<button onclick="abrirPDF('${b.link}','publico')">Ver PDF</button>
+</div>`;
+});
 }
 
-async function apagarBoletim(id){
-  await deleteDoc(doc(db,"boletins",id));
-  carregarBoletins();
+// PDF VIEWER
+function abrirPDF(link,senha){
+const input = prompt("Senha:");
+if(senha !== "publico" && input !== senha){
+alert("Acesso negado");
+return;
+}
+
+pdfViewer.style.display="block";
+pdfViewer.innerHTML=`
+<div class="pdf-box">
+<button onclick="pdfViewer.style.display='none'">Fechar</button>
+<iframe src="${link}" width="100%" height="90%"></iframe>
+</div>`;
 }
 
 // DASHBOARD
 async function atualizarDashboard(){
-  totalAcessos.innerText=(await getDocs(collection(db,"acessos"))).size;
-  totalPublicacoes.innerText=(await getDocs(collection(db,"publicacoes"))).size;
-  totalFicheiros.innerText=(await getDocs(collection(db,"ficheiros"))).size;
+totalAcessos.innerText=(await getDocs(collection(db,"acessos"))).size;
+totalPublicacoes.innerText=(await getDocs(collection(db,"publicacoes"))).size;
+totalFicheiros.innerText=(await getDocs(collection(db,"ficheiros"))).size;
 }
 
 // INIT
 document.addEventListener("DOMContentLoaded",()=>{
-  carregarPublicacoes();
-  carregarAcessos();
-  carregarFicheiros();
-  carregarBoletins();
-  atualizarDashboard();
+carregarPublicacoes();
+carregarAcessos();
+carregarFicheiros();
+carregarBoletins();
+atualizarDashboard();
 });
 
 // EXPORT
 window.mostrar=mostrar;
+window.entrarAdmin=entrarAdmin;
 window.gerarSenha=gerarSenha;
 window.gerarSenhaFicheiro=gerarSenhaFicheiro;
 window.criarAcesso=criarAcesso;
 window.apagarAcesso=apagarAcesso;
 window.entrarProfessor=entrarProfessor;
 window.criarPublicacao=criarPublicacao;
-window.apagarPublicacao=apagarPublicacao;
-window.partilharFicheiro=partilharFicheiro;
-window.apagarFicheiro=apagarFicheiro;
-window.abrirFicheiro=abrirFicheiro;
+window.uploadFicheiro=uploadFicheiro;
 window.publicarBoletim=publicarBoletim;
-window.apagarBoletim=apagarBoletim;
 window.toggleSistema=toggleSistema;
+window.abrirPDF=abrirPDF;
