@@ -1,52 +1,53 @@
 body {
-    margin: 0;
-    font-family: Arial;
-    background: #f5fbff;
+  margin: 0;
+  font-family: Arial;
+  background: #f5fbff;
 }
 
 header {
-    background: #b3e5fc;
-    padding: 15px;
-    text-align: center;
+  background: #b3e5fc;
+  padding: 15px;
+  text-align: center;
 }
 
 nav {
-    background: #81d4fa;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px;
+  display: flex;
+  justify-content: space-around;
+  background: #81d4fa;
+  padding: 10px;
 }
 
 nav button {
-    background: white;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
+  padding: 10px;
+  border: none;
+  background: white;
+  border-radius: 8px;
 }
 
 nav button:hover {
-    background: #e1f5fe;
+  background: #e1f5fe;
 }
 
 .pagina {
-    display: none;
+  display: none;
+  padding: 20px;
 }
 
 .ativa {
-    display: block;
+  display: block;
 }
+
 input {
-    display: block;
-    margin: 5px 0;
-    padding: 8px;
-    width: 250px;
+  display: block;
+  margin: 5px 0;
+  padding: 8px;
+  width: 250px;
 }
 
 button {
-    padding: 8px;
-    margin-top: 5px;
-    background: #0288d1;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
+  padding: 8px;
+  background: #0288d1;
+  color: white;
+  border: none;
+  border-radius: 5px;
+    }
