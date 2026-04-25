@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 🔥 Firebase
+// ================= FIREBASE =================
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "SUA_API_KEY",
   authDomain: "sac-escolar.firebaseapp.com",
   projectId: "sac-escolar"
 };
@@ -11,52 +11,61 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= MENU =================
+// ================= NAVEGAÇÃO =================
 function mostrar(id) {
-    document.querySelectorAll(".pagina").forEach(p => {
-        p.classList.remove("ativa");
-    });
+  document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
 
-    document.getElementById(id).classList.add("ativa");
-}
+  const sec = document.getElementById(id);
+  if (sec) sec.classList.add("ativa");
 }
 
-// ================= ADMIN - CRIAR ACESSO =================
+// ================= ADMIN: CRIAR ACESSO =================
 async function criarAcesso() {
   const professor = document.getElementById("professor").value;
   const disciplina = document.getElementById("disciplina").value;
   const senha = document.getElementById("senhaAcesso").value;
   const link = document.getElementById("linkExcel").value;
 
-  await addDoc(collection(db, "acessos"), {
-    professor,
-    disciplina,
-    senha,
-    link
-  });
+  if (!professor || !disciplina || !senha || !link) {
+    alert("Preenche tudo!");
+    return;
+  }
 
-  alert("Acesso criado!");
+  try {
+    await addDoc(collection(db, "acessos"), {
+      professor,
+      disciplina,
+      senha,
+      link
+    });
+
+    alert("Acesso criado!");
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao criar acesso");
+  }
 }
 
-// ================= LOGIN PROFESSOR =================
+// ================= PROFESSOR LOGIN =================
 async function entrarProfessor() {
   const disciplina = document.getElementById("loginDisciplina").value;
   const senha = document.getElementById("loginSenha").value;
 
   const snap = await getDocs(collection(db, "acessos"));
 
-  let encontrado = null;
+  let acesso = null;
 
   snap.forEach(doc => {
     const d = doc.data();
+
     if (d.disciplina === disciplina && d.senha === senha) {
-      encontrado = d;
+      acesso = d;
     }
   });
 
-  if (encontrado) {
+  if (acesso) {
     alert("Acesso permitido!");
-    window.open(encontrado.link, "_blank");
+    window.open(acesso.link, "_blank");
   } else {
     alert("Acesso negado!");
   }
@@ -77,19 +86,19 @@ async function criarPublicacao() {
 
 // ================= CARREGAR PUBLICAÇÕES =================
 async function carregarPublicacoes() {
-  const div = document.getElementById("listaPublicacoes");
   const feed = document.getElementById("feed");
+  const lista = document.getElementById("listaPublicacoes");
 
-  div.innerHTML = "";
   feed.innerHTML = "";
+  lista.innerHTML = "";
 
   const snap = await getDocs(collection(db, "publicacoes"));
 
   snap.forEach(doc => {
     const p = doc.data();
 
-    div.innerHTML += `<p><b>${p.titulo}</b>: ${p.texto}</p>`;
     feed.innerHTML += `<p><b>${p.titulo}</b>: ${p.texto}</p>`;
+    lista.innerHTML += `<p><b>${p.titulo}</b>: ${p.texto}</p>`;
   });
 }
 
@@ -98,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarPublicacoes();
 });
 
-// expor funções
+// ================= EXPORT =================
 window.mostrar = mostrar;
 window.criarAcesso = criarAcesso;
 window.entrarProfessor = entrarProfessor;
