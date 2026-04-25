@@ -1,7 +1,7 @@
 body {
   font-family: Arial;
   margin: 0;
-  background: #f2f7ff;
+  background: #eef5ff;
 }
 
 header {
@@ -17,10 +17,9 @@ nav {
 }
 
 nav button {
-  padding: 10px;
   margin: 5px;
+  padding: 10px;
   border: none;
-  background: white;
   border-radius: 8px;
 }
 
@@ -33,20 +32,14 @@ nav button {
   display: block;
 }
 
-.banner {
-  background: #e3f2fd;
-  padding: 10px;
-}
-
-.img-topo {
-  width: 100%;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
 .card {
   background: white;
   padding: 10px;
   margin-top: 10px;
   border-radius: 10px;
+}
+
+.banner {
+  background: #e3f2fd;
+  padding: 10px;
   }
