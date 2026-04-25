@@ -166,7 +166,7 @@ function accessDoc(){
   <a href="${doc.data}" download="${doc.fileName}">📥 Baixar documento</a>`;
   profDoc.classList.remove("hidden");
 }
-</script>
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
