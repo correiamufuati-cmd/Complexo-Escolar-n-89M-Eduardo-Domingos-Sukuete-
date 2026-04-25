@@ -1,6 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "SUA_KEY",
   authDomain: "sac-escolar.firebaseapp.com",
@@ -16,33 +26,68 @@ function mostrar(id) {
   document.getElementById(id).classList.add("ativa");
 }
 
-// ================= SISTEMA =================
+// ================= SISTEMA ON/OFF =================
+async function getSistema() {
+  const ref = doc(db, "config", "system");
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data().ativo : true;
+}
+
 async function toggleSistema() {
   const ref = doc(db, "config", "system");
   const snap = await getDoc(ref);
 
-  const estado = snap.exists() ? !snap.data().sistemaAtivo : false;
+  const estado = snap.exists() ? !snap.data().ativo : false;
 
-  await setDoc(ref, { sistemaAtivo: estado });
+  await setDoc(ref, { ativo: estado });
 
   alert("Sistema: " + (estado ? "ATIVO" : "DESLIGADO"));
 }
 
-async function sistemaAtivo() {
-  const ref = doc(db, "config", "system");
-  const snap = await getDoc(ref);
-  return snap.exists() ? snap.data().sistemaAtivo : true;
+// ================= ADMIN: ACESSOS PROFESSORES =================
+async function criarAcesso() {
+  const professor = document.getElementById("professor").value;
+  const disciplina = document.getElementById("disciplina").value;
+  const senha = document.getElementById("senhaAcesso").value;
+  const link = document.getElementById("linkExcel").value;
+
+  await addDoc(collection(db, "acessos"), {
+    professor,
+    disciplina,
+    senha,
+    link
+  });
+
+  alert("Acesso criado!");
 }
 
-// ================= PROFESSOR =================
+// ================= PROFESSOR LOGIN =================
 async function entrarProfessor() {
 
-  if (!(await sistemaAtivo())) {
-    alert("Sistema desligado");
+  if (!(await getSistema())) {
+    alert("Sistema desligado pelo administrador");
     return;
   }
 
-  alert("Acesso do professor validado (ligar Excel aqui)");
+  const disciplina = document.getElementById("loginDisciplina").value;
+  const senha = document.getElementById("loginSenha").value;
+
+  const snap = await getDocs(collection(db, "acessos"));
+
+  let acesso = null;
+
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.disciplina === disciplina && data.senha === senha) {
+      acesso = data;
+    }
+  });
+
+  if (acesso) {
+    window.open(acesso.link, "_blank");
+  } else {
+    alert("Acesso negado");
+  }
 }
 
 // ================= PUBLICAÇÕES =================
@@ -50,7 +95,11 @@ async function criarPublicacao() {
   const titulo = document.getElementById("pubTitulo").value;
   const texto = document.getElementById("pubTexto").value;
 
-  await addDoc(collection(db, "publicacoes"), { titulo, texto });
+  await addDoc(collection(db, "publicacoes"), {
+    titulo,
+    texto,
+    data: new Date()
+  });
 
   carregarPublicacoes();
 }
@@ -72,7 +121,12 @@ async function carregarPublicacoes() {
   snap.forEach(d => {
     const p = d.data();
 
-    feed.innerHTML += `<div class="card"><b>${p.titulo}</b><p>${p.texto}</p></div>`;
+    feed.innerHTML += `
+      <div class="card">
+        <h3>${p.titulo}</h3>
+        <p>${p.texto}</p>
+      </div>
+    `;
 
     lista.innerHTML += `
       <div class="card">
@@ -89,7 +143,8 @@ document.addEventListener("DOMContentLoaded", carregarPublicacoes);
 
 // ================= EXPORT =================
 window.mostrar = mostrar;
+window.criarAcesso = criarAcesso;
+window.entrarProfessor = entrarProfessor;
 window.criarPublicacao = criarPublicacao;
 window.apagarPublicacao = apagarPublicacao;
 window.toggleSistema = toggleSistema;
-window.entrarProfessor = entrarProfessor;
