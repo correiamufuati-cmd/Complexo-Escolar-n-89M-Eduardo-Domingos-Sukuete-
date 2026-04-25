@@ -2,74 +2,74 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Escolar</title>
+<title>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <header>
-    <h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
+  <h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
 </header>
 
 <nav>
-    <button onclick="mostrar('home')">Início</button>
-    <button onclick="mostrar('admin')">Administrador</button>
-    <button onclick="mostrar('lancamento')">Lançamento</button>
-    <button onclick="mostrar('boletins')">Boletins</button>
-    <button onclick="mostrar('publicacoes')">Publicações</button>
+  <button onclick="mostrar('home')">Início</button>
+  <button onclick="mostrar('admin')">Administrador</button>
+  <button onclick="mostrar('lancamento')">Lançamento</button>
+  <button onclick="mostrar('boletins')">Boletins</button>
+  <button onclick="mostrar('publicacoes')">Publicações</button>
 </nav>
 
-<!-- 🏠 INÍCIO -->
+<!-- HOME -->
 <section id="home" class="pagina ativa">
+  <h2>Publicações Recentes</h2>
+  <div id="feed"></div>
+</section>
+
+<!-- ADMIN -->
 <section id="admin" class="pagina">
+  <h2>Administrador</h2>
+
+  <h3>Criar Acesso Professor</h3>
+
+  <input id="professor" placeholder="Professor">
+  <input id="disciplina" placeholder="Disciplina">
+  <input id="senhaAcesso" placeholder="Senha">
+  <input id="linkExcel" placeholder="Link Excel">
+
+  <button onclick="criarAcesso()">Criar Acesso</button>
+
+  <h3>Publicações</h3>
+
+  <input id="pubTitulo" placeholder="Título">
+  <input id="pubTexto" placeholder="Texto">
+
+  <button onclick="criarPublicacao()">Publicar</button>
+</section>
+
+<!-- LANÇAMENTO -->
 <section id="lancamento" class="pagina">
+  <h2>Login Professor</h2>
+
+  <input id="loginDisciplina" placeholder="Disciplina">
+  <input id="loginSenha" placeholder="Senha">
+
+  <button onclick="entrarProfessor()">Entrar</button>
+</section>
+
+<!-- BOLETINS -->
 <section id="boletins" class="pagina">
+  <h2>Boletins</h2>
+  <p>Em construção</p>
+</section>
+
+<!-- PUBLICAÇÕES -->
 <section id="publicacoes" class="pagina">
-
-    <h2>Administrador</h2>
-
-    <h3>Criar Acesso Professor</h3>
-
-    <input id="professor" placeholder="Professor">
-    <input id="disciplina" placeholder="Disciplina">
-    <input id="senhaAcesso" placeholder="Senha">
-    <input id="linkExcel" placeholder="Link Excel">
-
-    <button onclick="criarAcesso()">Criar Acesso</button>
-
-    <h3>Publicações</h3>
-
-    <input id="pubTitulo" placeholder="Título">
-    <input id="pubTexto" placeholder="Texto">
-    <button onclick="criarPublicacao()">Publicar</button>
-
+  <h2>Publicações</h2>
+  <div id="listaPublicacoes"></div>
 </section>
 
-<!-- 👨‍🏫 LANÇAMENTO -->
-<section id="lancamento" class="pagina">
-
-    <h2>Login Professor</h2>
-
-    <input id="loginDisciplina" placeholder="Disciplina">
-    <input id="loginSenha" placeholder="Senha">
-    <button onclick="entrarProfessor()">Entrar</button>
-
-</section>
-
-<!-- 📄 BOLETINS -->
-<section id="boletins" class="pagina">
-    <h2>Boletins</h2>
-    <p>Área de boletins (futuro automático)</p>
-</section>
-
-<!-- 📝 PUBLICAÇÕES -->
-<section id="publicacoes" class="pagina">
-    <h2>Publicações</h2>
-    <div id="listaPublicacoes"></div>
-</section>
-
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
 
 </body>
-                                </html>
+      </html>
