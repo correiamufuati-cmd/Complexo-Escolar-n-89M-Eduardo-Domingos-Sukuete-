@@ -9,78 +9,76 @@
 <body>
 
 <header>
-  <h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
+<h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
 </header>
 
-<nav>
-  <button onclick="mostrar('home')">Início</button>
-  <button onclick="mostrar('admin')">Admin</button>
-  <button onclick="mostrar('lancamento')">Lançamento</button>
-  <button onclick="mostrar('boletins')">Boletins</button>
-  <button onclick="mostrar('sobre')">Sobre</button>
-  <button onclick="mostrar('contactos')">Contactos</button>
+<nav class="menu">
+<button onclick="mostrar('dashboard')">Dashboard</button>
+<button onclick="mostrar('acessos')">Acessos</button>
+<button onclick="mostrar('publicacoes')">Publicações</button>
+<button onclick="mostrar('config')">Configuração</button>
 </nav>
 
-<!-- HOME -->
-<section id="home" class="pagina ativa">
+<!-- DASHBOARD -->
+<section id="dashboard" class="pagina ativa">
+<h2>Painel Geral</h2>
 
-  <div class="banner">
-    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1" />
-  </div>
+<div class="dashboard">
+<div class="card">👨‍🏫 Professores: <span id="totalAcessos">0</span></div>
+<div class="card">📄 Publicações: <span id="totalPublicacoes">0</span></div>
+<div class="card">⚙️ Sistema: <span id="estadoSistema">---</span></div>
+</div>
+</section>
 
-  <h2>Publicações Recentes</h2>
-  <div id="feed"></div>
+<!-- ACESSOS -->
+<section id="acessos" class="pagina">
 
-  <!-- ADS PLACE -->
-  <div class="ads">
-    <!-- Google AdSense aqui -->
-  </div>
+<h2>Gestão de Professores</h2>
+
+<input id="professor" placeholder="Nome do Professor">
+<input id="disciplina" placeholder="Disciplina">
+
+<input id="senhaAcesso" placeholder="Senha">
+<button onclick="gerarSenha()">Gerar Senha</button>
+
+<input id="linkExcel" placeholder="Link Excel">
+
+<button onclick="criarAcesso()">Guardar</button>
+
+<h3>Lista de Acessos</h3>
+<div id="listaAcessos"></div>
 
 </section>
 
-<!-- ADMIN -->
-<section id="admin" class="pagina">
-  <h2>Administrador</h2>
+<!-- PUBLICAÇÕES -->
+<section id="publicacoes" class="pagina">
 
-  <button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
+<h2>Publicações</h2>
 
-  <h3>Publicações</h3>
-  <input id="pubTitulo" placeholder="Título">
-  <input id="pubTexto" placeholder="Texto">
-  <button onclick="criarPublicacao()">Publicar</button>
+<input id="pubTitulo" placeholder="Título">
+<input id="pubTexto" placeholder="Texto">
 
-  <div id="listaPublicacoes"></div>
+<button onclick="criarPublicacao()">Publicar</button>
+
+<div id="listaPublicacoes"></div>
+
 </section>
 
-<!-- LANÇAMENTO -->
-<section id="lancamento" class="pagina">
-  <h2>Área do Professor</h2>
+<!-- CONFIG -->
+<section id="config" class="pagina">
 
-  <input id="loginDisciplina" placeholder="Disciplina">
-  <input id="loginSenha" placeholder="Senha">
+<h2>Configuração</h2>
 
-  <button onclick="entrarProfessor()">Entrar</button>
+<button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
+
+<h3>Acesso Professor</h3>
+<input id="loginDisciplina" placeholder="Disciplina">
+<input id="loginSenha" placeholder="Senha">
+<button onclick="entrarProfessor()">Entrar</button>
+
 </section>
 
-<!-- BOLETINS -->
-<section id="boletins" class="pagina">
-  <h2>Boletins</h2>
-  <p>Sistema em desenvolvimento</p>
-</section>
-
-<!-- SOBRE -->
-<section id="sobre" class="pagina">
-  <h2>Sobre o Sistema</h2>
-  <p>Plataforma escolar digital para gestão de notas e publicações.</p>
-</section>
-
-<!-- CONTACTOS -->
-<section id="contactos" class="pagina">
-  <h2>Contactos</h2>
-  <p>Email: escola@exemplo.com</p>
-</section>
-
-<script type="module" src="script.js"></script>
+<script type="module" src="./script.js"></script>
 
 </body>
-      </html>
+  </html>
