@@ -1,34 +1,32 @@
 body {
-  margin: 0;
   font-family: Arial;
-  background: #f2f7ff;
+  margin: 0;
+  background: #f4f8ff;
 }
 
 header {
-  background: linear-gradient(90deg, #b3e5fc, #81d4fa);
+  background: #2196f3;
+  color: white;
+  padding: 15px;
   text-align: center;
-  padding: 20px;
-  font-weight: bold;
 }
 
-nav {
+.menu {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  background: white;
-  padding: 10px;
+  background: #64b5f6;
 }
 
-nav button {
-  margin: 5px;
-  padding: 10px;
+.menu button {
+  flex: 1;
+  padding: 12px;
   border: none;
-  background: #e3f2fd;
-  border-radius: 8px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
 }
 
-nav button:hover {
-  background: #bbdefb;
+.menu button:hover {
+  background: #1e88e5;
 }
 
 .pagina {
@@ -40,20 +38,28 @@ nav button:hover {
   display: block;
 }
 
-.banner img {
-  width: 100%;
-  border-radius: 10px;
+.dashboard {
+  display: flex;
+  gap: 10px;
 }
 
 .card {
+  flex: 1;
   background: white;
-  padding: 10px;
-  margin: 10px 0;
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.ads {
-  margin-top: 20px;
-  text-align: center;
-  }
+input {
+  display: block;
+  margin: 5px 0;
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+button {
+  padding: 10px;
+  margin-top: 5px;
+    }
