@@ -12,68 +12,68 @@
 <h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
 </header>
 
-<nav class="menu">
-<button onclick="mostrar('dashboard')">Dashboard</button>
-<button onclick="mostrar('acessos')">Acessos</button>
-<button onclick="mostrar('publicacoes')">Publicações</button>
-<button onclick="mostrar('config')">Configuração</button>
+<nav>
+<button onclick="mostrar('home')">Início</button>
+<button onclick="mostrar('admin')">Administrador</button>
+<button onclick="mostrar('lancamento')">Lançamento</button>
 </nav>
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="pagina ativa">
-<h2>Painel Geral</h2>
+<!-- INÍCIO -->
+<section id="home" class="pagina ativa">
 
-<div class="dashboard">
-<div class="card">👨‍🏫 Professores: <span id="totalAcessos">0</span></div>
-<div class="card">📄 Publicações: <span id="totalPublicacoes">0</span></div>
-<div class="card">⚙️ Sistema: <span id="estadoSistema">---</span></div>
+<div class="banner">
+  <marquee>📢 Bem-vindo ao sistema escolar digital | Publicidades aqui</marquee>
 </div>
-</section>
 
-<!-- ACESSOS -->
-<section id="acessos" class="pagina">
-
-<h2>Gestão de Professores</h2>
-
-<input id="professor" placeholder="Nome do Professor">
-<input id="disciplina" placeholder="Disciplina">
-
-<input id="senhaAcesso" placeholder="Senha">
-<button onclick="gerarSenha()">Gerar Senha</button>
-
-<input id="linkExcel" placeholder="Link Excel">
-
-<button onclick="criarAcesso()">Guardar</button>
-
-<h3>Lista de Acessos</h3>
-<div id="listaAcessos"></div>
-
-</section>
-
-<!-- PUBLICAÇÕES -->
-<section id="publicacoes" class="pagina">
+<img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1" class="img-topo">
 
 <h2>Publicações</h2>
+<div id="feed"></div>
 
+</section>
+
+<!-- ADMIN -->
+<section id="admin" class="pagina">
+
+<h2>Painel do Administrador</h2>
+
+<!-- SISTEMA -->
+<button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
+
+<!-- PUBLICAÇÕES -->
+<h3>Publicações</h3>
 <input id="pubTitulo" placeholder="Título">
 <input id="pubTexto" placeholder="Texto">
-
 <button onclick="criarPublicacao()">Publicar</button>
 
 <div id="listaPublicacoes"></div>
 
+<!-- ACESSOS -->
+<h3>Gerar Acesso</h3>
+<input id="disciplina" placeholder="Disciplina">
+<input id="senhaAcesso" placeholder="Senha">
+<button onclick="gerarSenha()">Gerar Senha</button>
+<input id="linkExcel" placeholder="Link Excel">
+
+<button onclick="criarAcesso()">Guardar Acesso</button>
+
+<div id="listaAcessos"></div>
+
+<!-- UPLOAD -->
+<h3>Partilhar Ficheiro</h3>
+<input type="file" id="ficheiro">
+<button onclick="alert('Upload simulado (ligar Firebase Storage depois)')">Partilhar</button>
+
 </section>
 
-<!-- CONFIG -->
-<section id="config" class="pagina">
+<!-- LANÇAMENTO -->
+<section id="lancamento" class="pagina">
 
-<h2>Configuração</h2>
+<h2>Área do Professor</h2>
 
-<button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
-
-<h3>Acesso Professor</h3>
 <input id="loginDisciplina" placeholder="Disciplina">
 <input id="loginSenha" placeholder="Senha">
+
 <button onclick="entrarProfessor()">Entrar</button>
 
 </section>
