@@ -1,13 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-  getDoc,
-  setDoc
+  getFirestore, collection, addDoc, getDocs,
+  deleteDoc, doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -25,131 +19,192 @@ function mostrar(id) {
   document.getElementById(id).classList.add("ativa");
 }
 
-// SENHA
+// SENHAS
 function gerarSenha() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let senha = "";
-  for (let i = 0; i < 6; i++) {
-    senha += chars[Math.floor(Math.random() * chars.length)];
-  }
-  document.getElementById("senhaAcesso").value = senha;
+  document.getElementById("senhaAcesso").value = Math.random().toString(36).substring(2,8);
+}
+
+function gerarSenhaFicheiro() {
+  document.getElementById("ficheiroSenha").value = Math.random().toString(36).substring(2,8);
 }
 
 // SISTEMA
 async function toggleSistema() {
-  const ref = doc(db, "config", "system");
+  const ref = doc(db,"config","system");
   const snap = await getDoc(ref);
-  const estado = snap.exists() ? !snap.data().ativo : false;
-  await setDoc(ref, { ativo: estado });
-  alert("Sistema: " + (estado ? "ATIVO" : "DESLIGADO"));
+  const estado = snap.exists() ? !snap.data().ativo : true;
+  await setDoc(ref,{ativo:estado});
+  alert("Sistema: "+(estado?"ATIVO":"DESLIGADO"));
 }
 
 // ACESSOS
 async function criarAcesso() {
-  const disciplina = document.getElementById("disciplina").value;
-  const senha = document.getElementById("senhaAcesso").value;
-  const link = document.getElementById("linkExcel").value;
-
-  await addDoc(collection(db, "acessos"), { disciplina, senha, link });
-
+  await addDoc(collection(db,"acessos"),{
+    disciplina:disciplina.value,
+    senha:senhaAcesso.value,
+    link:linkExcel.value
+  });
   carregarAcessos();
 }
 
-async function carregarAcessos() {
-  const lista = document.getElementById("listaAcessos");
-  lista.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "acessos"));
-
-  snap.forEach(d => {
-    const a = d.data();
-    lista.innerHTML += `
+async function carregarAcessos(){
+  listaAcessos.innerHTML="";
+  const snap = await getDocs(collection(db,"acessos"));
+  snap.forEach(d=>{
+    const a=d.data();
+    listaAcessos.innerHTML+=`
       <div class="card">
-        ${a.disciplina} | ${a.senha}
-        <button onclick="apagarAcesso('${d.id}')">Apagar</button>
-      </div>
-    `;
+      ${a.disciplina} | ${a.senha}
+      <button onclick="apagarAcesso('${d.id}')">Apagar</button>
+      </div>`;
   });
 }
 
-async function apagarAcesso(id) {
-  await deleteDoc(doc(db, "acessos", id));
+async function apagarAcesso(id){
+  await deleteDoc(doc(db,"acessos",id));
   carregarAcessos();
 }
 
-// LOGIN PROFESSOR
-async function entrarProfessor() {
-  const disciplina = document.getElementById("loginDisciplina").value;
-  const senha = document.getElementById("loginSenha").value;
-
-  const snap = await getDocs(collection(db, "acessos"));
-
-  let acesso = null;
-
-  snap.forEach(d => {
-    const a = d.data();
-    if (a.disciplina === disciplina && a.senha === senha) {
-      acesso = a;
+// LOGIN
+async function entrarProfessor(){
+  const snap = await getDocs(collection(db,"acessos"));
+  snap.forEach(d=>{
+    const a=d.data();
+    if(a.disciplina===loginDisciplina.value && a.senha===loginSenha.value){
+      window.open(a.link,"_blank");
     }
   });
-
-  if (acesso) {
-    window.open(acesso.link, "_blank");
-  } else {
-    alert("Acesso negado");
-  }
 }
 
 // PUBLICAÇÕES
-async function criarPublicacao() {
-  const titulo = document.getElementById("pubTitulo").value;
-  const texto = document.getElementById("pubTexto").value;
-
-  await addDoc(collection(db, "publicacoes"), { titulo, texto });
-
+async function criarPublicacao(){
+  await addDoc(collection(db,"publicacoes"),{
+    titulo:pubTitulo.value,
+    texto:pubTexto.value
+  });
   carregarPublicacoes();
 }
 
-async function carregarPublicacoes() {
-  const feed = document.getElementById("feed");
-  const lista = document.getElementById("listaPublicacoes");
-
-  feed.innerHTML = "";
-  lista.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "publicacoes"));
-
-  snap.forEach(d => {
-    const p = d.data();
-
-    feed.innerHTML += `<div class="card"><b>${p.titulo}</b><p>${p.texto}</p></div>`;
-
-    lista.innerHTML += `
-      <div class="card">
-        ${p.titulo}
-        <button onclick="apagarPublicacao('${d.id}')">Apagar</button>
-      </div>
-    `;
+async function carregarPublicacoes(){
+  feed.innerHTML="";
+  listaPublicacoes.innerHTML="";
+  const snap = await getDocs(collection(db,"publicacoes"));
+  snap.forEach(d=>{
+    const p=d.data();
+    feed.innerHTML+=`<div class="card">${p.titulo}<p>${p.texto}</p></div>`;
+    listaPublicacoes.innerHTML+=`
+    <div class="card">
+    ${p.titulo}
+    <button onclick="apagarPublicacao('${d.id}')">Apagar</button>
+    </div>`;
   });
 }
 
-async function apagarPublicacao(id) {
-  await deleteDoc(doc(db, "publicacoes", id));
+async function apagarPublicacao(id){
+  await deleteDoc(doc(db,"publicacoes",id));
   carregarPublicacoes();
 }
 
+// FICHEIROS
+async function partilharFicheiro(){
+  await addDoc(collection(db,"ficheiros"),{
+    nome:ficheiroNome.value,
+    link:ficheiroLink.value,
+    senha:ficheiroSenha.value
+  });
+  carregarFicheiros();
+}
+
+async function carregarFicheiros(){
+  listaFicheiros.innerHTML="";
+  ficheirosHome.innerHTML="";
+
+  const snap = await getDocs(collection(db,"ficheiros"));
+
+  snap.forEach(d=>{
+    const f=d.data();
+
+    listaFicheiros.innerHTML+=`
+    <div class="card">
+    ${f.nome}
+    <button onclick="apagarFicheiro('${d.id}')">Apagar</button>
+    </div>`;
+
+    ficheirosHome.innerHTML+=`
+    <div class="card">
+    ${f.nome}
+    <button onclick="abrirFicheiro('${f.link}','${f.senha}')">Abrir</button>
+    </div>`;
+  });
+}
+
+function abrirFicheiro(link,senhaReal){
+  const s=prompt("Senha:");
+  if(s===senhaReal) window.open(link);
+}
+
+async function apagarFicheiro(id){
+  await deleteDoc(doc(db,"ficheiros",id));
+  carregarFicheiros();
+}
+
+// BOLETINS
+async function publicarBoletim(){
+  await addDoc(collection(db,"boletins"),{
+    disciplina:boletimDisciplina.value,
+    link:boletimLink.value
+  });
+  carregarBoletins();
+}
+
+async function carregarBoletins(){
+  listaBoletins.innerHTML="";
+  const snap=await getDocs(collection(db,"boletins"));
+
+  snap.forEach(d=>{
+    const b=d.data();
+    listaBoletins.innerHTML+=`
+    <div class="card">
+    ${b.disciplina}
+    <a href="${b.link}" target="_blank">Ver PDF</a>
+    <button onclick="apagarBoletim('${d.id}')">Apagar</button>
+    </div>`;
+  });
+}
+
+async function apagarBoletim(id){
+  await deleteDoc(doc(db,"boletins",id));
+  carregarBoletins();
+}
+
+// DASHBOARD
+async function atualizarDashboard(){
+  totalAcessos.innerText=(await getDocs(collection(db,"acessos"))).size;
+  totalPublicacoes.innerText=(await getDocs(collection(db,"publicacoes"))).size;
+  totalFicheiros.innerText=(await getDocs(collection(db,"ficheiros"))).size;
+}
+
 // INIT
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",()=>{
   carregarPublicacoes();
   carregarAcessos();
+  carregarFicheiros();
+  carregarBoletins();
+  atualizarDashboard();
 });
 
 // EXPORT
-window.mostrar = mostrar;
-window.gerarSenha = gerarSenha;
-window.criarAcesso = criarAcesso;
-window.apagarAcesso = apagarAcesso;
-window.entrarProfessor = entrarProfessor;
-window.criarPublicacao = criarPublicacao;
-window.apagarPublicacao = apagarPublicacao;
-window.toggleSistema = toggleSistema;
+window.mostrar=mostrar;
+window.gerarSenha=gerarSenha;
+window.gerarSenhaFicheiro=gerarSenhaFicheiro;
+window.criarAcesso=criarAcesso;
+window.apagarAcesso=apagarAcesso;
+window.entrarProfessor=entrarProfessor;
+window.criarPublicacao=criarPublicacao;
+window.apagarPublicacao=apagarPublicacao;
+window.partilharFicheiro=partilharFicheiro;
+window.apagarFicheiro=apagarFicheiro;
+window.abrirFicheiro=abrirFicheiro;
+window.publicarBoletim=publicarBoletim;
+window.apagarBoletim=apagarBoletim;
+window.toggleSistema=toggleSistema;
