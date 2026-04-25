@@ -13,8 +13,14 @@ const db = getFirestore(app);
 
 // ================= MENU =================
 function mostrar(id) {
-  document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
-  document.getElementById(id).classList.add("ativa");
+    document.querySelectorAll(".pagina").forEach(p => {
+        p.classList.remove("ativa");
+    });
+
+    const sec = document.getElementById(id);
+    if (sec) {
+        sec.classList.add("ativa");
+    }
 }
 
 // ================= ADMIN - CRIAR ACESSO =================
