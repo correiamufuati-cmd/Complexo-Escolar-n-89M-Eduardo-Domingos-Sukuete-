@@ -10,9 +10,9 @@ import {
   setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ================= FIREBASE =================
+// CONFIG
 const firebaseConfig = {
-  apiKey: "SUA_KEY",
+  apiKey: "SUA_API_KEY",
   authDomain: "sac-escolar.firebaseapp.com",
   projectId: "sac-escolar"
 };
@@ -20,19 +20,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= NAV =================
+// NAV
 function mostrar(id) {
   document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
   document.getElementById(id).classList.add("ativa");
 }
 
-// ================= SISTEMA ON/OFF =================
-async function getSistema() {
-  const ref = doc(db, "config", "system");
-  const snap = await getDoc(ref);
-  return snap.exists() ? snap.data().ativo : true;
+// GERAR SENHA
+function gerarSenha() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let senha = "";
+  for (let i = 0; i < 6; i++) {
+    senha += chars[Math.floor(Math.random() * chars.length)];
+  }
+  document.getElementById("senhaAcesso").value = senha;
 }
 
+// SISTEMA
 async function toggleSistema() {
   const ref = doc(db, "config", "system");
   const snap = await getDoc(ref);
@@ -41,10 +45,10 @@ async function toggleSistema() {
 
   await setDoc(ref, { ativo: estado });
 
-  alert("Sistema: " + (estado ? "ATIVO" : "DESLIGADO"));
+  atualizarDashboard();
 }
 
-// ================= ADMIN: ACESSOS PROFESSORES =================
+// ACESSOS
 async function criarAcesso() {
   const professor = document.getElementById("professor").value;
   const disciplina = document.getElementById("disciplina").value;
@@ -58,75 +62,86 @@ async function criarAcesso() {
     link
   });
 
-  alert("Acesso criado!");
+  carregarAcessos();
+  atualizarDashboard();
 }
 
-// ================= PROFESSOR LOGIN =================
+async function carregarAcessos() {
+  const lista = document.getElementById("listaAcessos");
+  lista.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "acessos"));
+
+  snap.forEach(d => {
+    const a = d.data();
+
+    lista.innerHTML += `
+      <div class="card">
+        ${a.professor} - ${a.disciplina}<br>
+        Senha: ${a.senha}<br>
+        <a href="${a.link}" target="_blank">Abrir Excel</a><br>
+        <button onclick="apagarAcesso('${d.id}')">Apagar</button>
+      </div>
+    `;
+  });
+}
+
+async function apagarAcesso(id) {
+  await deleteDoc(doc(db, "acessos", id));
+  carregarAcessos();
+  atualizarDashboard();
+}
+
+// LOGIN PROFESSOR
 async function entrarProfessor() {
-
-  if (!(await getSistema())) {
-    alert("Sistema desligado pelo administrador");
-    return;
-  }
-
   const disciplina = document.getElementById("loginDisciplina").value;
   const senha = document.getElementById("loginSenha").value;
+
+  const ref = doc(db, "config", "system");
+  const snapSys = await getDoc(ref);
+
+  if (snapSys.exists() && !snapSys.data().ativo) {
+    alert("Sistema desligado");
+    return;
+  }
 
   const snap = await getDocs(collection(db, "acessos"));
 
   let acesso = null;
 
   snap.forEach(d => {
-    const data = d.data();
-    if (data.disciplina === disciplina && data.senha === senha) {
-      acesso = data;
+    const a = d.data();
+    if (a.disciplina === disciplina && a.senha === senha) {
+      acesso = a;
     }
   });
 
   if (acesso) {
     window.open(acesso.link, "_blank");
   } else {
-    alert("Acesso negado");
+    alert("Dados incorretos");
   }
 }
 
-// ================= PUBLICAÇÕES =================
+// PUBLICAÇÕES
 async function criarPublicacao() {
   const titulo = document.getElementById("pubTitulo").value;
   const texto = document.getElementById("pubTexto").value;
 
-  await addDoc(collection(db, "publicacoes"), {
-    titulo,
-    texto,
-    data: new Date()
-  });
+  await addDoc(collection(db, "publicacoes"), { titulo, texto });
 
   carregarPublicacoes();
-}
-
-async function apagarPublicacao(id) {
-  await deleteDoc(doc(db, "publicacoes", id));
-  carregarPublicacoes();
+  atualizarDashboard();
 }
 
 async function carregarPublicacoes() {
-  const feed = document.getElementById("feed");
   const lista = document.getElementById("listaPublicacoes");
-
-  feed.innerHTML = "";
   lista.innerHTML = "";
 
   const snap = await getDocs(collection(db, "publicacoes"));
 
   snap.forEach(d => {
     const p = d.data();
-
-    feed.innerHTML += `
-      <div class="card">
-        <h3>${p.titulo}</h3>
-        <p>${p.texto}</p>
-      </div>
-    `;
 
     lista.innerHTML += `
       <div class="card">
@@ -138,12 +153,38 @@ async function carregarPublicacoes() {
   });
 }
 
-// ================= INIT =================
-document.addEventListener("DOMContentLoaded", carregarPublicacoes);
+async function apagarPublicacao(id) {
+  await deleteDoc(doc(db, "publicacoes", id));
+  carregarPublicacoes();
+}
 
-// ================= EXPORT =================
+// DASHBOARD
+async function atualizarDashboard() {
+  const acessos = await getDocs(collection(db, "acessos"));
+  document.getElementById("totalAcessos").innerText = acessos.size;
+
+  const pubs = await getDocs(collection(db, "publicacoes"));
+  document.getElementById("totalPublicacoes").innerText = pubs.size;
+
+  const ref = doc(db, "config", "system");
+  const snap = await getDoc(ref);
+
+  document.getElementById("estadoSistema").innerText =
+    snap.exists() && snap.data().ativo ? "ATIVO" : "DESLIGADO";
+}
+
+// INIT
+document.addEventListener("DOMContentLoaded", () => {
+  carregarAcessos();
+  carregarPublicacoes();
+  atualizarDashboard();
+});
+
+// EXPORT
 window.mostrar = mostrar;
+window.gerarSenha = gerarSenha;
 window.criarAcesso = criarAcesso;
+window.apagarAcesso = apagarAcesso;
 window.entrarProfessor = entrarProfessor;
 window.criarPublicacao = criarPublicacao;
 window.apagarPublicacao = apagarPublicacao;
