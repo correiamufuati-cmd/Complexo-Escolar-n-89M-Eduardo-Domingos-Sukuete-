@@ -30,13 +30,11 @@ nav button:hover {
 
 .pagina {
     display: none;
-    padding: 20px;
 }
 
 .ativa {
     display: block;
 }
-
 input {
     display: block;
     margin: 5px 0;
