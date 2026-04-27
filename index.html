@@ -4,106 +4,105 @@
 <meta charset="UTF-8">
 <title>Complexo Escolar Nº 89M</title>
 <link rel="stylesheet" href="style.css">
+
+<!-- gráfico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-<header>
+<div class="container">
+
+<!-- MENU -->
+<aside class="sidebar">
+<h2>📘 Escola 89M</h2>
+
+<button onclick="mostrar('home')">🏠 Início</button>
+<button onclick="mostrar('adminLogin')">👨‍💼 Admin</button>
+<button onclick="mostrar('lancamento')">🧑‍🏫 Lançamento</button>
+<button onclick="mostrar('dashboard')">📊 Dashboard</button>
+</aside>
+
+<!-- CONTEÚDO -->
+<main class="content">
+
+<header class="topbar">
 <h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
 </header>
 
-<nav>
-<button onclick="mostrar('home')">Início</button>
-<button onclick="mostrar('adminLogin')">Administrador</button>
-<button onclick="mostrar('lancamento')">Lançamento</button>
-<button onclick="mostrar('dashboard')">Dashboard</button>
-<button onclick="mostrar('estatistica')">Estatística</button>
-</nav>
-
 <!-- INÍCIO -->
 <section id="home" class="pagina ativa">
-
-<div class="banner">
-<marquee>📢 Sistema Escolar Digital | Publicações e Boletins</marquee>
-</div>
-
 <h2>Publicações</h2>
-<div id="feed"></div>
+<div id="feed" class="grid"></div>
 
 <h2>Ficheiros & Boletins</h2>
-<div id="ficheirosHome"></div>
-
+<div id="ficheirosHome" class="grid"></div>
 </section>
 
-<!-- LOGIN ADMIN -->
+<!-- LOGIN -->
 <section id="adminLogin" class="pagina">
-<h2>Acesso Administrador</h2>
-<input type="password" id="adminSenha" placeholder="Senha">
+<h2>Login Admin</h2>
+<input type="password" id="adminSenha">
 <button onclick="entrarAdmin()">Entrar</button>
 </section>
 
 <!-- ADMIN -->
 <section id="admin" class="pagina">
 
-<h2>Painel do Administrador</h2>
-
-<button onclick="toggleSistema()">Ligar / Desligar Sistema</button>
+<button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
 
 <h3>Publicações</h3>
-<input id="pubTitulo" placeholder="Título">
-<input id="pubTexto" placeholder="Texto">
+<input id="pubTitulo">
+<input id="pubTexto">
 <button onclick="criarPublicacao()">Publicar</button>
 <div id="listaPublicacoes"></div>
 
-<h3>Acessos (Professores)</h3>
+<h3>Acessos (Excel)</h3>
 <input id="disciplina" placeholder="Disciplina">
-<input id="senhaAcesso" placeholder="Senha">
-<button onclick="gerarSenha()">Gerar Senha</button>
+<input id="senhaAcesso">
+<button onclick="gerarSenha()">Gerar</button>
 <input id="linkExcel" placeholder="Link Excel">
 <button onclick="criarAcesso()">Guardar</button>
+
 <div id="listaAcessos"></div>
 
 <h3>Ficheiros PDF</h3>
 <input type="file" id="ficheiroUpload">
-<input id="ficheiroSenha" placeholder="Senha">
-<button onclick="gerarSenhaFicheiro()">Gerar Senha</button>
-<button onclick="uploadFicheiro()">Carregar Ficheiro</button>
+<input id="ficheiroSenha">
+<button onclick="gerarSenhaFicheiro()">Gerar</button>
+<button onclick="uploadFicheiro()">Carregar</button>
+
 <div id="listaFicheiros"></div>
 
 <h3>Boletins PDF</h3>
-<input id="boletimDisciplina" placeholder="Disciplina">
-<input id="boletimLink" placeholder="Link PDF">
+<input id="boletimDisciplina">
+<input id="boletimLink">
 <button onclick="publicarBoletim()">Publicar</button>
+
 <div id="listaBoletins"></div>
 
 </section>
 
-<!-- LANÇAMENTO -->
+<!-- PROFESSOR -->
 <section id="lancamento" class="pagina">
-<h2>Área do Professor</h2>
-<input id="loginDisciplina" placeholder="Disciplina">
-<input id="loginSenha" placeholder="Senha">
+<h2>Área Professor</h2>
+<input id="loginDisciplina">
+<input id="loginSenha">
 <button onclick="entrarProfessor()">Entrar</button>
 </section>
 
 <!-- DASHBOARD -->
 <section id="dashboard" class="pagina">
 <h2>Dashboard</h2>
-<p>Acessos: <span id="totalAcessos"></span></p>
-<p>Publicações: <span id="totalPublicacoes"></span></p>
-<p>Ficheiros: <span id="totalFicheiros"></span></p>
+<canvas id="grafico"></canvas>
 </section>
 
-<!-- ESTATÍSTICA -->
-<section id="estatistica" class="pagina">
-<h2>Estatística</h2>
-<div id="estatisticas"></div>
-</section>
+</main>
+</div>
 
-<!-- PDF VIEWER -->
-<div id="pdfViewer" style="display:none;"></div>
+<div id="pdfViewer"></div>
 
-<script type="module" src="./script.js"></script>
+<script type="module" src="script.js"></script>
 
 </body>
-  </html>
+</html>
