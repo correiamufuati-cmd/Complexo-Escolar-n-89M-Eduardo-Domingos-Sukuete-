@@ -1,28 +1,41 @@
 body {
-font-family: Arial;
 margin: 0;
-background: #eef5ff;
+font-family: Arial;
+background: #f4f7fb;
 }
 
-header {
-background: #90caf9;
-padding: 15px;
-text-align: center;
-}
-
-nav {
+.container {
 display: flex;
-justify-content: center;
-background: #bbdefb;
-flex-wrap: wrap;
+height: 100vh;
 }
 
-nav button {
-margin: 5px;
+.sidebar {
+width: 220px;
+background: #0d47a1;
+color: white;
+padding: 15px;
+}
+
+.sidebar button {
+display: block;
+width: 100%;
+margin: 5px 0;
 padding: 10px;
+background: none;
 border: none;
-border-radius: 8px;
+color: white;
 cursor: pointer;
+}
+
+.content {
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+.topbar {
+background: white;
+padding: 10px;
 }
 
 .pagina {
@@ -34,25 +47,25 @@ padding: 20px;
 display: block;
 }
 
+.grid {
+display: grid;
+grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+gap: 10px;
+}
+
 .card {
 background: white;
 padding: 10px;
-margin: 10px 0;
 border-radius: 10px;
 }
 
-.banner {
-background: #e3f2fd;
-padding: 10px;
-}
-
-.pdf-box {
+#pdfViewer {
+display: none;
 position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: white;
-z-index: 9999;
-padding: 10px;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+z-index:9999;
   }
