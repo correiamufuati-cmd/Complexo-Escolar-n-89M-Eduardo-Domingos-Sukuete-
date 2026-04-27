@@ -23,30 +23,31 @@ document.querySelectorAll(".pagina").forEach(p=>p.classList.remove("ativa"));
 document.getElementById(id).classList.add("ativa");
 }
 
-// ADMIN
+// ADMIN LOGIN
 function entrarAdmin(){
 if(adminSenha.value==="Admin123"){
 mostrar("admin");
-}else{
-alert("Senha errada");
-}
+}else alert("Senha incorreta");
 }
 
-// SENHA
+// SENHAS
 function gerarSenha(){
 senhaAcesso.value=Math.random().toString(36).substring(2,8);
 }
 
-// SISTEMA
+function gerarSenhaFicheiro(){
+ficheiroSenha.value=Math.random().toString(36).substring(2,8);
+}
+
+// SISTEMA ON/OFF
 async function toggleSistema(){
 const refSys=doc(db,"config","system");
 const snap=await getDoc(refSys);
 const estado=snap.exists()? !snap.data().ativo:true;
 await setDoc(refSys,{ativo:estado});
-alert("Sistema atualizado");
 }
 
-// EXCEL LINK
+// ACESSOS
 async function criarAcesso(){
 await addDoc(collection(db,"acessos"),{
 disciplina:disciplina.value,
@@ -63,7 +64,7 @@ snap.forEach(d=>{
 const a=d.data();
 listaAcessos.innerHTML+=`
 <div class="card">
-${a.disciplina} | ${a.senha}
+${a.disciplina}
 <button onclick="apagarAcesso('${d.id}')">Apagar</button>
 </div>`;
 });
@@ -74,25 +75,15 @@ await deleteDoc(doc(db,"acessos",id));
 carregarAcessos();
 }
 
-// PROFESSOR (CORRIGIDO)
+// PROFESSOR
 async function entrarProfessor(){
-
-const sys=await getDoc(doc(db,"config","system"));
-if(sys.exists() && !sys.data().ativo){
-alert("Sistema fechado");
-return;
-}
-
 const snap=await getDocs(collection(db,"acessos"));
 
 snap.forEach(d=>{
 const a=d.data();
 
 if(a.disciplina===loginDisciplina.value && a.senha===loginSenha.value){
-
-// FORÇA ABRIR NO NAVEGADOR
-window.open(a.link + "&web=1","_blank");
-
+window.open(a.link+"&web=1","_blank");
 }
 });
 }
@@ -117,13 +108,14 @@ feed.innerHTML+=`<div class="card">${p.titulo}</div>`;
 
 // PDF
 function abrirPDF(link,senha){
-if(senha!=="publico"){
-const s=prompt("Senha:");
-if(s!==senha) return;
-}
+const input=prompt("Senha:");
+if(input!==senha && senha!=="publico") return;
 
 pdfViewer.style.display="block";
-pdfViewer.innerHTML=`<iframe src="${link}"></iframe>`;
+pdfViewer.innerHTML=`
+<iframe src="${link}#toolbar=1"></iframe>
+<button onclick="pdfViewer.style.display='none'">Fechar</button>
+`;
 }
 
 // DASHBOARD
@@ -131,16 +123,55 @@ async function carregarGrafico(){
 
 const a=(await getDocs(collection(db,"acessos"))).size;
 const p=(await getDocs(collection(db,"publicacoes"))).size;
-const f=(await getDocs(collection(db,"ficheiros"))).size;
 
 new Chart(document.getElementById("grafico"),{
 type:"bar",
 data:{
-labels:["Acessos","Publicações","Ficheiros"],
-datasets:[{data:[a,p,f]}]
+labels:["Acessos","Publicações"],
+datasets:[{data:[a,p]}]
 }
 });
 }
+
+// EXCEL ANALYSIS
+function analisarExcel(file){
+
+const reader=new FileReader();
+
+reader.onload=function(e){
+const data=new Uint8Array(e.target.result);
+const wb=XLSX.read(data,{type:"array"});
+const sheet=wb.Sheets[wb.SheetNames[0]];
+const json=XLSX.utils.sheet_to_json(sheet);
+
+let aprovados=0,reprovados=0;
+
+json.forEach(a=>{
+if(a.Media>=10) aprovados++;
+else reprovados++;
+});
+
+estatisticas.innerHTML=`
+<div class="card">Aprovados: ${aprovados}</div>
+<div class="card">Reprovados: ${reprovados}</div>
+`;
+};
+
+reader.readAsArrayBuffer(file);
+}
+
+// FRASES
+const frases=[
+"Educação é o futuro.",
+"Aprender muda vidas.",
+"Disciplina gera sucesso.",
+"Conhecimento é poder."
+];
+
+setInterval(()=>{
+fraseMotivacional.innerText=
+frases[Math.floor(Math.random()*frases.length)];
+},4000);
 
 // INIT
 document.addEventListener("DOMContentLoaded",()=>{
@@ -159,3 +190,4 @@ window.entrarProfessor=entrarProfessor;
 window.criarPublicacao=criarPublicacao;
 window.toggleSistema=toggleSistema;
 window.abrirPDF=abrirPDF;
+window.analisarExcel=analisarExcel;
