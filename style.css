@@ -1,7 +1,8 @@
 body {
 margin: 0;
 font-family: Arial;
-background: #f4f7fb;
+background: url("https://images.unsplash.com/photo-1523050854058-8df90110c9f1") no-repeat center;
+background-size: cover;
 }
 
 .container {
@@ -17,25 +18,24 @@ padding: 15px;
 }
 
 .sidebar button {
-display: block;
 width: 100%;
-margin: 5px 0;
 padding: 10px;
-background: none;
-border: none;
+margin: 5px 0;
+background: transparent;
 color: white;
+border: none;
 cursor: pointer;
 }
 
 .content {
 flex: 1;
-display: flex;
-flex-direction: column;
+background: rgba(255,255,255,0.9);
 }
 
 .topbar {
 background: white;
 padding: 10px;
+text-align: center;
 }
 
 .pagina {
@@ -62,10 +62,10 @@ border-radius: 10px;
 #pdfViewer {
 display: none;
 position: fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:white;
-z-index:9999;
-  }
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: white;
+z-index: 9999;
+                 }
