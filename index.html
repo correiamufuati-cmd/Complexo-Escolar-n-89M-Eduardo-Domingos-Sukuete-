@@ -2,124 +2,104 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Complexo Escolar Nº 89M</title>
 
 <link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
 
-<div class="container">
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-<h2>📘 89M</h2>
-
-<button onclick="mostrar('home')">🏠 Início</button>
-<button onclick="mostrar('adminLogin')">👨‍💼 Admin</button>
-<button onclick="mostrar('lancamento')">🧑‍🏫 Lançamento</button>
-<button onclick="mostrar('dashboard')">📊 Dashboard</button>
-<button onclick="mostrar('estatistica')">📈 Estatística</button>
-
-</aside>
-
-<!-- MAIN -->
-<main class="content">
-
-<header class="topbar">
-<h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
-<div id="fraseMotivacional"></div>
+<header>
+  <h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
 </header>
 
+<nav>
+  <button onclick="mostrar('inicio')">Início</button>
+  <button onclick="mostrar('adminLogin')">Administrador</button>
+  <button onclick="mostrar('lancamento')">Lançamento</button>
+  <button onclick="mostrar('dashboard')">Dashboard</button>
+</nav>
+
 <!-- INÍCIO -->
-<section id="home" class="pagina ativa">
+<section id="inicio" class="pagina ativa">
+  <h2>📢 Publicações</h2>
+  <div id="publicacoes"></div>
 
-<marquee>📢 Sistema Escolar Digital | Gestão de Notas e Boletins</marquee>
-
-<h2>Publicações</h2>
-<div id="feed" class="grid"></div>
-
-<h2>Ficheiros & Boletins</h2>
-<div id="ficheirosHome" class="grid"></div>
-
+  <h2>📁 Ficheiros e Boletins</h2>
+  <div id="ficheiros"></div>
 </section>
 
-<!-- ADMIN LOGIN -->
+<!-- LOGIN ADMIN -->
 <section id="adminLogin" class="pagina">
-<h2>Acesso Administrador</h2>
-<input type="password" id="adminSenha">
-<button onclick="entrarAdmin()">Entrar</button>
+  <h2>Admin</h2>
+  <input type="password" id="senhaAdmin" placeholder="Senha de administrador">
+  <button onclick="entrarAdmin()">Entrar</button>
 </section>
 
 <!-- ADMIN -->
 <section id="admin" class="pagina">
 
-<h2>Painel Administrador</h2>
+<h2>Painel Admin</h2>
 
-<button onclick="toggleSistema()">🔌 Ligar/Desligar Sistema</button>
+<button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
+
+<hr>
 
 <h3>Publicações</h3>
-<input id="pubTitulo" placeholder="Título">
-<input id="pubTexto" placeholder="Texto">
-<button onclick="criarPublicacao()">Publicar</button>
+<input id="tituloPub" placeholder="Título">
+<textarea id="textoPub" placeholder="Texto"></textarea>
+<button onclick="publicar()">Publicar</button>
+
 <div id="listaPublicacoes"></div>
 
-<h3>Acessos Excel</h3>
-<input id="disciplina" placeholder="Disciplina">
-<input id="senhaAcesso" placeholder="Senha">
-<button onclick="gerarSenha()">Gerar Senha</button>
-<input id="linkExcel" placeholder="Link Excel">
-<button onclick="criarAcesso()">Guardar</button>
-<div id="listaAcessos"></div>
+<hr>
 
-<h3>Upload PDF</h3>
-<input type="file" id="ficheiroUpload">
-<input id="ficheiroSenha" placeholder="Senha">
-<button onclick="gerarSenhaFicheiro()">Gerar Senha</button>
-<button onclick="uploadFicheiro()">Enviar</button>
+<h3>Upload de Ficheiro / PDF</h3>
 
-<div id="listaFicheiros"></div>
+<input id="nomeFicheiro" placeholder="Nome (Ex: Matemática)">
+<input type="file" id="pdfUpload">
+<input type="password" id="senhaPDF" placeholder="Senha do ficheiro">
 
-<h3>Boletins PDF</h3>
-<input id="boletimDisciplina" placeholder="Disciplina">
-<input id="boletimLink" placeholder="Link PDF">
-<button onclick="publicarBoletim()">Publicar</button>
+<button onclick="uploadPDF()">Carregar</button>
 
-<div id="listaBoletins"></div>
+<div id="listaPDFs"></div>
 
 </section>
 
-<!-- PROFESSOR -->
+<!-- LANCAMENTO -->
 <section id="lancamento" class="pagina">
-<h2>Área Professor</h2>
-<input id="loginDisciplina">
-<input id="loginSenha">
+
+<h2>📚 Lançamento de Notas</h2>
+
+<label>Disciplina</label>
+<input id="disciplinaLogin" placeholder="Ex: Matemática">
+
+<label>Senha</label>
+<input type="password" id="senhaLogin">
+
 <button onclick="entrarProfessor()">Entrar</button>
+
 </section>
 
 <!-- DASHBOARD -->
 <section id="dashboard" class="pagina">
-<h2>Dashboard</h2>
-<canvas id="grafico"></canvas>
-</section>
 
-<!-- ESTATÍSTICA -->
-<section id="estatistica" class="pagina">
-<h2>Estatística (Excel)</h2>
-<input type="file" id="excelFile" onchange="analisarExcel(this.files[0])">
-<div id="estatisticas"></div>
-</section>
+<h2>📊 Dashboard</h2>
 
-</main>
+<div class="card">
+Publicações: <span id="totalPub">0</span>
 </div>
 
+<div class="card">
+Ficheiros: <span id="totalFiles">0</span>
+</div>
+
+</section>
+
 <!-- PDF VIEWER -->
-<div id="pdfViewer"></div>
+<div id="viewer"></div>
 
-<script type="module" src="script.js"></script>
-
+<script src="script.js"></script>
 </body>
-  </html>
+</html>
