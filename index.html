@@ -3,103 +3,259 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Complexo Escolar Nº 89M</title>
+
+<title>Complexo Escolar Nº 89M - SAC</title>
 
 <link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="module" src="script.js"></script>
 </head>
 
 <body>
 
-<header>
-  <h1>Complexo Escolar Nº 89M "Eduardo Domingos Sukuete"</h1>
-</header>
+<div class="container">
 
-<nav>
-  <button onclick="mostrar('inicio')">Início</button>
-  <button onclick="mostrar('adminLogin')">Administrador</button>
-  <button onclick="mostrar('lancamento')">Lançamento</button>
-  <button onclick="mostrar('dashboard')">Dashboard</button>
-</nav>
+    <!-- MENU LATERAL -->
+    <aside class="sidebar">
 
-<!-- INÍCIO -->
-<section id="inicio" class="pagina ativa">
-  <h2>📢 Publicações</h2>
-  <div id="publicacoes"></div>
+        <div class="logo-area">
+            <h2>🎓 SAC</h2>
+            <p>Complexo Escolar Nº 89M</p>
+        </div>
 
-  <h2>📁 Ficheiros e Boletins</h2>
-  <div id="ficheiros"></div>
-</section>
+        <button onclick="mostrar('inicio')">
+            🏠 Início
+        </button>
 
-<!-- LOGIN ADMIN -->
-<section id="adminLogin" class="pagina">
-  <h2>Admin</h2>
-  <input type="password" id="senhaAdmin" placeholder="Senha de administrador">
-  <button onclick="entrarAdmin()">Entrar</button>
-</section>
+        <button onclick="mostrar('publicacoes')">
+            📢 Publicações
+        </button>
 
-<!-- ADMIN -->
-<section id="admin" class="pagina">
+        <button onclick="mostrar('lancamento')">
+            📚 Lançamento
+        </button>
 
-<h2>Painel Admin</h2>
+        <button onclick="mostrar('estatisticas')">
+            📊 Estatísticas
+        </button>
 
-<button onclick="toggleSistema()">Ligar/Desligar Sistema</button>
+        <button onclick="mostrar('adminLogin')">
+            ⚙️ Administrador
+        </button>
 
-<hr>
+    </aside>
 
-<h3>Publicações</h3>
-<input id="tituloPub" placeholder="Título">
-<textarea id="textoPub" placeholder="Texto"></textarea>
-<button onclick="publicar()">Publicar</button>
+    <!-- CONTEÚDO -->
+    <main class="content">
 
-<div id="listaPublicacoes"></div>
+        <header class="topbar">
+            <h1>
+                Complexo Escolar Nº 89M
+            </h1>
 
-<hr>
+            <p>
+                Sistema Académico Completo
+            </p>
+        </header>
 
-<h3>Upload de Ficheiro / PDF</h3>
+        <!-- INÍCIO -->
+        <section id="inicio" class="pagina ativa">
 
-<input id="nomeFicheiro" placeholder="Nome (Ex: Matemática)">
-<input type="file" id="pdfUpload">
-<input type="password" id="senhaPDF" placeholder="Senha do ficheiro">
+            <div class="card">
+                <h2>Bem-vindo</h2>
 
-<button onclick="uploadPDF()">Carregar</button>
+                <p>
+                    Portal oficial do Complexo Escolar Nº 89M.
+                </p>
 
-<div id="listaPDFs"></div>
+                <p>
+                    Estado do Sistema:
+                    <span id="estadoSistema">
+                        Carregando...
+                    </span>
+                </p>
+            </div>
 
-</section>
+            <div class="card">
+                <h2>Últimas Publicações</h2>
 
-<!-- LANCAMENTO -->
-<section id="lancamento" class="pagina">
+                <div id="inicioPublicacoes">
+                </div>
+            </div>
 
-<h2>📚 Lançamento de Notas</h2>
+        </section>
 
-<label>Disciplina</label>
-<input id="disciplinaLogin" placeholder="Ex: Matemática">
+        <!-- PUBLICAÇÕES -->
+        <section id="publicacoes" class="pagina">
 
-<label>Senha</label>
-<input type="password" id="senhaLogin">
+            <h2>📢 Publicações</h2>
 
-<button onclick="entrarProfessor()">Entrar</button>
+            <div id="listaPublicacoesPublicas">
+            </div>
 
-</section>
+        </section>
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="pagina">
+        <!-- LANÇAMENTO -->
+        <section id="lancamento" class="pagina">
 
-<h2>📊 Dashboard</h2>
+            <h2>📚 Acesso à Pauta</h2>
 
-<div class="card">
-Publicações: <span id="totalPub">0</span>
+            <div class="card">
+
+                <label>Selecionar Pauta</label>
+
+                <select id="pautaSelect">
+                    <option value="">
+                        Selecione...
+                    </option>
+                </select>
+
+                <label>Senha</label>
+
+                <input
+                    type="password"
+                    id="senhaProfessor"
+                    placeholder="Digite a senha"
+                >
+
+                <button id="btnEntrarPauta">
+                    Entrar
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- ESTATÍSTICAS -->
+        <section id="estatisticas" class="pagina">
+
+            <h2>📊 Estatísticas</h2>
+
+            <div class="dashboard">
+
+                <div class="card">
+                    <h3>Total de Pautas</h3>
+                    <span id="totalPautas">
+                        0
+                    </span>
+                </div>
+
+                <div class="card">
+                    <h3>Total de Publicações</h3>
+                    <span id="totalPublicacoes">
+                        0
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="card">
+                <canvas id="graficoDashboard">
+                </canvas>
+            </div>
+
+        </section>
+
+        <!-- LOGIN ADMIN -->
+        <section id="adminLogin" class="pagina">
+
+            <h2>⚙️ Administrador</h2>
+
+            <input
+                type="password"
+                id="senhaAdmin"
+                placeholder="Senha do administrador"
+            >
+
+            <button onclick="entrarAdmin()">
+                Entrar
+            </button>
+
+        </section>
+
+        <!-- PAINEL ADMIN -->
+        <section id="admin" class="pagina">
+
+            <h2>Painel Administrativo</h2>
+
+            <!-- SISTEMA -->
+            <div class="card">
+
+                <h3>Estado do Sistema</h3>
+
+                <button onclick="toggleSistema()">
+                    Abrir / Fechar Sistema
+                </button>
+
+            </div>
+
+            <!-- PAUTAS -->
+            <div class="card">
+
+                <h3>Registar Nova Pauta</h3>
+
+                <input
+                    type="text"
+                    id="classePauta"
+                    placeholder="Classe"
+                >
+
+                <input
+                    type="text"
+                    id="disciplinaPauta"
+                    placeholder="Disciplina"
+                >
+
+                <input
+                    type="password"
+                    id="senhaPauta"
+                    placeholder="Senha"
+                >
+
+                <input
+                    type="text"
+                    id="linkPauta"
+                    placeholder="Link da pauta Excel"
+                >
+
+                <button onclick="criarPauta()">
+                    Guardar Pauta
+                </button>
+
+                <div id="listaPautas">
+                </div>
+
+            </div>
+
+            <!-- PUBLICAÇÕES -->
+            <div class="card">
+
+                <h3>Criar Publicação</h3>
+
+                <input
+                    type="text"
+                    id="tituloPub"
+                    placeholder="Título"
+                >
+
+                <textarea
+                    id="textoPub"
+                    placeholder="Texto da publicação"
+                ></textarea>
+
+                <button onclick="criarPublicacao()">
+                    Publicar
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
 </div>
 
-<div class="card">
-Ficheiros: <span id="totalFiles">0</span>
-</div>
-
-</section>
-
-<!-- PDF VIEWER -->
-<div id="viewer"></div>
-
-<script src="script.js"></script>
 </body>
-</html>
+  </html>
