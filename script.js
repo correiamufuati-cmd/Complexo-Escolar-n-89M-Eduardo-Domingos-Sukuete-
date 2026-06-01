@@ -185,13 +185,13 @@ carregarGrafico();
 });
 
 // EXPORT
-window.mostrar=mostrar;
-window.entrarAdmin=entrarAdmin;
-window.gerarSenha=gerarSenha;
-window.criarAcesso=criarAcesso;
-window.apagarAcesso=apagarAcesso;
-window.entrarProfessor=entrarProfessor;
-window.criarPublicacao=criarPublicacao;
-window.toggleSistema=toggleSistema;
-window.abrirPDF=abrirPDF;
-window.analisarExcel=analisarExcel;
+window.mostrar = mostrar;
+window.entrarAdmin = entrarAdmin;
+window.gerarSenha = gerarSenha;
+window.criarAcesso = criarAcesso;
+window.apagarAcesso = apagarAcesso;
+window.entrarProfessor = entrarProfessor;
+window.criarPublicacao = criarPublicacao;
+window.toggleSistema = toggleSistema;
+window.abrirPDF = abrirPDF;
+window.analisarExcel = analisarExcel;
