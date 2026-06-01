@@ -264,11 +264,21 @@ carregarGrafico();
 window.mostrar = mostrar;
 window.entrarAdmin = entrarAdmin;
 window.toggleSistema = toggleSistema;
+
 window.criarAcesso = criarAcesso;
+window.carregarAcessos = carregarAcessos;
 window.apagarAcesso = apagarAcesso;
+
 window.entrarProfessor = entrarProfessor;
+
 window.criarPublicacao = criarPublicacao;
+window.carregarPublicacoes = carregarPublicacoes;
+
 window.criarPauta = criarPauta;
+window.carregarPautas = carregarPautas;
 window.apagarPauta = apagarPauta;
+
 window.abrirPDF = abrirPDF;
 window.analisarExcel = analisarExcel;
+
+window.carregarGrafico = carregarGrafico;
