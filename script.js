@@ -24,10 +24,14 @@ document.getElementById(id).classList.add("ativa");
 }
 
 // ADMIN LOGIN
-function entrarAdmin(){
-if(adminSenha.value==="Admin123"){
-mostrar("admin");
-}else alert("Senha incorreta");
+function entrarAdmin() {
+  const senha = document.getElementById("senhaAdmin").value;
+
+  if (senha === "Admin123") {
+    mostrar("admin");
+  } else {
+    alert("Senha incorreta");
+  }
 }
 
 // SENHAS
