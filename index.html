@@ -180,6 +180,43 @@
 
             <h2>Painel Administrativo</h2>
 
+            <!-- ADMIN -->
+<div class="card">
+<h3>📤 Importar Excel</h3>
+<input type="file" id="excelFile">
+<button onclick="importarExcel(document.getElementById('excelFile').files[0])">
+Importar
+</button>
+</div>
+
+<div class="card">
+<h3>📄 Upload PDF</h3>
+<input type="file" id="pdfFile">
+<button onclick="uploadPDF(document.getElementById('pdfFile').files[0])">
+Carregar PDF
+</button>
+</div>
+
+<div class="card">
+<h3>🔑 Senhas</h3>
+<div id="listaSenhas"></div>
+</div>
+
+<!-- ALUNO -->
+<div class="card">
+<h3>👨‍🎓 Aluno</h3>
+<input type="password" id="senhaAluno">
+<button onclick="loginAluno()">Entrar</button>
+</div>
+
+<!-- PUBLICAÇÕES -->
+<div id="listaPublicacoesPublicas"></div>
+
+<!-- PAUTAS -->
+<select id="pautaSelect"></select>
+<input id="senhaProfessor" type="password">
+<button onclick="entrarProfessor()">Entrar Pauta</button>
+            
             <!-- SISTEMA -->
             <div class="card">
 
