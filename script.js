@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-getFirestore, collection, addDoc, getDocs,
-deleteDoc, doc, getDoc, setDoc
+getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ================= FIREBASE =================
@@ -12,6 +11,11 @@ projectId: "sac-escolar"
 });
 
 const db = getFirestore(app);
+
+// ================= UTIL =================
+function gerarSenha(){
+return Math.random().toString(36).substring(2,8).toUpperCase();
+}
 
 // ================= MENU =================
 function mostrar(id){
@@ -25,85 +29,113 @@ const senha = document.getElementById("senhaAdmin").value;
 
 if(senha === "Admin123"){
 mostrar("admin");
-carregarTudo();
+listarSenhas();
+carregarPautas();
+carregarPublicacoes();
 }else{
 alert("Senha incorreta");
 }
 }
 
-// ================= SISTEMA =================
-async function toggleSistema(){
-const refSys = doc(db,"config","system");
-const snap = await getDoc(refSys);
-const estado = snap.exists() ? !snap.data().ativo : true;
+// ================= IMPORTAR EXCEL =================
+async function importarExcel(file){
 
-await setDoc(refSys,{ativo:estado});
+const data = await file.arrayBuffer();
+const wb = XLSX.read(data,{type:"array"});
 
-document.getElementById("estadoSistema").innerText =
-estado ? "Aberto" : "Fechado";
-}
+for(const sheetName of wb.SheetNames){
 
-// ================= PAUTAS =================
-async function criarPauta(){
-await addDoc(collection(db,"pautas"),{
-classe: document.getElementById("classePauta").value,
-disciplina: document.getElementById("disciplinaPauta").value,
-senha: document.getElementById("senhaPauta").value,
-link: document.getElementById("linkPauta").value
+const sheet = wb.Sheets[sheetName];
+const json = XLSX.utils.sheet_to_json(sheet);
+
+for(const aluno of json){
+
+await addDoc(collection(db,"turmas",sheetName,"alunos"),{
+nome: aluno.Nome,
+pagina: aluno.Pagina,
+senha: gerarSenha()
 });
 
-carregarPautas();
 }
 
-async function carregarPautas(){
+}
 
-const lista = document.getElementById("listaPautas");
-const select = document.getElementById("pautaSelect");
+alert("Importação concluída!");
+listarSenhas();
+}
 
-if(lista) lista.innerHTML = "";
-if(select) select.innerHTML = '<option value="">Selecione uma pauta</option>';
+// ================= LISTAR SENHAS =================
+async function listarSenhas(){
 
-const snap = await getDocs(collection(db,"pautas"));
+const box = document.getElementById("listaSenhas");
+if(!box) return;
 
-snap.forEach(d=>{
-const p = d.data();
+box.innerHTML = "";
 
-if(lista){
-lista.innerHTML += `
-<div class="pauta-item">
-<strong>${p.classe}</strong> - ${p.disciplina}
-<br>
-<button onclick="apagarPauta('${d.id}')">Apagar</button>
+const turmas = await getDocs(collection(db,"turmas"));
+
+for(const t of turmas.docs){
+
+box.innerHTML += `<h3>${t.id}</h3>`;
+
+const alunos = await getDocs(collection(db,"turmas",t.id,"alunos"));
+
+alunos.forEach(a=>{
+const d = a.data();
+
+box.innerHTML += `
+<div class="card">
+<strong>${d.nome}</strong><br>
+Senha: ${d.senha}<br>
+<button onclick="apagarAluno('${t.id}','${a.id}')">Apagar</button>
 </div>`;
-}
-
-if(select){
-select.innerHTML += `
-<option value="${d.id}">
-${p.classe} - ${p.disciplina}
-</option>`;
-}
-
 });
+
+}
 }
 
-async function apagarPauta(id){
-await deleteDoc(doc(db,"pautas",id));
-carregarPautas();
+// ================= APAGAR ALUNO =================
+async function apagarAluno(turma,id){
+await deleteDoc(doc(db,"turmas",turma,"alunos",id));
+listarSenhas();
 }
 
-// ================= PROFESSOR =================
+// ================= LOGIN ALUNO =================
+async function loginAluno(){
+
+const senha = document.getElementById("senhaAluno").value;
+
+const turmas = await getDocs(collection(db,"turmas"));
+
+for(const t of turmas.docs){
+
+const alunos = await getDocs(collection(db,"turmas",t.id,"alunos"));
+
+for(const a of alunos.docs){
+
+const d = a.data();
+
+if(d.senha === senha){
+
+window.open(`boletim.pdf#page=${d.pagina}`,"_blank");
+return;
+
+}
+
+}
+
+}
+
+alert("Senha inválida");
+}
+
+// ================= PAUTAS (EXCEL ONLINE) =================
 async function entrarProfessor(){
 
-const id = document.getElementById("pautaSelect").value;
+const turma = document.getElementById("pautaSelect").value;
 const senha = document.getElementById("senhaProfessor").value;
 
-if(!id){
-alert("Seleciona uma pauta");
-return;
-}
-
-const snap = await getDoc(doc(db,"pautas",id));
+const snap = await getDoc(doc(db,"pautas",turma));
 
 if(!snap.exists()){
 alert("Pauta não encontrada");
@@ -117,14 +149,33 @@ window.open(p.link,"_blank");
 }else{
 alert("Senha incorreta");
 }
+
 }
 
-// botão professor
-document.getElementById("btnEntrarPauta")
-.addEventListener("click", entrarProfessor);
+// ================= PAUTAS LISTAR =================
+async function carregarPautas(){
+
+const select = document.getElementById("pautaSelect");
+if(!select) return;
+
+select.innerHTML = `<option value="">Selecionar...</option>`;
+
+const snap = await getDocs(collection(db,"pautas"));
+
+snap.forEach(d=>{
+const p = d.data();
+
+select.innerHTML += `
+<option value="${d.id}">
+${p.classe} - ${p.disciplina}
+</option>`;
+});
+
+}
 
 // ================= PUBLICAÇÕES =================
 async function criarPublicacao(){
+
 await addDoc(collection(db,"publicacoes"),{
 titulo: document.getElementById("tituloPub").value,
 texto: document.getElementById("textoPub").value
@@ -135,67 +186,47 @@ carregarPublicacoes();
 
 async function carregarPublicacoes(){
 
-const feed = document.getElementById("listaPublicacoesPublicas");
-const inicio = document.getElementById("inicioPublicacoes");
+const box = document.getElementById("listaPublicacoesPublicas");
+if(!box) return;
 
-if(feed) feed.innerHTML = "";
-if(inicio) inicio.innerHTML = "";
+box.innerHTML = "";
 
 const snap = await getDocs(collection(db,"publicacoes"));
 
 snap.forEach(d=>{
 const p = d.data();
 
-const html = `
+box.innerHTML += `
 <div class="card">
 <h4>${p.titulo}</h4>
 <p>${p.texto}</p>
-</div>
-`;
-
-if(feed) feed.innerHTML += html;
-if(inicio) inicio.innerHTML += html;
-
+<button onclick="apagarPublicacao('${d.id}')">Apagar</button>
+</div>`;
 });
+
 }
 
-// ================= DASHBOARD =================
-async function carregarGrafico(){
-
-const a = (await getDocs(collection(db,"pautas"))).size;
-const p = (await getDocs(collection(db,"publicacoes"))).size;
-
-const ctx = document.getElementById("graficoDashboard");
-
-if(window.grafico) window.grafico.destroy();
-
-window.grafico = new Chart(ctx,{
-type:"bar",
-data:{
-labels:["Pautas","Publicações"],
-datasets:[{data:[a,p]}]
-}
-});
-}
-
-// ================= INIT =================
-document.addEventListener("DOMContentLoaded",()=>{
-carregarPautas();
+// ================= APAGAR PUBLICAÇÃO =================
+async function apagarPublicacao(id){
+await deleteDoc(doc(db,"publicacoes",id));
 carregarPublicacoes();
-carregarGrafico();
-});
+}
 
 // ================= EXPORT =================
 window.mostrar = mostrar;
 window.entrarAdmin = entrarAdmin;
-window.toggleSistema = toggleSistema;
 
-window.criarPauta = criarPauta;
+window.importarExcel = importarExcel;
+
+window.loginAluno = loginAluno;
+
 window.carregarPautas = carregarPautas;
-window.apagarPauta = apagarPauta;
+window.entrarProfessor = entrarProfessor;
 
 window.criarPublicacao = criarPublicacao;
 window.carregarPublicacoes = carregarPublicacoes;
 
-window.entrarProfessor = entrarProfessor;
-window.carregarGrafico = carregarGrafico;
+window.apagarAluno = apagarAluno;
+window.apagarPublicacao = apagarPublicacao;
+
+window.listarSenhas = listarSenhas;
