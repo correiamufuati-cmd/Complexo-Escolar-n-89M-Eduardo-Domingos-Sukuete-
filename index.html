@@ -31,7 +31,7 @@
 
 </aside>
 
-<!-- CONTENT -->
+<!-- CONTEÚDO -->
 <main class="content">
 
 <header class="topbar">
@@ -44,7 +44,6 @@
 
 <div class="card">
 <h2>Bem-vindo</h2>
-<p>Portal oficial do Complexo Escolar Nº 89M.</p>
 
 <p>
 Estado do Sistema:
@@ -67,20 +66,18 @@ Estado do Sistema:
 
 </section>
 
-<!-- PAUTAS / LANÇAMENTO -->
+<!-- PAUTAS -->
 <section id="lancamento" class="pagina">
 
 <h2>📚 Pautas Online</h2>
 
 <div class="card">
 
-<label>Selecionar Pauta</label>
 <select id="pautaSelect">
-<option value="">Selecione...</option>
+<option value="">Selecione</option>
 </select>
 
-<label>Senha</label>
-<input type="password" id="senhaProfessor">
+<input type="password" id="senhaProfessor" placeholder="Senha">
 
 <button onclick="entrarProfessor()">Entrar</button>
 
@@ -93,8 +90,6 @@ Estado do Sistema:
 
 <h2>📊 Estatísticas</h2>
 
-<div class="dashboard">
-
 <div class="card">
 <h3>Total de Pautas</h3>
 <span id="totalPautas">0</span>
@@ -105,20 +100,14 @@ Estado do Sistema:
 <span id="totalPublicacoes">0</span>
 </div>
 
-</div>
-
-<div class="card">
-<canvas id="graficoDashboard"></canvas>
-</div>
-
 </section>
 
 <!-- ADMIN LOGIN -->
 <section id="adminLogin" class="pagina">
 
-<h2>⚙️ Administrador</h2>
+<h2>⚙️ Administração</h2>
 
-<input type="password" id="senhaAdmin" placeholder="Senha do administrador">
+<input type="password" id="senhaAdmin" placeholder="Senha admin">
 
 <button onclick="entrarAdmin()">Entrar</button>
 
@@ -131,19 +120,19 @@ Estado do Sistema:
 
 <!-- SISTEMA -->
 <div class="card">
-<h3>Estado do Sistema</h3>
+<h3>Sistema</h3>
 <button onclick="toggleSistema()">Abrir / Fechar Sistema</button>
 </div>
 
 <!-- PAUTAS -->
 <div class="card">
 
-<h3>Registar Nova Pauta</h3>
+<h3>Nova Pauta</h3>
 
-<input type="text" id="classePauta" placeholder="Classe">
-<input type="text" id="disciplinaPauta" placeholder="Disciplina">
-<input type="password" id="senhaPauta" placeholder="Senha">
-<input type="text" id="linkPauta" placeholder="Link da pauta Excel">
+<input id="classePauta" placeholder="Classe">
+<input id="disciplinaPauta" placeholder="Disciplina">
+<input id="senhaPauta" placeholder="Senha">
+<input id="linkPauta" placeholder="Link Excel">
 
 <button onclick="criarPauta()">Guardar Pauta</button>
 
@@ -156,14 +145,14 @@ Estado do Sistema:
 
 <h3>Criar Publicação</h3>
 
-<input type="text" id="tituloPub" placeholder="Título">
-<textarea id="textoPub" placeholder="Texto da publicação"></textarea>
+<input id="tituloPub" placeholder="Título">
+<textarea id="textoPub" placeholder="Texto"></textarea>
 
 <button onclick="criarPublicacao()">Publicar</button>
 
 </div>
 
-<!-- IMPORTAÇÃO -->
+<!-- EXCEL -->
 <div class="card">
 
 <h3>📤 Importar Excel</h3>
@@ -174,9 +163,10 @@ Importar
 
 </div>
 
+<!-- PDF -->
 <div class="card">
 
-<h3>📄 Upload PDF Boletim</h3>
+<h3>📄 Upload PDF</h3>
 <input type="file" id="pdfFile">
 <button onclick="uploadPDF(document.getElementById('pdfFile').files[0])">
 Carregar PDF
@@ -184,6 +174,7 @@ Carregar PDF
 
 </div>
 
+<!-- SENHAS -->
 <div class="card">
 
 <h3>🔑 Senhas Geradas</h3>
@@ -195,7 +186,9 @@ Carregar PDF
 <div class="card">
 
 <h3>👨‍🎓 Área do Aluno</h3>
-<input type="password" id="senhaAluno">
+
+<input type="password" id="senhaAluno" placeholder="Senha aluno">
+
 <button onclick="loginAluno()">Entrar</button>
 
 </div>
