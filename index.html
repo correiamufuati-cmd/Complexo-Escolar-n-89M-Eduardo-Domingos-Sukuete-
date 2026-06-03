@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Complexo Escolar Nº 89M - SAC</title>
+<title>Complexo Escolar Nº 89M</title>
 
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,190 +12,90 @@
 
 <body>
 
-<div class="container">
+<div class="app">
 
-<!-- SIDEBAR -->
+<!-- MENU LATERAL -->
 <aside class="sidebar">
-
-<div class="logo-area">
-<h2>🎓 SAC</h2>
-<p>Complexo Escolar Nº 89M</p>
-</div>
+<h2>🎓 89M</h2>
 
 <button onclick="mostrar('inicio')">🏠 Início</button>
 <button onclick="mostrar('publicacoes')">📢 Publicações</button>
-<button onclick="mostrar('lancamento')">📚 Pautas Online</button>
-<button onclick="mostrar('estatisticas')">📊 Estatísticas</button>
-<button onclick="mostrar('adminLogin')">⚙️ Administração</button>
-
+<button onclick="mostrar('pautas')">📚 Pautas</button>
+<button onclick="mostrar('aluno')">👨‍🎓 Aluno</button>
+<button onclick="mostrar('encarregado')">👨‍👩‍👧 Encarregado</button>
+<button onclick="mostrar('admin')">⚙️ Administração</button>
 </aside>
 
 <!-- CONTEÚDO -->
 <main class="content">
 
-<header class="topbar">
-<h1>Complexo Escolar Nº 89M</h1>
-<p>Sistema Académico Completo</p>
-</header>
-
 <!-- INÍCIO -->
-<section id="inicio" class="pagina ativa">
-
-<div class="card">
+<section id="inicio" class="page active">
 <h2>Bem-vindo</h2>
-
-<p>
-Estado do Sistema:
-<span id="estadoSistema">Carregando...</span>
-</p>
-</div>
-
-<div class="card">
-<h2>Últimas Publicações</h2>
+<p id="estadoSistema">Sistema a carregar...</p>
 <div id="inicioPublicacoes"></div>
-</div>
-
 </section>
 
 <!-- PUBLICAÇÕES -->
-<section id="publicacoes" class="pagina">
-
-<h2>📢 Publicações</h2>
-<div id="listaPublicacoesPublicas"></div>
-
-</section>
-
-<!-- PAUTAS -->
-<section id="lancamento" class="pagina">
-
-<h2>📚 Pautas Online</h2>
-
-<div class="card">
-
-<select id="pautaSelect">
-<option value="">Selecione</option>
-</select>
-
-<input type="password" id="senhaProfessor" placeholder="Senha">
-
-<button onclick="entrarProfessor()">Entrar</button>
-
-</div>
-
-</section>
-
-<!-- ESTATÍSTICAS -->
-<section id="estatisticas" class="pagina">
-
-<h2>📊 Estatísticas</h2>
-
-<div class="card">
-<h3>Total de Pautas</h3>
-<span id="totalPautas">0</span>
-</div>
-
-<div class="card">
-<h3>Total de Publicações</h3>
-<span id="totalPublicacoes">0</span>
-</div>
-
-</section>
-
-<!-- ADMIN LOGIN -->
-<section id="adminLogin" class="pagina">
-
-<h2>⚙️ Administração</h2>
-
-<input type="password" id="senhaAdmin" placeholder="Senha admin">
-
-<button onclick="entrarAdmin()">Entrar</button>
-
-</section>
-
-<!-- ADMIN PANEL -->
-<section id="admin" class="pagina">
-
-<h2>Painel Administrativo</h2>
-
-<!-- SISTEMA -->
-<div class="card">
-<h3>Sistema</h3>
-<button onclick="toggleSistema()">Abrir / Fechar Sistema</button>
-</div>
-
-<!-- PAUTAS -->
-<div class="card">
-
-<h3>Nova Pauta</h3>
-
-<input id="classePauta" placeholder="Classe">
-<input id="disciplinaPauta" placeholder="Disciplina">
-<input id="senhaPauta" placeholder="Senha">
-<input id="linkPauta" placeholder="Link Excel">
-
-<button onclick="criarPauta()">Guardar Pauta</button>
-
-<div id="listaPautas"></div>
-
-</div>
-
-<!-- PUBLICAÇÕES -->
-<div class="card">
-
-<h3>Criar Publicação</h3>
+<section id="publicacoes" class="page">
+<h2>Publicações</h2>
 
 <input id="tituloPub" placeholder="Título">
 <textarea id="textoPub" placeholder="Texto"></textarea>
-
 <button onclick="criarPublicacao()">Publicar</button>
 
-</div>
+<div id="listaPublicacoes"></div>
+</section>
 
-<!-- EXCEL -->
-<div class="card">
+<!-- PAUTAS -->
+<section id="pautas" class="page">
+<h2>Pautas Online</h2>
 
-<h3>📤 Importar Excel</h3>
-<input type="file" id="excelFile">
-<button onclick="importarExcel(document.getElementById('excelFile').files[0])">
-Importar
-</button>
-
-</div>
-
-<!-- PDF -->
-<div class="card">
-
-<h3>📄 Upload PDF</h3>
-<input type="file" id="pdfFile">
-<button onclick="uploadPDF(document.getElementById('pdfFile').files[0])">
-Carregar PDF
-</button>
-
-</div>
-
-<!-- SENHAS -->
-<div class="card">
-
-<h3>🔑 Senhas Geradas</h3>
-<div id="listaSenhas"></div>
-
-</div>
+<select id="pautaSelect"></select>
+<input id="senhaPauta" type="password" placeholder="Senha">
+<button onclick="entrarPauta()">Entrar</button>
+</section>
 
 <!-- ALUNO -->
-<div class="card">
+<section id="aluno" class="page">
+<h2>Área do Aluno</h2>
 
-<h3>👨‍🎓 Área do Aluno</h3>
-
-<input type="password" id="senhaAluno" placeholder="Senha aluno">
-
+<input id="senhaAluno" type="password" placeholder="Senha">
 <button onclick="loginAluno()">Entrar</button>
 
-</div>
+<div id="boletim"></div>
+</section>
+
+<!-- ENCARREGADO -->
+<section id="encarregado" class="page">
+<h2>Área do Encarregado</h2>
+
+<input id="senhaEnc" type="password" placeholder="Senha">
+<button onclick="loginEnc()">Entrar</button>
+
+<div id="filhos"></div>
+</section>
+
+<!-- ADMIN -->
+<section id="admin" class="page">
+
+<h2>Administração</h2>
+
+<input type="file" id="excelFile">
+<button onclick="importarExcel()">Importar Excel</button>
+
+<input type="file" id="pdfFile">
+<button onclick="uploadPDF()">Upload PDF</button>
+
+<h3>Publicações</h3>
+<div id="listaAdmin"></div>
+
+<h3>Pautas</h3>
+<div id="listaPautas"></div>
 
 </section>
 
 </main>
-
 </div>
 
 </body>
