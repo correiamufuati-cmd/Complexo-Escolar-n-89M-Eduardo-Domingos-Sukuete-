@@ -6,21 +6,20 @@
 <title>Escola Digital</title>
 
 <link rel="stylesheet" href="estilo.css">
-
-<!-- IMPORTANTE: script no HEAD mas com DOMContentLoaded tratado -->
 <script type="module" src="script.js" defer></script>
 
 </head>
 
 <body>
 
+<!-- ================= PORTAL ================= -->
+<section id="portal">
+
 <div class="container">
 
 <h1>ESCOLA DIGITAL</h1>
 
-<!-- CRIAR ESCOLA -->
 <div class="card">
-
 <h2>Criar Escola</h2>
 
 <input id="nomeEscola" placeholder="Nome da escola">
@@ -29,18 +28,73 @@
 <input id="anoLetivo" placeholder="Ano Letivo">
 
 <button id="btnCriarEscola">Criar Escola</button>
-
 </div>
 
-<!-- LISTA -->
 <div class="card">
-
 <h2>Escolas Registadas</h2>
 <div id="listaEscolas"></div>
-
 </div>
 
 </div>
+
+</section>
+
+<!-- ================= DASHBOARD ESCOLA ================= -->
+<section id="dashboardEscola" class="hidden">
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+<h3 id="nomeEscolaAtiva">Escola</h3>
+
+<button id="navDashboard">📊 Dashboard</button>
+<button id="navAlunos">👨‍🎓 Alunos</button>
+<button id="navProfessores">👨‍🏫 Professores</button>
+<button id="navPautas">📚 Pautas</button>
+<button id="navBoletins">📄 Boletins</button>
+<button id="btnSairEscola">🚪 Sair</button>
+
+</aside>
+
+<!-- CONTEÚDO -->
+<main class="content">
+
+<section id="pageDashboard" class="page active">
+<h2>Dashboard</h2>
+
+<div class="card">
+<p>✔ Sistema ativo da escola</p>
+</div>
+
+</section>
+
+<section id="pageAlunos" class="page">
+<h2>Alunos</h2>
+<div class="card">Em construção...</div>
+</section>
+
+<section id="pageProfessores" class="page">
+<h2>Professores</h2>
+<div class="card">Em construção...</div>
+</section>
+
+<section id="pagePautas" class="page">
+<h2>Pautas</h2>
+<div class="card">Em construção...</div>
+</section>
+
+<section id="pageBoletins" class="page">
+<h2>Boletins</h2>
+<div class="card">Em construção...</div>
+</section>
+
+</main>
+
+</div>
+
+</section>
 
 </body>
 </html>
