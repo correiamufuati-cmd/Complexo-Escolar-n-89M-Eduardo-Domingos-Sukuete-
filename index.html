@@ -3,21 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escola Digital - Plataforma</title>
+<title>Escola Digital</title>
 
-<link rel="stylesheet" href="estilo.css.css">
-<script type="module" src="script.js"></script>
+<link rel="stylesheet" href="estilo.css">
+
+<!-- IMPORTANTE: script no HEAD mas com DOMContentLoaded tratado -->
+<script type="module" src="script.js" defer></script>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<!-- TELA INICIAL -->
-<section id="portal">
-
 <h1>ESCOLA DIGITAL</h1>
 
+<!-- CRIAR ESCOLA -->
 <div class="card">
 
 <h2>Criar Escola</h2>
@@ -31,39 +32,13 @@
 
 </div>
 
+<!-- LISTA -->
 <div class="card">
 
 <h2>Escolas Registadas</h2>
 <div id="listaEscolas"></div>
 
 </div>
-
-</section>
-
-<!-- SISTEMA DA ESCOLA -->
-<section id="sistema" class="hidden">
-
-<h2 id="nomeEscolaAtiva"></h2>
-
-<div class="card">
-
-<h3>Login</h3>
-
-<select id="tipoUser">
-<option value="admin">Administrador</option>
-<option value="professor">Professor</option>
-<option value="aluno">Aluno</option>
-</select>
-
-<input type="password" id="senha">
-
-<button id="btnLogin">Entrar</button>
-
-</div>
-
-<button id="btnSair">Voltar</button>
-
-</section>
 
 </div>
 
