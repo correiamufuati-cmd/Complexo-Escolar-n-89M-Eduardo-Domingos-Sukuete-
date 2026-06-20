@@ -1,36 +1,114 @@
-const loginBox = document.getElementById("login");
-const sistema = document.getElementById("sistema");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+doc,
+setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* LOGIN */
+// 🔥 Firebase
+const app = initializeApp({
+apiKey: "SUA_API_KEY",
+authDomain: "SEU_PROJETO.firebaseapp.com",
+projectId: "SEU_PROJETO"
+});
+
+const db = getFirestore(app);
+
+// 📌 escola ativa
+let currentSchool = null;
+
+/* =========================
+CRIAR ESCOLA
+========================= */
+document.getElementById("btnCriarEscola").addEventListener("click", async () => {
+
+const escola = {
+nome: document.getElementById("nomeEscola").value,
+provincia: document.getElementById("provincia").value,
+municipio: document.getElementById("municipio").value,
+anoLetivo: document.getElementById("anoLetivo").value,
+criadoEm: Date.now()
+};
+
+const ref = await addDoc(collection(db, "escolas"), escola);
+
+alert("Escola criada com sucesso!");
+
+carregarEscolas();
+});
+
+/* =========================
+LISTAR ESCOLAS
+========================= */
+async function carregarEscolas(){
+
+const box = document.getElementById("listaEscolas");
+box.innerHTML = "";
+
+const snap = await getDocs(collection(db,"escolas"));
+
+snap.forEach(d => {
+
+const e = d.data();
+
+box.innerHTML += `
+<div class="card">
+<h3>${e.nome}</h3>
+<p>${e.provincia} - ${e.municipio}</p>
+
+<button onclick="entrarEscola('${d.id}','${e.nome}')">
+Entrar
+</button>
+
+</div>
+`;
+
+});
+
+}
+
+carregarEscolas();
+
+/* =========================
+ENTRAR NA ESCOLA
+========================= */
+window.entrarEscola = function(id,nome){
+
+currentSchool = id;
+
+document.getElementById("portal").classList.add("hidden");
+document.getElementById("sistema").classList.remove("hidden");
+
+document.getElementById("nomeEscolaAtiva").innerText = nome;
+
+}
+
+/* =========================
+LOGIN SIMPLES (BASE)
+========================= */
 document.getElementById("btnLogin").addEventListener("click",()=>{
 
-const tipo = document.getElementById("tipoLogin").value;
-const senha = document.getElementById("senhaLogin").value;
+const senha = document.getElementById("senha").value;
 
-/* senha simples (fase 1) */
 if(senha === "1234"){
-loginBox.classList.add("hidden");
-sistema.classList.remove("hidden");
+alert("Login OK (base)");
 }else{
 alert("Senha incorreta");
 }
 
 });
 
-/* NAVEGAÇÃO */
-function mostrar(id){
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-document.getElementById(id).classList.add("active");
-}
+/* =========================
+SAIR
+========================= */
+document.getElementById("btnSair").addEventListener("click",()=>{
 
-/* BOTÕES MENU */
-document.getElementById("btnDashboard").addEventListener("click",()=>mostrar("dashboard"));
-document.getElementById("btnPautas").addEventListener("click",()=>mostrar("pautas"));
-document.getElementById("btnAlunos").addEventListener("click",()=>mostrar("alunos"));
-document.getElementById("btnProfessores").addEventListener("click",()=>mostrar("professores"));
-document.getElementById("btnBoletins").addEventListener("click",()=>mostrar("boletins"));
+currentSchool = null;
 
-/* SAIR */
-document.getElementById("btnLogout").addEventListener("click",()=>{
-location.reload();
+document.getElementById("portal").classList.remove("hidden");
+document.getElementById("sistema").classList.add("hidden");
+
 });
