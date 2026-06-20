@@ -3,83 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escola Digital</title>
+<title>Escola Digital - Plataforma</title>
 
 <link rel="stylesheet" href="style.css">
-<script type="module" src="script.js"></script>
+<script type="module" src="app.js"></script>
 </head>
 
 <body>
 
-<div class="app">
+<div class="container">
 
-<!-- LOGIN -->
-<div id="login" class="login-box">
-<h2>ESCOLA DIGITAL</h2>
+<!-- TELA INICIAL -->
+<section id="portal">
 
-<select id="tipoLogin">
+<h1>ESCOLA DIGITAL</h1>
+
+<div class="card">
+
+<h2>Criar Escola</h2>
+
+<input id="nomeEscola" placeholder="Nome da escola">
+<input id="provincia" placeholder="Província">
+<input id="municipio" placeholder="Município">
+<input id="anoLetivo" placeholder="Ano Letivo">
+
+<button id="btnCriarEscola">Criar Escola</button>
+
+</div>
+
+<div class="card">
+
+<h2>Escolas Registadas</h2>
+<div id="listaEscolas"></div>
+
+</div>
+
+</section>
+
+<!-- SISTEMA DA ESCOLA -->
+<section id="sistema" class="hidden">
+
+<h2 id="nomeEscolaAtiva"></h2>
+
+<div class="card">
+
+<h3>Login</h3>
+
+<select id="tipoUser">
 <option value="admin">Administrador</option>
 <option value="professor">Professor</option>
 <option value="aluno">Aluno</option>
 </select>
 
-<input type="password" id="senhaLogin" placeholder="Senha">
+<input type="password" id="senha">
 
 <button id="btnLogin">Entrar</button>
+
 </div>
 
-<!-- APP -->
-<div id="sistema" class="hidden">
+<button id="btnSair">Voltar</button>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-
-<h3>ESCOLA DIGITAL</h3>
-
-<button id="btnDashboard">Dashboard</button>
-<button id="btnPautas">Mini-Pautas</button>
-<button id="btnAlunos">Alunos</button>
-<button id="btnProfessores">Professores</button>
-<button id="btnBoletins">Boletins</button>
-<button id="btnLogout">Sair</button>
-
-</aside>
-
-<!-- CONTEÚDO -->
-<main class="content">
-
-<section id="dashboard" class="page active">
-<h2>Dashboard</h2>
-
-<div class="card">
-<p>Total Alunos: --</p>
-<p>Total Professores: --</p>
-<p>Total Turmas: --</p>
-</div>
 </section>
-
-<section id="pautas" class="page">
-<h2>Mini-Pautas</h2>
-<div class="card">Em construção...</div>
-</section>
-
-<section id="alunos" class="page">
-<h2>Alunos</h2>
-<div class="card">Em construção...</div>
-</section>
-
-<section id="professores" class="page">
-<h2>Professores</h2>
-<div class="card">Em construção...</div>
-</section>
-
-<section id="boletins" class="page">
-<h2>Boletins</h2>
-<div class="card">Em construção...</div>
-</section>
-
-</main>
-</div>
 
 </div>
 
