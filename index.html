@@ -77,16 +77,78 @@
 </section>
 
 <!-- ADMIN -->
-<section id="admin" class="page">
+<section id="admin" class="pagina">
 
-<h2>Administração</h2>
+<h2>⚙️ Administração</h2>
 
+<div class="admin-grid">
+
+<div class="card-admin">
+<h3>📚 Gestão de Pautas</h3>
+<button id="btnNovaPauta">Nova Pauta</button>
+<button id="btnVerPautas">Ver Pautas</button>
+</div>
+
+<div class="card-admin">
+<h3>📥 Importação Excel</h3>
 <input type="file" id="excelFile">
-<button onclick="importarExcel()">Importar Excel</button>
+<button id="btnImportarExcel">Importar Excel</button>
+</div>
 
-<input type="file" id="pdfFile">
-<button onclick="uploadPDF()">Upload PDF</button>
+<div class="card-admin">
+<h3>👨‍🎓 Gestão de Alunos</h3>
+<button id="btnVerAlunos">Ver Alunos</button>
+<button id="btnGerarSenhas">Gerar Senhas</button>
+</div>
 
+<div class="card-admin">
+<h3>👨‍👩‍👧 Gestão de Encarregados</h3>
+<button id="btnVerEncarregados">Ver Encarregados</button>
+</div>
+
+<div class="card-admin">
+<h3>📄 Gestão de Boletins</h3>
+<button id="btnGerarBoletins">Gerar Boletins</button>
+</div>
+
+<div class="card-admin">
+<h3>📢 Publicações</h3>
+<button id="btnNovaPublicacao">Nova Publicação</button>
+</div>
+
+<div class="card-admin">
+<h3>📄 Documentos</h3>
+<button id="btnNovoDocumento">Novo Documento</button>
+</div>
+
+<div class="card-admin">
+<h3>📅 Calendário Escolar</h3>
+<button id="btnNovoEvento">Novo Evento</button>
+</div>
+
+<div class="card-admin">
+<h3>🔑 Senhas</h3>
+<button id="btnVerSenhas">Ver Senhas</button>
+</div>
+
+<div class="card-admin">
+<h3>📊 Estatísticas</h3>
+<button id="btnEstatisticas">Abrir</button>
+</div>
+
+<div class="card-admin">
+<h3>📝 Logs</h3>
+<button id="btnLogs">Ver Logs</button>
+</div>
+
+<div class="card-admin">
+<h3>💾 Backup</h3>
+<button id="btnBackup">Exportar</button>
+</div>
+
+</div>
+
+</section>
 <h3>Publicações</h3>
 <div id="listaAdmin"></div>
 
