@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Escola Digital</title>
-
 <link rel="stylesheet" href="style.css">
 <script type="module" src="script.js" defer></script>
 </head>
@@ -12,25 +11,21 @@
 
 <!-- ================= PORTAL ================= -->
 <section id="portal">
-
 <div class="container">
 
 <h1>🏫 Escola Digital</h1>
 
 <div class="card">
-
 <h2>Criar Escola</h2>
 
 <input id="nomeEscola" placeholder="Nome da Escola">
 <input id="provincia" placeholder="Província">
 <input id="municipio" placeholder="Município">
 <input id="anoLetivo" placeholder="Ano Letivo">
-
 <input id="email" placeholder="Email/Telefone">
 <input id="senhaEscola" type="password" placeholder="Senha">
 
 <button id="btnCriarEscola">Criar Escola</button>
-
 </div>
 
 <div class="card">
@@ -41,12 +36,10 @@
 <button onclick="abrirSuperAdmin()">🔐 Super Admin</button>
 
 </div>
-
 </section>
 
-<!-- ================= LOGIN ================= -->
+<!-- ================= LOGIN ESCOLA ================= -->
 <section id="loginEscola" class="hidden">
-
 <div class="container">
 
 <h2>Entrar na Escola</h2>
@@ -57,25 +50,45 @@
 <button id="btnLoginEscola">Entrar</button>
 
 </div>
-
 </section>
 
 <!-- ================= SUPER ADMIN ================= -->
 <section id="superAdmin" class="hidden">
-
 <div class="container">
 
 <h2>SUPER ADMIN</h2>
 
 <input id="senhaSuperAdmin" type="password" placeholder="Senha">
-
 <button onclick="validarSuperAdmin()">Entrar</button>
+
+</div>
+</section>
+
+<!-- ================= SUPER ADMIN DASHBOARD ================= -->
+<section id="superAdminDashboard" class="hidden">
+
+<div class="app">
+
+<aside class="sidebar">
+<h3>Super Admin</h3>
+
+<button onclick="showAdminPage('escolas')">🏫 Escolas</button>
+<button onclick="showAdminPage('stats')">📊 Estatísticas</button>
+<button onclick="sair()">Sair</button>
+</aside>
+
+<main class="content">
+
+<section id="escolas" class="adminPage"></section>
+<section id="stats" class="adminPage"></section>
+
+</main>
 
 </div>
 
 </section>
 
-<!-- ================= DASHBOARD ================= -->
+<!-- ================= DASHBOARD ESCOLA ================= -->
 <section id="dashboard" class="hidden">
 
 <div class="app">
@@ -101,22 +114,13 @@
 <div class="card">Sistema ativo</div>
 </section>
 
-<section id="alunos" class="page">
-<div class="card">Alunos módulo</div>
-</section>
-
-<section id="professores" class="page">
-<div class="card">Professores módulo</div>
-</section>
-
-<section id="turmas" class="page">
-<div class="card">Turmas módulo</div>
-</section>
+<section id="alunos" class="page"><div class="card">Alunos</div></section>
+<section id="professores" class="page"><div class="card">Professores</div></section>
+<section id="turmas" class="page"><div class="card">Turmas</div></section>
 
 <section id="pautas" class="page">
 
 <div class="card">
-
 <h3>Criar Pauta</h3>
 
 <input id="classePauta" placeholder="Classe">
@@ -126,7 +130,6 @@
 <button onclick="criarPauta()">Criar Pauta</button>
 
 <div id="listaPautas"></div>
-
 </div>
 
 </section>
