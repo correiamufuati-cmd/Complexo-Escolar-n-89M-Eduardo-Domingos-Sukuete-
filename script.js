@@ -25,18 +25,18 @@ console.log("🔥 SISTEMA OK");
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-/* BOTÕES ESCOLA + ADMIN (EVENT DELEGATION) */
+/* BOTÕES ESCOLA E ADMIN */
 document.addEventListener("click", (e) => {
 
-const schoolBtn = e.target.closest(".pageBtn");
-if(schoolBtn){
-showPage(schoolBtn.dataset.page);
+const pageBtn = e.target.closest(".pageBtn");
+if(pageBtn){
+showPage(pageBtn.dataset.page);
 return;
 }
 
 const adminBtn = e.target.closest(".adminBtn");
 if(adminBtn){
-showAdminPage(adminBtn.dataset.admin);
+handleAdmin(adminBtn.dataset.admin);
 return;
 }
 
@@ -65,28 +65,23 @@ carregarEscolas();
 /* ================= CRIAR ESCOLA ================= */
 async function criarEscola(){
 
-const nome = document.getElementById("nomeEscola").value;
-const provincia = document.getElementById("provincia").value;
-const municipio = document.getElementById("municipio").value;
-const ano = document.getElementById("anoLetivo").value;
-const email = document.getElementById("email").value;
-const senha = document.getElementById("senhaEscola").value;
-
-if(!nome || !senha){
-alert("Preenche todos os campos!");
-return;
-}
+const nome = nomeEscola.value;
+const provincia = provincia.value;
+const municipio = municipio.value;
+const ano = anoLetivo.value;
+const email = email.value;
+const senha = senhaEscola.value;
 
 const ref = await addDoc(collection(db,"escolas"),{
 nome, provincia, municipio, anoLetivo: ano, email, senha
 });
 
-alert("Escola criada com ID: " + ref.id);
+alert("Escola criada: " + ref.id);
 
 carregarEscolas();
 }
 
-/* ================= LISTAR ESCOLAS ================= */
+/* ================= LISTA ESCOLAS ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -101,7 +96,6 @@ snap.forEach(d=>{
 box.innerHTML += `
 <div class="card">
 <h3>${d.data().nome}</h3>
-<p>ID: ${d.id}</p>
 <button onclick="abrirLogin('${d.id}')">Entrar</button>
 </div>
 `;
@@ -127,21 +121,14 @@ const senha = document.getElementById("senhaLogin").value;
 
 const snap = await getDoc(doc(db,"escolas",id));
 
-if(!snap.exists()){
-alert("Escola não encontrada");
-return;
-}
+if(!snap.exists()) return alert("Escola não encontrada");
 
-if(snap.data().senha !== senha){
-alert("Senha errada");
-return;
-}
+if(snap.data().senha !== senha) return alert("Senha errada");
 
 document.getElementById("loginEscola").classList.add("hidden");
 document.getElementById("dashboard").classList.remove("hidden");
 
 document.getElementById("nomeEscolaAtiva").innerText = snap.data().nome;
-document.getElementById("nivelEscolaAtiva").innerText = snap.data().anoLetivo;
 
 showPage("home");
 
@@ -152,44 +139,114 @@ function validarSuperAdmin(){
 
 const senha = document.getElementById("senhaSuperAdmin").value;
 
-if(senha === "0987"){
+if(senha !== "0987") return alert("Senha errada");
 
 document.getElementById("superAdmin").classList.add("hidden");
 document.getElementById("superAdminDashboard").classList.remove("hidden");
 
+/* 🔥 AUTO LOAD TOTAL */
+carregarEscolasAdmin();
+carregarEstatisticas();
+carregarConfiguracoes();
+
 showAdminPage("escolas");
 
-}else{
-alert("Senha incorreta");
 }
+
+/* ================= ADMIN HANDLER ================= */
+function handleAdmin(page){
+
+showAdminPage(page);
+
+if(page === "escolas") carregarEscolasAdmin();
+if(page === "stats") carregarEstatisticas();
+if(page === "config") carregarConfiguracoes();
 
 }
 
-/* ================= NAVEGAÇÃO ESCOLA ================= */
+/* ================= ESCOLAS ADMIN ================= */
+async function carregarEscolasAdmin(){
+
+const box = document.getElementById("escolas");
+box.innerHTML = "";
+
+const snap = await getDocs(collection(db,"escolas"));
+
+snap.forEach(d=>{
+
+box.innerHTML += `
+<div class="card">
+<h3>${d.data().nome}</h3>
+<p>${d.id}</p>
+
+<button onclick="verEscola('${d.id}')">Ver</button>
+<button onclick="desativarEscola('${d.id}')">Desativar</button>
+</div>
+`;
+
+});
+
+}
+
+window.verEscola = async function(id){
+
+const snap = await getDoc(doc(db,"escolas",id));
+if(!snap.exists()) return;
+
+alert(JSON.stringify(snap.data(),null,2));
+
+}
+
+window.desativarEscola = function(id){
+alert("Escola " + id + " desativada (simulado)");
+}
+
+/* ================= ESTATÍSTICAS ================= */
+async function carregarEstatisticas(){
+
+const snap = await getDocs(collection(db,"escolas"));
+
+let total = 0;
+snap.forEach(()=> total++);
+
+document.getElementById("stats").innerHTML = `
+<div class="card">
+<h2>📊 Estatísticas</h2>
+<p>Total de escolas: <b>${total}</b></p>
+</div>
+`;
+}
+
+/* ================= CONFIG ================= */
+function carregarConfiguracoes(){
+
+document.getElementById("config").innerHTML = `
+<div class="card">
+<h2>⚙️ Configurações</h2>
+
+<button onclick="alert('Reset simulado')">Reset Sistema</button>
+<button onclick="alert('Backup simulado')">Backup</button>
+
+</div>
+`;
+}
+
+/* ================= NAV ================= */
 function showPage(page){
 
 document.querySelectorAll(".page")
 .forEach(p => p.style.display = "none");
 
-const target = document.getElementById(page);
-
-if(target){
-target.style.display = "block";
-}
+document.getElementById(page).style.display = "block";
 
 }
 
-/* ================= NAVEGAÇÃO SUPER ADMIN ================= */
 function showAdminPage(page){
 
 document.querySelectorAll(".adminPage")
 .forEach(p => p.style.display = "none");
 
-const target = document.getElementById(page);
-
-if(target){
-target.style.display = "block";
-}
+document.getElementById(page).style.display = "block";
 
 }
 
