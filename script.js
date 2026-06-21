@@ -1,7 +1,22 @@
-import { db } from "./firebase.js";
-import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+window.importarPDF = async function(){
 
-export async function lerPDF(file, turma, escolaId){
+const file = document.getElementById("pdfFile").files[0];
+const turma = document.getElementById("turmaPDF").value;
+
+if(!file){
+alert("Seleciona um PDF");
+return;
+}
+
+if(!turma){
+alert("Escreve a turma");
+return;
+}
+
+if(!escolaAtual){
+alert("Escola não definida (faz login novamente)");
+return;
+}
 
 const reader = new FileReader();
 
@@ -18,7 +33,6 @@ let texto = "";
 for(let i=1;i<=pdf.numPages;i++){
 const page = await pdf.getPage(i);
 const content = await page.getTextContent();
-
 texto += content.items.map(x=>x.str).join(" ") + "\n";
 }
 
@@ -30,7 +44,7 @@ const nomes = texto
 for(const nome of nomes){
 
 await addDoc(collection(db,"alunos"),{
-escolaId,
+escolaId: escolaAtual,
 nome,
 turma,
 matricula: "2026-" + Math.floor(Math.random()*999999),
@@ -40,7 +54,8 @@ senha: Math.random().toString(36).slice(2,10).toUpperCase()
 
 }
 
-alert("✔ PDF importado com sucesso!");
+alert("PDF importado com sucesso!");
+loadAlunos();
 
 }catch(err){
 console.error(err);
@@ -50,4 +65,4 @@ alert("Erro ao ler PDF");
 };
 
 reader.readAsArrayBuffer(file);
-}
+};
