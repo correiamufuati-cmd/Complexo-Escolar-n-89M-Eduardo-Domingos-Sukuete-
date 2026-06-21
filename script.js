@@ -22,18 +22,11 @@ const db = getFirestore(app);
 /* ================= STATE ================= */
 let escolaAtual = null;
 
-/* ================= SAFE DOM ================= */
+/* ================= HELPERS ================= */
 const $ = (id) => document.getElementById(id);
 
-const show = (id) => {
-const el = $(id);
-if (el) el.classList.remove("hidden");
-};
-
-const hide = (id) => {
-const el = $(id);
-if (el) el.classList.add("hidden");
-};
+const show = (id) => $(id)?.classList.remove("hidden");
+const hide = (id) => $(id)?.classList.add("hidden");
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
@@ -42,8 +35,11 @@ $("btnCriarEscola")?.addEventListener("click", criarEscola);
 $("btnLoginEscola")?.addEventListener("click", loginEscola);
 $("btnCriarPauta")?.addEventListener("click", criarPauta);
 
-/* 🔥 TURMAS */
+/* TURMAS */
 $("btnCriarTurma")?.addEventListener("click", criarTurma);
+
+/* ALUNOS */
+$("btnCriarAluno")?.addEventListener("click", criarAluno);
 
 carregarEscolas();
 
@@ -56,7 +52,7 @@ const nome = $("nomeEscola")?.value;
 const senha = $("senhaEscola")?.value;
 
 if(!nome || !senha){
-alert("Preenche nome e senha");
+alert("Preenche tudo");
 return;
 }
 
@@ -93,16 +89,14 @@ box.innerHTML += `
 
 }
 
-/* ================= LOGIN ESCOLA ================= */
+/* ================= LOGIN ================= */
 window.abrirLogin = function(id){
-
 escolaAtual = id;
 
 hide("portal");
 show("loginEscola");
 
 $("idEscola").value = id;
-
 };
 
 window.loginEscola = async function(){
@@ -147,11 +141,6 @@ alert("Preenche tudo");
 return;
 }
 
-if(!escolaAtual){
-alert("Nenhuma escola ativa");
-return;
-}
-
 await addDoc(collection(db,"turmas"),{
 escolaId: escolaAtual,
 classe,
@@ -160,7 +149,7 @@ anoLetivo: ano,
 criadoEm: Date.now()
 });
 
-alert("Turma criada com sucesso");
+alert("Turma criada");
 
 loadTurmas();
 }
@@ -190,6 +179,70 @@ box.innerHTML += `
 
 }
 
+/* ================= ALUNOS ================= */
+function gerarMatricula(){
+return "ALU-" + Math.floor(100000 + Math.random() * 900000);
+}
+
+function gerarSenha(){
+return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+async function criarAluno(){
+
+const nome = $("nomeAluno")?.value;
+const turma = $("turmaAluno")?.value;
+
+if(!nome || !turma){
+alert("Preenche tudo");
+return;
+}
+
+const matricula = gerarMatricula();
+const senha = gerarSenha();
+
+await addDoc(collection(db,"alunos"),{
+escolaId: escolaAtual,
+nome,
+turma,
+matricula,
+senha,
+criadoEm: Date.now()
+});
+
+alert(`Aluno criado!\nMatrícula: ${matricula}\nSenha: ${senha}`);
+
+loadAlunos();
+}
+
+async function loadAlunos(){
+
+const box = $("listaAlunos");
+if(!box) return;
+
+box.innerHTML = "";
+
+const snap = await getDocs(collection(db,"alunos"));
+
+snap.forEach(d=>{
+
+const a = d.data();
+
+if(a.escolaId !== escolaAtual) return;
+
+box.innerHTML += `
+<div class="card">
+<h3>${a.nome}</h3>
+<p>Turma: ${a.turma}</p>
+<p>Matrícula: ${a.matricula}</p>
+<p>Senha: ${a.senha}</p>
+</div>
+`;
+
+});
+
+}
+
 /* ================= PAUTAS ================= */
 window.criarPauta = async function(){
 
@@ -211,6 +264,7 @@ data: Date.now()
 });
 
 alert("Pauta criada");
+
 loadPautas();
 };
 
@@ -226,6 +280,7 @@ const snap = await getDocs(collection(db,"pautas"));
 snap.forEach(d=>{
 
 const p = d.data();
+
 if(p.escolaId !== escolaAtual) return;
 
 box.innerHTML += `
@@ -237,6 +292,20 @@ ${p.classe} - ${p.turma} - ${p.disciplina}
 });
 
 }
+
+/* ================= NAV ================= */
+window.showPage = function(id){
+
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+
+const el = $(id);
+if(el) el.classList.add("active");
+
+if(id === "turmas") loadTurmas();
+if(id === "alunos") loadAlunos();
+if(id === "pautas") loadPautas();
+
+};
 
 /* ================= SUPER ADMIN ================= */
 window.abrirSuperAdmin = function(){
@@ -260,37 +329,10 @@ loadAdminEscolas();
 loadStats();
 };
 
-/* ================= NAV ================= */
-window.showPage = function(id){
-
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-
-const el = $(id);
-if(el) el.classList.add("active");
-
-if(id === "turmas") loadTurmas();
-if(id === "pautas") loadPautas();
-
-};
-
-/* ================= ADMIN ================= */
-window.showAdminPage = function(id){
-
-document.querySelectorAll(".adminPage").forEach(p=>p.style.display="none");
-
-const el = document.getElementById(id);
-if(el) el.style.display="block";
-
-if(id==="escolas") loadAdminEscolas();
-if(id==="stats") loadStats();
-
-};
-
-/* ================= LOGS ================= */
+/* ================= LOG ================= */
 async function logAcesso(tipo, escolaId=null){
 
 try{
-
 const res = await fetch("https://ipapi.co/json/");
 const ip = await res.json();
 
@@ -302,7 +344,6 @@ cidade: ip.city,
 pais: ip.country_name,
 data: new Date().toISOString()
 });
-
 }catch(e){
 console.log(e);
 }
