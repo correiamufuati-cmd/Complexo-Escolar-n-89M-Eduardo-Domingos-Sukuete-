@@ -20,8 +20,10 @@ appId: "1:322752680482:web:9f56c69fa6ba752f46707b"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+console.log("🔥 SISTEMA INICIADO");
+
 /* ================= INIT ================= */
-window.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
 document.getElementById("btnCriarEscola")
 .addEventListener("click", criarEscola);
@@ -50,11 +52,11 @@ const email = document.getElementById("email").value;
 const senha = document.getElementById("senhaEscola").value;
 
 if(!nome || !senha){
-alert("Preenche os campos!");
+alert("Preencha os campos!");
 return;
 }
 
-const ref = await addDoc(collection(db,"escolas"), {
+const ref = await addDoc(collection(db,"escolas"),{
 nome,
 provincia,
 municipio,
@@ -69,7 +71,7 @@ alert("Escola criada! ID: " + ref.id);
 carregarEscolas();
 }
 
-/* ================= LISTAR ESCOLAS ================= */
+/* ================= LISTAR ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -84,7 +86,7 @@ const e = d.data();
 box.innerHTML += `
 <div class="card">
 <h3>${e.nome}</h3>
-<p>${d.id}</p>
+<p>ID: ${d.id}</p>
 
 <button onclick="abrirLogin('${d.id}')">
 Entrar
@@ -116,7 +118,7 @@ const senha = document.getElementById("senhaLogin").value;
 const snap = await getDoc(doc(db,"escolas",id));
 
 if(!snap.exists()){
-alert("Escola não existe");
+alert("Escola não encontrada");
 return;
 }
 
