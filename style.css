@@ -1,41 +1,36 @@
 body{
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#0f2747;
 color:white;
 }
 
-/* CONTAINER */
 .container{
 padding:20px;
 }
 
-/* CARD */
 .card{
 background:white;
 color:black;
 padding:15px;
 margin:10px 0;
 border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.2);
 }
 
-/* INPUTS */
-input, button{
+input, select, button{
 width:100%;
 padding:10px;
-margin:5px 0;
+margin:6px 0;
 border-radius:6px;
 border:none;
 box-sizing:border-box;
 }
 
-/* BOTÕES */
 button{
 background:#1e4d8f;
 color:white;
-cursor:pointer;
 font-weight:bold;
+cursor:pointer;
 }
 
 button:hover{
@@ -63,24 +58,15 @@ border:none;
 padding:10px;
 border-radius:6px;
 color:white;
-cursor:pointer;
 }
 
 .content{
 flex:1;
 padding:20px;
-overflow:auto;
 background:#0f2747;
 }
 
-.page{
-display:none;
-}
+.page{display:none;}
+.page.active{display:block;}
 
-.page.active{
-display:block;
-}
-
-.hidden{
-display:none;
-}
+.hidden{display:none;}
