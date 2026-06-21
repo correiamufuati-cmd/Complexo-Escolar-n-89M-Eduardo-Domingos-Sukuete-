@@ -1,58 +1,82 @@
 body{
 margin:0;
 font-family:Arial, sans-serif;
-background:#d7f1ff; /* azul bebê */
+background:#d7f1ff;
 color:#0f2747;
 }
 
-/* ===== CONTAINERS ===== */
+/* ===== PORTAL ===== */
+
 .container{
+max-width:1200px;
+margin:auto;
 padding:20px;
 }
 
+h1{
+text-align:center;
+font-size:32px;
+margin-bottom:20px;
+}
+
 /* ===== CARDS ===== */
+
 .card{
 background:white;
-padding:15px;
-margin:10px 0;
+padding:20px;
+margin:15px 0;
 border-radius:12px;
 box-shadow:0 2px 10px rgba(0,0,0,0.12);
 }
 
+.card h2{
+margin-top:0;
+}
+
 /* ===== INPUTS ===== */
-input, select, button{
+
+input,
+select{
 width:100%;
 padding:10px;
 margin:6px 0;
 border-radius:8px;
-border:none;
+border:1px solid #cfd8e3;
 box-sizing:border-box;
 font-size:14px;
 }
 
 /* ===== BOTÕES ===== */
+
 button{
-background:#1e4d8f; /* azul escuro */
+width:100%;
+padding:10px;
+margin-top:6px;
+background:#1e4d8f;
 color:white;
 font-weight:bold;
+border:none;
+border-radius:8px;
 cursor:pointer;
-transition:0.2s;
+transition:.2s;
 }
 
 button:hover{
 background:#163a6b;
 }
 
-/* ===== LAYOUT PRINCIPAL ===== */
+/* ===== APP ===== */
+
 .app{
 display:flex;
 height:100vh;
 }
 
 /* ===== SIDEBAR ===== */
+
 .sidebar{
 width:240px;
-background:#0f2747; /* azul escuro forte */
+background:#0f2747;
 padding:15px;
 display:flex;
 flex-direction:column;
@@ -69,28 +93,26 @@ color:#a9cfff;
 font-size:12px;
 }
 
-/* botões sidebar */
 .sidebar button{
 background:#1e4d8f;
-border:none;
-padding:10px;
-border-radius:8px;
 color:white;
-font-weight:bold;
 }
 
 .sidebar button:hover{
 background:#163a6b;
 }
 
-/* ===== CONTENT ===== */
+/* ===== CONTEÚDO ===== */
+
 .content{
 flex:1;
 padding:20px;
 overflow:auto;
+background:#eef7ff;
 }
 
 /* ===== PÁGINAS ===== */
+
 .page{
 display:none;
 }
@@ -99,17 +121,20 @@ display:none;
 display:block;
 }
 
-/* ===== OCULTO ===== */
+/* ===== ESCOLAS REGISTADAS ===== */
+
+#listaEscolas .card{
+border-left:5px solid #1e4d8f;
+}
+
+/* ===== ESCONDER ===== */
+
 .hidden{
 display:none;
 }
 
-/* ===== TITULOS ===== */
-h1, h2{
-color:#0f2747;
-}
+/* ===== SCROLL ===== */
 
-/* ===== SCROLL MAIS LIMPO ===== */
 ::-webkit-scrollbar{
 width:8px;
 }
