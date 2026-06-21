@@ -44,7 +44,7 @@
 
 </section>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 <section id="loginEscola" class="hidden">
 
 <div class="container">
@@ -60,12 +60,12 @@
 
 </section>
 
-<!-- ================= SUPER ADMIN ================= -->
+<!-- SUPER ADMIN -->
 <section id="superAdmin" class="hidden">
 
 <div class="container">
 
-<h2>SUPER ADMINISTRADOR</h2>
+<h2>SUPER ADMIN</h2>
 
 <input id="senhaSuperAdmin" type="password" placeholder="Senha">
 
@@ -75,7 +75,7 @@
 
 </section>
 
-<!-- ================= DASHBOARD ================= -->
+<!-- DASHBOARD -->
 <section id="dashboard" class="hidden">
 
 <div class="app">
@@ -85,10 +85,10 @@
 <h3 id="nomeEscolaAtiva"></h3>
 <p id="nivelEscolaAtiva"></p>
 
-<button onclick="showPage('home')">Painel</button>
-<button onclick="showPage('alunos')">Alunos</button>
-<button onclick="showPage('professores')">Professores</button>
-<button onclick="showPage('turmas')">Turmas</button>
+<button class="pageBtn" data-page="home">Painel</button>
+<button class="pageBtn" data-page="alunos">Alunos</button>
+<button class="pageBtn" data-page="professores">Professores</button>
+<button class="pageBtn" data-page="turmas">Turmas</button>
 
 <button onclick="sair()">Sair</button>
 
@@ -96,21 +96,10 @@
 
 <main class="content">
 
-<section id="home" class="page active">
-<div class="card">Sistema OK</div>
-</section>
-
-<section id="alunos" class="page">
-<div class="card">Alunos</div>
-</section>
-
-<section id="professores" class="page">
-<div class="card">Professores</div>
-</section>
-
-<section id="turmas" class="page">
-<div class="card">Turmas</div>
-</section>
+<section id="home" class="page active"><div class="card">Sistema OK</div></section>
+<section id="alunos" class="page"><div class="card">Alunos</div></section>
+<section id="professores" class="page"><div class="card">Professores</div></section>
+<section id="turmas" class="page"><div class="card">Turmas</div></section>
 
 </main>
 
