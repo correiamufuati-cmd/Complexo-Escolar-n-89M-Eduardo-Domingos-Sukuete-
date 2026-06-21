@@ -38,44 +38,27 @@
 <div id="listaEscolas"></div>
 </div>
 
-<button id="btnSuperAdmin">🔐 Super Admin</button>
+<button id="btnSuperAdmin">Super Admin</button>
 
 </div>
 
 </section>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ESCOLA ================= -->
 <section id="loginEscola" class="hidden">
-
 <div class="container">
 
-<h2>Entrar na Escola</h2>
+<h2>Login Escola</h2>
 
-<input id="idEscola" placeholder="ID da Escola">
+<input id="idEscola" placeholder="ID">
 <input id="senhaLogin" type="password" placeholder="Senha">
 
 <button id="btnLoginEscola">Entrar</button>
 
 </div>
-
 </section>
 
-<!-- SUPER ADMIN -->
-<section id="superAdmin" class="hidden">
-
-<div class="container">
-
-<h2>SUPER ADMIN</h2>
-
-<input id="senhaSuperAdmin" type="password" placeholder="Senha">
-
-<button id="btnValidarSuperAdmin">Entrar</button>
-
-</div>
-
-</section>
-
-<!-- DASHBOARD -->
+<!-- ================= DASHBOARD ESCOLA ================= -->
 <section id="dashboard" class="hidden">
 
 <div class="app">
@@ -96,10 +79,54 @@
 
 <main class="content">
 
-<section id="home" class="page active"><div class="card">Sistema OK</div></section>
-<section id="alunos" class="page"><div class="card">Alunos</div></section>
-<section id="professores" class="page"><div class="card">Professores</div></section>
-<section id="turmas" class="page"><div class="card">Turmas</div></section>
+<section id="home" class="page"><h2>Painel Principal</h2></section>
+<section id="alunos" class="page"><h2>Gestão de Alunos</h2></section>
+<section id="professores" class="page"><h2>Gestão de Professores</h2></section>
+<section id="turmas" class="page"><h2>Gestão de Turmas</h2></section>
+
+</main>
+
+</div>
+
+</section>
+
+<!-- ================= SUPER ADMIN LOGIN ================= -->
+<section id="superAdmin" class="hidden">
+
+<div class="container">
+
+<h2>SUPER ADMIN</h2>
+
+<input id="senhaSuperAdmin" type="password" placeholder="Senha">
+
+<button id="btnValidarSuperAdmin">Entrar</button>
+
+</div>
+
+</section>
+
+<!-- ================= SUPER ADMIN DASHBOARD ================= -->
+<section id="superAdminDashboard" class="hidden">
+
+<div class="app">
+
+<aside class="sidebar">
+
+<h3>SUPER ADMIN</h3>
+
+<button class="adminBtn" data-admin="escolas">Escolas</button>
+<button class="adminBtn" data-admin="stats">Estatísticas</button>
+<button class="adminBtn" data-admin="config">Configurações</button>
+
+<button onclick="logout()">Sair</button>
+
+</aside>
+
+<main class="content">
+
+<section id="escolas" class="adminPage"><h2>Escolas Registadas</h2></section>
+<section id="stats" class="adminPage"><h2>Estatísticas Gerais</h2></section>
+<section id="config" class="adminPage"><h2>Configurações</h2></section>
 
 </main>
 
