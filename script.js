@@ -20,12 +20,10 @@ appId: "1:322752680482:web:9f56c69fa6ba752f46707b"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-console.log("🔥 SISTEMA ONLINE");
+console.log("🔥 SISTEMA OK");
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
-
-console.log("DOM OK");
 
 document.getElementById("btnCriarEscola")
 ?.addEventListener("click", criarEscola);
@@ -39,18 +37,16 @@ document.getElementById("btnSuperAdmin")
 document.getElementById("btnValidarSuperAdmin")
 ?.addEventListener("click", validarSuperAdmin);
 
-/* 🔥 EVENT DELEGATION (FIX PRINCIPAL) */
+/* 🔥 FIX REAL PARA BOTÕES DINÂMICOS */
 document.addEventListener("click", (e) => {
 
-const btn = e.target.closest(".pageBtn");
+const btn = e.target.closest("[data-page]");
 
 if(!btn) return;
 
 const page = btn.dataset.page;
 
-if(page){
 showPage(page);
-}
 
 });
 
@@ -58,7 +54,7 @@ carregarEscolas();
 
 });
 
-/* ================= CRIAR ESCOLA ================= */
+/* ================= CRIAR ================= */
 async function criarEscola(){
 
 const nome = document.getElementById("nomeEscola").value;
@@ -88,7 +84,7 @@ alert("Escola criada! ID: " + ref.id);
 carregarEscolas();
 }
 
-/* ================= LISTAR ESCOLAS ================= */
+/* ================= LISTA ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -149,6 +145,8 @@ document.getElementById("dashboard").classList.remove("hidden");
 document.getElementById("nomeEscolaAtiva").innerText = e.nome;
 document.getElementById("nivelEscolaAtiva").innerText = e.anoLetivo;
 
+showPage("home");
+
 }
 
 /* ================= SUPER ADMIN ================= */
@@ -171,19 +169,25 @@ document.getElementById("dashboard").classList.remove("hidden");
 document.getElementById("nomeEscolaAtiva").innerText = "SUPER ADMIN";
 document.getElementById("nivelEscolaAtiva").innerText = "CONTROLO GLOBAL";
 
-} else {
+showPage("home");
+
+}else{
 alert("Senha errada");
 }
 
 }
 
-/* ================= NAVIGATION ================= */
-window.showPage = function(id){
+/* ================= NAVIGATION FIX ================= */
+window.showPage = function(page){
 
 document.querySelectorAll(".page")
-.forEach(p => p.classList.remove("active"));
+.forEach(p => p.style.display = "none");
 
-document.getElementById(id)?.classList.add("active");
+const target = document.getElementById(page);
+
+if(target){
+target.style.display = "block";
+}
 
 };
 
