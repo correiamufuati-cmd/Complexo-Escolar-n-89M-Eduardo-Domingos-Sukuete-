@@ -8,21 +8,40 @@ getDoc,
 doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const app = initializeApp({
+/* 🔥 FIREBASE (CONFIRMA QUE ESTÁ CORRETO) */
+const firebaseConfig = {
 apiKey: "SUA_API_KEY",
 authDomain: "SEU_PROJECT.firebaseapp.com",
 projectId: "SEU_PROJECT"
-});
+};
 
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let escolaAtual = null;
-
-/* ================= INICIAR APÓS CARREGAR ================= */
+/* ================= ARRANQUE ================= */
 window.addEventListener("DOMContentLoaded", () => {
 
-document.getElementById("btnCriarEscola").addEventListener("click", criarEscola);
-document.getElementById("btnLoginEscola").addEventListener("click", loginEscola);
+console.log("✔ Sistema carregado");
+
+const btn = document.getElementById("btnCriarEscola");
+
+if(!btn){
+console.error("❌ btnCriarEscola não encontrado");
+return;
+}
+
+btn.addEventListener("click", async () => {
+
+console.log("✔ Clique detectado");
+
+try{
+await criarEscola();
+}catch(err){
+console.error("❌ ERRO:", err);
+alert("Erro ao criar escola. Ver consola.");
+}
+
+});
 
 carregarEscolas();
 
@@ -31,24 +50,33 @@ carregarEscolas();
 /* ================= CRIAR ESCOLA ================= */
 async function criarEscola(){
 
+console.log("✔ Criando escola...");
+
 const nome = document.getElementById("nomeEscola").value;
 const provincia = document.getElementById("provincia").value;
 const municipio = document.getElementById("municipio").value;
 const ano = document.getElementById("anoLetivo").value;
-const nivel = document.getElementById("nivelEnsino").value;
 const email = document.getElementById("email").value;
 const senha = document.getElementById("senhaEscola").value;
 
 if(!nome || !senha){
-alert("Preenche os campos!");
+alert("Preenche nome e senha!");
 return;
 }
 
 const ref = await addDoc(collection(db,"escolas"),{
-nome, provincia, municipio, ano, nivel, email, senha
+nome,
+provincia,
+municipio,
+anoLetivo: ano,
+email,
+senha,
+criadoEm: Date.now()
 });
 
-alert("Escola criada: " + ref.id);
+console.log("✔ Escola criada:", ref.id);
+
+alert("Escola criada com ID: " + ref.id);
 
 carregarEscolas();
 }
@@ -57,6 +85,12 @@ carregarEscolas();
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
+
+if(!box){
+console.error("❌ listaEscolas não existe");
+return;
+}
+
 box.innerHTML = "";
 
 const snap = await getDocs(collection(db,"escolas"));
@@ -68,7 +102,7 @@ const e = d.data();
 box.innerHTML += `
 <div class="card">
 <h3>${e.nome}</h3>
-<p>${e.nivel}</p>
+<p>${e.municipio || ""} - ${e.provincia || ""}</p>
 
 <button onclick="abrirLogin('${d.id}','${e.nome}')">
 Entrar
@@ -81,10 +115,10 @@ Entrar
 
 }
 
-/* ================= ABRIR LOGIN ================= */
+/* ================= LOGIN ESCOLA ================= */
 window.abrirLogin = function(id,nome){
 
-escolaAtual = id;
+console.log("✔ Abrir login:", id);
 
 document.getElementById("portal").classList.add("hidden");
 document.getElementById("loginEscola").classList.remove("hidden");
@@ -107,10 +141,10 @@ document.getElementById("loginEscola").classList.add("hidden");
 document.getElementById("dashboard").classList.remove("hidden");
 
 document.getElementById("nomeEscolaAtiva").innerText = e.nome;
-document.getElementById("nivelEscolaAtiva").innerText = e.nivel;
+document.getElementById("nivelEscolaAtiva").innerText = e.anoLetivo || "";
 
 }else{
-alert("Erro login");
+alert("Login inválido");
 }
 
 }
