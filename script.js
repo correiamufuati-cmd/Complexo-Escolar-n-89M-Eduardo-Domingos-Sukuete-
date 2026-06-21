@@ -18,7 +18,6 @@ projectId: "escola-digital-47497"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ================= STATE ================= */
 let escolaAtual = null;
 
 const $ = (id)=>document.getElementById(id);
@@ -36,10 +35,8 @@ carregarEscolas();
 
 /* ================= NAV ================= */
 window.showPage = function(id){
-
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 $(id).classList.add("active");
-
 };
 
 window.sair = ()=>location.reload();
@@ -57,9 +54,7 @@ return alert("Senha errada");
 }
 
 $("superAdmin").classList.add("hidden");
-$("superAdminDashboard").classList.remove("hidden");
-
-loadAdmin();
+$("dashboard").classList.remove("hidden");
 };
 
 /* ================= PDF ================= */
@@ -74,7 +69,7 @@ const pdf = await pdfjsLib.getDocument({
 data: new Uint8Array(await file.arrayBuffer())
 }).promise;
 
-alert("PDF carregado OK");
+alert("PDF carregado com sucesso");
 
 };
 
@@ -130,7 +125,6 @@ $("dashboard").classList.remove("hidden");
 $("nomeEscolaAtiva").innerText = snap.data().nome;
 };
 
-/* ================= PLACEHOLDER ================= */
+/* ================= PLACEHOLDERS ================= */
 async function criarAluno(){}
 async function criarTurma(){}
-async function loadAdmin(){}
