@@ -1,68 +1,136 @@
-window.importarPDF = async function(){
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+getDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const file = document.getElementById("pdfFile").files[0];
-const turma = document.getElementById("turmaPDF").value;
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+apiKey: "SUA_API_KEY",
+authDomain: "escola-digital-47497.firebaseapp.com",
+projectId: "escola-digital-47497"
+};
 
-if(!file){
-alert("Seleciona um PDF");
-return;
-}
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-if(!turma){
-alert("Escreve a turma");
-return;
-}
+/* ================= STATE ================= */
+let escolaAtual = null;
 
-if(!escolaAtual){
-alert("Escola não definida (faz login novamente)");
-return;
-}
+const $ = (id)=>document.getElementById(id);
 
-const reader = new FileReader();
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded",()=>{
 
-reader.onload = async function(){
+$("btnCriarEscola").onclick = criarEscola;
+$("btnLoginEscola").onclick = loginEscola;
+$("btnCriarAluno").onclick = criarAluno;
+$("btnCriarTurma").onclick = criarTurma;
 
-try{
-
-const pdf = await pdfjsLib.getDocument({
-data: new Uint8Array(this.result)
-}).promise;
-
-let texto = "";
-
-for(let i=1;i<=pdf.numPages;i++){
-const page = await pdf.getPage(i);
-const content = await page.getTextContent();
-texto += content.items.map(x=>x.str).join(" ") + "\n";
-}
-
-const nomes = texto
-.split("\n")
-.map(n=>n.trim())
-.filter(n=>n.length > 3);
-
-for(const nome of nomes){
-
-await addDoc(collection(db,"alunos"),{
-escolaId: escolaAtual,
-nome,
-turma,
-matricula: "2026-" + Math.floor(Math.random()*999999),
-username: nome.toLowerCase().replace(/\s/g,"").slice(0,6),
-senha: Math.random().toString(36).slice(2,10).toUpperCase()
+carregarEscolas();
 });
 
-}
+/* ================= NAV ================= */
+window.showPage = function(id){
 
-alert("PDF importado com sucesso!");
-loadAlunos();
-
-}catch(err){
-console.error(err);
-alert("Erro ao ler PDF");
-}
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+$(id).classList.add("active");
 
 };
 
-reader.readAsArrayBuffer(file);
+window.sair = ()=>location.reload();
+
+/* ================= SUPER ADMIN ================= */
+window.abrirSuperAdmin = function(){
+$("portal").classList.add("hidden");
+$("superAdmin").classList.remove("hidden");
 };
+
+window.validarSuperAdmin = function(){
+
+if($("senhaSuperAdmin").value !== "0987"){
+return alert("Senha errada");
+}
+
+$("superAdmin").classList.add("hidden");
+$("superAdminDashboard").classList.remove("hidden");
+
+loadAdmin();
+};
+
+/* ================= PDF ================= */
+window.importarPDF = async function(){
+
+const file = $("pdfFile").files[0];
+const turma = $("turmaPDF").value;
+
+if(!file || !turma) return alert("Preenche tudo");
+
+const pdf = await pdfjsLib.getDocument({
+data: new Uint8Array(await file.arrayBuffer())
+}).promise;
+
+alert("PDF carregado OK");
+
+};
+
+/* ================= ESCOLAS ================= */
+async function criarEscola(){
+
+await addDoc(collection(db,"escolas"),{
+nome:$("nomeEscola").value,
+provincia:$("provincia").value,
+municipio:$("municipio").value,
+ano:$("anoLetivo").value,
+senha:$("senhaEscola").value
+});
+
+carregarEscolas();
+}
+
+async function carregarEscolas(){
+
+const box = $("listaEscolas");
+box.innerHTML="";
+
+const snap = await getDocs(collection(db,"escolas"));
+
+snap.forEach(d=>{
+box.innerHTML += `
+<div class="card">
+${d.data().nome}
+<button onclick="entrar('${d.id}')">Entrar</button>
+</div>`;
+});
+}
+
+window.entrar = async function(id){
+escolaAtual = id;
+
+$("portal").classList.add("hidden");
+$("loginEscola").classList.remove("hidden");
+
+$("idEscola").value = id;
+};
+
+window.loginEscola = async function(){
+
+const snap = await getDoc(doc(db,"escolas",$("idEscola").value));
+
+if(!snap.exists()) return alert("Não existe");
+if(snap.data().senha !== $("senhaLogin").value) return alert("Erro");
+
+$("loginEscola").classList.add("hidden");
+$("dashboard").classList.remove("hidden");
+
+$("nomeEscolaAtiva").innerText = snap.data().nome;
+};
+
+/* ================= PLACEHOLDER ================= */
+async function criarAluno(){}
+async function criarTurma(){}
+async function loadAdmin(){}
