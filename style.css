@@ -20,7 +20,7 @@ border-radius:10px;
 input, select, button{
 width:100%;
 padding:10px;
-margin:6px 0;
+margin:5px 0;
 border-radius:6px;
 border:none;
 box-sizing:border-box;
@@ -54,10 +54,10 @@ gap:10px;
 
 .sidebar button{
 background:#1e4d8f;
+color:white;
 border:none;
 padding:10px;
 border-radius:6px;
-color:white;
 }
 
 .content{
