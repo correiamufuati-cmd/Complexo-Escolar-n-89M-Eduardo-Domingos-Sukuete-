@@ -42,6 +42,9 @@ $("btnCriarEscola")?.addEventListener("click", criarEscola);
 $("btnLoginEscola")?.addEventListener("click", loginEscola);
 $("btnCriarPauta")?.addEventListener("click", criarPauta);
 
+/* 🔥 TURMAS */
+$("btnCriarTurma")?.addEventListener("click", criarTurma);
+
 carregarEscolas();
 
 });
@@ -98,22 +101,14 @@ escolaAtual = id;
 hide("portal");
 show("loginEscola");
 
-const input = $("idEscola");
-if(input) input.value = id;
+$("idEscola").value = id;
 
 };
 
 window.loginEscola = async function(){
 
-try{
-
 const id = $("idEscola")?.value;
 const senha = $("senhaLogin")?.value;
-
-if(!id || !senha){
-alert("Preenche tudo");
-return;
-}
 
 const snap = await getDoc(doc(db,"escolas",id));
 
@@ -138,13 +133,62 @@ $("nivelEscolaAtiva").innerText = data.anoLetivo || "";
 showPage("home");
 
 logAcesso("escola", id);
+};
 
-}catch(err){
-console.error(err);
-alert("Erro login");
+/* ================= TURMAS ================= */
+async function criarTurma(){
+
+const classe = $("classeTurma")?.value;
+const turma = $("nomeTurma")?.value;
+const ano = $("anoTurma")?.value;
+
+if(!classe || !turma || !ano){
+alert("Preenche tudo");
+return;
 }
 
-};
+if(!escolaAtual){
+alert("Nenhuma escola ativa");
+return;
+}
+
+await addDoc(collection(db,"turmas"),{
+escolaId: escolaAtual,
+classe,
+turma,
+anoLetivo: ano,
+criadoEm: Date.now()
+});
+
+alert("Turma criada com sucesso");
+
+loadTurmas();
+}
+
+async function loadTurmas(){
+
+const box = $("listaTurmas");
+if(!box) return;
+
+box.innerHTML = "";
+
+const snap = await getDocs(collection(db,"turmas"));
+
+snap.forEach(d=>{
+
+const t = d.data();
+if(t.escolaId !== escolaAtual) return;
+
+box.innerHTML += `
+<div class="card">
+<strong>${t.classe} - ${t.turma}</strong>
+<p>Ano: ${t.anoLetivo}</p>
+</div>
+`;
+
+});
+
+}
 
 /* ================= PAUTAS ================= */
 window.criarPauta = async function(){
@@ -168,7 +212,6 @@ data: Date.now()
 
 alert("Pauta criada");
 loadPautas();
-
 };
 
 async function loadPautas(){
@@ -197,10 +240,8 @@ ${p.classe} - ${p.turma} - ${p.disciplina}
 
 /* ================= SUPER ADMIN ================= */
 window.abrirSuperAdmin = function(){
-
 hide("portal");
 show("superAdmin");
-
 };
 
 window.validarSuperAdmin = function(){
@@ -217,65 +258,35 @@ show("superAdminDashboard");
 
 loadAdminEscolas();
 loadStats();
+};
 
-logAcesso("superadmin");
+/* ================= NAV ================= */
+window.showPage = function(id){
+
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+
+const el = $(id);
+if(el) el.classList.add("active");
+
+if(id === "turmas") loadTurmas();
+if(id === "pautas") loadPautas();
 
 };
 
 /* ================= ADMIN ================= */
-async function loadAdminEscolas(){
+window.showAdminPage = function(id){
 
-const box = $("escolas");
-if(!box) return;
+document.querySelectorAll(".adminPage").forEach(p=>p.style.display="none");
 
-box.innerHTML = "";
+const el = document.getElementById(id);
+if(el) el.style.display="block";
 
-const snap = await getDocs(collection(db,"escolas"));
-
-snap.forEach(d=>{
-
-box.innerHTML += `
-<div class="card">
-<h3>${d.data().nome}</h3>
-<p>ID: ${d.id}</p>
-<button onclick="verEscola('${d.id}')">Ver</button>
-<button onclick="eliminarEscola('${d.id}')">Eliminar</button>
-</div>
-`;
-
-});
-
-}
-
-window.verEscola = async function(id){
-
-const snap = await getDoc(doc(db,"escolas",id));
-alert(JSON.stringify(snap.data(),null,2));
+if(id==="escolas") loadAdminEscolas();
+if(id==="stats") loadStats();
 
 };
 
-window.eliminarEscola = async function(id){
-
-await deleteDoc(doc(db,"escolas",id));
-loadAdminEscolas();
-
-};
-
-async function loadStats(){
-
-const snap = await getDocs(collection(db,"escolas"));
-
-let total = 0;
-snap.forEach(()=>total++);
-
-const box = $("stats");
-if(box){
-box.innerHTML = `<div class="card"><h2>Total: ${total}</h2></div>`;
-}
-
-}
-
-/* ================= ACESSOS ================= */
+/* ================= LOGS ================= */
 async function logAcesso(tipo, escolaId=null){
 
 try{
@@ -293,33 +304,10 @@ data: new Date().toISOString()
 });
 
 }catch(e){
-console.log("log erro", e);
+console.log(e);
 }
 
 }
-
-/* ================= NAV ================= */
-window.showPage = function(id){
-
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-
-const el = $(id);
-if(el) el.classList.add("active");
-
-};
-
-/* ================= ADMIN NAV ================= */
-window.showAdminPage = function(id){
-
-document.querySelectorAll(".adminPage").forEach(p=>p.style.display="none");
-
-const el = document.getElementById(id);
-if(el) el.style.display="block";
-
-if(id==="escolas") loadAdminEscolas();
-if(id==="stats") loadStats();
-
-};
 
 /* ================= SAIR ================= */
 window.sair = function(){
