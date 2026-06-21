@@ -5,8 +5,7 @@ collection,
 addDoc,
 getDocs,
 getDoc,
-doc,
-deleteDoc
+doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ================= FIREBASE ================= */
@@ -25,109 +24,16 @@ let escolaAtual = null;
 /* ================= HELPERS ================= */
 const $ = (id) => document.getElementById(id);
 
-const show = (id) => $(id)?.classList.remove("hidden");
-const hide = (id) => $(id)?.classList.add("hidden");
-
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-$("btnCriarEscola")?.addEventListener("click", criarEscola);
-$("btnLoginEscola")?.addEventListener("click", loginEscola);
-$("btnCriarPauta")?.addEventListener("click", criarPauta);
-
-/* TURMAS */
 $("btnCriarTurma")?.addEventListener("click", criarTurma);
-
-/* ALUNOS */
 $("btnCriarAluno")?.addEventListener("click", criarAluno);
+$("btnImportarPDF")?.addEventListener("click", importarPDF);
 
 carregarEscolas();
 
 });
-
-/* ================= ESCOLAS ================= */
-async function criarEscola(){
-
-const nome = $("nomeEscola")?.value;
-const senha = $("senhaEscola")?.value;
-
-if(!nome || !senha){
-alert("Preenche tudo");
-return;
-}
-
-const ref = await addDoc(collection(db,"escolas"),{
-nome,
-senha,
-criadoEm: Date.now()
-});
-
-alert("Escola criada: " + ref.id);
-carregarEscolas();
-}
-
-async function carregarEscolas(){
-
-const box = $("listaEscolas");
-if(!box) return;
-
-box.innerHTML = "";
-
-const snap = await getDocs(collection(db,"escolas"));
-
-snap.forEach(d=>{
-
-box.innerHTML += `
-<div class="card">
-<h3>${d.data().nome}</h3>
-<p>ID: ${d.id}</p>
-<button onclick="abrirLogin('${d.id}')">Entrar</button>
-</div>
-`;
-
-});
-
-}
-
-/* ================= LOGIN ================= */
-window.abrirLogin = function(id){
-escolaAtual = id;
-
-hide("portal");
-show("loginEscola");
-
-$("idEscola").value = id;
-};
-
-window.loginEscola = async function(){
-
-const id = $("idEscola")?.value;
-const senha = $("senhaLogin")?.value;
-
-const snap = await getDoc(doc(db,"escolas",id));
-
-if(!snap.exists()){
-alert("Escola não existe");
-return;
-}
-
-const data = snap.data();
-
-if(data.senha !== senha){
-alert("Senha errada");
-return;
-}
-
-hide("loginEscola");
-show("dashboard");
-
-$("nomeEscolaAtiva").innerText = data.nome;
-$("nivelEscolaAtiva").innerText = data.anoLetivo || "";
-
-showPage("home");
-
-logAcesso("escola", id);
-};
 
 /* ================= TURMAS ================= */
 async function criarTurma(){
@@ -171,7 +77,7 @@ if(t.escolaId !== escolaAtual) return;
 box.innerHTML += `
 <div class="card">
 <strong>${t.classe} - ${t.turma}</strong>
-<p>Ano: ${t.anoLetivo}</p>
+<p>${t.anoLetivo}</p>
 </div>
 `;
 
@@ -181,11 +87,15 @@ box.innerHTML += `
 
 /* ================= ALUNOS ================= */
 function gerarMatricula(){
-return "ALU-" + Math.floor(100000 + Math.random() * 900000);
+return "2026-" + Math.floor(100000 + Math.random()*900000);
 }
 
 function gerarSenha(){
-return Math.floor(1000 + Math.random() * 9000).toString();
+return Math.random().toString(36).substring(2,10).toUpperCase();
+}
+
+function gerarUsername(nome){
+return nome.toLowerCase().replace(/\s/g,"").slice(0,6) + Math.floor(Math.random()*900);
 }
 
 async function criarAluno(){
@@ -193,24 +103,18 @@ async function criarAluno(){
 const nome = $("nomeAluno")?.value;
 const turma = $("turmaAluno")?.value;
 
-if(!nome || !turma){
-alert("Preenche tudo");
-return;
-}
-
-const matricula = gerarMatricula();
-const senha = gerarSenha();
-
 await addDoc(collection(db,"alunos"),{
 escolaId: escolaAtual,
 nome,
 turma,
-matricula,
-senha,
+matricula: gerarMatricula(),
+username: gerarUsername(nome),
+senha: gerarSenha(),
+status: "ativo",
 criadoEm: Date.now()
 });
 
-alert(`Aluno criado!\nMatrícula: ${matricula}\nSenha: ${senha}`);
+alert("Aluno criado");
 
 loadAlunos();
 }
@@ -227,15 +131,14 @@ const snap = await getDocs(collection(db,"alunos"));
 snap.forEach(d=>{
 
 const a = d.data();
-
 if(a.escolaId !== escolaAtual) return;
 
 box.innerHTML += `
 <div class="card">
 <h3>${a.nome}</h3>
-<p>Turma: ${a.turma}</p>
-<p>Matrícula: ${a.matricula}</p>
-<p>Senha: ${a.senha}</p>
+<p>${a.turma}</p>
+<p>${a.matricula}</p>
+<p>${a.username}</p>
 </div>
 `;
 
@@ -243,114 +146,59 @@ box.innerHTML += `
 
 }
 
-/* ================= PAUTAS ================= */
-window.criarPauta = async function(){
+/* ================= PDF IMPORT ================= */
+async function importarPDF(){
 
-const classe = $("classePauta")?.value;
-const turma = $("turmaPauta")?.value;
-const disciplina = $("disciplinaPauta")?.value;
+const file = $("pdfFile")?.files[0];
+const turma = $("turmaPDF")?.value;
 
-if(!classe || !turma || !disciplina){
-alert("Preenche tudo");
+if(!file || !turma){
+alert("Seleciona PDF e turma");
 return;
 }
 
-await addDoc(collection(db,"pautas"),{
+const reader = new FileReader();
+
+reader.onload = async function(){
+
+const typedarray = new Uint8Array(this.result);
+
+const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
+
+let texto = "";
+
+for(let i=1;i<=pdf.numPages;i++){
+
+const page = await pdf.getPage(i);
+const content = await page.getTextContent();
+
+texto += content.items.map(i=>i.str).join(" ") + "\n";
+}
+
+const nomes = texto
+.split("\n")
+.map(n=>n.trim())
+.filter(n=>n.length > 3);
+
+for(const nome of nomes){
+
+await addDoc(collection(db,"alunos"),{
 escolaId: escolaAtual,
-classe,
+nome,
 turma,
-disciplina,
-data: Date.now()
-});
-
-alert("Pauta criada");
-
-loadPautas();
-};
-
-async function loadPautas(){
-
-const box = $("listaPautas");
-if(!box) return;
-
-box.innerHTML = "";
-
-const snap = await getDocs(collection(db,"pautas"));
-
-snap.forEach(d=>{
-
-const p = d.data();
-
-if(p.escolaId !== escolaAtual) return;
-
-box.innerHTML += `
-<div class="card">
-${p.classe} - ${p.turma} - ${p.disciplina}
-</div>
-`;
-
+matricula: gerarMatricula(),
+username: gerarUsername(nome),
+senha: gerarSenha(),
+status: "ativo",
+criadoEm: Date.now()
 });
 
 }
 
-/* ================= NAV ================= */
-window.showPage = function(id){
-
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-
-const el = $(id);
-if(el) el.classList.add("active");
-
-if(id === "turmas") loadTurmas();
-if(id === "alunos") loadAlunos();
-if(id === "pautas") loadPautas();
+alert("Importação concluída!");
+loadAlunos();
 
 };
 
-/* ================= SUPER ADMIN ================= */
-window.abrirSuperAdmin = function(){
-hide("portal");
-show("superAdmin");
-};
-
-window.validarSuperAdmin = function(){
-
-const senha = $("senhaSuperAdmin")?.value;
-
-if(senha !== "0987"){
-alert("Errado");
-return;
+reader.readAsArrayBuffer(file);
 }
-
-hide("superAdmin");
-show("superAdminDashboard");
-
-loadAdminEscolas();
-loadStats();
-};
-
-/* ================= LOG ================= */
-async function logAcesso(tipo, escolaId=null){
-
-try{
-const res = await fetch("https://ipapi.co/json/");
-const ip = await res.json();
-
-await addDoc(collection(db,"acessos"),{
-tipo,
-escolaId,
-ip: ip.ip,
-cidade: ip.city,
-pais: ip.country_name,
-data: new Date().toISOString()
-});
-}catch(e){
-console.log(e);
-}
-
-}
-
-/* ================= SAIR ================= */
-window.sair = function(){
-location.reload();
-};
