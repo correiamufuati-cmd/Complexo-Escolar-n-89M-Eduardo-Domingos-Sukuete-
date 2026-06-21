@@ -19,54 +19,38 @@ projectId: "escola-digital-47497"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ================= ESTADO ================= */
+/* ================= STATE ================= */
 let escolaAtual = null;
 
-/* ================= HELPERS (ANTI-ERRO) ================= */
-function el(id){
-return document.getElementById(id);
-}
+/* ================= SAFE DOM ================= */
+const $ = (id) => document.getElementById(id);
 
-function show(id){
-const e = el(id);
-if(!e){
-console.error("Elemento não encontrado:", id);
-return;
-}
-e.classList.remove("hidden");
-}
+const show = (id) => {
+const el = $(id);
+if (el) el.classList.remove("hidden");
+};
 
-function hide(id){
-const e = el(id);
-if(!e){
-console.error("Elemento não encontrado:", id);
-return;
-}
-e.classList.add("hidden");
-}
+const hide = (id) => {
+const el = $(id);
+if (el) el.classList.add("hidden");
+};
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-const btnCriar = el("btnCriarEscola");
-const btnLogin = el("btnLoginEscola");
-
-if(btnCriar) btnCriar.addEventListener("click", criarEscola);
-if(btnLogin) btnLogin.addEventListener("click", loginEscola);
+$("btnCriarEscola")?.addEventListener("click", criarEscola);
+$("btnLoginEscola")?.addEventListener("click", loginEscola);
+$("btnCriarPauta")?.addEventListener("click", criarPauta);
 
 carregarEscolas();
 
 });
 
-/* ================= CRIAR ESCOLA ================= */
+/* ================= ESCOLAS ================= */
 async function criarEscola(){
 
-const nome = el("nomeEscola")?.value;
-const provincia = el("provincia")?.value;
-const municipio = el("municipio")?.value;
-const ano = el("anoLetivo")?.value;
-const email = el("email")?.value;
-const senha = el("senhaEscola")?.value;
+const nome = $("nomeEscola")?.value;
+const senha = $("senhaEscola")?.value;
 
 if(!nome || !senha){
 alert("Preenche nome e senha");
@@ -74,9 +58,8 @@ return;
 }
 
 const ref = await addDoc(collection(db,"escolas"),{
-nome, provincia, municipio,
-anoLetivo: ano,
-email, senha,
+nome,
+senha,
 criadoEm: Date.now()
 });
 
@@ -84,10 +67,9 @@ alert("Escola criada: " + ref.id);
 carregarEscolas();
 }
 
-/* ================= LISTAR ESCOLAS ================= */
 async function carregarEscolas(){
 
-const box = el("listaEscolas");
+const box = $("listaEscolas");
 if(!box) return;
 
 box.innerHTML = "";
@@ -108,28 +90,25 @@ box.innerHTML += `
 
 }
 
-/* ================= ABRIR LOGIN (FIX DEFINITIVO) ================= */
+/* ================= LOGIN ESCOLA ================= */
 window.abrirLogin = function(id){
-
-console.log("abrirLogin:", id);
 
 escolaAtual = id;
 
 hide("portal");
 show("loginEscola");
 
-const input = el("idEscola");
+const input = $("idEscola");
 if(input) input.value = id;
 
 };
 
-/* ================= LOGIN ================= */
 window.loginEscola = async function(){
 
 try{
 
-const id = el("idEscola")?.value;
-const senha = el("senhaLogin")?.value;
+const id = $("idEscola")?.value;
+const senha = $("senhaLogin")?.value;
 
 if(!id || !senha){
 alert("Preenche tudo");
@@ -153,30 +132,80 @@ return;
 hide("loginEscola");
 show("dashboard");
 
-const nome = el("nomeEscolaAtiva");
-const ano = el("nivelEscolaAtiva");
-
-if(nome) nome.innerText = data.nome;
-if(ano) ano.innerText = data.anoLetivo || "";
+$("nomeEscolaAtiva").innerText = data.nome;
+$("nivelEscolaAtiva").innerText = data.anoLetivo || "";
 
 showPage("home");
 
+logAcesso("escola", id);
+
 }catch(err){
 console.error(err);
-alert("Erro no login");
+alert("Erro login");
 }
 
 };
 
+/* ================= PAUTAS ================= */
+window.criarPauta = async function(){
+
+const classe = $("classePauta")?.value;
+const turma = $("turmaPauta")?.value;
+const disciplina = $("disciplinaPauta")?.value;
+
+if(!classe || !turma || !disciplina){
+alert("Preenche tudo");
+return;
+}
+
+await addDoc(collection(db,"pautas"),{
+escolaId: escolaAtual,
+classe,
+turma,
+disciplina,
+data: Date.now()
+});
+
+alert("Pauta criada");
+loadPautas();
+
+};
+
+async function loadPautas(){
+
+const box = $("listaPautas");
+if(!box) return;
+
+box.innerHTML = "";
+
+const snap = await getDocs(collection(db,"pautas"));
+
+snap.forEach(d=>{
+
+const p = d.data();
+if(p.escolaId !== escolaAtual) return;
+
+box.innerHTML += `
+<div class="card">
+${p.classe} - ${p.turma} - ${p.disciplina}
+</div>
+`;
+
+});
+
+}
+
 /* ================= SUPER ADMIN ================= */
 window.abrirSuperAdmin = function(){
+
 hide("portal");
 show("superAdmin");
+
 };
 
 window.validarSuperAdmin = function(){
 
-const senha = el("senhaSuperAdmin")?.value;
+const senha = $("senhaSuperAdmin")?.value;
 
 if(senha !== "0987"){
 alert("Errado");
@@ -189,12 +218,14 @@ show("superAdminDashboard");
 loadAdminEscolas();
 loadStats();
 
+logAcesso("superadmin");
+
 };
 
 /* ================= ADMIN ================= */
 async function loadAdminEscolas(){
 
-const box = el("escolas");
+const box = $("escolas");
 if(!box) return;
 
 box.innerHTML = "";
@@ -207,7 +238,6 @@ box.innerHTML += `
 <div class="card">
 <h3>${d.data().nome}</h3>
 <p>ID: ${d.id}</p>
-
 <button onclick="verEscola('${d.id}')">Ver</button>
 <button onclick="eliminarEscola('${d.id}')">Eliminar</button>
 </div>
@@ -220,7 +250,6 @@ box.innerHTML += `
 window.verEscola = async function(id){
 
 const snap = await getDoc(doc(db,"escolas",id));
-
 alert(JSON.stringify(snap.data(),null,2));
 
 };
@@ -228,8 +257,6 @@ alert(JSON.stringify(snap.data(),null,2));
 window.eliminarEscola = async function(id){
 
 await deleteDoc(doc(db,"escolas",id));
-alert("Eliminado");
-
 loadAdminEscolas();
 
 };
@@ -241,14 +268,32 @@ const snap = await getDocs(collection(db,"escolas"));
 let total = 0;
 snap.forEach(()=>total++);
 
-const box = el("stats");
-
+const box = $("stats");
 if(box){
-box.innerHTML = `
-<div class="card">
-<h2>Total de escolas: ${total}</h2>
-</div>
-`;
+box.innerHTML = `<div class="card"><h2>Total: ${total}</h2></div>`;
+}
+
+}
+
+/* ================= ACESSOS ================= */
+async function logAcesso(tipo, escolaId=null){
+
+try{
+
+const res = await fetch("https://ipapi.co/json/");
+const ip = await res.json();
+
+await addDoc(collection(db,"acessos"),{
+tipo,
+escolaId,
+ip: ip.ip,
+cidade: ip.city,
+pais: ip.country_name,
+data: new Date().toISOString()
+});
+
+}catch(e){
+console.log("log erro", e);
 }
 
 }
@@ -256,22 +301,20 @@ box.innerHTML = `
 /* ================= NAV ================= */
 window.showPage = function(id){
 
-document.querySelectorAll(".page")
-.forEach(p=>p.classList.remove("active"));
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 
-const target = document.getElementById(id);
-if(target) target.classList.add("active");
+const el = $(id);
+if(el) el.classList.add("active");
 
 };
 
 /* ================= ADMIN NAV ================= */
 window.showAdminPage = function(id){
 
-document.querySelectorAll(".adminPage")
-.forEach(p=>p.style.display="none");
+document.querySelectorAll(".adminPage").forEach(p=>p.style.display="none");
 
-const el2 = document.getElementById(id);
-if(el2) el2.style.display="block";
+const el = document.getElementById(id);
+if(el) el.style.display="block";
 
 if(id==="escolas") loadAdminEscolas();
 if(id==="stats") loadStats();
