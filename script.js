@@ -9,6 +9,7 @@ doc,
 deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+/* ================= FIREBASE ================= */
 const firebaseConfig = {
 apiKey: "AIzaSyDD326KBs3K1vsJsLNhfenFlsLFjRljxNE",
 authDomain: "escola-digital-47497.firebaseapp.com",
@@ -18,43 +19,64 @@ projectId: "escola-digital-47497"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* ================= ESTADO ================= */
 let escolaAtual = null;
+
+/* ================= HELPERS (ANTI-ERRO) ================= */
+function el(id){
+return document.getElementById(id);
+}
+
+function show(id){
+const e = el(id);
+if(!e){
+console.error("Elemento não encontrado:", id);
+return;
+}
+e.classList.remove("hidden");
+}
+
+function hide(id){
+const e = el(id);
+if(!e){
+console.error("Elemento não encontrado:", id);
+return;
+}
+e.classList.add("hidden");
+}
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-const btnCriar = document.getElementById("btnCriarEscola");
-const btnLogin = document.getElementById("btnLoginEscola");
+const btnCriar = el("btnCriarEscola");
+const btnLogin = el("btnLoginEscola");
 
-if (btnCriar) btnCriar.addEventListener("click", criarEscola);
-if (btnLogin) btnLogin.addEventListener("click", loginEscola);
+if(btnCriar) btnCriar.addEventListener("click", criarEscola);
+if(btnLogin) btnLogin.addEventListener("click", loginEscola);
 
 carregarEscolas();
 
 });
 
 /* ================= CRIAR ESCOLA ================= */
-async function criarEscola() {
+async function criarEscola(){
 
-const nome = document.getElementById("nomeEscola").value;
-const provincia = document.getElementById("provincia").value;
-const municipio = document.getElementById("municipio").value;
-const ano = document.getElementById("anoLetivo").value;
-const email = document.getElementById("email").value;
-const senha = document.getElementById("senhaEscola").value;
+const nome = el("nomeEscola")?.value;
+const provincia = el("provincia")?.value;
+const municipio = el("municipio")?.value;
+const ano = el("anoLetivo")?.value;
+const email = el("email")?.value;
+const senha = el("senhaEscola")?.value;
 
-if (!nome || !senha) {
-alert("Preenche nome e senha!");
+if(!nome || !senha){
+alert("Preenche nome e senha");
 return;
 }
 
-const ref = await addDoc(collection(db, "escolas"), {
-nome,
-provincia,
-municipio,
+const ref = await addDoc(collection(db,"escolas"),{
+nome, provincia, municipio,
 anoLetivo: ano,
-email,
-senha,
+email, senha,
 criadoEm: Date.now()
 });
 
@@ -63,22 +85,21 @@ carregarEscolas();
 }
 
 /* ================= LISTAR ESCOLAS ================= */
-async function carregarEscolas() {
+async function carregarEscolas(){
 
-const box = document.getElementById("listaEscolas");
-if (!box) return;
+const box = el("listaEscolas");
+if(!box) return;
 
 box.innerHTML = "";
 
-const snap = await getDocs(collection(db, "escolas"));
+const snap = await getDocs(collection(db,"escolas"));
 
-snap.forEach(d => {
+snap.forEach(d=>{
 
 box.innerHTML += `
 <div class="card">
 <h3>${d.data().nome}</h3>
 <p>ID: ${d.id}</p>
-
 <button onclick="abrirLogin('${d.id}')">Entrar</button>
 </div>
 `;
@@ -87,58 +108,60 @@ box.innerHTML += `
 
 }
 
-/* ================= ABRIR LOGIN ================= */
-window.abrirLogin = function (id) {
+/* ================= ABRIR LOGIN (FIX DEFINITIVO) ================= */
+window.abrirLogin = function(id){
 
-console.log("Abrir login:", id);
+console.log("abrirLogin:", id);
 
 escolaAtual = id;
 
-document.getElementById("portal").classList.add("hidden");
-document.getElementById("loginEscola").classList.remove("hidden");
+hide("portal");
+show("loginEscola");
 
-document.getElementById("idEscola").value = id;
+const input = el("idEscola");
+if(input) input.value = id;
 
 };
 
-/* ================= LOGIN ESCOLA ================= */
-window.loginEscola = async function () {
+/* ================= LOGIN ================= */
+window.loginEscola = async function(){
 
-try {
+try{
 
-const id = document.getElementById("idEscola").value;
-const senha = document.getElementById("senhaLogin").value;
+const id = el("idEscola")?.value;
+const senha = el("senhaLogin")?.value;
 
-if (!id || !senha) {
-alert("Preenche todos os campos");
+if(!id || !senha){
+alert("Preenche tudo");
 return;
 }
 
-const snap = await getDoc(doc(db, "escolas", id));
+const snap = await getDoc(doc(db,"escolas",id));
 
-if (!snap.exists()) {
-alert("Escola não encontrada");
+if(!snap.exists()){
+alert("Escola não existe");
 return;
 }
 
-const escola = snap.data();
+const data = snap.data();
 
-if (escola.senha !== senha) {
-alert("Senha incorreta");
+if(data.senha !== senha){
+alert("Senha errada");
 return;
 }
 
-document.getElementById("loginEscola").classList.add("hidden");
-document.getElementById("dashboard").classList.remove("hidden");
+hide("loginEscola");
+show("dashboard");
 
-document.getElementById("nomeEscolaAtiva").innerText = escola.nome;
-document.getElementById("nivelEscolaAtiva").innerText = escola.anoLetivo || "";
+const nome = el("nomeEscolaAtiva");
+const ano = el("nivelEscolaAtiva");
+
+if(nome) nome.innerText = data.nome;
+if(ano) ano.innerText = data.anoLetivo || "";
 
 showPage("home");
 
-console.log("Login OK");
-
-} catch (err) {
+}catch(err){
 console.error(err);
 alert("Erro no login");
 }
@@ -146,24 +169,22 @@ alert("Erro no login");
 };
 
 /* ================= SUPER ADMIN ================= */
-window.abrirSuperAdmin = function () {
-
-document.getElementById("portal").classList.add("hidden");
-document.getElementById("superAdmin").classList.remove("hidden");
-
+window.abrirSuperAdmin = function(){
+hide("portal");
+show("superAdmin");
 };
 
-window.validarSuperAdmin = function () {
+window.validarSuperAdmin = function(){
 
-const senha = document.getElementById("senhaSuperAdmin").value;
+const senha = el("senhaSuperAdmin")?.value;
 
-if (senha !== "0987") {
-alert("Senha errada");
+if(senha !== "0987"){
+alert("Errado");
 return;
 }
 
-document.getElementById("superAdmin").classList.add("hidden");
-document.getElementById("superAdminDashboard").classList.remove("hidden");
+hide("superAdmin");
+show("superAdminDashboard");
 
 loadAdminEscolas();
 loadStats();
@@ -171,14 +192,16 @@ loadStats();
 };
 
 /* ================= ADMIN ================= */
-async function loadAdminEscolas() {
+async function loadAdminEscolas(){
 
-const box = document.getElementById("escolas");
+const box = el("escolas");
+if(!box) return;
+
 box.innerHTML = "";
 
-const snap = await getDocs(collection(db, "escolas"));
+const snap = await getDocs(collection(db,"escolas"));
 
-snap.forEach(d => {
+snap.forEach(d=>{
 
 box.innerHTML += `
 <div class="card">
@@ -194,62 +217,68 @@ box.innerHTML += `
 
 }
 
-window.verEscola = async function (id) {
+window.verEscola = async function(id){
 
-const snap = await getDoc(doc(db, "escolas", id));
+const snap = await getDoc(doc(db,"escolas",id));
 
-alert(JSON.stringify(snap.data(), null, 2));
+alert(JSON.stringify(snap.data(),null,2));
 
 };
 
-window.eliminarEscola = async function (id) {
+window.eliminarEscola = async function(id){
 
-await deleteDoc(doc(db, "escolas", id));
+await deleteDoc(doc(db,"escolas",id));
 alert("Eliminado");
 
 loadAdminEscolas();
 
 };
 
-async function loadStats() {
+async function loadStats(){
 
-const snap = await getDocs(collection(db, "escolas"));
+const snap = await getDocs(collection(db,"escolas"));
 
 let total = 0;
-snap.forEach(() => total++);
+snap.forEach(()=>total++);
 
-document.getElementById("stats").innerHTML = `
+const box = el("stats");
+
+if(box){
+box.innerHTML = `
 <div class="card">
 <h2>Total de escolas: ${total}</h2>
 </div>
 `;
+}
 
 }
 
 /* ================= NAV ================= */
-window.showPage = function (id) {
+window.showPage = function(id){
 
-document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+document.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
+
+const target = document.getElementById(id);
+if(target) target.classList.add("active");
 
 };
 
 /* ================= ADMIN NAV ================= */
-window.showAdminPage = function (id) {
+window.showAdminPage = function(id){
 
-document.querySelectorAll(".adminPage").forEach(p => p.style.display = "none");
+document.querySelectorAll(".adminPage")
+.forEach(p=>p.style.display="none");
 
-const el = document.getElementById(id);
-if (el) el.style.display = "block";
+const el2 = document.getElementById(id);
+if(el2) el2.style.display="block";
 
-if (id === "escolas") loadAdminEscolas();
-if (id === "stats") loadStats();
+if(id==="escolas") loadAdminEscolas();
+if(id==="stats") loadStats();
 
 };
 
 /* ================= SAIR ================= */
-window.sair = function () {
-
+window.sair = function(){
 location.reload();
-
 };
