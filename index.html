@@ -2,8 +2,8 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escola Digital</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="estilo.css">
 <script type="module" src="script.js" defer></script>
@@ -12,28 +12,71 @@
 
 <body>
 
-<!-- ================= PORTAL ================= -->
+<!-- ================= PORTAL INICIAL ================= -->
 <section id="portal">
 
 <div class="container">
 
-<h1>ESCOLA DIGITAL</h1>
+<h1>🏫 ESCOLA DIGITAL</h1>
 
 <div class="card">
+
 <h2>Criar Escola</h2>
 
-<input id="nomeEscola" placeholder="Nome da escola">
+<input id="nomeEscola" placeholder="Nome da Escola">
 <input id="provincia" placeholder="Província">
 <input id="municipio" placeholder="Município">
 <input id="anoLetivo" placeholder="Ano Letivo">
 
+<select id="nivelEnsino">
+<option value="primario">Ensino Primário</option>
+<option value="secundario">Iº Ciclo / Secundário</option>
+</select>
+
+<input id="email" placeholder="Email ou Telefone">
+<input id="senhaEscola" type="password" placeholder="Senha da Escola">
+
 <button id="btnCriarEscola">Criar Escola</button>
+
 </div>
 
 <div class="card">
+
 <h2>Escolas Registadas</h2>
 <div id="listaEscolas"></div>
+
 </div>
+
+</div>
+
+</section>
+
+<!-- ================= LOGIN ESCOLA ================= -->
+<section id="loginEscola" class="hidden">
+
+<div class="container">
+
+<h2>🔐 Login da Escola</h2>
+
+<input id="idEscolaLogin" placeholder="ID da Escola">
+<input id="senhaLoginEscola" type="password" placeholder="Senha">
+
+<button id="btnLoginEscola">Entrar</button>
+
+</div>
+
+</section>
+
+<!-- ================= SUPER ADMIN ================= -->
+<section id="superAdmin" class="hidden">
+
+<div class="container">
+
+<h2>🏛️ SUPER ADMIN</h2>
+
+<input id="senhaSuperAdmin" type="password" placeholder="Senha Super Admin">
+
+<button onclick="validarSuperAdmin()">Entrar</button>
 
 </div>
 
@@ -48,47 +91,31 @@
 <aside class="sidebar">
 
 <h3 id="nomeEscolaAtiva">Escola</h3>
+<p id="nivelEscolaAtiva"></p>
 
-<button id="navDashboard">📊 Dashboard</button>
-<button id="navAlunos">👨‍🎓 Alunos</button>
-<button id="navProfessores">👨‍🏫 Professores</button>
-<button id="navPautas">📚 Pautas</button>
-<button id="navBoletins">📄 Boletins</button>
-<button id="btnSairEscola">🚪 Sair</button>
+<button onclick="showPage('dashboard')">📊 Dashboard</button>
+<button onclick="showPage('alunos')">👨‍🎓 Alunos</button>
+<button onclick="showPage('professores')">👨‍🏫 Professores</button>
+<button onclick="showPage('turmas')">🏫 Turmas</button>
+<button onclick="showPage('pautas')">📚 Pautas</button>
+<button onclick="showPage('boletins')">📄 Boletins</button>
+<button onclick="sairEscola()">🚪 Sair</button>
 
 </aside>
 
 <!-- CONTEÚDO -->
 <main class="content">
 
-<section id="pageDashboard" class="page active">
+<section id="dashboard" class="page active">
 <h2>Dashboard</h2>
-
-<div class="card">
-<p>✔ Sistema ativo da escola</p>
-</div>
-
+<div class="card">Sistema ativo da escola</div>
 </section>
 
-<section id="pageAlunos" class="page">
-<h2>Alunos</h2>
-<div class="card">Em construção...</div>
-</section>
-
-<section id="pageProfessores" class="page">
-<h2>Professores</h2>
-<div class="card">Em construção...</div>
-</section>
-
-<section id="pagePautas" class="page">
-<h2>Pautas</h2>
-<div class="card">Em construção...</div>
-</section>
-
-<section id="pageBoletins" class="page">
-<h2>Boletins</h2>
-<div class="card">Em construção...</div>
-</section>
+<section id="alunos" class="page"><div class="card">Alunos</div></section>
+<section id="professores" class="page"><div class="card">Professores</div></section>
+<section id="turmas" class="page"><div class="card">Turmas</div></section>
+<section id="pautas" class="page"><div class="card">Pautas</div></section>
+<section id="boletins" class="page"><div class="card">Boletins</div></section>
 
 </main>
 
