@@ -3,60 +3,45 @@ import {
 getFirestore,
 collection,
 addDoc,
-getDocs
+getDocs,
+getDoc,
+doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* FIREBASE */
 const app = initializeApp({
 apiKey: "SUA_API_KEY",
-authDomain: "SEU_PROJETO.firebaseapp.com",
-projectId: "SEU_PROJETO"
+authDomain: "SEU_PROJECT.firebaseapp.com",
+projectId: "SEU_PROJECT"
 });
 
 const db = getFirestore(app);
 
-/* ESCOLA ATIVA */
-let currentSchool = null;
+/* ESTADO */
+let escolaAtual = null;
 
 /* ================= CRIAR ESCOLA ================= */
-window.addEventListener("DOMContentLoaded", () => {
-
 document.getElementById("btnCriarEscola").addEventListener("click", async () => {
 
-const nome = document.getElementById("nomeEscola").value.trim();
-const provincia = document.getElementById("provincia").value.trim();
-const municipio = document.getElementById("municipio").value.trim();
-const anoLetivo = document.getElementById("anoLetivo").value.trim();
-
-if(!nome || !provincia || !municipio || !anoLetivo){
-alert("Preenche todos os campos!");
-return;
-}
-
-try{
+const nome = nomeEscola.value;
+const provincia = provincia.value;
+const municipio = municipio.value;
+const ano = anoLetivo.value;
+const nivel = nivelEnsino.value;
+const email = email.value;
+const senha = senhaEscola.value;
 
 const ref = await addDoc(collection(db,"escolas"),{
-nome,
-provincia,
-municipio,
-anoLetivo,
-criadoEm: Date.now()
+nome, provincia, municipio, ano, nivel, email, senha
 });
 
-alert("Escola criada com sucesso!");
-carregarEscolas();
-
-}catch(e){
-alert("Erro: " + e.message);
-}
-
-});
+alert("Escola criada! ID: " + ref.id);
 
 carregarEscolas();
 
 });
 
-/* ================= LISTAR ESCOLAS ================= */
+/* ================= LISTAR ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -71,9 +56,9 @@ const e = d.data();
 box.innerHTML += `
 <div class="card">
 <h3>${e.nome}</h3>
-<p>${e.provincia} - ${e.municipio}</p>
+<p>${e.nivel}</p>
 
-<button onclick="entrarEscola('${d.id}','${e.nome}')">
+<button onclick="abrirLogin('${d.id}','${e.nome}','${e.nivel}')">
 Entrar
 </button>
 
@@ -84,42 +69,67 @@ Entrar
 
 }
 
-/* ================= ENTRAR NA ESCOLA ================= */
-window.entrarEscola = function(id,nome){
+/* ================= LOGIN ESCOLA ================= */
+window.abrirLogin = function(id,nome,nivel){
 
-currentSchool = id;
+escolaAtual = id;
 
-document.getElementById("portal").classList.add("hidden");
-document.getElementById("dashboardEscola").classList.remove("hidden");
-
-document.getElementById("nomeEscolaAtiva").innerText = nome;
+portal.classList.add("hidden");
+loginEscola.classList.remove("hidden");
 
 }
 
-/* ================= NAVEGAÇÃO ================= */
-function showPage(id){
+/* LOGIN VALIDAR */
+document.getElementById("btnLoginEscola").onclick = async ()=>{
 
-document.querySelectorAll(".page").forEach(p=>{
-p.classList.remove("active");
-});
+const id = idEscolaLogin.value;
+const senha = senhaLoginEscola.value;
 
-document.getElementById(id).classList.add("active");
+const snap = await getDoc(doc(db,"escolas",id));
+
+if(snap.exists() && snap.data().senha === senha){
+
+const e = snap.data();
+
+loginEscola.classList.add("hidden");
+dashboardEscola.classList.remove("hidden");
+
+nomeEscolaAtiva.innerText = e.nome;
+nivelEscolaAtiva.innerText = e.nivel;
+
+escolaAtual = id;
+
+}else{
+alert("Dados inválidos");
+}
 
 }
 
-/* MENU */
-document.getElementById("navDashboard").onclick = ()=>showPage("pageDashboard");
-document.getElementById("navAlunos").onclick = ()=>showPage("pageAlunos");
-document.getElementById("navProfessores").onclick = ()=>showPage("pageProfessores");
-document.getElementById("navPautas").onclick = ()=>showPage("pagePautas");
-document.getElementById("navBoletins").onclick = ()=>showPage("pageBoletins");
+/* ================= SUPER ADMIN ================= */
+window.validarSuperAdmin = function(){
+
+const senha = senhaSuperAdmin.value;
+
+if(senha === "0987"){
+alert("Bem-vindo Super Admin");
+}else{
+alert("Senha incorreta");
+}
+
+}
+
+/* ================= DASHBOARD NAV ================= */
+window.showPage = function(page){
+
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById(page).classList.add("active");
+
+}
 
 /* ================= SAIR ================= */
-document.getElementById("btnSairEscola").onclick = ()=>{
+window.sairEscola = function(){
 
-currentSchool = null;
-
-document.getElementById("dashboardEscola").classList.add("hidden");
-document.getElementById("portal").classList.remove("hidden");
+dashboardEscola.classList.add("hidden");
+portal.classList.remove("hidden");
 
 }
