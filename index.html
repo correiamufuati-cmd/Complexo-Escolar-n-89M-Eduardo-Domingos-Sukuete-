@@ -6,18 +6,22 @@
 
 <link rel="stylesheet" href="style.css">
 
+<!-- Firebase COMPAT (NÃO MODULE) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
 </script>
 
-<script type="module" src="script.js" defer></script>
+<script src="script.js" defer></script>
 </head>
 
 <body>
 
-<!-- PORTAL -->
 <section id="portal">
 <div class="container">
 
@@ -31,7 +35,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <input id="anoLetivo" placeholder="Ano Letivo">
 <input id="email" placeholder="Contacto">
 <input id="senhaEscola" type="password" placeholder="Senha">
-<button id="btnCriarEscola">Criar Escola</button>
+<button onclick="criarEscola()">Criar Escola</button>
 </div>
 
 <div class="card">
@@ -44,22 +48,27 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 </div>
 </section>
 
-<!-- LOGIN ESCOLA -->
+<!-- LOGIN -->
 <section id="loginEscola" class="hidden">
 <div class="container">
 <h2>Login Escola</h2>
+
 <input id="idEscola">
 <input id="senhaLogin" type="password">
-<button id="btnLoginEscola">Entrar</button>
+
+<button onclick="loginEscola()">Entrar</button>
 </div>
 </section>
 
 <!-- SUPER ADMIN -->
 <section id="superAdmin" class="hidden">
 <div class="container">
+
 <h2>Super Admin</h2>
+
 <input id="senhaSuperAdmin" type="password">
 <button onclick="validarSuperAdmin()">Entrar</button>
+
 </div>
 </section>
 
@@ -69,74 +78,62 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <div class="app">
 
 <aside class="sidebar">
+
 <h3 id="nomeEscolaAtiva"></h3>
 
 <button onclick="showPage('home')">Home</button>
 <button onclick="showPage('alunos')">Alunos</button>
-<button onclick="showPage('professores')">Professores</button>
 <button onclick="showPage('turmas')">Turmas</button>
 <button onclick="showPage('pautas')">Mini-Pautas</button>
-<button onclick="showPage('super')">Super Admin</button>
+
 <button onclick="sair()">Sair</button>
+
 </aside>
 
 <main class="content">
 
-<section id="home" class="page active"><div class="card">Sistema ativo</div></section>
-
-<section id="alunos" class="page">
-<div class="card">
-<h3>Alunos</h3>
-<input id="nomeAluno" placeholder="Nome">
-<input id="turmaAluno" placeholder="Turma">
-<button id="btnCriarAluno">Criar</button>
-</div>
-<div class="card"><div id="listaAlunos"></div></div>
+<section id="home" class="page active">
+<div class="card">Sistema ativo</div>
 </section>
 
-<section id="professores" class="page">
+<section id="alunos" class="page">
+
 <div class="card">
-<h3>Professores</h3>
-<input id="nomeProfessor" placeholder="Nome">
-<input id="discProfessor" placeholder="Disciplina">
-<button id="btnCriarProfessor">Criar</button>
+<h3>Alunos</h3>
+<input id="nomeAluno">
+<input id="turmaAluno">
+<button onclick="criarAluno()">Criar</button>
 </div>
-<div class="card"><div id="listaProfessores"></div></div>
+
+<div class="card">
+<div id="listaAlunos"></div>
+</div>
+
 </section>
 
 <section id="turmas" class="page">
+
 <div class="card">
 <h3>Turmas</h3>
 <input id="classeTurma">
 <input id="nomeTurma">
 <input id="anoTurma">
-<button id="btnCriarTurma">Criar</button>
+<button onclick="criarTurma()">Criar</button>
 </div>
 
 <div class="card">
-<h3>Importar PDF/Excel</h3>
+<h3>Importar PDF</h3>
 <input type="file" id="pdfFile">
 <input id="turmaPDF">
 <button onclick="importarPDF()">Importar</button>
 </div>
 
-<div class="card"><div id="listaTurmas"></div></div>
-</section>
-
-<section id="pautas" class="page">
-<div class="card">
-<h3>Mini-Pautas</h3>
-<input id="mpClasse">
-<input id="mpTurma">
-<input id="mpDisciplina">
-<input id="mpProfessor">
-<button id="btnCriarMiniPauta">Criar</button>
-</div>
-<div class="card"><div id="listaMiniPautas"></div></div>
 </section>
 
 </main>
+
 </div>
+
 </section>
 
 </body>
