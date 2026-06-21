@@ -8,7 +8,6 @@
 
 <!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
-
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
@@ -32,7 +31,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <input id="provincia" placeholder="Província">
 <input id="municipio" placeholder="Município">
 <input id="anoLetivo" placeholder="Ano Letivo">
-<input id="email" placeholder="Email ou Telefone">
+<input id="email" placeholder="Contacto">
 <input id="senhaEscola" type="password" placeholder="Senha">
 
 <button id="btnCriarEscola">Criar Escola</button>
@@ -43,18 +42,18 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <div id="listaEscolas"></div>
 </div>
 
-<button onclick="abrirSuperAdmin()">🔐 Super Admin</button>
+<button onclick="abrirSuperAdmin()">Super Admin</button>
 
 </div>
 </section>
 
-<!-- ================= LOGIN ================= -->
+<!-- ================= LOGIN ESCOLA ================= -->
 <section id="loginEscola" class="hidden">
 <div class="container">
 
 <h2>Login Escola</h2>
 
-<input id="idEscola" placeholder="ID da Escola">
+<input id="idEscola" placeholder="ID Escola">
 <input id="senhaLogin" type="password" placeholder="Senha">
 
 <button id="btnLoginEscola">Entrar</button>
@@ -68,8 +67,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 <h2>Super Admin</h2>
 
-<input id="senhaSuperAdmin" type="password" placeholder="Senha">
-
+<input id="senhaSuperAdmin" type="password">
 <button onclick="validarSuperAdmin()">Entrar</button>
 
 </div>
@@ -81,19 +79,17 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <div class="app">
 
 <aside class="sidebar">
-
 <h3>Super Admin</h3>
 
-<button onclick="showAdminPage('escolas')">🏫 Escolas</button>
-<button onclick="showAdminPage('stats')">📊 Estatísticas</button>
+<button onclick="showAdmin('escolas')">Escolas</button>
+<button onclick="showAdmin('stats')">Estatísticas</button>
 <button onclick="sair()">Sair</button>
-
 </aside>
 
 <main class="content">
 
-<section id="escolas" class="adminPage"></section>
-<section id="stats" class="adminPage"></section>
+<section id="admin-escolas" class="adminPage"></section>
+<section id="admin-stats" class="adminPage"></section>
 
 </main>
 
@@ -121,21 +117,19 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 <main class="content">
 
-<!-- HOME -->
 <section id="home" class="page active">
 <div class="card">Sistema ativo</div>
 </section>
 
-<!-- ALUNOS -->
 <section id="alunos" class="page">
 
 <div class="card">
 <h3>Alunos</h3>
 
-<input id="nomeAluno" placeholder="Nome completo">
-<input id="turmaAluno" placeholder="Ex: 10ª A">
+<input id="nomeAluno" placeholder="Nome">
+<input id="turmaAluno" placeholder="Turma">
 
-<button id="btnCriarAluno">Criar Aluno</button>
+<button id="btnCriarAluno">Criar</button>
 </div>
 
 <div class="card">
@@ -144,40 +138,37 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 </section>
 
-<!-- TURMAS -->
 <section id="turmas" class="page">
 
 <div class="card">
-<h3>Criar Turma</h3>
+<h3>Turmas</h3>
 
-<input id="classeTurma" placeholder="Classe (ex: 10ª)">
-<input id="nomeTurma" placeholder="Turma (ex: A)">
-<input id="anoTurma" placeholder="Ano letivo">
+<input id="classeTurma" placeholder="Classe">
+<input id="nomeTurma" placeholder="Turma">
+<input id="anoTurma" placeholder="Ano">
 
-<button id="btnCriarTurma">Criar Turma</button>
+<button id="btnCriarTurma">Criar</button>
 </div>
 
 <div class="card">
-<h3>Turmas</h3>
 <div id="listaTurmas"></div>
 </div>
 
 <div class="card">
-<h3>📄 Importar PDF de Alunos</h3>
+<h3>Importar PDF</h3>
 
-<input type="file" id="pdfFile" accept="application/pdf">
-<input id="turmaPDF" placeholder="Turma destino (ex: 10ª A)">
+<input type="file" id="pdfFile">
+<input id="turmaPDF" placeholder="Turma">
 
-<button id="btnImportarPDF" onclick="importarPDF()">Importar PDF</button>
+<button onclick="importarPDF()">Importar PDF</button>
 </div>
 
 </section>
 
-<!-- MINI PAUTAS -->
 <section id="pautas" class="page">
 
 <div class="card">
-<h3>Criar Mini-Pauta</h3>
+<h3>Mini-Pautas</h3>
 
 <input id="mpClasse" placeholder="Classe">
 <input id="mpTurma" placeholder="Turma">
