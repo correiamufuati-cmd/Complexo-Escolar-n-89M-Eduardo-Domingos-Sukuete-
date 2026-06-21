@@ -1,133 +1,52 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-getDoc,
-doc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-apiKey: "SUA_API_KEY",
-authDomain: "escola-digital-47497.firebaseapp.com",
-projectId: "escola-digital-47497"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-let escolaAtual = null;
-const $ = id => document.getElementById(id);
-
-/* INIT */
-document.addEventListener("DOMContentLoaded",()=>{
-
-$("btnCriarEscola").onclick = criarEscola;
-$("btnLoginEscola").onclick = loginEscola;
-$("btnCriarAluno").onclick = criarAluno;
-$("btnCriarTurma").onclick = criarTurma;
-$("btnCriarProfessor").onclick = criarProfessor;
-
-carregarEscolas();
-});
-
-/* NAV */
-window.showPage = (id)=>{
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-$(id).classList.add("active");
-};
-
-window.sair = ()=>location.reload();
-
-/* SUPER ADMIN */
-window.abrirSuperAdmin = ()=>{
-$("portal").classList.add("hidden");
-$("superAdmin").classList.remove("hidden");
-};
-
-window.validarSuperAdmin = ()=>{
-if($("senhaSuperAdmin").value!=="0987")return alert("Erro");
-$("superAdmin").classList.add("hidden");
-$("dashboard").classList.remove("hidden");
-};
-
-/* PDF/EXCEL */
-window.importarPDF = async ()=>{
-const file = $("pdfFile").files[0];
-if(!file)return alert("Seleciona ficheiro");
-
-const pdf = await pdfjsLib.getDocument({
-data:new Uint8Array(await file.arrayBuffer())
-}).promise;
-
-alert("Ficheiro carregado");
-};
-
-/* ESCOLAS */
-async function criarEscola(){
-await addDoc(collection(db,"escolas"),{
-nome:$("nomeEscola").value,
-senha:$("senhaEscola").value
-});
-carregarEscolas();
+body{
+margin:0;
+font-family:Arial;
+background:#d7f1ff;
+color:#0f2747;
 }
 
-async function carregarEscolas(){
-const box=$("listaEscolas");
-box.innerHTML="";
-const snap=await getDocs(collection(db,"escolas"));
+.container{max-width:1200px;margin:auto;padding:20px;}
 
-snap.forEach(d=>{
-box.innerHTML+=`
-<div class="card">
-${d.data().nome}
-<button onclick="entrar('${d.id}')">Entrar</button>
-</div>`;
-});
+.card{
+background:#fff;
+padding:15px;
+margin:10px 0;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
-window.entrar=async(id)=>{
-escolaAtual=id;
-$("portal").classList.add("hidden");
-$("loginEscola").classList.remove("hidden");
-$("idEscola").value=id;
-};
-
-window.loginEscola=async()=>{
-const snap=await getDoc(doc(db,"escolas",$("idEscola").value));
-if(!snap.exists())return alert("Não existe");
-if(snap.data().senha!==$("senhaLogin").value)return alert("Erro");
-
-$("loginEscola").classList.add("hidden");
-$("dashboard").classList.remove("hidden");
-$("nomeEscolaAtiva").innerText=snap.data().nome;
-};
-
-/* ALUNO */
-async function criarAluno(){
-await addDoc(collection(db,"alunos"),{
-nome:$("nomeAluno").value,
-turma:$("turmaAluno").value,
-escolaId:escolaAtual
-});
+input{
+width:100%;
+padding:10px;
+margin:5px 0;
+border:1px solid #ccc;
+border-radius:8px;
 }
 
-/* TURMA */
-async function criarTurma(){
-await addDoc(collection(db,"turmas"),{
-classe:$("classeTurma").value,
-nome:$("nomeTurma").value,
-ano:$("anoTurma").value,
-escolaId:escolaAtual
-});
+button{
+width:100%;
+padding:10px;
+background:#1e4d8f;
+color:#fff;
+border:none;
+cursor:pointer;
 }
 
-/* PROFESSOR */
-async function criarProfessor(){
-await addDoc(collection(db,"professores"),{
-nome:$("nomeProfessor").value,
-disciplina:$("discProfessor").value,
-escolaId:escolaAtual
-});
+.hidden{display:none;}
+.page{display:none;}
+.page.active{display:block;}
+
+.app{display:flex;height:100vh;}
+
+.sidebar{
+width:220px;
+background:#0f2747;
+color:#fff;
+padding:10px;
+}
+
+.content{
+flex:1;
+padding:10px;
+background:#eef7ff;
 }
