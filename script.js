@@ -29,7 +29,9 @@ window.onload = function () {
 const btnLogin = document.getElementById("btnLoginEscola");
 
 if(btnLogin){
-   btnLogin.addEventListener("click", loginEscola);
+   btnLogin.addEventListener("click", () => {
+      window.loginEscola();
+   });
 }
 console.log("✔ INIT OK");
 
@@ -106,12 +108,53 @@ box.innerHTML += `
 }
 
 /* ================= LOGIN ESCOLA ================= */
-window.abrirLogin = function (id) {
+window.loginEscola = async function () {
 
-document.getElementById("portal").classList.add("hidden");
-document.getElementById("loginEscola").classList.remove("hidden");
+console.log("LOGIN CHAMADO");
 
-window.escolaSelecionada = id;
+const id = document.getElementById("idEscola").value.trim();
+const senha = document.getElementById("senhaLogin").value.trim();
+
+console.log("ID:", id);
+
+if(!id || !senha){
+alert("Preencha o ID e a senha");
+return;
+}
+
+try{
+
+const snap = await getDoc(doc(db, "escolas", id));
+
+console.log("Existe:", snap.exists());
+
+if(!snap.exists()){
+alert("Escola não encontrada");
+return;
+}
+
+const escola = snap.data();
+
+if(escola.senha !== senha){
+alert("Senha incorreta");
+return;
+}
+
+document.getElementById("loginEscola").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+
+document.getElementById("nomeEscolaAtiva").innerText = escola.nome;
+document.getElementById("nivelEscolaAtiva").innerText =
+"Ano Letivo: " + (escola.anoLetivo || "");
+
+alert("Login efetuado com sucesso");
+
+}catch(error){
+
+console.error(error);
+alert(error.message);
+
+}
 
 };
 
