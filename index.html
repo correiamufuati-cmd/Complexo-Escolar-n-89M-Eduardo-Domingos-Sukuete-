@@ -3,49 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <title>Escola Digital</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="./style.css">
 <script type="module" src="script.js" defer></script>
-
 </head>
 
 <body>
 
-<!-- ================= PORTAL INICIAL ================= -->
+<!-- ================= PORTAL ================= -->
 <section id="portal">
 
 <div class="container">
 
-<h1>🏫 ESCOLA DIGITAL</h1>
+<h1>🏫 Escola Digital</h1>
 
 <div class="card">
 
 <h2>Criar Escola</h2>
 
-<input id="nomeEscola" placeholder="Nome da Escola">
+<input id="nomeEscola" placeholder="Nome">
 <input id="provincia" placeholder="Província">
 <input id="municipio" placeholder="Município">
 <input id="anoLetivo" placeholder="Ano Letivo">
 
 <select id="nivelEnsino">
-<option value="primario">Ensino Primário</option>
-<option value="secundario">Iº Ciclo / Secundário</option>
+<option value="primario">Primário</option>
+<option value="secundario">Secundário</option>
 </select>
 
-<input id="email" placeholder="Email ou Telefone">
-<input id="senhaEscola" type="password" placeholder="Senha da Escola">
+<input id="email" placeholder="Email/Telefone">
+<input id="senhaEscola" type="password" placeholder="Senha">
 
 <button id="btnCriarEscola">Criar Escola</button>
 
 </div>
 
 <div class="card">
-
-<h2>Escolas Registadas</h2>
+<h2>Escolas</h2>
 <div id="listaEscolas"></div>
-
 </div>
+
+<button onclick="abrirSuperAdmin()">🔐 Super Admin</button>
 
 </div>
 
@@ -56,10 +54,10 @@
 
 <div class="container">
 
-<h2>🔐 Login da Escola</h2>
+<h2>Login da Escola</h2>
 
-<input id="idEscolaLogin" placeholder="ID da Escola">
-<input id="senhaLoginEscola" type="password" placeholder="Senha">
+<input id="idEscola" placeholder="ID Escola">
+<input id="senhaLogin" type="password" placeholder="Senha">
 
 <button id="btnLoginEscola">Entrar</button>
 
@@ -72,9 +70,9 @@
 
 <div class="container">
 
-<h2>🏛️ SUPER ADMIN</h2>
+<h2>SUPER ADMIN</h2>
 
-<input id="senhaSuperAdmin" type="password" placeholder="Senha Super Admin">
+<input id="senhaSuperAdmin" type="password" placeholder="Senha">
 
 <button onclick="validarSuperAdmin()">Entrar</button>
 
@@ -82,35 +80,30 @@
 
 </section>
 
-<!-- ================= DASHBOARD ESCOLA ================= -->
-<section id="dashboardEscola" class="hidden">
+<!-- ================= DASHBOARD ================= -->
+<section id="dashboard" class="hidden">
 
 <div class="app">
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
 
-<h3 id="nomeEscolaAtiva">Escola</h3>
+<h3 id="nomeEscolaAtiva"></h3>
 <p id="nivelEscolaAtiva"></p>
 
-<button onclick="showPage('dashboard')">📊 Dashboard</button>
-<button onclick="showPage('alunos')">👨‍🎓 Alunos</button>
-<button onclick="showPage('professores')">👨‍🏫 Professores</button>
-<button onclick="showPage('turmas')">🏫 Turmas</button>
-<button onclick="showPage('pautas')">📚 Pautas</button>
-<button onclick="showPage('boletins')">📄 Boletins</button>
-<button onclick="sairEscola()">🚪 Sair</button>
+<button onclick="showPage('home')">Dashboard</button>
+<button onclick="showPage('alunos')">Alunos</button>
+<button onclick="showPage('professores')">Professores</button>
+<button onclick="showPage('turmas')">Turmas</button>
+<button onclick="showPage('pautas')">Pautas</button>
+<button onclick="showPage('boletins')">Boletins</button>
+
+<button onclick="sair()">Sair</button>
 
 </aside>
 
-<!-- CONTEÚDO -->
 <main class="content">
 
-<section id="dashboard" class="page active">
-<h2>Dashboard</h2>
-<div class="card">Sistema ativo da escola</div>
-</section>
-
+<section id="home" class="page active"><div class="card">Sistema ativo</div></section>
 <section id="alunos" class="page"><div class="card">Alunos</div></section>
 <section id="professores" class="page"><div class="card">Professores</div></section>
 <section id="turmas" class="page"><div class="card">Turmas</div></section>
