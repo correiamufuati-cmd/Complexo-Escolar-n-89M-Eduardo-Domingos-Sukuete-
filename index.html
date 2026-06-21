@@ -26,11 +26,6 @@
 <input id="municipio" placeholder="Município">
 <input id="anoLetivo" placeholder="Ano Letivo">
 
-<select id="nivelEnsino">
-<option value="primario">Primário</option>
-<option value="secundario">Secundário</option>
-</select>
-
 <input id="email" placeholder="Email/Telefone">
 <input id="senhaEscola" type="password" placeholder="Senha">
 
@@ -43,7 +38,7 @@
 <div id="listaEscolas"></div>
 </div>
 
-<button onclick="abrirSuperAdmin()">🔐 Super Admin</button>
+<button id="btnSuperAdmin">🔐 Super Admin</button>
 
 </div>
 
@@ -59,9 +54,7 @@
 <input id="idEscola" placeholder="ID da Escola">
 <input id="senhaLogin" type="password" placeholder="Senha">
 
-<button id="btnLoginEscola" onclick="loginEscola()">
-Entrar
-</button>
+<button id="btnLoginEscola">Entrar</button>
 
 </div>
 
@@ -76,7 +69,7 @@ Entrar
 
 <input id="senhaSuperAdmin" type="password" placeholder="Senha">
 
-<button onclick="validarSuperAdmin()">Entrar</button>
+<button id="btnValidarSuperAdmin">Entrar</button>
 
 </div>
 
@@ -92,25 +85,31 @@ Entrar
 <h3 id="nomeEscolaAtiva"></h3>
 <p id="nivelEscolaAtiva"></p>
 
-<button onclick="showPage('home')">Painel de controle</button>
+<button onclick="showPage('home')">Painel</button>
 <button onclick="showPage('alunos')">Alunos</button>
 <button onclick="showPage('professores')">Professores</button>
 <button onclick="showPage('turmas')">Turmas</button>
-<button onclick="showPage('pautas')">Pautas</button>
-<button onclick="showPage('boletins')">Boletins</button>
-
 <button onclick="sair()">Sair</button>
 
 </aside>
 
 <main class="content">
 
-<section id="home" class="page active"><div class="card">Sistema OK</div></section>
-<section id="alunos" class="page"><div class="card">Alunos</div></section>
-<section id="professores" class="page"><div class="card">Professores</div></section>
-<section id="turmas" class="page"><div class="card">Turmas</div></section>
-<section id="pautas" class="page"><div class="card">Pautas</div></section>
-<section id="boletins" class="page"><div class="card">Boletins</div></section>
+<section id="home" class="page active">
+<div class="card">Sistema OK</div>
+</section>
+
+<section id="alunos" class="page">
+<div class="card">Alunos</div>
+</section>
+
+<section id="professores" class="page">
+<div class="card">Professores</div>
+</section>
+
+<section id="turmas" class="page">
+<div class="card">Turmas</div>
+</section>
 
 </main>
 
