@@ -1,20 +1,58 @@
 body{
 margin:0;
-font-family:Arial;
-background:#d7f1ff; /* azul bebê (volta ao teu estilo antigo) */
+font-family:Arial, sans-serif;
+background:#d7f1ff; /* azul bebê */
 color:#0f2747;
 }
 
-/* APP LAYOUT */
+/* ===== CONTAINERS ===== */
+.container{
+padding:20px;
+}
+
+/* ===== CARDS ===== */
+.card{
+background:white;
+padding:15px;
+margin:10px 0;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,0.12);
+}
+
+/* ===== INPUTS ===== */
+input, select, button{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:8px;
+border:none;
+box-sizing:border-box;
+font-size:14px;
+}
+
+/* ===== BOTÕES ===== */
+button{
+background:#1e4d8f; /* azul escuro */
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+background:#163a6b;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
 .app{
 display:flex;
 height:100vh;
 }
 
-/* SIDEBAR */
+/* ===== SIDEBAR ===== */
 .sidebar{
-width:230px;
-background:#0f2747; /* azul escuro original */
+width:240px;
+background:#0f2747; /* azul escuro forte */
 padding:15px;
 display:flex;
 flex-direction:column;
@@ -31,14 +69,13 @@ color:#a9cfff;
 font-size:12px;
 }
 
-/* BOTÕES SIDEBAR */
+/* botões sidebar */
 .sidebar button{
 background:#1e4d8f;
-color:white;
 border:none;
 padding:10px;
 border-radius:8px;
-cursor:pointer;
+color:white;
 font-weight:bold;
 }
 
@@ -46,54 +83,38 @@ font-weight:bold;
 background:#163a6b;
 }
 
-/* CONTENT */
+/* ===== CONTENT ===== */
 .content{
 flex:1;
 padding:20px;
 overflow:auto;
 }
 
-/* PAGES */
-.page{display:none;}
-.page.active{display:block;}
-
-/* CARDS */
-.card{
-background:white;
-padding:15px;
-margin:10px 0;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.15);
+/* ===== PÁGINAS ===== */
+.page{
+display:none;
 }
 
-/* INPUTS */
-input, select, button{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:6px;
-border:none;
-box-sizing:border-box;
+.page.active{
+display:block;
 }
 
-/* BOTÕES GERAIS */
-button{
-background:#1e4d8f;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-background:#163a6b;
-}
-
-/* HIDDEN */
+/* ===== OCULTO ===== */
 .hidden{
 display:none;
 }
 
-/* TITULO */
-h1,h2{
+/* ===== TITULOS ===== */
+h1, h2{
 color:#0f2747;
+}
+
+/* ===== SCROLL MAIS LIMPO ===== */
+::-webkit-scrollbar{
+width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+background:#1e4d8f;
+border-radius:10px;
 }
