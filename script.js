@@ -22,31 +22,35 @@ const db = getFirestore(app);
 
 console.log("🔥 SISTEMA OK");
 
-/* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-document.getElementById("btnCriarEscola")
-?.addEventListener("click", criarEscola);
+document.getElementById("btnCriarEscola").addEventListener("click", criarEscola);
+document.getElementById("btnLoginEscola").addEventListener("click", loginEscola);
 
-document.getElementById("btnLoginEscola")
-?.addEventListener("click", loginEscola);
+document.getElementById("btnSuperAdmin").addEventListener("click", () => {
+document.getElementById("portal").classList.add("hidden");
+document.getElementById("superAdmin").classList.remove("hidden");
+});
 
-document.getElementById("btnSuperAdmin")
-?.addEventListener("click", abrirSuperAdmin);
+document.getElementById("btnValidarSuperAdmin").addEventListener("click", validarSuperAdmin);
 
-document.getElementById("btnValidarSuperAdmin")
-?.addEventListener("click", validarSuperAdmin);
-
-/* 🔥 FIX REAL PARA BOTÕES DINÂMICOS */
+/* ESCOLA NAV */
 document.addEventListener("click", (e) => {
 
-const btn = e.target.closest("[data-page]");
-
+const btn = e.target.closest(".pageBtn");
 if(!btn) return;
 
-const page = btn.dataset.page;
+showPage(btn.dataset.page);
 
-showPage(page);
+});
+
+/* ADMIN NAV */
+document.addEventListener("click", (e) => {
+
+const btn = e.target.closest(".adminBtn");
+if(!btn) return;
+
+showAdminPage(btn.dataset.admin);
 
 });
 
@@ -54,37 +58,26 @@ carregarEscolas();
 
 });
 
-/* ================= CRIAR ================= */
+/* ================= ESCOLA ================= */
+
 async function criarEscola(){
 
-const nome = document.getElementById("nomeEscola").value;
-const provincia = document.getElementById("provincia").value;
-const municipio = document.getElementById("municipio").value;
-const anoLetivo = document.getElementById("anoLetivo").value;
-const email = document.getElementById("email").value;
-const senha = document.getElementById("senhaEscola").value;
-
-if(!nome || !senha){
-alert("Preenche tudo!");
-return;
-}
+const nome = nomeEscola.value;
+const provincia = provincia.value;
+const municipio = municipio.value;
+const ano = anoLetivo.value;
+const email = email.value;
+const senha = senhaEscola.value;
 
 const ref = await addDoc(collection(db,"escolas"),{
-nome,
-provincia,
-municipio,
-anoLetivo,
-email,
-senha,
-criadoEm: Date.now()
+nome, provincia, municipio, anoLetivo: ano, email, senha
 });
 
-alert("Escola criada! ID: " + ref.id);
+alert("Criada! ID: " + ref.id);
 
 carregarEscolas();
 }
 
-/* ================= LISTA ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -94,13 +87,9 @@ const snap = await getDocs(collection(db,"escolas"));
 
 snap.forEach(d=>{
 
-const e = d.data();
-
 box.innerHTML += `
 <div class="card">
-<h3>${e.nome}</h3>
-<p>ID: ${d.id}</p>
-
+<h3>${d.data().nome}</h3>
 <button onclick="abrirLogin('${d.id}')">Entrar</button>
 </div>
 `;
@@ -109,7 +98,6 @@ box.innerHTML += `
 
 }
 
-/* ================= ABRIR LOGIN ================= */
 window.abrirLogin = function(id){
 
 document.getElementById("portal").classList.add("hidden");
@@ -117,9 +105,8 @@ document.getElementById("loginEscola").classList.remove("hidden");
 
 document.getElementById("idEscola").value = id;
 
-};
+}
 
-/* ================= LOGIN ================= */
 async function loginEscola(){
 
 const id = document.getElementById("idEscola").value;
@@ -127,74 +114,55 @@ const senha = document.getElementById("senhaLogin").value;
 
 const snap = await getDoc(doc(db,"escolas",id));
 
-if(!snap.exists()){
-alert("Escola não existe");
-return;
-}
+if(!snap.exists()) return alert("Erro");
 
-const e = snap.data();
-
-if(e.senha !== senha){
-alert("Senha errada");
-return;
-}
+if(snap.data().senha !== senha) return alert("Senha errada");
 
 document.getElementById("loginEscola").classList.add("hidden");
 document.getElementById("dashboard").classList.remove("hidden");
 
-document.getElementById("nomeEscolaAtiva").innerText = e.nome;
-document.getElementById("nivelEscolaAtiva").innerText = e.anoLetivo;
+document.getElementById("nomeEscolaAtiva").innerText = snap.data().nome;
+document.getElementById("nivelEscolaAtiva").innerText = snap.data().anoLetivo;
 
 showPage("home");
 
 }
 
 /* ================= SUPER ADMIN ================= */
-function abrirSuperAdmin(){
-
-document.getElementById("portal").classList.add("hidden");
-document.getElementById("superAdmin").classList.remove("hidden");
-
-}
 
 function validarSuperAdmin(){
 
-const senha = document.getElementById("senhaSuperAdmin").value;
+const senha = senhaSuperAdmin.value;
 
-if(senha === "0987"){
+if(senha !== "0987") return alert("Errado");
 
 document.getElementById("superAdmin").classList.add("hidden");
-document.getElementById("dashboard").classList.remove("hidden");
+document.getElementById("superAdminDashboard").classList.remove("hidden");
 
-document.getElementById("nomeEscolaAtiva").innerText = "SUPER ADMIN";
-document.getElementById("nivelEscolaAtiva").innerText = "CONTROLO GLOBAL";
-
-showPage("home");
-
-}else{
-alert("Senha errada");
-}
+showAdminPage("escolas");
 
 }
 
-/* ================= NAVIGATION FIX ================= */
-window.showPage = function(page){
+function showPage(page){
 
-document.querySelectorAll(".page")
-.forEach(p => p.style.display = "none");
+document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+document.getElementById(page).style.display="block";
 
-const target = document.getElementById(page);
-
-if(target){
-target.style.display = "block";
 }
 
-};
+function showAdminPage(page){
+
+document.querySelectorAll(".adminPage").forEach(p=>p.style.display="none");
+document.getElementById(page).style.display="block";
+
+}
 
 /* ================= SAIR ================= */
+
 window.sair = function(){
 
 document.getElementById("dashboard").classList.add("hidden");
+document.getElementById("superAdminDashboard").classList.add("hidden");
 document.getElementById("portal").classList.remove("hidden");
 
-};
+}
