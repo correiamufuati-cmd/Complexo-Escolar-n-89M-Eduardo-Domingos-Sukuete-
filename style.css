@@ -1,129 +1,52 @@
 body{
 margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#d7f1ff;
 color:#0f2747;
 }
 
-/* ===== CONTAINER ===== */
 .container{
 max-width:1200px;
 margin:auto;
 padding:20px;
 }
 
-/* ===== TITULOS ===== */
-h1{
-text-align:center;
-font-size:32px;
-margin-bottom:20px;
-}
-
-/* ===== CARDS ===== */
 .card{
-background:white;
-padding:20px;
-margin:15px 0;
-border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,0.12);
+background:#fff;
+padding:15px;
+margin:10px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* ===== INPUTS ===== */
-input, select{
+input{
 width:100%;
 padding:10px;
-margin:6px 0;
+margin:5px 0;
 border-radius:8px;
-border:1px solid #cfd8e3;
-box-sizing:border-box;
-font-size:14px;
+border:1px solid #ccc;
 }
 
-/* ===== BOTÕES ===== */
 button{
 width:100%;
 padding:10px;
-margin-top:6px;
 background:#1e4d8f;
 color:white;
-font-weight:bold;
 border:none;
-border-radius:8px;
 cursor:pointer;
-transition:.2s;
 }
 
-button:hover{
-background:#163a6b;
-}
+.hidden{display:none;}
+.page{display:none;}
+.page.active{display:block;}
 
-/* ===== APP LAYOUT ===== */
-.app{
-display:flex;
-height:100vh;
-}
+.app{display:flex;height:100vh;}
 
-/* ===== SIDEBAR ===== */
 .sidebar{
-width:240px;
+width:220px;
 background:#0f2747;
-padding:15px;
-display:flex;
-flex-direction:column;
-gap:10px;
-}
-
-.sidebar h3{
 color:white;
-margin:0;
+padding:10px;
 }
 
-.sidebar button{
-background:#1e4d8f;
-}
-
-.sidebar button:hover{
-background:#163a6b;
-}
-
-/* ===== CONTEÚDO ===== */
-.content{
-flex:1;
-padding:20px;
-overflow:auto;
-background:#eef7ff;
-}
-
-/* ===== PÁGINAS ===== */
-.page{
-display:none;
-}
-
-.page.active{
-display:block;
-}
-
-/* ===== ADMIN ===== */
-.adminPage{
-display:none;
-}
-
-/* ===== ESCONDER ===== */
-.hidden{
-display:none;
-}
-
-/* ===== LISTA ESCOLAS ===== */
-#listaEscolas .card{
-border-left:5px solid #1e4d8f;
-}
-
-/* ===== SCROLL ===== */
-::-webkit-scrollbar{
-width:8px;
-}
-
-::-webkit-scrollbar-thumb{
-background:#1e4d8f;
-border-radius:10px;
-}
+.content{flex:1;padding:10px;background:#eef7ff;}
