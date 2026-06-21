@@ -20,35 +20,45 @@ appId: "1:322752680482:web:9f56c69fa6ba752f46707b"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-console.log("🔥 SISTEMA INICIADO");
+console.log("🔥 SISTEMA ONLINE");
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", () => {
 
+console.log("DOM OK");
+
 document.getElementById("btnCriarEscola")
-.addEventListener("click", criarEscola);
+?.addEventListener("click", criarEscola);
 
 document.getElementById("btnLoginEscola")
-.addEventListener("click", loginEscola);
+?.addEventListener("click", loginEscola);
 
 document.getElementById("btnSuperAdmin")
-.addEventListener("click", abrirSuperAdmin);
+?.addEventListener("click", abrirSuperAdmin);
 
 document.getElementById("btnValidarSuperAdmin")
-.addEventListener("click", validarSuperAdmin);
+?.addEventListener("click", validarSuperAdmin);
 
-document.querySelectorAll(".pageBtn")
-.forEach(btn=>{
-btn.addEventListener("click", (e)=>{
-showPage(e.target.dataset.page);
-});
+/* 🔥 EVENT DELEGATION (FIX PRINCIPAL) */
+document.addEventListener("click", (e) => {
+
+const btn = e.target.closest(".pageBtn");
+
+if(!btn) return;
+
+const page = btn.dataset.page;
+
+if(page){
+showPage(page);
+}
+
 });
 
 carregarEscolas();
 
 });
 
-/* ================= CRIAR ================= */
+/* ================= CRIAR ESCOLA ================= */
 async function criarEscola(){
 
 const nome = document.getElementById("nomeEscola").value;
@@ -59,7 +69,7 @@ const email = document.getElementById("email").value;
 const senha = document.getElementById("senhaEscola").value;
 
 if(!nome || !senha){
-alert("Preencha tudo!");
+alert("Preenche tudo!");
 return;
 }
 
@@ -78,7 +88,7 @@ alert("Escola criada! ID: " + ref.id);
 carregarEscolas();
 }
 
-/* ================= LISTA ================= */
+/* ================= LISTAR ESCOLAS ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -158,27 +168,24 @@ if(senha === "0987"){
 document.getElementById("superAdmin").classList.add("hidden");
 document.getElementById("dashboard").classList.remove("hidden");
 
-document.getElementById("nomeEscolaAtiva").innerText =
-"SUPER ADMIN";
+document.getElementById("nomeEscolaAtiva").innerText = "SUPER ADMIN";
+document.getElementById("nivelEscolaAtiva").innerText = "CONTROLO GLOBAL";
 
-document.getElementById("nivelEscolaAtiva").innerText =
-"Gestão Geral";
-
-}else{
+} else {
 alert("Senha errada");
 }
 
 }
 
-/* ================= NAV ================= */
+/* ================= NAVIGATION ================= */
 window.showPage = function(id){
 
 document.querySelectorAll(".page")
-.forEach(p=>p.classList.remove("active"));
+.forEach(p => p.classList.remove("active"));
 
-document.getElementById(id).classList.add("active");
+document.getElementById(id)?.classList.add("active");
 
-}
+};
 
 /* ================= SAIR ================= */
 window.sair = function(){
@@ -186,4 +193,4 @@ window.sair = function(){
 document.getElementById("dashboard").classList.add("hidden");
 document.getElementById("portal").classList.remove("hidden");
 
-}
+};
