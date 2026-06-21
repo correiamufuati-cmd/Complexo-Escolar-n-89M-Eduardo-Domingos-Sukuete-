@@ -1,173 +1,285 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8">
-<title>Escola Digital</title>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+getDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<link rel="stylesheet" href="style.css">
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+apiKey: "AIzaSyDD326KBs3K1vsJsLNhfenFlsLFjRljxNE",
+authDomain: "escola-digital-47497.firebaseapp.com",
+projectId: "escola-digital-47497"
+};
 
-<!-- PDF.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-<script type="module" src="script.js" defer></script>
-</head>
+/* ================= CORE ================= */
+const $ = (id) => document.getElementById(id);
 
-<body>
+const show = (id) => document.getElementById(id)?.classList.remove("hidden");
+const hide = (id) => document.getElementById(id)?.classList.add("hidden");
 
-<!-- ================= PORTAL ================= -->
-<section id="portal">
-<div class="container">
+let escolaAtual = null;
 
-<h1>🏫 Escola Digital</h1>
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", () => {
 
+console.log("Sistema iniciado ✔");
+
+$("btnCriarEscola")?.addEventListener("click", criarEscola);
+$("btnLoginEscola")?.addEventListener("click", loginEscola);
+
+$("btnCriarTurma")?.addEventListener("click", criarTurma);
+$("btnCriarAluno")?.addEventListener("click", criarAluno);
+$("btnImportarPDF")?.addEventListener("click", importarPDF);
+
+$("btnCriarMiniPauta")?.addEventListener("click", criarMiniPauta);
+
+carregarEscolas();
+
+});
+
+/* ================= ESCOLAS ================= */
+async function criarEscola(){
+
+const nome = $("nomeEscola").value;
+const senha = $("senhaEscola").value;
+
+if(!nome || !senha){
+alert("Preenche tudo");
+return;
+}
+
+await addDoc(collection(db,"escolas"),{
+nome,
+senha,
+criadoEm: Date.now()
+});
+
+carregarEscolas();
+}
+
+async function carregarEscolas(){
+
+const box = $("listaEscolas");
+if(!box) return;
+
+box.innerHTML = "";
+
+const snap = await getDocs(collection(db,"escolas"));
+
+snap.forEach(d=>{
+box.innerHTML += `
 <div class="card">
-<h2>Criar Escola</h2>
+<h3>${d.data().nome}</h3>
+<button onclick="abrirLogin('${d.id}')">Entrar</button>
+</div>`;
+});
+}
 
-<input id="nomeEscola">
-<input id="provincia">
-<input id="municipio">
-<input id="anoLetivo">
-<input id="email">
-<input id="senhaEscola" type="password">
+/* ================= LOGIN ================= */
+window.abrirLogin = function(id){
+escolaAtual = id;
 
-<button id="btnCriarEscola">Criar Escola</button>
-</div>
+hide("portal");
+show("loginEscola");
 
-<div class="card">
-<h2>Escolas</h2>
-<div id="listaEscolas"></div>
-</div>
+$("idEscola").value = id;
+};
 
-<button onclick="abrirSuperAdmin()">Super Admin</button>
+window.loginEscola = async function(){
 
-</div>
-</section>
+const id = $("idEscola").value;
+const senha = $("senhaLogin").value;
 
-<!-- LOGIN -->
-<section id="loginEscola" class="hidden">
-<div class="container">
-<h2>Login</h2>
+const snap = await getDoc(doc(db,"escolas",id));
 
-<input id="idEscola">
-<input id="senhaLogin" type="password">
+if(!snap.exists()){
+alert("Escola não existe");
+return;
+}
 
-<button id="btnLoginEscola">Entrar</button>
-</div>
-</section>
+if(snap.data().senha !== senha){
+alert("Senha errada");
+return;
+}
 
-<!-- SUPER ADMIN -->
-<section id="superAdmin" class="hidden">
-<div class="container">
+hide("loginEscola");
+show("dashboard");
 
-<h2>Super Admin</h2>
-<input id="senhaSuperAdmin" type="password">
-<button onclick="validarSuperAdmin()">Entrar</button>
+$("nomeEscolaAtiva").innerText = snap.data().nome;
 
-</div>
-</section>
+showPage("home");
+};
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="hidden">
+/* ================= NAV ================= */
+window.showPage = function(id){
 
-<div class="app">
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 
-<aside class="sidebar">
+document.getElementById(id).classList.add("active");
 
-<h3 id="nomeEscolaAtiva"></h3>
+if(id==="alunos") loadAlunos();
+if(id==="turmas") loadTurmas();
+if(id==="pautas") loadMiniPautas();
+};
 
-<button onclick="showPage('home')">Home</button>
-<button onclick="showPage('alunos')">Alunos</button>
-<button onclick="showPage('turmas')">Turmas</button>
-<button onclick="showPage('pautas')">Mini-Pautas</button>
+window.sair = function(){
+location.reload();
+};
 
-<button onclick="sair()">Sair</button>
+/* ================= TURMAS ================= */
+async function criarTurma(){
 
-</aside>
+if(!escolaAtual) return;
 
-<main class="content">
+await addDoc(collection(db,"turmas"),{
+escolaId: escolaAtual,
+classe: $("classeTurma").value,
+turma: $("nomeTurma").value,
+ano: $("anoTurma").value
+});
 
-<!-- HOME -->
-<section id="home" class="page active">
-<div class="card">Sistema ativo</div>
-</section>
+loadTurmas();
+}
 
-<!-- ALUNOS -->
-<section id="alunos" class="page">
+async function loadTurmas(){
 
-<div class="card">
-<h3>Alunos</h3>
+const box = $("listaTurmas");
+if(!box) return;
 
-<input id="nomeAluno">
-<input id="turmaAluno">
+box.innerHTML = "";
 
-<button id="btnCriarAluno">Criar Aluno</button>
-</div>
+const snap = await getDocs(collection(db,"turmas"));
 
-<div class="card">
-<div id="listaAlunos"></div>
-</div>
+snap.forEach(d=>{
+const t = d.data();
+if(t.escolaId !== escolaAtual) return;
 
-</section>
+box.innerHTML += `<div class="card">${t.classe} ${t.turma}</div>`;
+});
+}
 
-<!-- TURMAS + PDF -->
-<section id="turmas" class="page">
+/* ================= ALUNOS ================= */
+async function criarAluno(){
 
-<div class="card">
-<h3>Criar Turma</h3>
+if(!escolaAtual) return;
 
-<input id="classeTurma">
-<input id="nomeTurma">
-<input id="anoTurma">
+await addDoc(collection(db,"alunos"),{
+escolaId: escolaAtual,
+nome: $("nomeAluno").value,
+turma: $("turmaAluno").value,
+matricula: "2026-"+Math.floor(Math.random()*999999),
+username: $("nomeAluno").value.toLowerCase().replace(/\s/g,"").slice(0,6),
+senha: Math.random().toString(36).slice(2,10).toUpperCase()
+});
 
-<button id="btnCriarTurma">Criar</button>
-</div>
+loadAlunos();
+}
 
-<div class="card">
-<h3>Turmas</h3>
-<div id="listaTurmas"></div>
-</div>
+async function loadAlunos(){
 
-<div class="card">
-<h3>📄 Importar PDF</h3>
+const box = $("listaAlunos");
+if(!box) return;
 
-<input type="file" id="pdfFile">
-<input id="turmaPDF">
+box.innerHTML = "";
 
-<button id="btnImportarPDF">Importar</button>
-</div>
+const snap = await getDocs(collection(db,"alunos"));
 
-</section>
+snap.forEach(d=>{
+const a = d.data();
+if(a.escolaId !== escolaAtual) return;
 
-<!-- MINI-PAUTAS -->
-<section id="pautas" class="page">
+box.innerHTML += `<div class="card">${a.nome} - ${a.turma}</div>`;
+});
+}
 
-<div class="card">
-<h3>Criar Mini-Pauta</h3>
+/* ================= PDF IMPORT ================= */
+async function importarPDF(){
 
-<input id="mpClasse">
-<input id="mpTurma">
-<input id="mpDisciplina">
-<input id="mpProfessor">
+if(!escolaAtual) return;
 
-<button id="btnCriarMiniPauta">Criar</button>
-</div>
+const file = $("pdfFile").files[0];
+const turma = $("turmaPDF").value;
 
-<div class="card">
-<div id="listaMiniPautas"></div>
-</div>
+if(!file){
+alert("Seleciona PDF");
+return;
+}
 
-<div class="card">
-<select id="miniPautaSelect"></select>
-<div id="listaNotas"></div>
-</div>
+const reader = new FileReader();
 
-</section>
+reader.onload = async function(){
 
-</main>
+const pdf = await pdfjsLib.getDocument({
+data: new Uint8Array(this.result)
+}).promise;
 
-</div>
+let texto = "";
 
-</section>
+for(let i=1;i<=pdf.numPages;i++){
+const page = await pdf.getPage(i);
+const content = await page.getTextContent();
 
-</body>
-</html>
+texto += content.items.map(x=>x.str).join(" ") + "\n";
+}
+
+const nomes = texto.split("\n").filter(n=>n.trim().length>3);
+
+for(const nome of nomes){
+
+await addDoc(collection(db,"alunos"),{
+escolaId: escolaAtual,
+nome,
+turma,
+matricula: "2026-"+Math.floor(Math.random()*999999),
+username: nome.toLowerCase().replace(/\s/g,"").slice(0,6),
+senha: Math.random().toString(36).slice(2,10).toUpperCase()
+});
+
+}
+
+loadAlunos();
+alert("PDF importado com sucesso!");
+};
+
+reader.readAsArrayBuffer(file);
+}
+
+/* ================= MINI PAUTAS ================= */
+async function criarMiniPauta(){
+
+if(!escolaAtual) return;
+
+await addDoc(collection(db,"minipautas"),{
+escolaId: escolaAtual,
+classe: $("mpClasse").value,
+turma: $("mpTurma").value,
+disciplina: $("mpDisciplina").value,
+professor: $("mpProfessor").value
+});
+
+loadMiniPautas();
+}
+
+async function loadMiniPautas(){
+
+const box = $("listaMiniPautas");
+if(!box) return;
+
+box.innerHTML = "";
+
+const snap = await getDocs(collection(db,"minipautas"));
+
+snap.forEach(d=>{
+const m = d.data();
+if(m.escolaId !== escolaAtual) return;
+
+box.innerHTML += `<div class="card">${m.disciplina} - ${m.turma}</div>`;
+});
+}
