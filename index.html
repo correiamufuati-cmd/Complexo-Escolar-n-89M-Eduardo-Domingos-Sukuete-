@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Escola Digital</title>
 
-<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="style.css">
 <script type="module" src="script.js" defer></script>
 </head>
 
@@ -38,27 +38,44 @@
 <div id="listaEscolas"></div>
 </div>
 
-<button id="btnSuperAdmin">Super Admin</button>
+<button onclick="abrirSuperAdmin()">🔐 Super Admin</button>
 
 </div>
 
 </section>
 
-<!-- ================= LOGIN ESCOLA ================= -->
+<!-- ================= LOGIN ================= -->
 <section id="loginEscola" class="hidden">
+
 <div class="container">
 
-<h2>Login Escola</h2>
+<h2>Entrar na Escola</h2>
 
-<input id="idEscola" placeholder="ID">
+<input id="idEscola" placeholder="ID da Escola">
 <input id="senhaLogin" type="password" placeholder="Senha">
 
 <button id="btnLoginEscola">Entrar</button>
 
 </div>
+
 </section>
 
-<!-- ================= DASHBOARD ESCOLA ================= -->
+<!-- ================= SUPER ADMIN ================= -->
+<section id="superAdmin" class="hidden">
+
+<div class="container">
+
+<h2>SUPER ADMIN</h2>
+
+<input id="senhaSuperAdmin" type="password" placeholder="Senha">
+
+<button onclick="validarSuperAdmin()">Entrar</button>
+
+</div>
+
+</section>
+
+<!-- ================= DASHBOARD ================= -->
 <section id="dashboard" class="hidden">
 
 <div class="app">
@@ -68,10 +85,11 @@
 <h3 id="nomeEscolaAtiva"></h3>
 <p id="nivelEscolaAtiva"></p>
 
-<button class="pageBtn" data-page="home">Painel</button>
-<button class="pageBtn" data-page="alunos">Alunos</button>
-<button class="pageBtn" data-page="professores">Professores</button>
-<button class="pageBtn" data-page="turmas">Turmas</button>
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('alunos')">Alunos</button>
+<button onclick="showPage('professores')">Professores</button>
+<button onclick="showPage('turmas')">Turmas</button>
+<button onclick="showPage('pautas')">Pautas</button>
 
 <button onclick="sair()">Sair</button>
 
@@ -79,54 +97,39 @@
 
 <main class="content">
 
-<section id="home" class="page"><h2>Painel Principal</h2></section>
-<section id="alunos" class="page"><h2>Gestão de Alunos</h2></section>
-<section id="professores" class="page"><h2>Gestão de Professores</h2></section>
-<section id="turmas" class="page"><h2>Gestão de Turmas</h2></section>
+<section id="home" class="page active">
+<div class="card">Sistema ativo</div>
+</section>
 
-</main>
+<section id="alunos" class="page">
+<div class="card">Alunos módulo</div>
+</section>
+
+<section id="professores" class="page">
+<div class="card">Professores módulo</div>
+</section>
+
+<section id="turmas" class="page">
+<div class="card">Turmas módulo</div>
+</section>
+
+<section id="pautas" class="page">
+
+<div class="card">
+
+<h3>Criar Pauta</h3>
+
+<input id="classePauta" placeholder="Classe">
+<input id="turmaPauta" placeholder="Turma">
+<input id="disciplinaPauta" placeholder="Disciplina">
+
+<button onclick="criarPauta()">Criar Pauta</button>
+
+<div id="listaPautas"></div>
 
 </div>
 
 </section>
-
-<!-- ================= SUPER ADMIN LOGIN ================= -->
-<section id="superAdmin" class="hidden">
-
-<div class="container">
-
-<h2>SUPER ADMIN</h2>
-
-<input id="senhaSuperAdmin" type="password" placeholder="Senha">
-
-<button id="btnValidarSuperAdmin">Entrar</button>
-
-</div>
-
-</section>
-
-<!-- ================= SUPER ADMIN DASHBOARD ================= -->
-<section id="superAdminDashboard" class="hidden">
-
-<div class="app">
-
-<aside class="sidebar">
-
-<h3>SUPER ADMIN</h3>
-
-<button class="adminBtn" data-admin="escolas">Escolas</button>
-<button class="adminBtn" data-admin="stats">Estatísticas</button>
-<button class="adminBtn" data-admin="config">Configurações</button>
-
-<button onclick="logout()">Sair</button>
-
-</aside>
-
-<main class="content">
-
-<section id="escolas" class="adminPage"><h2>Escolas Registadas</h2></section>
-<section id="stats" class="adminPage"><h2>Estatísticas Gerais</h2></section>
-<section id="config" class="adminPage"><h2>Configurações</h2></section>
 
 </main>
 
