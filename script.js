@@ -1,9 +1,5 @@
-console.log("✔ SCRIPT CARREGADO");
-
-let db;
-
-/* ================= FIREBASE ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
 import {
 getFirestore,
 collection,
@@ -14,13 +10,18 @@ doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "SUA_API_KEY",
-authDomain: "SEU_PROJECT.firebaseapp.com",
-projectId: "SEU_PROJECT"
+apiKey: "AIzaSyDD326KBs3K1vsJsLNhfenFlsLFjRljxNE",
+authDomain: "escola-digital-47497.firebaseapp.com",
+projectId: "escola-digital-47497",
+storageBucket: "escola-digital-47497.firebasestorage.app",
+messagingSenderId: "322752680482",
+appId: "1:322752680482:web:9f56c69fa6ba752f46707b"
 };
 
 const app = initializeApp(firebaseConfig);
-db = getFirestore(app);
+const db = getFirestore(app);
+
+console.log("🔥 Firebase ligado com sucesso");
 
 /* ================= INÍCIO SEGURO ================= */
 window.onload = function () {
