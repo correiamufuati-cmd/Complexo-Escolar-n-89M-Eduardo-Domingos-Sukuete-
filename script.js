@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-
 import {
 getFirestore,
 collection,
@@ -21,73 +20,62 @@ appId: "1:322752680482:web:9f56c69fa6ba752f46707b"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-console.log("🔥 Firebase ligado com sucesso");
+/* ================= INIT ================= */
+window.addEventListener("DOMContentLoaded", () => {
 
-/* ================= INÍCIO SEGURO ================= */
-window.onload = function () {
-  
-const btnLogin = document.getElementById("btnLoginEscola");
+document.getElementById("btnCriarEscola")
+.addEventListener("click", criarEscola);
 
-if(btnLogin){
-   btnLogin.addEventListener("click", () => {
-      window.loginEscola();
-   });
-}
-console.log("✔ INIT OK");
+document.getElementById("btnLoginEscola")
+.addEventListener("click", loginEscola);
 
-const btn = document.getElementById("btnCriarEscola");
+document.getElementById("btnSuperAdmin")
+.addEventListener("click", abrirSuperAdmin);
 
-console.log("BTN:", btn);
-
-if (btn) {
-btn.addEventListener("click", criarEscola);
-}
+document.getElementById("btnValidarSuperAdmin")
+.addEventListener("click", validarSuperAdmin);
 
 carregarEscolas();
-};
+
+});
 
 /* ================= CRIAR ESCOLA ================= */
 async function criarEscola() {
 
-console.log("✔ Criar escola chamado");
-
 const nome = document.getElementById("nomeEscola").value;
 const provincia = document.getElementById("provincia").value;
 const municipio = document.getElementById("municipio").value;
-const ano = document.getElementById("anoLetivo").value;
+const anoLetivo = document.getElementById("anoLetivo").value;
 const email = document.getElementById("email").value;
 const senha = document.getElementById("senhaEscola").value;
 
-if (!nome || !senha) {
-alert("Preenche nome e senha!");
+if(!nome || !senha){
+alert("Preenche os campos!");
 return;
 }
 
-const ref = await addDoc(collection(db, "escolas"), {
+const ref = await addDoc(collection(db,"escolas"), {
 nome,
 provincia,
 municipio,
-anoLetivo: ano,
+anoLetivo,
 email,
 senha,
 criadoEm: Date.now()
 });
 
-alert("Escola criada com ID: " + ref.id);
+alert("Escola criada! ID: " + ref.id);
 
 carregarEscolas();
 }
 
 /* ================= LISTAR ESCOLAS ================= */
-async function carregarEscolas() {
+async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
-
-if (!box) return;
-
 box.innerHTML = "";
 
-const snap = await getDocs(collection(db, "escolas"));
+const snap = await getDocs(collection(db,"escolas"));
 
 snap.forEach(d => {
 
@@ -96,9 +84,11 @@ const e = d.data();
 box.innerHTML += `
 <div class="card">
 <h3>${e.nome}</h3>
-<p>${e.municipio || ""} - ${e.provincia || ""}</p>
+<p>${d.id}</p>
 
-<button onclick="abrirLogin('${d.id}')">Entrar</button>
+<button onclick="abrirLogin('${d.id}')">
+Entrar
+</button>
 
 </div>
 `;
@@ -107,68 +97,35 @@ box.innerHTML += `
 
 }
 
-/* ================= LOGIN ESCOLA ================= */
-window.loginEscola = async function () {
+/* ================= ABRIR LOGIN ================= */
+window.abrirLogin = function(id){
 
-console.log("LOGIN CHAMADO");
+document.getElementById("portal").classList.add("hidden");
+document.getElementById("loginEscola").classList.remove("hidden");
 
-const id = document.getElementById("idEscola").value.trim();
-const senha = document.getElementById("senhaLogin").value.trim();
-
-console.log("ID:", id);
-
-if(!id || !senha){
-alert("Preencha o ID e a senha");
-return;
-}
-
-try{
-
-const snap = await getDoc(doc(db, "escolas", id));
-
-console.log("Existe:", snap.exists());
-
-if(!snap.exists()){
-alert("Escola não encontrada");
-return;
-}
-
-const escola = snap.data();
-
-if(escola.senha !== senha){
-alert("Senha incorreta");
-return;
-}
-
-document.getElementById("loginEscola").classList.add("hidden");
-document.getElementById("dashboard").classList.remove("hidden");
-
-document.getElementById("nomeEscolaAtiva").innerText = escola.nome;
-document.getElementById("nivelEscolaAtiva").innerText =
-"Ano Letivo: " + (escola.anoLetivo || "");
-
-alert("Login efetuado com sucesso");
-
-}catch(error){
-
-console.error(error);
-alert(error.message);
-
-}
+document.getElementById("idEscola").value = id;
 
 };
 
 /* ================= LOGIN ================= */
-window.loginEscola = async function () {
+async function loginEscola(){
 
 const id = document.getElementById("idEscola").value;
 const senha = document.getElementById("senhaLogin").value;
 
-const snap = await getDoc(doc(db, "escolas", id));
+const snap = await getDoc(doc(db,"escolas",id));
 
-if (snap.exists() && snap.data().senha === senha) {
+if(!snap.exists()){
+alert("Escola não existe");
+return;
+}
 
 const e = snap.data();
+
+if(e.senha !== senha){
+alert("Senha errada");
+return;
+}
 
 document.getElementById("loginEscola").classList.add("hidden");
 document.getElementById("dashboard").classList.remove("hidden");
@@ -176,44 +133,42 @@ document.getElementById("dashboard").classList.remove("hidden");
 document.getElementById("nomeEscolaAtiva").innerText = e.nome;
 document.getElementById("nivelEscolaAtiva").innerText = e.anoLetivo;
 
-} else {
-alert("Login inválido");
 }
 
-};
-
 /* ================= SUPER ADMIN ================= */
-window.abrirSuperAdmin = function () {
+function abrirSuperAdmin(){
 
 document.getElementById("portal").classList.add("hidden");
 document.getElementById("superAdmin").classList.remove("hidden");
 
-};
+}
 
-window.validarSuperAdmin = function () {
+function validarSuperAdmin(){
 
 const senha = document.getElementById("senhaSuperAdmin").value;
 
-if (senha === "0987") {
+if(senha === "0987"){
 alert("Super Admin OK");
 } else {
 alert("Senha errada");
 }
 
-};
+}
 
 /* ================= NAV ================= */
-window.showPage = function (id) {
+window.showPage = function(id){
 
-document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+document.querySelectorAll(".page")
+.forEach(p => p.classList.remove("active"));
+
 document.getElementById(id).classList.add("active");
 
-};
+}
 
 /* ================= SAIR ================= */
-window.sair = function () {
+window.sair = function(){
 
 document.getElementById("dashboard").classList.add("hidden");
 document.getElementById("portal").classList.remove("hidden");
 
-};
+}
