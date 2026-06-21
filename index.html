@@ -18,7 +18,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 <body>
 
-<!-- ================= PORTAL ================= -->
 <section id="portal">
 <div class="container">
 
@@ -27,7 +26,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <div class="card">
 <h2>Criar Escola</h2>
 
-<input id="nomeEscola" placeholder="Nome da Escola">
+<input id="nomeEscola" placeholder="Nome">
 <input id="provincia" placeholder="Província">
 <input id="municipio" placeholder="Município">
 <input id="anoLetivo" placeholder="Ano Letivo">
@@ -38,7 +37,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 </div>
 
 <div class="card">
-<h2>Escolas Registadas</h2>
+<h2>Escolas</h2>
 <div id="listaEscolas"></div>
 </div>
 
@@ -47,21 +46,21 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 </div>
 </section>
 
-<!-- ================= LOGIN ESCOLA ================= -->
+<!-- LOGIN -->
 <section id="loginEscola" class="hidden">
 <div class="container">
 
 <h2>Login Escola</h2>
 
-<input id="idEscola" placeholder="ID Escola">
-<input id="senhaLogin" type="password" placeholder="Senha">
+<input id="idEscola">
+<input id="senhaLogin" type="password">
 
 <button id="btnLoginEscola">Entrar</button>
 
 </div>
 </section>
 
-<!-- ================= SUPER ADMIN ================= -->
+<!-- SUPER ADMIN -->
 <section id="superAdmin" class="hidden">
 <div class="container">
 
@@ -73,31 +72,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 </div>
 </section>
 
-<!-- ================= SUPER ADMIN DASHBOARD ================= -->
-<section id="superAdminDashboard" class="hidden">
-
-<div class="app">
-
-<aside class="sidebar">
-<h3>Super Admin</h3>
-
-<button onclick="showAdmin('escolas')">Escolas</button>
-<button onclick="showAdmin('stats')">Estatísticas</button>
-<button onclick="sair()">Sair</button>
-</aside>
-
-<main class="content">
-
-<section id="admin-escolas" class="adminPage"></section>
-<section id="admin-stats" class="adminPage"></section>
-
-</main>
-
-</div>
-
-</section>
-
-<!-- ================= DASHBOARD ================= -->
+<!-- DASHBOARD -->
 <section id="dashboard" class="hidden">
 
 <div class="app">
@@ -143,9 +118,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <div class="card">
 <h3>Turmas</h3>
 
-<input id="classeTurma" placeholder="Classe">
-<input id="nomeTurma" placeholder="Turma">
-<input id="anoTurma" placeholder="Ano">
+<input id="classeTurma">
+<input id="nomeTurma">
+<input id="anoTurma">
 
 <button id="btnCriarTurma">Criar</button>
 </div>
@@ -170,16 +145,12 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <div class="card">
 <h3>Mini-Pautas</h3>
 
-<input id="mpClasse" placeholder="Classe">
-<input id="mpTurma" placeholder="Turma">
-<input id="mpDisciplina" placeholder="Disciplina">
-<input id="mpProfessor" placeholder="Professor">
+<input id="mpClasse">
+<input id="mpTurma">
+<input id="mpDisciplina">
+<input id="mpProfessor">
 
 <button id="btnCriarMiniPauta">Criar</button>
-</div>
-
-<div class="card">
-<div id="listaMiniPautas"></div>
 </div>
 
 </section>
