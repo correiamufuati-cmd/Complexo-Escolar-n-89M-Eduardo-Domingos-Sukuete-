@@ -25,7 +25,12 @@ console.log("🔥 Firebase ligado com sucesso");
 
 /* ================= INÍCIO SEGURO ================= */
 window.onload = function () {
+  
+const btnLogin = document.getElementById("btnLoginEscola");
 
+if(btnLogin){
+   btnLogin.addEventListener("click", loginEscola);
+}
 console.log("✔ INIT OK");
 
 const btn = document.getElementById("btnCriarEscola");
