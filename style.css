@@ -1,72 +1,120 @@
-body{
-margin:0;
-font-family:Arial;
-background:#0f2747;
-color:white;
-}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Escola Digital</title>
 
-.container{
-padding:20px;
-}
+<link rel="stylesheet" href="./style.css">
+<script type="module" src="script.js" defer></script>
+</head>
 
-.card{
-background:white;
-color:black;
-padding:15px;
-margin:10px 0;
-border-radius:10px;
-}
+<body>
 
-input, select, button{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:6px;
-border:none;
-box-sizing:border-box;
-}
+<!-- ================= PORTAL ================= -->
+<section id="portal">
 
-button{
-background:#1e4d8f;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
+<div class="container">
 
-button:hover{
-background:#163a6b;
-}
+<h1>🏫 Escola Digital</h1>
 
-/* DASHBOARD */
-.app{
-display:flex;
-height:100vh;
-}
+<div class="card">
 
-.sidebar{
-width:220px;
-background:#17375e;
-padding:15px;
-display:flex;
-flex-direction:column;
-gap:10px;
-}
+<h2>Criar Escola</h2>
 
-.sidebar button{
-background:#1e4d8f;
-color:white;
-border:none;
-padding:10px;
-border-radius:6px;
-}
+<input id="nomeEscola" placeholder="Nome da Escola">
+<input id="provincia" placeholder="Província">
+<input id="municipio" placeholder="Município">
+<input id="anoLetivo" placeholder="Ano Letivo">
 
-.content{
-flex:1;
-padding:20px;
-background:#0f2747;
-}
+<select id="nivelEnsino">
+<option value="primario">Primário</option>
+<option value="secundario">Secundário</option>
+</select>
 
-.page{display:none;}
-.page.active{display:block;}
+<input id="email" placeholder="Email/Telefone">
+<input id="senhaEscola" type="password" placeholder="Senha">
 
-.hidden{display:none;}
+<button id="btnCriarEscola">Criar Escola</button>
+
+</div>
+
+<div class="card">
+<h2>Escolas Registadas</h2>
+<div id="listaEscolas"></div>
+</div>
+
+<button onclick="abrirSuperAdmin()">🔐 Super Admin</button>
+
+</div>
+
+</section>
+
+<!-- ================= LOGIN ================= -->
+<section id="loginEscola" class="hidden">
+
+<div class="container">
+
+<h2>Login Escola</h2>
+
+<input id="idEscola" placeholder="ID da Escola">
+<input id="senhaLogin" type="password" placeholder="Senha">
+
+<button id="btnLoginEscola">Entrar</button>
+
+</div>
+
+</section>
+
+<!-- ================= SUPER ADMIN ================= -->
+<section id="superAdmin" class="hidden">
+
+<div class="container">
+
+<h2>SUPER ADMIN</h2>
+
+<input id="senhaSuperAdmin" type="password" placeholder="Senha">
+
+<button onclick="validarSuperAdmin()">Entrar</button>
+
+</div>
+
+</section>
+
+<!-- ================= DASHBOARD ================= -->
+<section id="dashboard" class="hidden">
+
+<div class="app">
+
+<aside class="sidebar">
+
+<h3 id="nomeEscolaAtiva"></h3>
+<p id="nivelEscolaAtiva"></p>
+
+<button onclick="showPage('home')">Dashboard</button>
+<button onclick="showPage('alunos')">Alunos</button>
+<button onclick="showPage('professores')">Professores</button>
+<button onclick="showPage('turmas')">Turmas</button>
+<button onclick="showPage('pautas')">Pautas</button>
+<button onclick="showPage('boletins')">Boletins</button>
+
+<button onclick="sair()">Sair</button>
+
+</aside>
+
+<main class="content">
+
+<section id="home" class="page active"><div class="card">Sistema OK</div></section>
+<section id="alunos" class="page"><div class="card">Alunos</div></section>
+<section id="professores" class="page"><div class="card">Professores</div></section>
+<section id="turmas" class="page"><div class="card">Turmas</div></section>
+<section id="pautas" class="page"><div class="card">Pautas</div></section>
+<section id="boletins" class="page"><div class="card">Boletins</div></section>
+
+</main>
+
+</div>
+
+</section>
+
+</body>
+</html>
