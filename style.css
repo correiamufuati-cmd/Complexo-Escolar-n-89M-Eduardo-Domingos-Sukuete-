@@ -1,136 +1,129 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-getDoc,
-doc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-/* ================= FIREBASE ================= */
-const firebaseConfig = {
-apiKey: "SUA_API_KEY",
-authDomain: "escola-digital-47497.firebaseapp.com",
-projectId: "escola-digital-47497"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* ================= STATE ================= */
-let escolaAtual = null;
-
-const $ = (id)=>document.getElementById(id);
-
-/* ================= INIT ================= */
-document.addEventListener("DOMContentLoaded",()=>{
-
-$("btnCriarEscola").onclick = criarEscola;
-$("btnLoginEscola").onclick = loginEscola;
-$("btnCriarAluno").onclick = criarAluno;
-$("btnCriarTurma").onclick = criarTurma;
-
-carregarEscolas();
-});
-
-/* ================= NAV ================= */
-window.showPage = function(id){
-
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-$(id).classList.add("active");
-
-};
-
-window.sair = ()=>location.reload();
-
-/* ================= SUPER ADMIN ================= */
-window.abrirSuperAdmin = function(){
-$("portal").classList.add("hidden");
-$("superAdmin").classList.remove("hidden");
-};
-
-window.validarSuperAdmin = function(){
-
-if($("senhaSuperAdmin").value !== "0987"){
-return alert("Senha errada");
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#d7f1ff;
+color:#0f2747;
 }
 
-$("superAdmin").classList.add("hidden");
-$("superAdminDashboard").classList.remove("hidden");
-
-loadAdmin();
-};
-
-/* ================= PDF ================= */
-window.importarPDF = async function(){
-
-const file = $("pdfFile").files[0];
-const turma = $("turmaPDF").value;
-
-if(!file || !turma) return alert("Preenche tudo");
-
-const pdf = await pdfjsLib.getDocument({
-data: new Uint8Array(await file.arrayBuffer())
-}).promise;
-
-alert("PDF carregado OK");
-
-};
-
-/* ================= ESCOLAS ================= */
-async function criarEscola(){
-
-await addDoc(collection(db,"escolas"),{
-nome:$("nomeEscola").value,
-provincia:$("provincia").value,
-municipio:$("municipio").value,
-ano:$("anoLetivo").value,
-senha:$("senhaEscola").value
-});
-
-carregarEscolas();
+/* ===== CONTAINER ===== */
+.container{
+max-width:1200px;
+margin:auto;
+padding:20px;
 }
 
-async function carregarEscolas(){
-
-const box = $("listaEscolas");
-box.innerHTML="";
-
-const snap = await getDocs(collection(db,"escolas"));
-
-snap.forEach(d=>{
-box.innerHTML += `
-<div class="card">
-${d.data().nome}
-<button onclick="entrar('${d.id}')">Entrar</button>
-</div>`;
-});
+/* ===== TITULOS ===== */
+h1{
+text-align:center;
+font-size:32px;
+margin-bottom:20px;
 }
 
-window.entrar = async function(id){
-escolaAtual = id;
+/* ===== CARDS ===== */
+.card{
+background:white;
+padding:20px;
+margin:15px 0;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,0.12);
+}
 
-$("portal").classList.add("hidden");
-$("loginEscola").classList.remove("hidden");
+/* ===== INPUTS ===== */
+input, select{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:8px;
+border:1px solid #cfd8e3;
+box-sizing:border-box;
+font-size:14px;
+}
 
-$("idEscola").value = id;
-};
+/* ===== BOTÕES ===== */
+button{
+width:100%;
+padding:10px;
+margin-top:6px;
+background:#1e4d8f;
+color:white;
+font-weight:bold;
+border:none;
+border-radius:8px;
+cursor:pointer;
+transition:.2s;
+}
 
-window.loginEscola = async function(){
+button:hover{
+background:#163a6b;
+}
 
-const snap = await getDoc(doc(db,"escolas",$("idEscola").value));
+/* ===== APP LAYOUT ===== */
+.app{
+display:flex;
+height:100vh;
+}
 
-if(!snap.exists()) return alert("Não existe");
-if(snap.data().senha !== $("senhaLogin").value) return alert("Erro");
+/* ===== SIDEBAR ===== */
+.sidebar{
+width:240px;
+background:#0f2747;
+padding:15px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
 
-$("loginEscola").classList.add("hidden");
-$("dashboard").classList.remove("hidden");
+.sidebar h3{
+color:white;
+margin:0;
+}
 
-$("nomeEscolaAtiva").innerText = snap.data().nome;
-};
+.sidebar button{
+background:#1e4d8f;
+}
 
-/* ================= PLACEHOLDER ================= */
-async function criarAluno(){}
-async function criarTurma(){}
-async function loadAdmin(){}
+.sidebar button:hover{
+background:#163a6b;
+}
+
+/* ===== CONTEÚDO ===== */
+.content{
+flex:1;
+padding:20px;
+overflow:auto;
+background:#eef7ff;
+}
+
+/* ===== PÁGINAS ===== */
+.page{
+display:none;
+}
+
+.page.active{
+display:block;
+}
+
+/* ===== ADMIN ===== */
+.adminPage{
+display:none;
+}
+
+/* ===== ESCONDER ===== */
+.hidden{
+display:none;
+}
+
+/* ===== LISTA ESCOLAS ===== */
+#listaEscolas .card{
+border-left:5px solid #1e4d8f;
+}
+
+/* ===== SCROLL ===== */
+::-webkit-scrollbar{
+width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+background:#1e4d8f;
+border-radius:10px;
+}
