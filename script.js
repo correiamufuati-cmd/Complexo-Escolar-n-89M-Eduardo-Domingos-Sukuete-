@@ -37,12 +37,19 @@ document.getElementById("btnSuperAdmin")
 document.getElementById("btnValidarSuperAdmin")
 .addEventListener("click", validarSuperAdmin);
 
+document.querySelectorAll(".pageBtn")
+.forEach(btn=>{
+btn.addEventListener("click", (e)=>{
+showPage(e.target.dataset.page);
+});
+});
+
 carregarEscolas();
 
 });
 
-/* ================= CRIAR ESCOLA ================= */
-async function criarEscola() {
+/* ================= CRIAR ================= */
+async function criarEscola(){
 
 const nome = document.getElementById("nomeEscola").value;
 const provincia = document.getElementById("provincia").value;
@@ -52,7 +59,7 @@ const email = document.getElementById("email").value;
 const senha = document.getElementById("senhaEscola").value;
 
 if(!nome || !senha){
-alert("Preencha os campos!");
+alert("Preencha tudo!");
 return;
 }
 
@@ -71,7 +78,7 @@ alert("Escola criada! ID: " + ref.id);
 carregarEscolas();
 }
 
-/* ================= LISTAR ================= */
+/* ================= LISTA ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -79,7 +86,7 @@ box.innerHTML = "";
 
 const snap = await getDocs(collection(db,"escolas"));
 
-snap.forEach(d => {
+snap.forEach(d=>{
 
 const e = d.data();
 
@@ -88,10 +95,7 @@ box.innerHTML += `
 <h3>${e.nome}</h3>
 <p>ID: ${d.id}</p>
 
-<button onclick="abrirLogin('${d.id}')">
-Entrar
-</button>
-
+<button onclick="abrirLogin('${d.id}')">Entrar</button>
 </div>
 `;
 
@@ -118,7 +122,7 @@ const senha = document.getElementById("senhaLogin").value;
 const snap = await getDoc(doc(db,"escolas",id));
 
 if(!snap.exists()){
-alert("Escola não encontrada");
+alert("Escola não existe");
 return;
 }
 
@@ -150,8 +154,17 @@ function validarSuperAdmin(){
 const senha = document.getElementById("senhaSuperAdmin").value;
 
 if(senha === "0987"){
-alert("Super Admin OK");
-} else {
+
+document.getElementById("superAdmin").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+
+document.getElementById("nomeEscolaAtiva").innerText =
+"SUPER ADMIN";
+
+document.getElementById("nivelEscolaAtiva").innerText =
+"Gestão Geral";
+
+}else{
 alert("Senha errada");
 }
 
@@ -161,7 +174,7 @@ alert("Senha errada");
 window.showPage = function(id){
 
 document.querySelectorAll(".page")
-.forEach(p => p.classList.remove("active"));
+.forEach(p=>p.classList.remove("active"));
 
 document.getElementById(id).classList.add("active");
 
