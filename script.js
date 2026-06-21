@@ -18,25 +18,42 @@ const db = getFirestore(app);
 
 let escolaAtual = null;
 
+/* ================= INICIAR APÓS CARREGAR ================= */
+window.addEventListener("DOMContentLoaded", () => {
+
+document.getElementById("btnCriarEscola").addEventListener("click", criarEscola);
+document.getElementById("btnLoginEscola").addEventListener("click", loginEscola);
+
+carregarEscolas();
+
+});
+
 /* ================= CRIAR ESCOLA ================= */
-document.getElementById("btnCriarEscola").onclick = async ()=>{
+async function criarEscola(){
+
+const nome = document.getElementById("nomeEscola").value;
+const provincia = document.getElementById("provincia").value;
+const municipio = document.getElementById("municipio").value;
+const ano = document.getElementById("anoLetivo").value;
+const nivel = document.getElementById("nivelEnsino").value;
+const email = document.getElementById("email").value;
+const senha = document.getElementById("senhaEscola").value;
+
+if(!nome || !senha){
+alert("Preenche os campos!");
+return;
+}
 
 const ref = await addDoc(collection(db,"escolas"),{
-nome: nomeEscola.value,
-provincia: provincia.value,
-municipio: municipio.value,
-ano: anoLetivo.value,
-nivel: nivelEnsino.value,
-email: email.value,
-senha: senhaEscola.value
+nome, provincia, municipio, ano, nivel, email, senha
 });
 
 alert("Escola criada: " + ref.id);
-carregarEscolas();
 
+carregarEscolas();
 }
 
-/* ================= LISTAR ================= */
+/* ================= LISTAR ESCOLAS ================= */
 async function carregarEscolas(){
 
 const box = document.getElementById("listaEscolas");
@@ -64,30 +81,33 @@ Entrar
 
 }
 
-/* ================= LOGIN ESCOLA ================= */
+/* ================= ABRIR LOGIN ================= */
 window.abrirLogin = function(id,nome){
 
 escolaAtual = id;
 
-portal.classList.add("hidden");
-loginEscola.classList.remove("hidden");
+document.getElementById("portal").classList.add("hidden");
+document.getElementById("loginEscola").classList.remove("hidden");
 
 }
 
-/* ================= VALIDAR ================= */
-document.getElementById("btnLoginEscola").onclick = async ()=>{
+/* ================= LOGIN ================= */
+async function loginEscola(){
 
-const snap = await getDoc(doc(db,"escolas",idEscola.value));
+const id = document.getElementById("idEscola").value;
+const senha = document.getElementById("senhaLogin").value;
 
-if(snap.exists() && snap.data().senha === senhaLogin.value){
+const snap = await getDoc(doc(db,"escolas",id));
+
+if(snap.exists() && snap.data().senha === senha){
 
 const e = snap.data();
 
-loginEscola.classList.add("hidden");
-dashboard.classList.remove("hidden");
+document.getElementById("loginEscola").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
 
-nomeEscolaAtiva.innerText = e.nome;
-nivelEscolaAtiva.innerText = e.nivel;
+document.getElementById("nomeEscolaAtiva").innerText = e.nome;
+document.getElementById("nivelEscolaAtiva").innerText = e.nivel;
 
 }else{
 alert("Erro login");
@@ -96,25 +116,27 @@ alert("Erro login");
 }
 
 /* ================= SUPER ADMIN ================= */
-window.abrirSuperAdmin = ()=>{
+window.abrirSuperAdmin = function(){
 
-portal.classList.add("hidden");
-superAdmin.classList.remove("hidden");
+document.getElementById("portal").classList.add("hidden");
+document.getElementById("superAdmin").classList.remove("hidden");
 
 }
 
-window.validarSuperAdmin = ()=>{
+window.validarSuperAdmin = function(){
 
-if(senhaSuperAdmin.value === "0987"){
+const senha = document.getElementById("senhaSuperAdmin").value;
+
+if(senha === "0987"){
 alert("Super Admin OK");
 }else{
-alert("Erro");
+alert("Senha errada");
 }
 
 }
 
-/* ================= DASHBOARD ================= */
-window.showPage = (id)=>{
+/* ================= NAV ================= */
+window.showPage = function(id){
 
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 document.getElementById(id).classList.add("active");
@@ -122,9 +144,9 @@ document.getElementById(id).classList.add("active");
 }
 
 /* ================= SAIR ================= */
-window.sair = ()=>{
+window.sair = function(){
 
-dashboard.classList.add("hidden");
-portal.classList.remove("hidden");
+document.getElementById("dashboard").classList.add("hidden");
+document.getElementById("portal").classList.remove("hidden");
 
 }
