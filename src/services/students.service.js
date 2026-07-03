@@ -1,66 +1,48 @@
-import { protectPage } from "./authGuard.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 import { app } from "./firebase.js";
 
 const db = getFirestore(app);
-const auth = getAuth(app);
 
-protectPage("gestor");
-
-// 👤 carregar dados do utilizador
-function loadUser() {
-  const user = window.currentUser;
-
-  if (!user) return;
-
-  document.getElementById("userInfo").innerText =
-    `${user.name} - ${user.role}`;
-
-  loadSchool(user.schoolId);
+// ➕ criar aluno
+export async function addStudent(student) {
+  return await addDoc(collection(db, "students"), student);
 }
 
-// 🏫 buscar escola no Firestore
-async function loadSchool(schoolId) {
+// 📋 listar alunos por escola
+export async function getStudentsBySchool(schoolId) {
   const q = query(
-    collection(db, "schools"),
-    where("__name__", "==", schoolId)
+    collection(db, "students"),
+    where("schoolId", "==", schoolId)
   );
 
-  const snap = await getDocs(q);
+  const snapshot = await getDocs(q);
 
-  snap.forEach(doc => {
-    const school = doc.data();
+  let students = [];
 
-    document.getElementById("schoolName").innerText =
-      school.name;
+  snapshot.forEach(docSnap => {
+    students.push({ id: docSnap.id, ...docSnap.data() });
   });
+
+  return students;
 }
 
-// 📊 estatísticas (ainda simples)
-async function loadStats() {
-  const studentsSnap = await getDocs(collection(db, "students"));
-  const teachersSnap = await getDocs(collection(db, "teachers"));
-  const classesSnap = await getDocs(collection(db, "classes"));
-
-  document.getElementById("totalStudents").innerText = studentsSnap.size;
-  document.getElementById("totalTeachers").innerText = teachersSnap.size;
-  document.getElementById("totalClasses").innerText = classesSnap.size;
+// ❌ eliminar aluno
+export async function deleteStudent(id) {
+  return await deleteDoc(doc(db, "students", id));
 }
 
-// 🚪 logout
-function setupLogout() {
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "/login.html";
-  });
+// ✏️ editar aluno
+export async function updateStudent(id, data) {
+  return await updateDoc(doc(db, "students", id), data);
 }
-
-function init() {
-  loadUser();
-  loadStats();
-  setupLogout();
-}
-
-init();
