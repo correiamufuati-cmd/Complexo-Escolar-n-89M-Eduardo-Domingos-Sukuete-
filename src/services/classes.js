@@ -1,79 +1,34 @@
-import {
-  addClass,
-  getClassesBySchool,
-  deleteClass,
-  updateClass
-} from "./classes.service.js";
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Turmas</title>
+  <link rel="stylesheet" href="../styles/dashboard.css">
+</head>
 
-const user = window.currentUser;
+<body>
 
-// ➕ adicionar turma
-document.getElementById("addBtn").addEventListener("click", async () => {
+  <div class="main">
 
-  const name = document.getElementById("name").value;
-  const level = document.getElementById("level").value;
+    <h1>Gestão de Turmas</h1>
 
-  await addClass({
-    name,
-    level,
-    schoolId: user.schoolId
-  });
+    <div class="section">
+      <h2>Criar Turma</h2>
 
-  loadClasses();
-});
+      <input type="text" id="name" placeholder="Nome da turma">
+      <input type="text" id="level" placeholder="Classe">
 
-// 📋 listar
-async function loadClasses() {
+      <button id="addBtn">Adicionar</button>
+    </div>
 
-  const classes = await getClassesBySchool(user.schoolId);
+    <div class="section">
+      <h2>Lista de Turmas</h2>
+      <div id="classesList"></div>
+    </div>
 
-  const list = document.getElementById("classesList");
+  </div>
 
-  list.innerHTML = "";
+  <script type="module" src="../services/classes.js"></script>
 
-  classes.forEach(c => {
-
-    list.innerHTML += `
-      <div style="padding:10px; border:1px solid #ccc; margin:5px;">
-        
-        <b>${c.name}</b> - ${c.level}
-
-        <br><br>
-
-        <button onclick="editClass('${c.id}', '${c.name}', '${c.level}')">
-          Editar
-        </button>
-
-        <button onclick="removeClass('${c.id}')">
-          Eliminar
-        </button>
-
-      </div>
-    `;
-  });
-}
-
-// ❌ eliminar
-window.removeClass = async (id) => {
-  await deleteClass(id);
-  loadClasses();
-};
-
-// ✏️ editar
-window.editClass = async (id, name, level) => {
-
-  const newName = prompt("Novo nome da turma:", name);
-  const newLevel = prompt("Nova classe:", level);
-
-  if (newName) {
-    await updateClass(id, {
-      name: newName,
-      level: newLevel
-    });
-
-    loadClasses();
-  }
-};
-
-// iniciar
-loadClasses();
+</body>
+</html>
