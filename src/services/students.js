@@ -10,21 +10,36 @@ import { getClassesBySchool } from "./classes.service.js";
 const user = window.currentUser;
 
 let classesMap = {};
+let classesList = [];
 
-// 🚀 inicialização
+// 🚀 iniciar tudo
 async function init() {
   await loadClasses();
   await loadStudents();
 }
 
-// 📚 carregar turmas
+// 📚 carregar turmas + preencher dropdown
 async function loadClasses() {
-  const classes = await getClassesBySchool(user.schoolId);
+
+  classesList = await getClassesBySchool(user.schoolId);
+
+  const select = document.getElementById("classSelect");
+
+  select.innerHTML = `
+    <option value="">Selecionar turma</option>
+  `;
 
   classesMap = {};
 
-  classes.forEach(c => {
+  classesList.forEach(c => {
+
     classesMap[c.id] = c.name;
+
+    select.innerHTML += `
+      <option value="${c.id}">
+        ${c.name} - ${c.level}
+      </option>
+    `;
   });
 }
 
@@ -33,7 +48,12 @@ document.getElementById("addBtn").addEventListener("click", async () => {
 
   const name = document.getElementById("name").value;
   const age = document.getElementById("age").value;
-  const classId = document.getElementById("classId").value;
+  const classId = document.getElementById("classSelect").value;
+
+  if (!classId) {
+    alert("Seleciona uma turma!");
+    return;
+  }
 
   await addStudent({
     name,
@@ -91,7 +111,11 @@ window.editStudent = async (id, name, age, classId) => {
 
   const newName = prompt("Nome:", name);
   const newAge = prompt("Idade:", age);
-  const newClass = prompt("ID da turma:", classId);
+
+  const newClass = prompt(
+    "ID da turma (abre dropdown depois vamos melhorar):",
+    classId
+  );
 
   if (newName) {
     await updateStudent(id, {
