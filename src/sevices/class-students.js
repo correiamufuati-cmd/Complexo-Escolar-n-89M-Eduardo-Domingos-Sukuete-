@@ -3,34 +3,30 @@ import { getClassesBySchool } from "./classes.service.js";
 
 const user = window.currentUser;
 
-// 📌 pegar classId da URL
 const params = new URLSearchParams(window.location.search);
 const classId = params.get("classId");
 
-let className = "";
+let classesMap = {};
 
-// 🚀 iniciar
 async function init() {
-
-  await loadClassName();
+  await loadClass();
   await loadStudents();
 }
 
-// 🏫 buscar nome da turma
-async function loadClassName() {
+// 🏫 nome da turma
+async function loadClass() {
 
   const classes = await getClassesBySchool(user.schoolId);
 
-  const cls = classes.find(c => c.id === classId);
+  classes.forEach(c => {
+    classesMap[c.id] = c.name;
+  });
 
-  if (cls) {
-    className = cls.name;
-    document.getElementById("classTitle").innerText =
-      "Turma: " + className;
-  }
+  document.getElementById("title").innerText =
+    "Turma: " + (classesMap[classId] || "Desconhecida");
 }
 
-// 👨‍🎓 buscar alunos da turma
+// 👨‍🎓 alunos da turma
 async function loadStudents() {
 
   const students = await getStudentsBySchool(user.schoolId);
