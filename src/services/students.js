@@ -5,7 +5,28 @@ import {
   updateStudent
 } from "./students.service.js";
 
+import { getClassesBySchool } from "./classes.service.js";
+
 const user = window.currentUser;
+
+let classesMap = {};
+
+// 🚀 inicialização
+async function init() {
+  await loadClasses();
+  await loadStudents();
+}
+
+// 📚 carregar turmas
+async function loadClasses() {
+  const classes = await getClassesBySchool(user.schoolId);
+
+  classesMap = {};
+
+  classes.forEach(c => {
+    classesMap[c.id] = c.name;
+  });
+}
 
 // ➕ adicionar aluno
 document.getElementById("addBtn").addEventListener("click", async () => {
@@ -21,7 +42,7 @@ document.getElementById("addBtn").addEventListener("click", async () => {
     schoolId: user.schoolId
   });
 
-  loadStudents();
+  await loadStudents();
 });
 
 // 📋 listar alunos
@@ -35,14 +56,18 @@ async function loadStudents() {
 
   students.forEach(s => {
 
+    const className = classesMap[s.classId] || "Sem turma";
+
     list.innerHTML += `
       <div style="padding:10px; border:1px solid #ccc; margin:5px;">
         
-        <b>${s.name}</b> - ${s.age} anos - Turma ${s.classId}
+        <b>${s.name}</b> - ${s.age} anos  
+        <br>
+        Turma: ${className}
 
         <br><br>
 
-        <button onclick="editStudent('${s.id}', '${s.name}', ${s.age}, '${s.classId}')">
+        <button onclick="editStudent('${s.id}', '${s.name}', '${s.age}', '${s.classId}')">
           Editar
         </button>
 
@@ -58,15 +83,15 @@ async function loadStudents() {
 // ❌ eliminar
 window.removeStudent = async (id) => {
   await deleteStudent(id);
-  loadStudents();
+  await loadStudents();
 };
 
 // ✏️ editar
 window.editStudent = async (id, name, age, classId) => {
 
-  const newName = prompt("Novo nome:", name);
-  const newAge = prompt("Nova idade:", age);
-  const newClass = prompt("Nova turma:", classId);
+  const newName = prompt("Nome:", name);
+  const newAge = prompt("Idade:", age);
+  const newClass = prompt("ID da turma:", classId);
 
   if (newName) {
     await updateStudent(id, {
@@ -75,9 +100,8 @@ window.editStudent = async (id, name, age, classId) => {
       classId: newClass
     });
 
-    loadStudents();
+    await loadStudents();
   }
 };
 
-// iniciar
-loadStudents();
+init();
