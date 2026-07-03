@@ -1,1 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Alunos</title>
+  <link rel="stylesheet" href="../styles/dashboard.css">
+</head>
 
+<body>
+
+  <div class="main">
+
+    <h1>Gestão de Alunos</h1>
+
+    <!-- FORMULÁRIO -->
+    <div class="section">
+      <h2>Adicionar Aluno</h2>
+
+      <input type="text" id="name" placeholder="Nome do aluno">
+      <input type="number" id="age" placeholder="Idade">
+      <input type="text" id="classId" placeholder="Turma">
+
+      <button id="addBtn">Adicionar</button>
+    </div>
+
+    <!-- LISTA -->
+    <div class="section">
+      <h2>Lista de Alunos</h2>
+      <div id="studentsList"></div>
+    </div>
+
+  </div>
+
+  <script type="module" src="../services/students.js"></script>
+
+</body>
+</html>
