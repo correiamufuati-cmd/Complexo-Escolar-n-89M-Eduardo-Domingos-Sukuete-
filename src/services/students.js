@@ -1,6 +1,10 @@
-import { addStudent, getStudentsBySchool } from "./students.service.js";
+import {
+  addStudent,
+  getStudentsBySchool,
+  deleteStudent,
+  updateStudent
+} from "./students.service.js";
 
-// 👉 pegar utilizador atual (vem do authGuard)
 const user = window.currentUser;
 
 // ➕ adicionar aluno
@@ -17,12 +21,10 @@ document.getElementById("addBtn").addEventListener("click", async () => {
     schoolId: user.schoolId
   });
 
-  alert("Aluno adicionado!");
-
   loadStudents();
 });
 
-// 📋 carregar alunos
+// 📋 listar alunos
 async function loadStudents() {
 
   const students = await getStudentsBySchool(user.schoolId);
@@ -32,13 +34,50 @@ async function loadStudents() {
   list.innerHTML = "";
 
   students.forEach(s => {
+
     list.innerHTML += `
       <div style="padding:10px; border:1px solid #ccc; margin:5px;">
+        
         <b>${s.name}</b> - ${s.age} anos - Turma ${s.classId}
+
+        <br><br>
+
+        <button onclick="editStudent('${s.id}', '${s.name}', ${s.age}, '${s.classId}')">
+          Editar
+        </button>
+
+        <button onclick="removeStudent('${s.id}')">
+          Eliminar
+        </button>
+
       </div>
     `;
   });
 }
 
-// 🚀 iniciar
+// ❌ eliminar
+window.removeStudent = async (id) => {
+  await deleteStudent(id);
+  loadStudents();
+};
+
+// ✏️ editar
+window.editStudent = async (id, name, age, classId) => {
+
+  const newName = prompt("Novo nome:", name);
+  const newAge = prompt("Nova idade:", age);
+  const newClass = prompt("Nova turma:", classId);
+
+  if (newName) {
+    await updateStudent(id, {
+      name: newName,
+      age: newAge,
+      classId: newClass
+    });
+
+    loadStudents();
+  }
+};
+
+// iniciar
 loadStudents();
