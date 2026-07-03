@@ -7,37 +7,51 @@ import { app } from "./firebase.js";
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// 🔐 proteger página
+// 🔐 proteger página (apenas gestores)
 protectPage("gestor");
 
-// 👤 carregar dados do utilizador
-setTimeout(() => {
+// 👤 carregar info do utilizador logado
+function loadUserInfo() {
   const user = window.currentUser;
 
+  if (!user) return;
+
   document.getElementById("userInfo").innerText =
-    `${user.name} (${user.role})`;
+    `${user.name} - ${user.role}`;
 
   document.getElementById("schoolName").innerText =
     user.schoolId;
-}, 1000);
-
-// 📊 carregar estatísticas
-async function loadStats() {
-
-  const studentsSnap = await getDocs(collection(db, "students"));
-  const teachersSnap = await getDocs(collection(db, "teachers"));
-  const classesSnap = await getDocs(collection(db, "classes"));
-
-  document.getElementById("totalStudents").innerText = studentsSnap.size;
-  document.getElementById("totalTeachers").innerText = teachersSnap.size;
-  document.getElementById("totalClasses").innerText = classesSnap.size;
 }
 
-loadStats();
+// 📊 estatísticas da escola
+async function loadStats() {
+  try {
+    const studentsSnap = await getDocs(collection(db, "students"));
+    const teachersSnap = await getDocs(collection(db, "teachers"));
+    const classesSnap = await getDocs(collection(db, "classes"));
+
+    document.getElementById("totalStudents").innerText = studentsSnap.size;
+    document.getElementById("totalTeachers").innerText = teachersSnap.size;
+    document.getElementById("totalClasses").innerText = classesSnap.size;
+
+  } catch (error) {
+    console.error("Erro ao carregar estatísticas:", error);
+  }
+}
 
 // 🚪 logout
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  signOut(auth).then(() => {
+function setupLogout() {
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
     window.location.href = "/login.html";
   });
-});
+}
+
+// 🚀 inicialização
+function initDashboard() {
+  loadUserInfo();
+  loadStats();
+  setupLogout();
+}
+
+initDashboard();
