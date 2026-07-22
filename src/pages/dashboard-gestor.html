@@ -12,58 +12,120 @@
 
   <!-- SIDEBAR -->
   <div class="sidebar">
+
     <h2 id="schoolName">Escola</h2>
 
-    <a href="#">📊 Visão Geral</a>
-    <a href="#">👨‍🎓 Alunos</a>
-    <a href="#">👨‍🏫 Professores</a>
-    <a href="#">🏫 Turmas</a>
+    <a href="dashboard-gestor.html">📊 Visão Geral</a>
+
+    <a href="students.html">👨‍🎓 Alunos</a>
+
+    <a href="teachers.html">👨‍🏫 Professores</a>
+
+    <a href="classes.html">🏫 Turmas</a>
+
     <a href="#">📚 Disciplinas</a>
-    <a href="#">📝 Notas</a>
+
+    <a href="grades.html">📝 Notas</a>
+
     <a href="#">📄 Boletins</a>
+
     <a href="#">⚙️ Definições</a>
 
-    <button id="logoutBtn">Sair</button>
+
+    <button id="logoutBtn">
+      Sair
+    </button>
+
   </div>
+
+
 
   <!-- CONTEÚDO -->
+
   <div class="main">
 
+
     <header>
+
       <h1>Dashboard</h1>
-      <p id="userInfo">Carregando...</p>
+
+      <p id="userInfo">
+        Carregando...
+      </p>
+
     </header>
 
+
+
     <!-- CARDS -->
+
     <div class="cards">
 
+
       <div class="card">
+
         <h3>Alunos</h3>
-        <p id="totalStudents">0</p>
+
+        <p id="totalStudents">
+          0
+        </p>
+
       </div>
 
+
+
       <div class="card">
+
         <h3>Professores</h3>
-        <p id="totalTeachers">0</p>
+
+        <p id="totalTeachers">
+          0
+        </p>
+
       </div>
 
+
+
       <div class="card">
+
         <h3>Turmas</h3>
-        <p id="totalClasses">0</p>
+
+        <p id="totalClasses">
+          0
+        </p>
+
       </div>
+
 
     </div>
+
+
+
 
     <!-- ATIVIDADE -->
+
     <div class="section">
-      <h2>Atividade recente</h2>
+
+      <h2>
+        Atividade recente
+      </h2>
+
+
       <div id="activity">
+
         Nenhuma atividade ainda.
+
       </div>
+
+
     </div>
+
 
   </div>
 
+
+
   <script type="module" src="../services/dashboard-gestor.js"></script>
+
 </body>
-</html>
+      </html>
