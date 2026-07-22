@@ -1,34 +1,67 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <title>Turmas</title>
-  <link rel="stylesheet" href="../styles/dashboard.css">
-</head>
+import {
+  addClass,
+  getClassesBySchool,
+  deleteClass,
+  updateClass
+} from "./classes.service.js";
 
-<body>
+const user = window.currentUser;
 
-  <div class="main">
+// ➕ adicionar turma
+document.getElementById("addBtn").addEventListener("click", async () => {
 
-    <h1>Gestão de Turmas</h1>
+  const name = document.getElementById("name").value;
+  const level = document.getElementById("level").value;
 
-    <div class="section">
-      <h2>Criar Turma</h2>
+  await addClass({
+    name,
+    level,
+    schoolId: user.schoolId
+  });
 
-      <input type="text" id="name" placeholder="Nome da turma">
-      <input type="text" id="level" placeholder="Classe">
+  loadClasses();
+});
 
-      <button id="addBtn">Adicionar</button>
-    </div>
+// 📋 listar turmas
+async function loadClasses() {
 
-    <div class="section">
-      <h2>Lista de Turmas</h2>
-      <div id="classesList"></div>
-    </div>
+  const classes = await getClassesBySchool(user.schoolId);
 
-  </div>
+  const list = document.getElementById("classesList");
 
-  <script type="module" src="../services/classes.js"></script>
+  list.innerHTML = "";
 
-</body>
-</html>
+  classes.forEach(c => {
+
+    list.innerHTML += `
+      <div style="padding:10px; border:1px solid #ccc; margin:5px;">
+        
+        <b>${c.name}</b> - ${c.level}
+
+        <br><br>
+
+        <button onclick="openClass('${c.id}')">
+          Ver alunos
+        </button>
+
+        <button onclick="removeClass('${c.id}')">
+          Eliminar
+        </button>
+
+      </div>
+    `;
+  });
+}
+
+// ❌ eliminar turma
+window.removeClass = async (id) => {
+  await deleteClass(id);
+  loadClasses();
+};
+
+// 🔗 abrir alunos da turma
+window.openClass = (id) => {
+  window.location.href = `/src/pages/class-students.html?classId=${id}`;
+};
+
+loadClasses();
