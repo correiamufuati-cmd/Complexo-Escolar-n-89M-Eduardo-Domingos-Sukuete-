@@ -1,67 +1,113 @@
+import { app } from "./firebase.js";
+
 import {
-  addClass,
-  getClassesBySchool,
-  deleteClass,
-  updateClass
-} from "./classes.service.js";
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-const user = window.currentUser;
 
-// ➕ adicionar turma
-document.getElementById("addBtn").addEventListener("click", async () => {
+const db = getFirestore(app);
 
-  const name = document.getElementById("name").value;
-  const level = document.getElementById("level").value;
 
-  await addClass({
-    name,
-    level,
-    schoolId: user.schoolId
-  });
+// Elementos
+const saveButton = document.getElementById("saveClass");
+const classList = document.getElementById("classList");
 
-  loadClasses();
+
+// Criar turma
+saveButton.addEventListener("click", async () => {
+
+    const name = document.getElementById("className").value;
+    const level = document.getElementById("classLevel").value;
+    const year = document.getElementById("schoolYear").value;
+
+
+    if(!name || !level || !year){
+
+        alert("Preencha todos os campos");
+        return;
+
+    }
+
+
+    await addDoc(collection(db, "turmas"), {
+
+        nome: name,
+        classe: level,
+        anoLetivo: year,
+        criadoEm: serverTimestamp()
+
+    });
+
+
+    alert("Turma criada com sucesso!");
+
+
+    document.getElementById("className").value="";
+    document.getElementById("classLevel").value="";
+    document.getElementById("schoolYear").value="";
+
+
+    carregarTurmas();
+
 });
 
-// 📋 listar turmas
-async function loadClasses() {
 
-  const classes = await getClassesBySchool(user.schoolId);
 
-  const list = document.getElementById("classesList");
+// Mostrar turmas
+async function carregarTurmas(){
 
-  list.innerHTML = "";
+    classList.innerHTML="";
 
-  classes.forEach(c => {
 
-    list.innerHTML += `
-      <div style="padding:10px; border:1px solid #ccc; margin:5px;">
-        
-        <b>${c.name}</b> - ${c.level}
+    const snapshot = await getDocs(collection(db,"turmas"));
 
-        <br><br>
 
-        <button onclick="openClass('${c.id}')">
-          Ver alunos
-        </button>
+    if(snapshot.empty){
 
-        <button onclick="removeClass('${c.id}')">
-          Eliminar
-        </button>
+        classList.innerHTML="Nenhuma turma cadastrada.";
+        return;
 
-      </div>
-    `;
-  });
+    }
+
+
+
+    snapshot.forEach(doc=>{
+
+        const turma = doc.data();
+
+
+        classList.innerHTML += `
+
+        <div class="card">
+
+            <h3>${turma.nome}</h3>
+
+            <p>
+            Classe: ${turma.classe}
+            </p>
+
+            <p>
+            Ano Letivo: ${turma.anoLetivo}
+            </p>
+
+            <button>
+            📄 Importar Lista PDF
+            </button>
+
+        </div>
+
+        `;
+
+    });
+
+
 }
 
-// ❌ eliminar turma
-window.removeClass = async (id) => {
-  await deleteClass(id);
-  loadClasses();
-};
 
-// 🔗 abrir alunos da turma
-window.openClass = (id) => {
-  window.location.href = `/src/pages/class-students.html?classId=${id}`;
-};
 
-loadClasses();
+// iniciar
+carregarTurmas();
