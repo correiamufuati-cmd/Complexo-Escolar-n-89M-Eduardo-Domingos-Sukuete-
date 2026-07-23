@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+<meta charset="UTF-8">
+<title>Teste PDF</title>
+</head>
+
+<body>
+
+<h2>Teste de leitura PDF</h2>
+
+<button id="abrirPDF">
+Escolher PDF
+</button>
+
+
+<script type="module">
+
+import { lerPDF } from "../services/pdf-reader.js";
+
+
+document.getElementById("abrirPDF")
+.onclick = async ()=>{
+
+
+const input = document.createElement("input");
+
+input.type="file";
+input.accept="application/pdf";
+
+
+input.onchange = async ()=>{
+
+
+const arquivo=input.files[0];
+
+
+const texto=await lerPDF(arquivo);
+
+
+console.log(texto);
+
+
+alert("PDF lido. Veja a consola.");
+
+};
+
+
+input.click();
+
+
+};
+
+
+</script>
+
+
+</body>
+</html>
