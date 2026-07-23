@@ -3,24 +3,21 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
 
-// 🔥 CONFIGURAÇÃO FIREBASE (substituir pelos teus dados)
+
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBzfp9Oy7GUPXQi3oq4awzF3HIcvMfXWDw",
+  authDomain: "sigea-49e2d.firebaseapp.com",
+  projectId: "sigea-49e2d",
+  storageBucket: "sigea-49e2d.firebasestorage.app",
+  messagingSenderId: "722428091928",
+  appId: "1:722428091928:web:130f0fddc11586c4076d6d"
 };
 
-// 🚀 inicializar app
+
 export const app = initializeApp(firebaseConfig);
 
-// 🔐 autenticação
 export const auth = getAuth(app);
 
-// 🗄️ base de dados
 export const db = getFirestore(app);
 
-// 📦 armazenamento (imagens, ficheiros, etc.)
 export const storage = getStorage(app);
