@@ -1,4 +1,5 @@
 import { app } from "./firebase.js";
+import { lerPDF } from "./pdf-reader.js";
 
 import {
     getFirestore,
@@ -14,6 +15,7 @@ const db = getFirestore(app);
 
 const saveButton = document.getElementById("saveClass");
 const classList = document.getElementById("classList");
+
 
 
 // Criar turma
@@ -45,9 +47,9 @@ saveButton.addEventListener("click", async () => {
     alert("Turma criada com sucesso!");
 
 
-    document.getElementById("className").value = "";
-    document.getElementById("classLevel").value = "";
-    document.getElementById("schoolYear").value = "";
+    document.getElementById("className").value="";
+    document.getElementById("classLevel").value="";
+    document.getElementById("schoolYear").value="";
 
 
     carregarTurmas();
@@ -56,24 +58,18 @@ saveButton.addEventListener("click", async () => {
 
 
 
+
+
 // Listar turmas
 async function carregarTurmas(){
 
-    classList.innerHTML = "";
+    classList.innerHTML="";
 
 
-    const snapshot = await getDocs(collection(db, "turmas"));
+    const snapshot = await getDocs(collection(db,"turmas"));
 
 
-    if(snapshot.empty){
-
-        classList.innerHTML = "Nenhuma turma cadastrada.";
-        return;
-
-    }
-
-
-    snapshot.forEach(doc => {
+    snapshot.forEach(doc=>{
 
         const turma = doc.data();
 
@@ -116,29 +112,44 @@ async function carregarTurmas(){
 
 
 
-// Preparação para importação PDF
-window.importarPDF = function(idTurma){
 
-    const ficheiro = document.getElementById(
+// Importar PDF
+window.importarPDF = async function(idTurma){
+
+
+    const input = document.getElementById(
         `pdf-${idTurma}`
     );
 
 
-    if(!ficheiro.files[0]){
+    const file = input.files[0];
 
-        alert("Selecione primeiro o PDF da turma");
+
+    if(!file){
+
+        alert("Selecione um PDF primeiro");
         return;
 
     }
 
 
+    const texto = await lerPDF(file);
+
+
+    console.log("Texto encontrado no PDF:");
+
+    console.log(texto);
+
+
     alert(
-        "PDF selecionado. Próxima fase: leitura automática dos alunos."
+        "PDF lido com sucesso! Verifique a consola."
     );
+
 
 };
 
 
 
-// iniciar
+
+
 carregarTurmas();
