@@ -1,38 +1,42 @@
+// Leitor de PDF - primeira fase (teste)
+
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs";
 
 
-// Ler PDF
-export async function lerPDF(file) {
+export async function lerPDF(file){
 
-    const arrayBuffer = await file.arrayBuffer();
+    const dados = await file.arrayBuffer();
 
 
     const pdf = await pdfjsLib.getDocument({
-        data: arrayBuffer
+        data: dados
     }).promise;
 
 
-    let textoCompleto = "";
+    let texto = "";
 
 
-    for(let i = 1; i <= pdf.numPages; i++){
+    for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-        const pagina = await pdf.getPage(i);
-
-        const conteudo = await pagina.getTextContent();
+        const page = await pdf.getPage(pagina);
 
 
-        const textos = conteudo.items.map(
-            item => item.str
-        );
+        const content = await page.getTextContent();
 
 
-        textoCompleto += textos.join(" ") + "\n";
+        content.items.forEach(item => {
+
+            texto += item.str + " ";
+
+        });
+
+
+        texto += "\n";
 
     }
 
 
-    return textoCompleto;
+    return texto;
 
-      }
+}
