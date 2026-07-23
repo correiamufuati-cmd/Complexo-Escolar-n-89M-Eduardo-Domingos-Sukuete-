@@ -1,34 +1,101 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Turmas</title>
-  <link rel="stylesheet" href="../styles/dashboard.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Turmas - SGE</title>
+
+<link rel="stylesheet" href="../styles/dashboard.css">
+
 </head>
 
 <body>
 
-  <div class="main">
+<div class="sidebar">
 
-    <h1>Gestão de Turmas</h1>
+<h2 id="schoolName">Escola</h2>
 
-    <div class="section">
-      <h2>Criar Turma</h2>
+<a href="dashboard-gestor.html">📊 Dashboard</a>
+<a href="classes.html">🏫 Turmas</a>
+<a href="students.html">👨‍🎓 Alunos</a>
+<a href="teachers.html">👨‍🏫 Professores</a>
 
-      <input type="text" id="name" placeholder="Nome da turma">
-      <input type="text" id="level" placeholder="Classe">
+<button id="logoutBtn">
+Sair
+</button>
 
-      <button id="addBtn">Adicionar</button>
-    </div>
+</div>
 
-    <div class="section">
-      <h2>Lista de Turmas</h2>
-      <div id="classesList"></div>
-    </div>
 
-  </div>
+<div class="main">
 
-  <script type="module" src="../services/classes.js"></script>
+<header>
+
+<h1>Gestão de Turmas</h1>
+
+<p id="userInfo">
+Carregando...
+</p>
+
+</header>
+
+
+<div class="card">
+
+<h2>Nova Turma</h2>
+
+
+<input 
+type="text"
+id="className"
+placeholder="Ex: 7ª A"
+/>
+
+
+<input
+type="text"
+id="classLevel"
+placeholder="Classe: Ex: 7ª"
+/>
+
+
+<input
+type="text"
+id="schoolYear"
+placeholder="Ano letivo: 2026"
+/>
+
+
+<button id="saveClass">
+Criar Turma
+</button>
+
+
+</div>
+
+
+
+<div class="card">
+
+<h2>Turmas Existentes</h2>
+
+
+<div id="classList">
+
+Nenhuma turma cadastrada.
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<script type="module" src="../services/classes.js"></script>
+
 
 </body>
   </html>
