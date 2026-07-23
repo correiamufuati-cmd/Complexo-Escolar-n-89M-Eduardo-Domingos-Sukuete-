@@ -1,4 +1,3 @@
-alert("classes.js carregou");
 import { app } from "./firebase.js";
 
 import {
@@ -13,7 +12,6 @@ import {
 const db = getFirestore(app);
 
 
-// Elementos
 const saveButton = document.getElementById("saveClass");
 const classList = document.getElementById("classList");
 
@@ -47,9 +45,9 @@ saveButton.addEventListener("click", async () => {
     alert("Turma criada com sucesso!");
 
 
-    document.getElementById("className").value="";
-    document.getElementById("classLevel").value="";
-    document.getElementById("schoolYear").value="";
+    document.getElementById("className").value = "";
+    document.getElementById("classLevel").value = "";
+    document.getElementById("schoolYear").value = "";
 
 
     carregarTurmas();
@@ -58,25 +56,24 @@ saveButton.addEventListener("click", async () => {
 
 
 
-// Mostrar turmas
+// Listar turmas
 async function carregarTurmas(){
 
-    classList.innerHTML="";
+    classList.innerHTML = "";
 
 
-    const snapshot = await getDocs(collection(db,"turmas"));
+    const snapshot = await getDocs(collection(db, "turmas"));
 
 
     if(snapshot.empty){
 
-        classList.innerHTML="Nenhuma turma cadastrada.";
+        classList.innerHTML = "Nenhuma turma cadastrada.";
         return;
 
     }
 
 
-
-    snapshot.forEach(doc=>{
+    snapshot.forEach(doc => {
 
         const turma = doc.data();
 
@@ -95,9 +92,18 @@ async function carregarTurmas(){
             Ano Letivo: ${turma.anoLetivo}
             </p>
 
-            <button>
-            📄 Importar Lista PDF
+
+            <input 
+            type="file"
+            accept="application/pdf"
+            id="pdf-${doc.id}"
+            >
+
+
+            <button onclick="importarPDF('${doc.id}')">
+                📄 Importar Lista PDF
             </button>
+
 
         </div>
 
@@ -107,6 +113,30 @@ async function carregarTurmas(){
 
 
 }
+
+
+
+// Preparação para importação PDF
+window.importarPDF = function(idTurma){
+
+    const ficheiro = document.getElementById(
+        `pdf-${idTurma}`
+    );
+
+
+    if(!ficheiro.files[0]){
+
+        alert("Selecione primeiro o PDF da turma");
+        return;
+
+    }
+
+
+    alert(
+        "PDF selecionado. Próxima fase: leitura automática dos alunos."
+    );
+
+};
 
 
 
