@@ -1,3 +1,4 @@
+alert("classes.js carregou");
 import { app } from "./firebase.js";
 
 import {
