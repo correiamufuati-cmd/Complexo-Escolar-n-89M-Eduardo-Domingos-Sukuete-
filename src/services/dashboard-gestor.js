@@ -1,66 +1,90 @@
-import { protectPage } from "./authGuard.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-
 import { app } from "./firebase.js";
 
-const db = getFirestore(app);
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-protectPage("gestor");
 
-// 👤 carregar dados do utilizador
-function loadUser() {
-  const user = window.currentUser;
+// ===============================
+// VERIFICAR LOGIN
+// ===============================
+onAuthStateChanged(auth, async (user) => {
 
-  if (!user) return;
+    if (!user) {
+        window.location.href = "../public/login.html";
+        return;
+    }
 
-  document.getElementById("userInfo").innerText =
-    `${user.name} - ${user.role}`;
+    // Email do utilizador
+    document.getElementById("userInfo").textContent = user.email;
 
-  loadSchool(user.schoolId);
+    // Nome da escola (temporário)
+    await carregarEscola();
+
+    // Totais
+    await carregarTotais();
+
+});
+
+
+// ===============================
+// ESCOLA
+// ===============================
+async function carregarEscola() {
+
+    const snapshot = await getDocs(collection(db, "escolas"));
+
+    if (!snapshot.empty) {
+
+        const escola = snapshot.docs[0].data();
+
+        document.getElementById("schoolName").textContent =
+            escola.nome;
+
+    }
+
 }
 
-// 🏫 buscar escola no Firestore
-async function loadSchool(schoolId) {
-  const q = query(
-    collection(db, "schools"),
-    where("__name__", "==", schoolId)
-  );
 
-  const snap = await getDocs(q);
+// ===============================
+// CARTÕES
+// ===============================
+async function carregarTotais() {
 
-  snap.forEach(doc => {
-    const school = doc.data();
+    const alunos = await getDocs(collection(db, "alunos"));
+    const professores = await getDocs(collection(db, "professores"));
+    const turmas = await getDocs(collection(db, "turmas"));
 
-    document.getElementById("schoolName").innerText =
-      school.name;
-  });
+    document.getElementById("totalStudents").textContent =
+        alunos.size;
+
+    document.getElementById("totalTeachers").textContent =
+        professores.size;
+
+    document.getElementById("totalClasses").textContent =
+        turmas.size;
+
 }
 
-// 📊 estatísticas (ainda simples)
-async function loadStats() {
-  const studentsSnap = await getDocs(collection(db, "students"));
-  const teachersSnap = await getDocs(collection(db, "teachers"));
-  const classesSnap = await getDocs(collection(db, "classes"));
 
-  document.getElementById("totalStudents").innerText = studentsSnap.size;
-  document.getElementById("totalTeachers").innerText = teachersSnap.size;
-  document.getElementById("totalClasses").innerText = classesSnap.size;
-}
+// ===============================
+// LOGOUT
+// ===============================
+document.getElementById("logoutBtn").addEventListener("click", async () => {
 
-// 🚪 logout
-function setupLogout() {
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "/login.html";
-  });
-}
 
-function init() {
-  loadUser();
-  loadStats();
-  setupLogout();
-}
+    window.location.href = "../public/login.html";
 
-init();
+});
