@@ -39,6 +39,12 @@ const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
+// teste de ligação
+
+resultado.innerHTML = 
+"pdf-reader carregado!";
+
+
 
 input.addEventListener("change", async()=>{
 
@@ -72,8 +78,7 @@ resultado.innerHTML =
 
 "Leitura concluída:\n\n" +
 
-texto;
-
+(texto || "Nenhum texto encontrado");
 
 
 }
