@@ -1,4 +1,5 @@
 import { app } from "./firebase.js";
+import { lerPDF } from "./pdf-reader.js";
 
 import {
     getFirestore,
@@ -117,7 +118,37 @@ async function carregarTurmas(){
 
 
 // Preparação para importação PDF
-window.importarPDF = function(idTurma){
+window.importarPDF = async function(idTurma){
+
+    const ficheiro = document.getElementById(
+        `pdf-${idTurma}`
+    );
+
+
+    if(!ficheiro.files[0]){
+
+        alert("Selecione primeiro o PDF da turma");
+        return;
+
+    }
+
+
+    const pdf = ficheiro.files[0];
+
+
+    alert("A ler PDF...");
+
+
+    const texto = await lerPDF(pdf);
+
+
+    console.log("Texto encontrado:");
+    console.log(texto);
+
+
+    alert("PDF lido com sucesso. Veja a consola do navegador.");
+
+};
 
     const ficheiro = document.getElementById(
         `pdf-${idTurma}`
