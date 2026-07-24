@@ -1,4 +1,5 @@
-// Leitor de PDF - primeira fase (teste)
+// Leitor d0e PDF - primeira fase (teste)
+console.log("PDF READER FOI CARREGADO");
 
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs";
