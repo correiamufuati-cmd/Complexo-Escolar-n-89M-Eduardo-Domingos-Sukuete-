@@ -32,50 +32,38 @@ const arquivo = input.files[0];
 if(!arquivo) return;
 
 
-console.log("PDF selecionado:", arquivo.name);
-
-
-resultado.innerHTML = 
-"PDF selecionado: " + arquivo.name + "\n\nA ler PDF...";
+resultado.innerHTML =
+"1 - PDF selecionado:\n" +
+arquivo.name +
+"\n\nTamanho: " +
+arquivo.size +
+" bytes";
 
 
 try {
 
 
-console.log("A chamar o leitor PDF...");
+resultado.innerHTML += 
+"\n\n2 - A chamar leitor PDF...";
 
 
 const texto = await lerPDF(arquivo);
 
 
-console.log("Texto recebido:", texto);
+resultado.innerHTML += 
+"\n\n3 - Leitura concluída\n\n";
 
 
-if(texto && texto.trim() !== ""){
-
-
-resultado.innerHTML = texto;
-
-
-}else{
-
-
-resultado.innerHTML =
-"Nenhum texto encontrado no PDF";
-
-
-}
+resultado.innerHTML += 
+texto || "Nenhum texto encontrado";
 
 
 }
 catch(error){
 
 
-console.log("Erro encontrado:", error);
-
-
-resultado.innerHTML =
-"Erro ao ler PDF: " + error.message;
+resultado.innerHTML +=
+"\n\nERRO:\n" + error.message;
 
 
 }
@@ -88,4 +76,4 @@ resultado.innerHTML =
 
 
 </body>
-  </html>
+</html>
