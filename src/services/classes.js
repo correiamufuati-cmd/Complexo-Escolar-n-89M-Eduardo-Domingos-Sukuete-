@@ -15,6 +15,7 @@ const db = getFirestore(app);
 
 const saveButton = document.getElementById("saveClass");
 const classList = document.getElementById("classList");
+console.log("classes.js carregou");
 
 
 // Criar turma
