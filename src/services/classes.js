@@ -132,12 +132,18 @@ window.importarPDF = function(idTurma){
     }
 
 
+    const pdf = ficheiro.files[0];
+
+
     alert(
-        "PDF selecionado. Próxima fase: leitura automática dos alunos."
+        "PDF selecionado:\n\n" +
+        "Nome: " + pdf.name +
+        "\nTamanho: " + 
+        (pdf.size / 1024).toFixed(2) +
+        " KB"
     );
 
 };
-
 
 
 // iniciar
