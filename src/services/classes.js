@@ -16,12 +16,12 @@ const classList = document.getElementById("classList");
 // Criar turma
 saveButton.addEventListener("click", async () => {
 
-    const name = document.getElementById("className").value;
-    const level = document.getElementById("classLevel").value;
-    const year = document.getElementById("schoolYear").value;
+    const name = document.getElementById("className").value.trim();
+    const level = document.getElementById("classLevel").value.trim();
+    const year = document.getElementById("schoolYear").value.trim();
 
     if (!name || !level || !year) {
-        alert("Preencha todos os campos");
+        alert("Preencha todos os campos.");
         return;
     }
 
@@ -46,59 +46,69 @@ async function carregarTurmas() {
 
     classList.innerHTML = "";
 
-    const snapshot = await getDocs(collection(db, "turmas"));
+    try {
 
-    if (snapshot.empty) {
-        classList.innerHTML = "Nenhuma turma cadastrada.";
-        return;
+        const snapshot = await getDocs(collection(db, "turmas"));
+
+        if (snapshot.empty) {
+            classList.innerHTML = "Nenhuma turma cadastrada.";
+            return;
+        }
+
+        snapshot.forEach(doc => {
+
+            const turma = doc.data();
+
+            classList.innerHTML += `
+                <div class="card">
+
+                    <h3>${turma.nome}</h3>
+
+                    <p><strong>Classe:</strong> ${turma.classe}</p>
+
+                    <p><strong>Ano Letivo:</strong> ${turma.anoLetivo}</p>
+
+                    <input
+                        type="file"
+                        accept="application/pdf"
+                        id="pdf-${doc.id}"
+                    >
+
+                    <button onclick="importarPDF('${doc.id}')">
+                        📄 Importar Lista PDF
+                    </button>
+
+                </div>
+            `;
+
+        });
+
+    } catch (erro) {
+
+        alert("Erro ao carregar turmas: " + erro.message);
+
     }
-
-    snapshot.forEach(doc => {
-
-        const turma = doc.data();
-
-        classList.innerHTML += `
-        <div class="card">
-
-            <h3>${turma.nome}</h3>
-
-            <p>Classe: ${turma.classe}</p>
-
-            <p>Ano Letivo: ${turma.anoLetivo}</p>
-
-            <input
-                type="file"
-                accept="application/pdf"
-                id="pdf-${doc.id}"
-            >
-
-            <button onclick="importarPDF('${doc.id}')">
-                📄 Importar Lista PDF
-            </button>
-
-        </div>
-        `;
-    });
 
 }
 
-// Importar PDF (teste)
+// Teste de seleção do PDF
 window.importarPDF = function(idTurma) {
 
     const ficheiro = document.getElementById(`pdf-${idTurma}`);
 
-    if (!ficheiro.files[0]) {
-        alert("Selecione primeiro o PDF da turma");
+    if (!ficheiro || !ficheiro.files[0]) {
+        alert("Selecione primeiro o PDF da turma.");
         return;
     }
 
     const pdf = ficheiro.files[0];
 
     alert(
-        "PDF selecionado:\n\n" +
+        "PDF selecionado!\n\n" +
         "Nome: " + pdf.name +
         "\nTamanho: " + (pdf.size / 1024).toFixed(2) + " KB"
     );
+
 };
 
 // Iniciar
