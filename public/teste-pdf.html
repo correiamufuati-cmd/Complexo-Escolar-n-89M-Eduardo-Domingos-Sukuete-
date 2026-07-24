@@ -35,10 +35,21 @@ if(!arquivo) return;
 resultado.innerHTML = "A ler PDF...";
 
 
+try {
+
 const texto = await lerPDF(arquivo);
 
+resultado.innerHTML = texto || "Nenhum texto encontrado no PDF";
 
-resultado.innerHTML = texto;
+}
+catch(error){
+
+console.log(error);
+
+resultado.innerHTML =
+"Erro ao ler PDF: " + error.message;
+
+  }
 
 
 });
