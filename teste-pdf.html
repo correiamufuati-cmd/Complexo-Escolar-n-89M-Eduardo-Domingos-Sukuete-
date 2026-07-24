@@ -31,18 +31,16 @@ accept="application/pdf"
 <script type="module">
 
 
+import { lerPDF } from "./services/pdf-reader.js";
+
+
 const input = document.getElementById("pdfFile");
 
 const resultado = document.getElementById("resultado");
 
 
 
-resultado.innerHTML = 
-"JavaScript carregado com sucesso";
-
-
-
-input.addEventListener("change", ()=>{
+input.addEventListener("change", async()=>{
 
 
 const arquivo = input.files[0];
@@ -57,16 +55,40 @@ return;
 
 
 resultado.innerHTML =
-
 "PDF selecionado:\n" +
-
 arquivo.name +
+"\n\nA iniciar leitura...";
 
-"\n\nTamanho:\n" +
 
-arquivo.size +
 
-" bytes";
+try{
+
+
+const texto = await lerPDF(arquivo);
+
+
+
+resultado.innerHTML =
+
+"Leitura concluída:\n\n" +
+
+texto;
+
+
+
+}
+
+catch(erro){
+
+
+resultado.innerHTML =
+
+"Erro:\n" +
+
+erro.message;
+
+
+}
 
 
 
@@ -80,4 +102,4 @@ arquivo.size +
 
 </body>
 
-  </html>
+</html>
