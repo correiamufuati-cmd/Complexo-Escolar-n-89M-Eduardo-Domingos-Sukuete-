@@ -1,5 +1,5 @@
 import { app } from "./firebase.js";
-import { lerPDF } from "./pdf-reader.js";
+// import { lerPDF } from "./pdf-reader.js";
 
 import {
     getFirestore,
@@ -119,7 +119,7 @@ async function carregarTurmas(){
 
 
 // Preparação para importação PDF
-window.importarPDF = async function(idTurma){
+// window.importarPDF = async function(idTurma){
 
     const ficheiro = document.getElementById(`pdf-${idTurma}`);
 
