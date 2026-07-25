@@ -244,24 +244,25 @@ window.importarPDF = async function(idTurma){
 
 
 
-try{
+    try{
 
 
-const texto = await lerPDF(ficheiro.files[0]);
+        const texto = await lerPDF(ficheiro.files[0]);
 
 
-alert(texto);
+        alert(texto);
 
 
-}catch(erro){
+
+    }catch(erro){
 
 
-alert(
-"Erro: " + erro.message
-);
+        alert(
+        "Erro: " + erro.message
+        );
 
 
-}
+    }
 
 
 };
