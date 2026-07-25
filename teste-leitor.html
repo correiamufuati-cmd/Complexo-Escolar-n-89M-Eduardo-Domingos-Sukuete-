@@ -18,51 +18,36 @@
 
 <script>
 
+async function lerPDF(file){
+
+    return "Leitor funcionando: " + file.name;
+
+}
+
+
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
-if(typeof lerPDF === "function"){
-
-    resultado.innerHTML = "PDF-READER encontrado";
-
-}else{
-
-    resultado.innerHTML = "PDF-READER NÃO encontrado";
-
-}
-
+resultado.innerHTML = "Leitor dentro da página";
 
 
 input.addEventListener("change", async function(){
 
     const arquivo = input.files[0];
 
-
-    resultado.innerHTML =
-    "A ler PDF...";
+    resultado.innerHTML = "A ler...";
 
 
-    try{
-
-        const texto = await lerPDF(arquivo);
+    const texto = await lerPDF(arquivo);
 
 
-        resultado.innerHTML =
-        "Texto encontrado:\n\n" +
-        (texto || "Nenhum texto encontrado");
+    resultado.innerHTML = texto;
 
-
-    }catch(erro){
-
-        resultado.innerHTML =
-        "Erro: " + erro.message;
-
-    }
 
 });
 
-</script>
+    </script>
 
 </body>
 
