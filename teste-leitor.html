@@ -14,7 +14,8 @@
 
 <pre id="resultado"></pre>
 
-
+<script src="services/pdf-reader.js"></script>
+    
 <script>
 
 function lerPDF(file){
@@ -39,21 +40,32 @@ if(typeof lerPDF === "function"){
 }
 
 
-input.addEventListener("change", function(){
+input.addEventListener("change", async function(){
 
     const arquivo = input.files[0];
 
     resultado.innerHTML =
-    "A chamar pdf-reader...\n\n";
+    "A ler PDF...";
 
 
-    const resposta = lerPDF(arquivo);
+    try{
+
+        const texto = await lerPDF(arquivo);
 
 
-    resultado.innerHTML += resposta;
+        resultado.innerHTML =
+        "Texto encontrado:\n\n" +
+        (texto || "Nenhum texto encontrado");
+
+
+    }catch(erro){
+
+        resultado.innerHTML =
+        "Erro: " + erro.message;
+
+    }
 
 });
-
 
 </script>
 </body>
