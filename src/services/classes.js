@@ -8,130 +8,291 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+
 const db = getFirestore(app);
+
 
 const saveButton = document.getElementById("saveClass");
 const classList = document.getElementById("classList");
 
-// Criar turma
-saveButton.addEventListener("click", async () => {
+
+// ===============================
+// CRIAR TURMA
+// ===============================
+
+saveButton.addEventListener("click", async()=>{
+
 
     const name = document.getElementById("className").value.trim();
+
     const level = document.getElementById("classLevel").value.trim();
+
     const year = document.getElementById("schoolYear").value.trim();
 
-    if (!name || !level || !year) {
+
+
+    if(!name || !level || !year){
+
         alert("Preencha todos os campos.");
+
         return;
+
     }
 
-    await addDoc(collection(db, "turmas"), {
-        nome: name,
-        classe: level,
-        anoLetivo: year,
-        criadoEm: serverTimestamp()
+
+
+    await addDoc(collection(db,"turmas"),{
+
+
+        nome:name,
+
+        classe:level,
+
+        anoLetivo:year,
+
+        criadoEm:serverTimestamp()
+
+
     });
+
+
 
     alert("Turma criada com sucesso!");
 
-    document.getElementById("className").value = "";
-    document.getElementById("classLevel").value = "";
-    document.getElementById("schoolYear").value = "";
+
+
+    document.getElementById("className").value="";
+
+    document.getElementById("classLevel").value="";
+
+    document.getElementById("schoolYear").value="";
+
+
 
     carregarTurmas();
+
+
+
 });
 
-// Listar turmas
-async function carregarTurmas() {
 
-    classList.innerHTML = "";
 
-    try {
 
-        const snapshot = await getDocs(collection(db, "turmas"));
+// ===============================
+// LISTAR TURMAS
+// ===============================
 
-        if (snapshot.empty) {
-            classList.innerHTML = "Nenhuma turma cadastrada.";
+
+async function carregarTurmas(){
+
+
+    classList.innerHTML="";
+
+
+    try{
+
+
+        const snapshot = await getDocs(
+            collection(db,"turmas")
+        );
+
+
+
+        if(snapshot.empty){
+
+
+            classList.innerHTML =
+            "Nenhuma turma cadastrada.";
+
             return;
+
         }
 
-        snapshot.forEach(doc => {
+
+
+        snapshot.forEach(doc=>{
+
 
             const turma = doc.data();
 
+
+
             classList.innerHTML += `
-                <div class="card">
 
-                    <h3>${turma.nome}</h3>
 
-                    <p><strong>Classe:</strong> ${turma.classe}</p>
+            <div class="card">
 
-                    <p><strong>Ano Letivo:</strong> ${turma.anoLetivo}</p>
 
-                    <input
-                        type="file"
-                        accept="application/pdf"
-                        id="pdf-${doc.id}"
-                    >
+                <h3>${turma.nome}</h3>
 
-                    <button onclick="importarPDF('${doc.id}')">
-                        📄 Importar Lista PDF
-                    </button>
 
-                </div>
+                <p>
+                <strong>Classe:</strong>
+                ${turma.classe}
+                </p>
+
+
+                <p>
+                <strong>Ano Letivo:</strong>
+                ${turma.anoLetivo}
+                </p>
+
+
+
+                <input
+
+                type="file"
+
+                accept="application/pdf"
+
+                id="pdf-${doc.id}"
+
+                >
+
+
+
+                <button onclick="importarPDF('${doc.id}')">
+
+                📄 Importar Lista PDF
+
+                </button>
+
+
+            </div>
+
+
             `;
+
+
 
         });
 
-    } catch (erro) {
 
-        alert("Erro ao carregar turmas: " + erro.message);
+
+    }catch(erro){
+
+
+        alert(
+        "Erro ao carregar turmas: "
+        + erro.message
+        );
+
 
     }
+
 
 }
 
-// Teste de seleção do PDF
-window.importarPDF = async function(idTurma) {
 
-    const ficheiro = document.getElementById(`pdf-${idTurma}`);
 
-    if (!ficheiro || !ficheiro.files[0]) {
-        alert("Selecione primeiro o PDF da turma.");
+
+
+// ===============================
+// IMPORTAR PDF
+// ===============================
+
+
+window.importarPDF = async function(idTurma){
+
+
+
+    const ficheiro =
+    document.getElementById(`pdf-${idTurma}`);
+
+
+
+    if(!ficheiro || !ficheiro.files[0]){
+
+
+        alert(
+        "Selecione primeiro o PDF da turma."
+        );
+
+
         return;
+
+
     }
+
+
+
 
     const pdf = ficheiro.files[0];
 
-    try {
 
-        alert("A ler o PDF...");
+
+    try{
+
+
+        alert(
+        "A ler o PDF..."
+        );
+
+
 
         const texto = await lerPDF(pdf);
 
-        if (!texto || texto.trim() === "") {
 
-            alert("O PDF não contém texto ou está vazio.");
+
+
+        if(!texto || texto.trim()===""){
+
+
+            alert(
+            "PDF sem texto."
+            );
+
+
             return;
+
 
         }
 
-        alert(
-            "Leitura concluída!\n\n" +
-            texto.substring(0, 1000)
-        );
 
-    } catch (erro) {
+
 
         alert(
-            "Erro ao ler o PDF:\n\n" +
-            erro.message
+
+        "Leitura concluída!\n\n"
+
+        +
+
+        texto.substring(0,1000)
+
         );
+
+
+
+
+    }catch(erro){
+
+
+
+        alert(
+
+        "Erro ao ler PDF:\n"
+
+        +
+
+        erro.message
+
+        );
+
 
     }
+
 
 
 };
 
-// Iniciar
+
+
+
+
+
+// ===============================
+// INICIAR
+// ===============================
+
+
 carregarTurmas();
