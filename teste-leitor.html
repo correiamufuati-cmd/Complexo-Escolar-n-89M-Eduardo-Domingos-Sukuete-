@@ -29,6 +29,10 @@ async function lerPDF(file){
 
 }
 
+    return "PDF.js carregado com sucesso";
+
+}
+
     const pdf = await pdfjsLib.getDocument({
         data: dados
     }).promise;
