@@ -1,8 +1,5 @@
-console.log("PDF READER CARREGADO");
-
-
 export async function lerPDF(file){
 
-    return "PDF recebido: " + file.name;
+    return "PDF recebido com sucesso: " + file.name;
 
 }
