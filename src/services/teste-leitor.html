@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<h2>Teste leitor</h2>
+
+<input type="file" id="pdfFile">
+
+
+<script type="module">
+
+import { lerPDF } from "./services/pdf-reader.js";
+
+
+const input = document.getElementById("pdfFile");
+
+
+input.onchange = async()=>{
+
+
+const arquivo = input.files[0];
+
+
+const resultado = await lerPDF(arquivo);
+
+
+alert(resultado);
+
+
+};
+
+
+</script>
+
+
+</body>
+
+</html>
