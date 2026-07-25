@@ -88,9 +88,10 @@ saveButton.addEventListener("click", async()=>{
 
 
         console.error(erro);
-alert(
-"Erro: " + erro.message
-);
+
+        alert(
+            "Erro: " + erro.message
+        );
 
     }
 
@@ -218,7 +219,7 @@ async function carregarTurmas(){
 
 
 // ===============================
-// TESTE IMPORTAR PDF
+// IMPORTAR PDF E GUARDAR ALUNOS
 // ===============================
 
 window.importarPDF = async function(idTurma){
@@ -238,10 +239,66 @@ window.importarPDF = async function(idTurma){
     }
 
 
+
     try{
 
 
         const alunos = await lerPDF(ficheiro.files[0]);
+
+
+
+        // ===============================
+        // GUARDAR ALUNOS NO FIREBASE
+        // ===============================
+
+        for(const aluno of alunos){
+
+
+            await addDoc(
+
+                collection(
+                    db,
+                    "turmas",
+                    idTurma,
+                    "alunos"
+                ),
+
+                {
+
+                    numero: aluno.numero,
+
+                    nome: aluno.nome,
+
+                    sexo: aluno.sexo,
+
+                    dataNascimento: aluno.data,
+
+                    idade: aluno.idade,
+
+                    criadoEm: serverTimestamp()
+
+                }
+
+            );
+
+
+        }
+
+
+
+
+        alert(
+            alunos.length + 
+            " alunos guardados com sucesso!"
+        );
+
+
+
+
+
+        // ===============================
+        // MOSTRAR NA TELA
+        // ===============================
 
 
         let tabela = `
@@ -251,14 +308,21 @@ window.importarPDF = async function(idTurma){
 <table border="1" cellpadding="8">
 
 <tr>
+
 <th>Nº</th>
+
 <th>Nome Completo</th>
+
 <th>Sexo</th>
+
 <th>Data Nascimento</th>
+
 <th>Idade</th>
+
 </tr>
 
 `;
+
 
 
 alunos.forEach(aluno=>{
@@ -286,7 +350,9 @@ tabela += `
 });
 
 
+
 tabela += "</table>";
+
 
 
 studentList.innerHTML = tabela;
@@ -294,6 +360,9 @@ studentList.innerHTML = tabela;
 
 
     }catch(erro){
+
+
+        console.error(erro);
 
 
         alert(
