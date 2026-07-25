@@ -1,7 +1,5 @@
 import { app } from "./firebase.js";
 
-import { lerPDF } from "./services/pdf-reader.js";
-
 import {
     getFirestore,
     collection,
