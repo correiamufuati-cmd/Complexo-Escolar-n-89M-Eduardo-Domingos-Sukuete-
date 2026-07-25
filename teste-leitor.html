@@ -2,107 +2,160 @@
 <html lang="pt">
 
 <head>
+
 <meta charset="UTF-8">
 <title>Teste PDF</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    padding:20px;
+}
+
+
+table{
+
+    border-collapse: collapse;
+    width:100%;
+    margin-top:20px;
+
+}
+
+
+th,td{
+
+    border:1px solid #000;
+    padding:8px;
+    text-align:left;
+
+}
+
+
+th{
+
+    background:#ddd;
+
+}
+
+</style>
+
 </head>
+
 
 <body>
 
-<h2>VERSÃO NOVA DO TESTE</h2>
 
-<input type="file" id="pdfFile" accept="application/pdf">
+<h2>LEITOR PDF - PAUTA ESCOLAR</h2>
 
-<pre id="resultado"></pre>
+
+<input 
+type="file" 
+id="pdfFile" 
+accept="application/pdf"
+>
+
+
+<div id="resultado">
+
+Página carregada
+
+</div>
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
+
 <script>
 
+
 const input = document.getElementById("pdfFile");
+
 const resultado = document.getElementById("resultado");
 
 
-resultado.innerHTML = "Página carregada";
-
-function criarTabela(texto){
-
-    let html = `
-
-    <table border="1" cellpadding="5">
-
-    <tr>
-        <th>Nº</th>
-        <th>Nome Completo</th>
-        <th>Sexo</th>
-        <th>Data Nascimento</th>
-        <th>Idade</th>
-        <th>Obs</th>
-    </tr>
-
-    `;
 
 
-    const linhas = texto.split(/\n/);
+
+function extrairDadosTurma(items){
 
 
-    linhas.forEach(linha=>{
-
-        linha = linha.trim();
-
-
-        if(/^\d+\s/.test(linha)){
+    const texto = items
+    .map(item => item.str.trim())
+    .join(" ");
 
 
-            const numero = linha.match(/^\d+/)[0];
+
+    let classe = "";
+
+    let turma = "";
+
+    let ano = "";
 
 
-            let resto = linha.replace(numero,"").trim();
+
+    const c = texto.match(/Classe:\s*(\d+)/);
 
 
-            let sexo = resto.match(/\s(M|F)\s/);
+    if(c){
+
+        classe = c[1] + "ª";
+
+    }
 
 
-            if(sexo){
+
+    const t = texto.match(/Turma:\s*([A-Z])/);
 
 
-                const nome = resto.substring(
-                    0,
-                    sexo.index
-                ).trim();
+    if(t){
+
+        turma = t[1];
+
+    }
 
 
-                resto = resto.substring(
-                    sexo.index + sexo[0].length
-                );
+
+    const a = texto.match(/202\s?\d\s*\/\s*202\s?\d/);
 
 
-                const data = resto.match(
-                /\d+\s-\s\d+\s-\s\d+/
-                );
+    if(a){
+
+        ano = a[0];
+
+    }
 
 
-                const idade = resto.match(
-                /\d+\s?(anos|Ano|anos\s?)/i
-                );
+
+    return {
+
+        classe,
+        turma,
+        ano
+
+    };
 
 
-                html += `
+}
 
-                <tr>
 
-                <td>${numero}</td>
 
-                <td>${nome}</td>
 
-                <td>${sexo[1]}</td>
 
-   function extrairAlunos(items){
+
+
+function extrairAlunos(items){
+
 
     let alunos = [];
 
+
     let iniciar = false;
 
+
     let i = 0;
+
 
 
     while(i < items.length){
@@ -111,7 +164,7 @@ function criarTabela(texto){
         let valor = items[i].str.trim();
 
 
-        // Encontrar o início da tabela
+
         if(valor === "N°"){
 
             iniciar = true;
@@ -121,6 +174,7 @@ function criarTabela(texto){
             continue;
 
         }
+
 
 
         if(!iniciar){
@@ -133,8 +187,10 @@ function criarTabela(texto){
 
 
 
-        // Encontrou número do aluno
+
+
         if(/^\d+$/.test(valor)){
+
 
 
             let numero = valor;
@@ -143,19 +199,25 @@ function criarTabela(texto){
             i++;
 
 
+
             let nome = "";
 
             let sexo = "";
 
 
 
-            // Capturar nome até M ou F
+
+
             while(i < items.length){
+
+
 
                 let campo = items[i].str.trim();
 
 
+
                 if(campo === "M" || campo === "F"){
+
 
                     sexo = campo;
 
@@ -164,32 +226,45 @@ function criarTabela(texto){
                 }
 
 
+
+
                 if(campo !== ""){
+
 
                     nome += campo + " ";
 
                 }
 
 
+
                 i++;
+
 
             }
 
 
+
+
             i++;
+
 
 
             let data = "";
 
 
 
-            // Capturar data
+
+
             while(i < items.length){
+
+
 
                 let campo = items[i].str.trim();
 
 
+
                 if(/^\d{4}$/.test(campo)){
+
 
                     data += campo;
 
@@ -200,16 +275,24 @@ function criarTabela(texto){
                 }
 
 
+
+
                 if(campo !== ""){
 
-                    data += campo;
+
+                    data += campo + " ";
 
                 }
 
 
+
                 i++;
 
+
             }
+
+
+
 
 
 
@@ -217,37 +300,47 @@ function criarTabela(texto){
 
 
 
-            // Capturar idade
+
             while(i < items.length){
+
+
 
                 let campo = items[i].str.trim();
 
 
-                if(/\d+/.test(campo) && 
-                   (campo.includes("ano") || campo.includes("Anos"))){
+
+                if(/\d+\s?(anos|Anos|ano)/i.test(campo)){
+
 
                     idade = campo;
 
                     break;
 
+
                 }
 
 
+
                 i++;
+
 
             }
 
 
 
+
+
+
             alunos.push({
+
 
                 numero,
 
-                nome: nome.trim(),
+                nome:nome.trim(),
 
                 sexo,
 
-                data,
+                data:data.trim(),
 
                 idade
 
@@ -255,171 +348,188 @@ function criarTabela(texto){
             });
 
 
+
         }
+
+
 
 
         i++;
 
+
+
     }
+
+
 
 
     return alunos;
 
-} 
 
-<td>${data ? data[0] : ""}</td>
-
-                <td>${idade ? idade[0] : ""}</td>
-
-                <td></td>
-
-                </tr>
-
-                `;
-
-            }
-
-        }
-
-
-    });
-
-
-    html += "</table>";
-
-
-    return html;
 
 }
-    
-
-    }
-
-    function extrairDadosTurma(items){
-
-    let dados = {
-
-        classe: "",
-        turma: "",
-        ano: ""
-
-    };
 
 
-    const texto = items
-    .map(item => item.str.trim())
-    .join(" ");
 
 
-    const classe = texto.match(/Classe:\s*(\d+)/);
-
-    if(classe){
-
-        dados.classe = classe[1] + "ª";
-
-    }
 
 
-    const turma = texto.match(/Turma:\s*([A-Z])/);
-
-    if(turma){
-
-        dados.turma = turma[1];
-
-    }
 
 
-    const ano = texto.match(/202\s?\d\s*\/\s*202\s?\d/);
-
-    if(ano){
-
-        dados.ano = ano[0];
-
-    }
+input.addEventListener("change", async()=>{
 
 
-    return dados;
 
-    }
-    
-input.addEventListener("change", async function(){
-
-    const arquivo = input.files[0];
-
-    if(!arquivo){
-        return;
-    }
+const arquivo = input.files[0];
 
 
-    resultado.innerHTML =
-    "A ler PDF: " + arquivo.name;
+
+if(!arquivo){
+
+return;
+
+}
 
 
-    try {
 
 
-        const dados = await arquivo.arrayBuffer();
+resultado.innerHTML =
+
+"A ler PDF: " + arquivo.name;
 
 
-        const pdf = await pdfjsLib.getDocument({
-            data: dados
-        }).promise;
 
 
-        let texto = "";
+
+try{
 
 
-        for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-    const page = await pdf.getPage(pagina);
-
-    const content = await page.getTextContent();
-            const dadosTurma = extrairDadosTurma(content.items);
+const dados = await arquivo.arrayBuffer();
 
 
-    resultado.innerHTML +=
-    "\nPágina " + pagina +
-    " elementos: " + content.items.length;
+
+const pdf = await pdfjsLib.getDocument({
+
+data:dados
+
+}).promise;
 
 
-    const alunos = extrairAlunos(content.items);
 
-            let cabecalho = `
 
-<h3>Complexo Escolar Nº89 M "Eduardo Domingos Sukuete"</h3>
+
+let todosAlunos = [];
+
+let dadosTurma = {};
+
+
+
+
+
+
+for(let pagina=1; pagina<=pdf.numPages; pagina++){
+
+
+
+const page = await pdf.getPage(pagina);
+
+
+
+const content = await page.getTextContent();
+
+
+
+
+
+dadosTurma = extrairDadosTurma(content.items);
+
+
+
+
+const alunos = extrairAlunos(content.items);
+
+
+
+todosAlunos.push(...alunos);
+
+
+
+
+}
+
+
+
+
+
+
+
+let html = `
+
+
+
+<h3>
+Complexo Escolar Nº89 M "Eduardo Domingos Sukuete"
+</h3>
+
 
 <p>
+
 <strong>Classe:</strong> ${dadosTurma.classe}
+
 <br>
 
+
 <strong>Turma:</strong> ${dadosTurma.turma}
+
+
 <br>
+
 
 <strong>Ano Lectivo:</strong> ${dadosTurma.ano}
 
+
 </p>
 
-`;
 
-let tabela = `
 
-<table border="1" cellpadding="5">
+
+
+<table>
+
 
 <tr>
+
 <th>Nº</th>
-<th>Nome</th>
+
+<th>Nome Completo</th>
+
 <th>Sexo</th>
-<th>Data</th>
+
+<th>Data Nascimento</th>
+
 <th>Idade</th>
+
+
 </tr>
+
+
+
 
 `;
 
 
-alunos.forEach(aluno=>{
 
 
-tabela += `
+
+
+
+todosAlunos.forEach(aluno=>{
+
+
+
+html += `
+
 
 <tr>
 
@@ -433,36 +543,58 @@ tabela += `
 
 <td>${aluno.idade}</td>
 
+
 </tr>
+
+
 
 `;
 
 
+
 });
 
 
-tabela += "</table>";
 
 
-resultado.innerHTML = cabecalho + tabela;
+
+
+
+html += "</table>";
+
+
+
+
+
+resultado.innerHTML = html;
+
+
+
+
+
+}catch(erro){
+
+
+
+resultado.innerHTML =
+
+"Erro ao ler PDF: " + erro.message;
+
+
 
 }
 
 
-resultado.innerHTML += "\n\n" + texto.substring(0,3000);
 
-
-    } catch(erro){
-
-        resultado.innerHTML =
-        "Erro ao ler PDF: " + erro.message;
-
-    }
 
 
 });
 
+
+
 </script>
+
+
 </body>
 
-</html>
+    </html>
