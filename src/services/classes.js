@@ -232,16 +232,11 @@ window.importarPDF = async function(idTurma){
 
     if(!ficheiro || !ficheiro.files[0]){
 
-
-        alert(
-        "Escolha primeiro o PDF."
-        );
-
+        alert("Escolha primeiro o PDF.");
 
         return;
 
     }
-
 
 
     try{
@@ -250,12 +245,9 @@ window.importarPDF = async function(idTurma){
         const alunos = await lerPDF(ficheiro.files[0]);
 
 
-console.log(alunos);
-
-
-alert(
-"Alunos encontrados: " + alunos.length
-);
+        alert(
+            "Alunos encontrados: " + alunos.length
+        );
 
 
         console.log(alunos);
@@ -266,7 +258,7 @@ alert(
 
 
         alert(
-        "Erro: " + erro.message
+            "Erro: " + erro.message
         );
 
 
