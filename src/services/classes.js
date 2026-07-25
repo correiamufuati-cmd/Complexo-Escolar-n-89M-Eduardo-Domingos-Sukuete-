@@ -258,7 +258,7 @@ alert(
 );
 
 
-        alert(texto);
+        console.log(alunos);
 
 
 
