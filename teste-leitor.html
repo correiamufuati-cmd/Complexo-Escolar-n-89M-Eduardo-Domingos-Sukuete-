@@ -15,44 +15,26 @@
 <pre id="resultado"></pre>
 
 
-<script type="module">
-
-import { lerPDF } from "/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/services/pdf-reader.js";
+<script>
 
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
-resultado.innerHTML = "Leitor carregado!";
+resultado.innerHTML = "JavaScript normal carregado!";
 
 
-input.addEventListener("change", async()=>{
+input.addEventListener("change", ()=>{
 
 
 const arquivo = input.files[0];
 
-if(!arquivo) return;
-
-
-resultado.innerHTML = "A chamar leitor PDF...";
-
-
-try {
-
-const texto = await lerPDF(arquivo);
-
 
 resultado.innerHTML =
-"Resultado:\n\n" + texto;
 
+"Arquivo escolhido:\n" +
 
-}
-catch(erro){
-
-resultado.innerHTML =
-"Erro:\n" + erro.message;
-
-}
+arquivo.name;
 
 
 });
