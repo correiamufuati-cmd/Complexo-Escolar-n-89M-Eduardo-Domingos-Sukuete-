@@ -19,13 +19,15 @@
 
 async function lerPDF(file){
 
-    const dados = await file.arrayBuffer();
-
+    resultado.innerHTML = "Recebi o PDF: " + file.name;
 
     const pdfjsLib = await import(
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs"
     );
 
+    return "PDF.js carregado com sucesso";
+
+}
 
     const pdf = await pdfjsLib.getDocument({
         data: dados
