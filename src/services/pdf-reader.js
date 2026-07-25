@@ -44,78 +44,55 @@ export async function lerPDF(file){
 
 function extrairAlunos(items){
 
-
     let alunos = [];
 
-    let iniciar = false;
+    let inicio = false;
 
 
-    let i = 0;
-
-
-
-    while(i < items.length){
+    for(let i = 0; i < items.length; i++){
 
 
         let valor = items[i].str.trim();
 
 
-
         if(valor === "N°"){
-
-
-            iniciar = true;
-
-            i++;
-
+            inicio = true;
             continue;
-
         }
 
 
-
-        if(!iniciar){
-
-            i++;
-
+        if(!inicio){
             continue;
-
         }
 
 
-
-
-        if(/^\d+$/.test(valor)){
+        // número do aluno
+        if(/^\d+$/.test(valor) && Number(valor) <= 100){
 
 
             let numero = valor;
 
+            let nome = "";
+            let sexo = "";
+            let data = "";
+            let idade = "";
+
 
             i++;
 
 
-            let nome = "";
-
-            let sexo = "";
-
-
-
+            // nome até encontrar sexo
             while(i < items.length){
-
 
                 let campo = items[i].str.trim();
 
 
-
                 if(campo === "M" || campo === "F"){
 
-
                     sexo = campo;
-
                     break;
 
                 }
-
 
 
                 if(campo !== ""){
@@ -125,9 +102,41 @@ function extrairAlunos(items){
                 }
 
 
-
                 i++;
 
+            }
+
+
+
+            if(!sexo){
+                continue;
+            }
+
+
+
+            i++;
+
+
+            // data nascimento
+            while(i < items.length){
+
+                let campo = items[i].str.trim();
+
+
+                if(/\d{4}/.test(campo)){
+
+                    data += campo;
+                    break;
+
+                }
+
+
+                if(campo !== ""){
+                    data += campo + " ";
+                }
+
+
+                i++;
 
             }
 
@@ -137,70 +146,21 @@ function extrairAlunos(items){
 
 
 
-            let data = "";
-
-
-
+            // idade
             while(i < items.length){
-
 
                 let campo = items[i].str.trim();
 
 
-
-                if(/^\d{4}$/.test(campo)){
-
-
-                    data += campo;
-
-                    i++;
-
-                    break;
-
-                }
-
-
-
-                if(campo !== ""){
-
-
-                    data += campo + " ";
-
-                }
-
-
-
-                i++;
-
-            }
-
-
-
-
-            let idade = "";
-
-
-
-            while(i < items.length){
-
-
-                let campo = items[i].str.trim();
-
-
-
-                if(/\d+\s?(anos|Anos|ano)/i.test(campo)){
-
+                if(/anos|Anos|ano/i.test(campo)){
 
                     idade = campo;
-
                     break;
 
                 }
 
 
-
                 i++;
-
 
             }
 
@@ -209,31 +169,20 @@ function extrairAlunos(items){
             alunos.push({
 
                 numero,
-
                 nome:nome.trim(),
-
                 sexo,
-
                 data:data.trim(),
-
                 idade
 
             });
 
 
-
         }
-
-
-
-        i++;
 
 
     }
 
 
-
     return alunos;
 
-
-            }
+}
