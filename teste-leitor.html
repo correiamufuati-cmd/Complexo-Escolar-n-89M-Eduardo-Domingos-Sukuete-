@@ -24,7 +24,72 @@ const resultado = document.getElementById("resultado");
 
 resultado.innerHTML = "Página carregada";
 
+function criarTabela(texto){
 
+    const linhas = texto.split("\n");
+
+
+    let html = `
+
+    <table border="1" cellpadding="5">
+
+    <tr>
+        <th>Nº</th>
+        <th>Nome Completo</th>
+        <th>Sexo</th>
+        <th>Data Nascimento</th>
+        <th>Idade</th>
+        <th>Obs</th>
+    </tr>
+
+    `;
+
+
+    linhas.forEach(linha=>{
+
+
+        linha = linha.trim();
+
+
+        if(/^\d+\s/.test(linha)){
+
+
+            const partes = linha.split(/\s{2,}/);
+
+
+            html += `
+
+            <tr>
+
+            <td>${partes[0] || ""}</td>
+
+            <td>${partes[1] || ""}</td>
+
+            <td>${partes[2] || ""}</td>
+
+            <td>${partes[3] || ""}</td>
+
+            <td>${partes[4] || ""}</td>
+
+            <td>${partes[5] || ""}</td>
+
+            </tr>
+
+            `;
+
+        }
+
+
+    });
+
+
+    html += "</table>";
+
+
+    return html;
+
+    }
+    
 input.addEventListener("change", async function(){
 
     const arquivo = input.files[0];
