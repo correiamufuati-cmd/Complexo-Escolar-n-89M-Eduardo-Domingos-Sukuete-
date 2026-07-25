@@ -1,5 +1,5 @@
-export async function lerPDF(file){
+export function lerPDF(file){
 
-    return "Funcionou! Recebi o ficheiro: " + file.name;
+    return "Ligação OK: " + file.name;
 
 }
