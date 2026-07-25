@@ -26,9 +26,6 @@ resultado.innerHTML = "Página carregada";
 
 function criarTabela(texto){
 
-    const linhas = texto.split("\n");
-
-
     let html = `
 
     <table border="1" cellpadding="5">
@@ -45,8 +42,10 @@ function criarTabela(texto){
     `;
 
 
-    linhas.forEach(linha=>{
+    const linhas = texto.split(/\n/);
 
+
+    linhas.forEach(linha=>{
 
         linha = linha.trim();
 
@@ -54,28 +53,60 @@ function criarTabela(texto){
         if(/^\d+\s/.test(linha)){
 
 
-            const partes = linha.split(/\s{2,}/);
+            const numero = linha.match(/^\d+/)[0];
 
 
-            html += `
+            let resto = linha.replace(numero,"").trim();
 
-            <tr>
 
-            <td>${partes[0] || ""}</td>
+            let sexo = resto.match(/\s(M|F)\s/);
 
-            <td>${partes[1] || ""}</td>
 
-            <td>${partes[2] || ""}</td>
+            if(sexo){
 
-            <td>${partes[3] || ""}</td>
 
-            <td>${partes[4] || ""}</td>
+                const nome = resto.substring(
+                    0,
+                    sexo.index
+                ).trim();
 
-            <td>${partes[5] || ""}</td>
 
-            </tr>
+                resto = resto.substring(
+                    sexo.index + sexo[0].length
+                );
 
-            `;
+
+                const data = resto.match(
+                /\d+\s-\s\d+\s-\s\d+/
+                );
+
+
+                const idade = resto.match(
+                /\d+\s?(anos|Ano|anos\s?)/i
+                );
+
+
+                html += `
+
+                <tr>
+
+                <td>${numero}</td>
+
+                <td>${nome}</td>
+
+                <td>${sexo[1]}</td>
+
+                <td>${data ? data[0] : ""}</td>
+
+                <td>${idade ? idade[0] : ""}</td>
+
+                <td></td>
+
+                </tr>
+
+                `;
+
+            }
 
         }
 
@@ -88,7 +119,7 @@ function criarTabela(texto){
 
     return html;
 
-    }
+}
     
 input.addEventListener("change", async function(){
 
