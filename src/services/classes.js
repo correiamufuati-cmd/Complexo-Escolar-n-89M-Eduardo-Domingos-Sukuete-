@@ -244,12 +244,52 @@ window.importarPDF = async function(idTurma){
         const alunos = await lerPDF(ficheiro.files[0]);
 
 
-        alert(
-            "Alunos encontrados: " + alunos.length
-        );
+        let tabela = `
+
+<h3>Lista de Alunos</h3>
+
+<table border="1" cellpadding="8">
+
+<tr>
+<th>Nº</th>
+<th>Nome Completo</th>
+<th>Sexo</th>
+<th>Data Nascimento</th>
+<th>Idade</th>
+</tr>
+
+`;
 
 
-        console.log(alunos);
+alunos.forEach(aluno=>{
+
+
+tabela += `
+
+<tr>
+
+<td>${aluno.numero}</td>
+
+<td>${aluno.nome}</td>
+
+<td>${aluno.sexo}</td>
+
+<td>${aluno.data}</td>
+
+<td>${aluno.idade}</td>
+
+</tr>
+
+`;
+
+
+});
+
+
+tabela += "</table>";
+
+
+classList.innerHTML += tabela;
 
 
 
