@@ -16,7 +16,7 @@ const db = getFirestore(app);
 
 const saveButton = document.getElementById("saveClass");
 const classList = document.getElementById("classList");
-
+const studentList = document.getElementById("studentList");
 
 
 // ===============================
@@ -289,7 +289,7 @@ tabela += `
 tabela += "</table>";
 
 
-classList.innerHTML += tabela;
+studentList.innerHTML = tabela;
 
 
 
