@@ -29,7 +29,13 @@ input.addEventListener("change", function(){
     const arquivo = input.files[0];
 
     resultado.innerHTML =
-lerPDF(arquivo);
+    "A chamar pdf-reader...\n\n";
+
+
+    const resposta = lerPDF(arquivo);
+
+
+    resultado.innerHTML += resposta;
 
 });
 
