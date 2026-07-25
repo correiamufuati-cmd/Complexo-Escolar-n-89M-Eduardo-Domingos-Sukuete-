@@ -222,7 +222,7 @@ async function carregarTurmas(){
 // TESTE IMPORTAR PDF
 // ===============================
 
-window.importarPDF = function(idTurma){
+window.importarPDF = async function(idTurma){
 
 
     const ficheiro =
