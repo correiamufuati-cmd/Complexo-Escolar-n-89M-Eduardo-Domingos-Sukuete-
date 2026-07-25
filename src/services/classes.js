@@ -1,7 +1,5 @@
 import { app } from "./firebase.js";
 
-import { lerPDF } from "./services/pdf-reader.js";
-
 import {
     getFirestore,
     collection,
@@ -18,6 +16,7 @@ const saveButton = document.getElementById("saveClass");
 const classList = document.getElementById("classList");
 
 
+
 // ===============================
 // CRIAR TURMA
 // ===============================
@@ -25,11 +24,16 @@ const classList = document.getElementById("classList");
 saveButton.addEventListener("click", async()=>{
 
 
-    const name = document.getElementById("className").value.trim();
+    const name =
+    document.getElementById("className").value.trim();
 
-    const level = document.getElementById("classLevel").value.trim();
 
-    const year = document.getElementById("schoolYear").value.trim();
+    const level =
+    document.getElementById("classLevel").value.trim();
+
+
+    const year =
+    document.getElementById("schoolYear").value.trim();
 
 
 
@@ -42,35 +46,52 @@ saveButton.addEventListener("click", async()=>{
     }
 
 
-    await addDoc(collection(db,"turmas"),{
+
+    try{
 
 
-        nome:name,
-
-        classe:level,
-
-        anoLetivo:year,
-
-        criadoEm:serverTimestamp()
+        await addDoc(collection(db,"turmas"),{
 
 
-    });
+            nome:name,
+
+            classe:level,
+
+            anoLetivo:year,
+
+            criadoEm:serverTimestamp()
 
 
-
-    alert("Turma criada com sucesso!");
-
-
-
-    document.getElementById("className").value="";
-
-    document.getElementById("classLevel").value="";
-
-    document.getElementById("schoolYear").value="";
+        });
 
 
 
-    carregarTurmas();
+        alert("Turma criada com sucesso!");
+
+
+
+        document.getElementById("className").value="";
+
+        document.getElementById("classLevel").value="";
+
+        document.getElementById("schoolYear").value="";
+
+
+
+        carregarTurmas();
+
+
+
+    }catch(erro){
+
+
+        alert(
+        "Erro ao criar turma: "
+        + erro.message
+        );
+
+
+    }
 
 
 
@@ -79,23 +100,28 @@ saveButton.addEventListener("click", async()=>{
 
 
 
+
 // ===============================
 // LISTAR TURMAS
 // ===============================
 
-
 async function carregarTurmas(){
 
 
-    classList.innerHTML="";
+    classList.innerHTML =
+    "A carregar turmas...";
+
 
 
     try{
 
 
-        const snapshot = await getDocs(
-            collection(db,"turmas")
-        );
+        const snapshot =
+        await getDocs(collection(db,"turmas"));
+
+
+
+        classList.innerHTML="";
 
 
 
@@ -104,6 +130,7 @@ async function carregarTurmas(){
 
             classList.innerHTML =
             "Nenhuma turma cadastrada.";
+
 
             return;
 
@@ -124,7 +151,9 @@ async function carregarTurmas(){
             <div class="card">
 
 
-                <h3>${turma.nome}</h3>
+                <h3>
+                ${turma.nome}
+                </h3>
 
 
                 <p>
@@ -165,7 +194,6 @@ async function carregarTurmas(){
             `;
 
 
-
         });
 
 
@@ -173,13 +201,12 @@ async function carregarTurmas(){
     }catch(erro){
 
 
-        alert(
-        "Erro ao carregar turmas: "
-        + erro.message
-        );
+        classList.innerHTML =
+        "Erro: " + erro.message;
 
 
     }
+
 
 
 }
@@ -188,13 +215,12 @@ async function carregarTurmas(){
 
 
 
+
 // ===============================
-// IMPORTAR PDF
+// TESTE IMPORTAR PDF
 // ===============================
 
-
-window.importarPDF = async function(idTurma){
-
+window.importarPDF = function(idTurma){
 
 
     const ficheiro =
@@ -206,82 +232,21 @@ window.importarPDF = async function(idTurma){
 
 
         alert(
-        "Selecione primeiro o PDF da turma."
+        "Escolha primeiro o PDF."
         );
 
 
         return;
 
-
     }
 
 
 
-
-    const pdf = ficheiro.files[0];
-
-
-
-    try{
-
-
-        alert(
-        "A ler o PDF..."
-        );
-
-
-
-        const texto = await lerPDF(pdf);
-
-
-
-
-        if(!texto || texto.trim()===""){
-
-
-            alert(
-            "PDF sem texto."
-            );
-
-
-            return;
-
-
-        }
-
-
-
-
-        alert(
-
-        "Leitura concluída!\n\n"
-
-        +
-
-        texto.substring(0,1000)
-
-        );
-
-
-
-
-    }catch(erro){
-
-
-
-        alert(
-
-        "Erro ao ler PDF:\n"
-
-        +
-
-        erro.message
-
-        );
-
-
-    }
-
+    alert(
+    "PDF selecionado: "
+    +
+    ficheiro.files[0].name
+    );
 
 
 };
@@ -294,6 +259,5 @@ window.importarPDF = async function(idTurma){
 // ===============================
 // INICIAR
 // ===============================
-
 
 carregarTurmas();
