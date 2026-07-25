@@ -155,16 +155,41 @@ input.addEventListener("change", async function(){
             const content = await page.getTextContent();
 
 
-            content.items.forEach(item => {
+            console.log(content.items);
+
+content.items.forEach(item => {
 
     texto += item.str + " | ";
+
+});
 
 });
 
         }
 
 
-        resultado.innerHTML = texto.substring(0,3000);
+        for(let pagina = 1; pagina <= pdf.numPages; pagina++){
+
+    const page = await pdf.getPage(pagina);
+
+    const content = await page.getTextContent();
+
+
+    resultado.innerHTML +=
+    "\nPágina " + pagina +
+    " elementos: " + content.items.length;
+
+
+    content.items.forEach(item => {
+
+        texto += item.str + " | ";
+
+    });
+
+}
+
+
+resultado.innerHTML += "\n\n" + texto.substring(0,3000);
 
 
     } catch(erro){
