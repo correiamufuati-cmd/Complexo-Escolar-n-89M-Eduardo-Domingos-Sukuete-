@@ -24,16 +24,26 @@ const resultado = document.getElementById("resultado");
 resultado.innerHTML = "Página carregada";
 
 
-input.onchange = function(){
+input.addEventListener("change", function(e){
 
-    const arquivo = input.files[0];
+    const arquivo = e.target.files[0];
+
+
+    if(!arquivo){
+
+        resultado.innerHTML = "Nenhum ficheiro";
+        return;
+
+    }
+
 
     resultado.innerHTML =
     "Escolhido: " + arquivo.name;
 
-};
 
-</script>
+});
+
+    </script>
 </body>
 
     </html>
