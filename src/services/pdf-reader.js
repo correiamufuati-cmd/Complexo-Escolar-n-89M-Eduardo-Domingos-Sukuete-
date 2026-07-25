@@ -1,5 +1,5 @@
 function lerPDF(file){
 
-    return "Ligação OK: " + file.name;
+    return "PDF recebido com sucesso: " + file.name;
 
 }
