@@ -1,5 +1,5 @@
 function lerPDF(file){
 
-    return "PDF recebido com sucesso: " + file.name;
+    return "PDF-READER FUNCIONOU: " + file.name;
 
 }
