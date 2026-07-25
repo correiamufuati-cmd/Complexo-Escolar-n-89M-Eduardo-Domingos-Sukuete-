@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>TESTE NOVO SGE</title>
+<title>Teste PDF</title>
 </head>
 
 <body>
@@ -24,37 +24,36 @@ const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
-resultado.innerHTML = "Teste novo carregado";
+resultado.innerHTML = "Leitor carregado!";
 
 
 input.addEventListener("change", async()=>{
 
 
-    const arquivo = input.files[0];
+const arquivo = input.files[0];
 
-    if(!arquivo) return;
-
-
-    resultado.innerHTML = "Chamando leitor PDF...";
+if(!arquivo) return;
 
 
-    try {
-
-        const texto = await lerPDF(arquivo);
+resultado.innerHTML = "A chamar leitor PDF...";
 
 
-        resultado.innerHTML =
-        "LEITURA CONCLUÍDA:\n\n" +
-        texto;
+try {
+
+const texto = await lerPDF(arquivo);
 
 
-    } catch(erro) {
+resultado.innerHTML =
+"Resultado:\n\n" + texto;
 
-        resultado.innerHTML =
-        "ERRO:\n" +
-        erro.message;
 
-    }
+}
+catch(erro){
+
+resultado.innerHTML =
+"Erro:\n" + erro.message;
+
+}
 
 
 });
@@ -64,4 +63,4 @@ input.addEventListener("change", async()=>{
 
 </body>
 
-  </html>
+    </html>
