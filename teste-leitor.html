@@ -120,6 +120,137 @@ function criarTabela(texto){
     return html;
 
 }
+    function extrairAlunos(items){
+
+    let alunos = [];
+
+    let i = 0;
+
+
+    while(i < items.length){
+
+
+        let valor = items[i].str.trim();
+
+
+        // Encontrou número do aluno
+        if(/^\d+$/.test(valor)){
+
+
+            let numero = valor;
+
+            i++;
+
+
+            let nome = "";
+
+            let sexo = "";
+
+
+            // Ler nome até encontrar M ou F
+            while(i < items.length){
+
+                let campo = items[i].str.trim();
+
+
+                if(campo === "M" || campo === "F"){
+
+                    sexo = campo;
+                    break;
+
+                }
+
+
+                if(campo !== ""){
+
+                    nome += campo + " ";
+
+                }
+
+
+                i++;
+
+            }
+
+
+            i++;
+
+
+            let data = "";
+
+
+            // Ler data (dia - mês - ano)
+            while(i < items.length){
+
+                let campo = items[i].str.trim();
+
+
+                if(/\d{4}/.test(campo)){
+
+                    data += campo;
+                    i++;
+                    break;
+
+                }
+
+
+                if(campo !== ""){
+
+                    data += campo;
+
+                }
+
+
+                i++;
+
+            }
+
+
+            let idade = "";
+
+
+            // Ler idade
+            while(i < items.length){
+
+                let campo = items[i].str.trim();
+
+
+                if(/\d+\s?(anos|Anos|ano)/i.test(campo)){
+
+                    idade = campo;
+                    break;
+
+                }
+
+
+                i++;
+
+            }
+
+
+            alunos.push({
+
+                numero,
+                nome: nome.trim(),
+                sexo,
+                data,
+                idade
+
+            });
+
+
+        }
+
+
+        i++;
+
+
+    }
+
+
+    return alunos;
+
+    }
     
 input.addEventListener("change", async function(){
 
@@ -160,11 +291,53 @@ input.addEventListener("change", async function(){
     " elementos: " + content.items.length;
 
 
-    content.items.forEach(item => {
+    const alunos = extrairAlunos(content.items);
 
-        texto += item.str + " | ";
 
-    });
+let tabela = `
+
+<table border="1" cellpadding="5">
+
+<tr>
+<th>Nº</th>
+<th>Nome</th>
+<th>Sexo</th>
+<th>Data</th>
+<th>Idade</th>
+</tr>
+
+`;
+
+
+alunos.forEach(aluno=>{
+
+
+tabela += `
+
+<tr>
+
+<td>${aluno.numero}</td>
+
+<td>${aluno.nome}</td>
+
+<td>${aluno.sexo}</td>
+
+<td>${aluno.data}</td>
+
+<td>${aluno.idade}</td>
+
+</tr>
+
+`;
+
+
+});
+
+
+tabela += "</table>";
+
+
+resultado.innerHTML = tabela;
 
 }
 
