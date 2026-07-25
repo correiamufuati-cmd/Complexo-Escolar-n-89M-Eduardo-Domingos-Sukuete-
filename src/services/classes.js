@@ -1,5 +1,7 @@
 import { app } from "./firebase.js";
 
+import { lerPDF } from "./services/pdf-reader.js";
+
 import {
     getFirestore,
     collection,
@@ -242,11 +244,24 @@ window.importarPDF = function(idTurma){
 
 
 
-    alert(
-    "PDF selecionado: "
-    +
-    ficheiro.files[0].name
-    );
+try{
+
+
+const texto = await lerPDF(ficheiro.files[0]);
+
+
+alert(texto);
+
+
+}catch(erro){
+
+
+alert(
+"Erro: " + erro.message
+);
+
+
+}
 
 
 };
