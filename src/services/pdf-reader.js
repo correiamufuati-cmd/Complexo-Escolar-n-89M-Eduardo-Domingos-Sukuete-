@@ -1,8 +1,9 @@
-console.log("PDF READER OK");
-
-
 export async function lerPDF(file){
 
-    return "Teste: PDF recebido com sucesso - " + file.name;
+    const texto = 
+    "PDF recebido: " + file.name +
+    "\nTamanho: " + file.size + " bytes";
+
+    return texto;
 
 }
