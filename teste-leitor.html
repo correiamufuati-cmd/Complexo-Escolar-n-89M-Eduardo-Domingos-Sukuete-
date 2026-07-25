@@ -150,26 +150,6 @@ input.addEventListener("change", async function(){
 
         for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-            const page = await pdf.getPage(pagina);
-
-            const content = await page.getTextContent();
-
-
-            console.log(content.items);
-
-content.items.forEach(item => {
-
-    texto += item.str + " | ";
-
-});
-
-});
-
-        }
-
-
-        for(let pagina = 1; pagina <= pdf.numPages; pagina++){
-
     const page = await pdf.getPage(pagina);
 
     const content = await page.getTextContent();
