@@ -17,72 +17,43 @@
 
 <script>
 
-async function lerPDF(file){
-
-    resultado.innerHTML = "Recebi o PDF: " + file.name;
-
-    const pdfjsLib = await import(
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs"
-    );
-
-    return "PDF.js carregado com sucesso";
-
-}
-
-    return "PDF.js carregado com sucesso";
-
-}
-
-    const pdf = await pdfjsLib.getDocument({
-        data: dados
-    }).promise;
-
-
-    let texto = "";
-
-
-    for(let pagina = 1; pagina <= pdf.numPages; pagina++){
-
-        const page = await pdf.getPage(pagina);
-
-        const content = await page.getTextContent();
-
-
-        content.items.forEach(item => {
-
-            texto += item.str + " ";
-
-        });
-
-
-        texto += "\n\n";
-
-    }
-
-
-    return texto;
-
-    }
-
-
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
-resultado.innerHTML = "Leitor dentro da página";
+resultado.innerHTML = "Página carregada";
 
 
 input.addEventListener("change", async function(){
 
     const arquivo = input.files[0];
 
-    resultado.innerHTML = "A ler...";
+    if(!arquivo){
+        return;
+    }
 
 
-    const texto = await lerPDF(arquivo);
+    resultado.innerHTML =
+    "Ficheiro recebido: " + arquivo.name;
 
 
-    resultado.innerHTML = texto;
+    try {
+
+        const pdfjsLib = await import(
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs"
+        );
+
+
+        resultado.innerHTML +=
+        "\n\nPDF.js carregado!";
+
+
+    } catch(erro){
+
+        resultado.innerHTML =
+        "Erro PDF.js: " + erro.message;
+
+    }
 
 
 });
