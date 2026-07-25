@@ -17,28 +17,48 @@
 
 <script type="module">
 
+import { lerPDF } from "./services/pdf-reader.js";
+
+
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
-resultado.innerHTML = "JavaScript funcionando!";
+resultado.innerHTML = "Teste novo carregado";
 
 
-input.addEventListener("change", ()=>{
+input.addEventListener("change", async()=>{
+
 
     const arquivo = input.files[0];
 
     if(!arquivo) return;
 
 
-    resultado.innerHTML =
-    "Escolhido:\n" +
-    arquivo.name +
-    "\n\nTamanho:\n" +
-    arquivo.size + " bytes";
+    resultado.innerHTML = "Chamando leitor PDF...";
+
+
+    try {
+
+        const texto = await lerPDF(arquivo);
+
+
+        resultado.innerHTML =
+        "LEITURA CONCLUÍDA:\n\n" +
+        texto;
+
+
+    } catch(erro) {
+
+        resultado.innerHTML =
+        "ERRO:\n" +
+        erro.message;
+
+    }
 
 
 });
+
 
 </script>
 
