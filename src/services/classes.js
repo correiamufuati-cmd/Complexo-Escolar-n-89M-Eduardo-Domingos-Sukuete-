@@ -54,7 +54,6 @@ saveButton.addEventListener("click", async()=>{
 
         await addDoc(collection(db,"turmas"),{
 
-
             nome:name,
 
             classe:level,
@@ -62,7 +61,6 @@ saveButton.addEventListener("click", async()=>{
             anoLetivo:year,
 
             criadoEm:serverTimestamp()
-
 
         });
 
@@ -86,7 +84,6 @@ saveButton.addEventListener("click", async()=>{
 
     }catch(erro){
 
-
         console.error(erro);
 
         alert(
@@ -96,9 +93,7 @@ saveButton.addEventListener("click", async()=>{
     }
 
 
-
 });
-
 
 
 
@@ -190,6 +185,15 @@ async function carregarTurmas(){
                 </button>
 
 
+
+                <button onclick="verAlunos('${doc.id}')">
+
+                👨‍🎓 Ver Alunos
+
+                </button>
+
+
+
             </div>
 
 
@@ -210,9 +214,7 @@ async function carregarTurmas(){
     }
 
 
-
 }
-
 
 
 
@@ -240,19 +242,21 @@ window.importarPDF = async function(idTurma){
 
 
 
-  try{
+    try{
 
 
-    const alunos = await lerPDF(ficheiro.files[0]);
-
-    console.log("Alunos encontrados:", alunos);
-
-    alert("Quantidade de alunos: " + alunos.length);
+        const alunos =
+        await lerPDF(ficheiro.files[0]);
 
 
-        // ===============================
-        // GUARDAR ALUNOS NO FIREBASE
-        // ===============================
+
+        alert(
+            "Quantidade de alunos: " 
+            + alunos.length
+        );
+
+
+
 
         for(const aluno of alunos){
 
@@ -289,76 +293,14 @@ window.importarPDF = async function(idTurma){
 
 
 
-
         alert(
-            alunos.length + 
+            alunos.length +
             " alunos guardados com sucesso!"
         );
 
 
 
-
-
-        // ===============================
-        // MOSTRAR NA TELA
-        // ===============================
-
-
-        let tabela = `
-
-<h3>Lista de Alunos</h3>
-
-<table border="1" cellpadding="8">
-
-<tr>
-
-<th>Nº</th>
-
-<th>Nome Completo</th>
-
-<th>Sexo</th>
-
-<th>Data Nascimento</th>
-
-<th>Idade</th>
-
-</tr>
-
-`;
-
-
-
-alunos.forEach(aluno=>{
-
-
-tabela += `
-
-<tr>
-
-<td>${aluno.numero}</td>
-
-<td>${aluno.nome}</td>
-
-<td>${aluno.sexo}</td>
-
-<td>${aluno.data}</td>
-
-<td>${aluno.idade}</td>
-
-</tr>
-
-`;
-
-
-});
-
-
-
-tabela += "</table>";
-
-
-
-studentList.innerHTML = tabela;
+        mostrarTabela(alunos);
 
 
 
@@ -374,6 +316,166 @@ studentList.innerHTML = tabela;
 
 
     }
+
+
+};
+
+
+
+
+
+
+
+// ===============================
+// MOSTRAR TABELA
+// ===============================
+
+function mostrarTabela(alunos){
+
+
+    let tabela = `
+
+
+<h3>Lista de Alunos</h3>
+
+
+<table border="1" cellpadding="8">
+
+
+<tr>
+
+<th>Nº</th>
+
+<th>Nome Completo</th>
+
+<th>Sexo</th>
+
+<th>Data Nascimento</th>
+
+<th>Idade</th>
+
+
+</tr>
+
+
+`;
+
+
+
+alunos.forEach(aluno=>{
+
+
+tabela += `
+
+
+<tr>
+
+
+<td>${aluno.numero || ""}</td>
+
+
+<td>${aluno.nome || ""}</td>
+
+
+<td>${aluno.sexo || ""}</td>
+
+
+<td>${aluno.data || ""}</td>
+
+
+<td>${aluno.idade || ""}</td>
+
+
+</tr>
+
+
+`;
+
+
+});
+
+
+
+tabela += "</table>";
+
+
+
+studentList.innerHTML = tabela;
+
+
+}
+
+
+
+
+
+// ===============================
+// CARREGAR ALUNOS DO FIREBASE
+// ===============================
+
+async function carregarAlunosDaTurma(idTurma){
+
+
+    try{
+
+
+        const snapshot =
+        await getDocs(
+
+            collection(
+                db,
+                "turmas",
+                idTurma,
+                "alunos"
+            )
+
+        );
+
+
+
+        let alunos = [];
+
+
+
+        snapshot.forEach(doc=>{
+
+
+            alunos.push(doc.data());
+
+
+        });
+
+
+
+        mostrarTabela(alunos);
+
+
+
+    }catch(erro){
+
+
+        alert(
+            "Erro: " + erro.message
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+// ===============================
+// BOTÃO VER ALUNOS
+// ===============================
+
+window.verAlunos = function(idTurma){
+
+
+    carregarAlunosDaTurma(idTurma);
 
 
 };
