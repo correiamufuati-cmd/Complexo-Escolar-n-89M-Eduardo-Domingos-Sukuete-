@@ -17,17 +17,14 @@
 
 <script type="module">
 
-import { lerPDF } from "./services/pdf-reader.js";
-
-
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
-resultado.innerHTML = "Leitor PDF carregado!";
+resultado.innerHTML = "JavaScript funcionando!";
 
 
-input.addEventListener("change", async()=>{
+input.addEventListener("change", ()=>{
 
     const arquivo = input.files[0];
 
@@ -35,31 +32,13 @@ input.addEventListener("change", async()=>{
 
 
     resultado.innerHTML =
-    "PDF escolhido: " + arquivo.name +
-    "\n\nA iniciar leitura...";
-
-
-    try{
-
-        const texto = await lerPDF(arquivo);
-
-
-        resultado.innerHTML =
-        "Leitura concluída:\n\n" +
-        (texto || "Nenhum texto encontrado");
-
-
-    }catch(erro){
-
-        resultado.innerHTML =
-        "Erro ao ler PDF:\n" +
-        erro.message;
-
-    }
+    "Escolhido:\n" +
+    arquivo.name +
+    "\n\nTamanho:\n" +
+    arquivo.size + " bytes";
 
 
 });
-
 
 </script>
 
