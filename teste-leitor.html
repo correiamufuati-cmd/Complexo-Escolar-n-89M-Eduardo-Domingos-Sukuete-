@@ -17,6 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script>
+
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
@@ -34,24 +35,51 @@ input.addEventListener("change", async function(){
 
 
     resultado.innerHTML =
-    "Ficheiro recebido: " + arquivo.name;
+    "A ler PDF: " + arquivo.name;
 
 
     try {
 
-        const pdfjsLib = await import(
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs"
-        );
+
+        const dados = await arquivo.arrayBuffer();
 
 
-        resultado.innerHTML +=
-        "\n\nPDF.js carregado!";
+        const pdf = await pdfjsLib.getDocument({
+            data: dados
+        }).promise;
+
+
+        let texto = "";
+
+
+        for(let pagina = 1; pagina <= pdf.numPages; pagina++){
+
+            const page = await pdf.getPage(pagina);
+
+            const content = await page.getTextContent();
+
+
+            content.items.forEach(item => {
+
+                texto += item.str + " ";
+
+            });
+
+
+            texto += "\n\n";
+
+        }
+
+
+        resultado.innerHTML =
+        "Texto encontrado:\n\n" +
+        (texto || "Nenhum texto encontrado");
 
 
     } catch(erro){
 
         resultado.innerHTML =
-        "Erro PDF.js: " + erro.message;
+        "Erro ao ler PDF: " + erro.message;
 
     }
 
@@ -59,7 +87,6 @@ input.addEventListener("change", async function(){
 });
 
 </script>
-
 </body>
 
 </html>
