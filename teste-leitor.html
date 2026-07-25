@@ -25,19 +25,24 @@ const resultado = document.getElementById("resultado");
 resultado.innerHTML = "JavaScript normal carregado!";
 
 
-input.addEventListener("change", ()=>{
+input.addEventListener("change", function(){
 
 
-const arquivo = input.files[0];
+    const arquivo = input.files[0];
 
 
-const texto = lerPDF(arquivo);
+    if(!arquivo){
 
-resultado.innerHTML =
+        resultado.innerHTML = "Nenhum ficheiro selecionado";
+        return;
 
-"Resultado:\n\n" +
+    }
 
-texto;
+
+    resultado.innerHTML =
+    "Ficheiro escolhido:\n\n" +
+    arquivo.name;
+
 
 });
 
