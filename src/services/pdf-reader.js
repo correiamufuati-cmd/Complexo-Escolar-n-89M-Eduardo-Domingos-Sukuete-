@@ -30,11 +30,11 @@ export async function lerPDF(file){
 
 
 
-    const alunos = extrairAlunos(itens);
+    const listaAlunos = extrairAlunos(items);
 
+console.log("Resultado da leitura PDF:", listaAlunos);
 
-
-    return alunos;
+return listaAlunos;
 
 }
 
@@ -44,6 +44,8 @@ export async function lerPDF(file){
 
 function extrairAlunos(items){
 
+    console.log("pdf-reader carregado");
+    
     let alunos = [];
 
     let inicio = false;
