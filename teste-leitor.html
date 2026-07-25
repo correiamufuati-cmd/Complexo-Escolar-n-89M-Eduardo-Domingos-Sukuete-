@@ -21,31 +21,14 @@
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
-
-resultado.innerHTML = "JavaScript normal carregado!";
-
-
-input.addEventListener("change", function(){
+resultado.innerHTML = "Página carregada";
 
 
-    const arquivo = input.files[0];
+input.onchange = function(){
 
+    resultado.innerHTML = "O botão foi acionado!";
 
-    if(!arquivo){
-
-        resultado.innerHTML = "Nenhum ficheiro selecionado";
-        return;
-
-    }
-
-
-    resultado.innerHTML =
-    "Ficheiro escolhido:\n\n" +
-    arquivo.name;
-
-
-});
-
+};
 
 </script>
 
