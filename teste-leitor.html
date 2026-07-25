@@ -15,15 +15,9 @@
 <pre id="resultado"></pre>
 
 <script src="services/pdf-reader.js"></script>
-    
+
+
 <script>
-
-function lerPDF(file){
-
-    return "PDF-READER FUNCIONOU: " + file.name;
-
-}
-
 
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
@@ -40,9 +34,11 @@ if(typeof lerPDF === "function"){
 }
 
 
+
 input.addEventListener("change", async function(){
 
     const arquivo = input.files[0];
+
 
     resultado.innerHTML =
     "A ler PDF...";
@@ -68,6 +64,7 @@ input.addEventListener("change", async function(){
 });
 
 </script>
+
 </body>
 
-    </html>
+</html>
