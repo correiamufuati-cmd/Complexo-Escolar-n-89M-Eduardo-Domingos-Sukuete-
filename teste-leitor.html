@@ -24,6 +24,9 @@ const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
 
+resultado.innerHTML = "Leitor PDF carregado!";
+
+
 input.addEventListener("change", async()=>{
 
     const arquivo = input.files[0];
@@ -31,7 +34,9 @@ input.addEventListener("change", async()=>{
     if(!arquivo) return;
 
 
-    resultado.innerHTML = "A ler PDF...";
+    resultado.innerHTML =
+    "PDF escolhido: " + arquivo.name +
+    "\n\nA iniciar leitura...";
 
 
     try{
@@ -40,15 +45,18 @@ input.addEventListener("change", async()=>{
 
 
         resultado.innerHTML =
-        texto || "Nenhum texto encontrado";
+        "Leitura concluída:\n\n" +
+        (texto || "Nenhum texto encontrado");
 
 
     }catch(erro){
 
         resultado.innerHTML =
-        "Erro: " + erro.message;
+        "Erro ao ler PDF:\n" +
+        erro.message;
 
     }
+
 
 });
 
