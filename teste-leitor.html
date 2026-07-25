@@ -31,12 +31,13 @@ input.addEventListener("change", ()=>{
 const arquivo = input.files[0];
 
 
+const texto = lerPDF(arquivo);
+
 resultado.innerHTML =
 
-"Arquivo escolhido:\n" +
+"Resultado:\n\n" +
 
-arquivo.name;
-
+texto;
 
 });
 
