@@ -1,8 +1,7 @@
 alert("PDF READER CARREGADO");
 
+window.lerPDF = function(file){
 
-window.lerPDF = async function(file){
-
-    return "Leitor recebeu: " + file.name;
+    return "FUNCIONOU: " + file.name;
 
 };
