@@ -21,29 +21,19 @@
 const input = document.getElementById("pdfFile");
 const resultado = document.getElementById("resultado");
 
-resultado.innerHTML = "Página carregada";
+resultado.innerHTML = "TESTE NOVO";
 
 
-input.addEventListener("change", function(e){
+input.addEventListener("change", function(){
 
-    const arquivo = e.target.files[0];
-
-
-    if(!arquivo){
-
-        resultado.innerHTML = "Nenhum ficheiro";
-        return;
-
-    }
-
+    const arquivo = input.files[0];
 
     resultado.innerHTML =
-lerPDF(arquivo);
-
+    "FUNCIONOU: " + arquivo.name;
 
 });
 
-    </script>
+</script>
 </body>
 
     </html>
