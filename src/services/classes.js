@@ -87,11 +87,10 @@ saveButton.addEventListener("click", async()=>{
     }catch(erro){
 
 
-        alert(
-        "Erro ao criar turma: "
-        + erro.message
-        );
-
+        console.error(erro);
+alert(
+"Erro: " + erro.message
+);
 
     }
 
