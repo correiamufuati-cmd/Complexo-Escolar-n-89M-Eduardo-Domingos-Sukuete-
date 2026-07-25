@@ -1,4 +1,5 @@
 import { app } from "./firebase.js";
+import { lerPDF } from "./pdf-reader.js";
 
 import {
     getFirestore,
@@ -92,7 +93,7 @@ async function carregarTurmas() {
 }
 
 // Teste de seleção do PDF
-window.importarPDF = function(idTurma) {
+window.importarPDF = async function(idTurma) {
 
     const ficheiro = document.getElementById(`pdf-${idTurma}`);
 
@@ -103,11 +104,33 @@ window.importarPDF = function(idTurma) {
 
     const pdf = ficheiro.files[0];
 
-    alert(
-        "PDF selecionado!\n\n" +
-        "Nome: " + pdf.name +
-        "\nTamanho: " + (pdf.size / 1024).toFixed(2) + " KB"
-    );
+    try {
+
+        alert("A ler o PDF...");
+
+        const texto = await lerPDF(pdf);
+
+        if (!texto || texto.trim() === "") {
+
+            alert("O PDF não contém texto ou está vazio.");
+            return;
+
+        }
+
+        alert(
+            "Leitura concluída!\n\n" +
+            texto.substring(0, 1000)
+        );
+
+    } catch (erro) {
+
+        alert(
+            "Erro ao ler o PDF:\n\n" +
+            erro.message
+        );
+
+    }
+
 
 };
 
