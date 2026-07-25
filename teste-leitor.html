@@ -26,6 +26,13 @@ resultado.innerHTML = "Página carregada";
 
 input.onchange = function(){
 
+    const arquivo = input.files[0];
+
+    resultado.innerHTML =
+    lerPDF(arquivo);
+
+};
+
     resultado.innerHTML = "O botão foi acionado!";
 
 };
