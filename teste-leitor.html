@@ -251,6 +251,53 @@ function criarTabela(texto){
     return alunos;
 
     }
+
+    function extrairDadosTurma(items){
+
+    let dados = {
+
+        classe: "",
+        turma: "",
+        ano: ""
+
+    };
+
+
+    const texto = items
+    .map(item => item.str.trim())
+    .join(" ");
+
+
+    const classe = texto.match(/Classe:\s*(\d+)/);
+
+    if(classe){
+
+        dados.classe = classe[1] + "ª";
+
+    }
+
+
+    const turma = texto.match(/Turma:\s*([A-Z])/);
+
+    if(turma){
+
+        dados.turma = turma[1];
+
+    }
+
+
+    const ano = texto.match(/202\s?\d\s*\/\s*202\s?\d/);
+
+    if(ano){
+
+        dados.ano = ano[0];
+
+    }
+
+
+    return dados;
+
+    }
     
 input.addEventListener("change", async function(){
 
@@ -284,6 +331,7 @@ input.addEventListener("change", async function(){
     const page = await pdf.getPage(pagina);
 
     const content = await page.getTextContent();
+            const dadosTurma = extrairDadosTurma(content.items);
 
 
     resultado.innerHTML +=
@@ -293,6 +341,22 @@ input.addEventListener("change", async function(){
 
     const alunos = extrairAlunos(content.items);
 
+            let cabecalho = `
+
+<h3>Complexo Escolar Nº89 M "Eduardo Domingos Sukuete"</h3>
+
+<p>
+<strong>Classe:</strong> ${dadosTurma.classe}
+<br>
+
+<strong>Turma:</strong> ${dadosTurma.turma}
+<br>
+
+<strong>Ano Lectivo:</strong> ${dadosTurma.ano}
+
+</p>
+
+`;
 
 let tabela = `
 
