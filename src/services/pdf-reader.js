@@ -1,7 +1,5 @@
-alert("PDF READER CARREGADO");
+export async function lerPDF(file){
 
-window.lerPDF = function(file){
+    return "PDF recebido: " + file.name;
 
-    return "FUNCIONOU: " + file.name;
-
-};
+}
