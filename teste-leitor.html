@@ -136,9 +136,7 @@ input.addEventListener("change", async function(){
         }
 
 
-        resultado.innerHTML =
-        "Texto encontrado:\n\n" +
-        (texto || "Nenhum texto encontrado");
+        resultado.innerHTML = criarTabela(texto);
 
 
     } catch(erro){
