@@ -377,7 +377,7 @@ tabela += `
 <td>${aluno.sexo || ""}</td>
 
 
-<td>${aluno.data || ""}</td>
+<td>${aluno.dataNascimento || aluno.data || ""}</td>
 
 
 <td>${aluno.idade || ""}</td>
