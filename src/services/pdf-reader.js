@@ -60,12 +60,13 @@ let turma = extrairTurma(textoCompleto);
 
 return {
 
-turma,
+turma: turma,
 
-alunos
+alunos: alunos,
+
+quantidade: alunos.length
 
 };
-
 
 
 }
