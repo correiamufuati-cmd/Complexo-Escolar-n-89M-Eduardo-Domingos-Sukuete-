@@ -1,3 +1,6 @@
+
+alert("PDF READER ATUALIZADO");
+
 export async function lerPDF(file){
 
 
