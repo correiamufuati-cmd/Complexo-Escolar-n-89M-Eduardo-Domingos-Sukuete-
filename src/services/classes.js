@@ -7,9 +7,10 @@ import {
     collection,
     addDoc,
     getDocs,
-    serverTimestamp
+    serverTimestamp,
+    doc,
+    setDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
 
 const db = getFirestore(app);
 
@@ -261,32 +262,26 @@ window.importarPDF = async function(idTurma){
         for(const aluno of alunos){
 
 
-            await addDoc(
+            await setDoc(
 
-                collection(
-                    db,
-                    "turmas",
-                    idTurma,
-                    "alunos"
-                ),
+    doc(
+        db,
+        "turmas",
+        idTurma,
+        "alunos",
+        aluno.numero
+    ),
 
-                {
+    {
+        numero: aluno.numero,
+        nome: aluno.nome,
+        sexo: aluno.sexo,
+        dataNascimento: aluno.data,
+        idade: aluno.idade,
+        criadoEm: serverTimestamp()
+    }
 
-                    numero: aluno.numero,
-
-                    nome: aluno.nome,
-
-                    sexo: aluno.sexo,
-
-                    dataNascimento: aluno.data,
-
-                    idade: aluno.idade,
-
-                    criadoEm: serverTimestamp()
-
-                }
-
-            );
+);
 
 
         }
