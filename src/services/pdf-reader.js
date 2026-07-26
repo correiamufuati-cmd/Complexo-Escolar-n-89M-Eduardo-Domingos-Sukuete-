@@ -431,6 +431,59 @@ function extrairAlunos(textos){
 
 
 
+function extrairAlunos(textos){
+
+
+    let alunos = [];
+
+    let inicio = false;
+
+    let i = 0;
+
+
+
+    while(i < textos.length){
+
+
+        // Encontrar início da tabela
+        if(textos[i] === "N°" || textos[i] === "Nº"){
+
+            inicio = true;
+
+            i++;
+
+            continue;
+
+        }
+
+
+
+        if(!inicio){
+
+            i++;
+
+            continue;
+
+        }
+
+
+
+        // Ignorar títulos repetidos
+        if(
+            textos[i] === "Nome" ||
+            textos[i] === "Completo" ||
+            textos[i] === "Sexo" ||
+            textos[i] === "Idade"
+        ){
+
+            i++;
+
+            continue;
+
+        }
+
+
+
 
         // Número do aluno
         if(/^\d+$/.test(textos[i])){
@@ -572,4 +625,4 @@ function extrairAlunos(textos){
     return alunos;
 
 
-}
+    }
