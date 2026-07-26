@@ -69,6 +69,7 @@ function extrairAlunosPorLinha(items){
             .map(i=>i.texto)
             .filter(t=>t);
 
+        console.log(textos);
 
 
         if(textos.length < 2) return;
