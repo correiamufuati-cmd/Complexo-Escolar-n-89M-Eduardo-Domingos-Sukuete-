@@ -1,24 +1,18 @@
 export async function lerPDF(file){
 
-
     const dados = await file.arrayBuffer();
-
 
     const pdf = await pdfjsLib.getDocument({
         data:dados
     }).promise;
 
 
-
     let todosAlunos = [];
-
 
 
     for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-
         const page = await pdf.getPage(pagina);
-
 
         const content = await page.getTextContent();
 
@@ -28,13 +22,10 @@ export async function lerPDF(file){
 
         todosAlunos.push(...alunos);
 
-
     }
 
 
-
     return todosAlunos;
-
 
 }
 
@@ -47,27 +38,19 @@ function extrairAlunos(items){
 
     let alunos = [];
 
-
     let iniciar = false;
 
 
-    let i = 0;
-
-
-
-    while(i < items.length){
+    for(let i = 0; i < items.length; i++){
 
 
         let valor = items[i].str.trim();
 
 
 
-        if(valor === "N°"){
-
+        if(valor === "Nº" || valor === "N°"){
 
             iniciar = true;
-
-            i++;
 
             continue;
 
@@ -77,30 +60,32 @@ function extrairAlunos(items){
 
         if(!iniciar){
 
-            i++;
-
             continue;
 
         }
 
 
 
-        if(/^\d+$/.test(valor)){
+        // encontra o número da linha
 
+        if(/^\d+$/.test(valor)){
 
 
             let numero = valor;
 
 
+            let nome = "";
+            let sexo = "";
+            let data = "";
+            let idade = "";
+
+
+
             i++;
 
 
-            let nome = "";
 
-            let sexo = "";
-
-
-
+            // nome
 
             while(i < items.length){
 
@@ -111,7 +96,6 @@ function extrairAlunos(items){
 
                 if(campo === "M" || campo === "F"){
 
-
                     sexo = campo;
 
                     break;
@@ -120,27 +104,20 @@ function extrairAlunos(items){
 
 
 
-                if(campo !== ""){
-
-
-                    nome += campo + " ";
-
-                }
-
+                nome += campo + " ";
 
                 i++;
 
-
             }
+
 
 
 
             i++;
 
 
-            let data = "";
 
-
+            // data nascimento
 
             while(i < items.length){
 
@@ -149,13 +126,10 @@ function extrairAlunos(items){
 
 
 
-                if(/^\d{4}$/.test(campo)){
+                if(/\d{2}/.test(campo) && campo.includes("-")){
 
 
-                    data += campo;
-
-
-                    i++;
+                    data = campo;
 
                     break;
 
@@ -165,7 +139,6 @@ function extrairAlunos(items){
 
                 if(campo !== ""){
 
-
                     data += campo + " ";
 
                 }
@@ -173,14 +146,19 @@ function extrairAlunos(items){
 
                 i++;
 
-
             }
 
 
 
-            let idade = "";
 
 
+            i++;
+
+
+
+
+
+            // idade
 
             while(i < items.length){
 
@@ -189,7 +167,7 @@ function extrairAlunos(items){
 
 
 
-                if(/\d+\s?(anos|Anos|ano)/i.test(campo)){
+                if(/\d+\s*(anos|Anos|ano|Anos)/i.test(campo)){
 
 
                     idade = campo;
@@ -201,9 +179,7 @@ function extrairAlunos(items){
 
                 i++;
 
-
             }
-
 
 
 
@@ -217,18 +193,12 @@ function extrairAlunos(items){
 
                 data:data.trim(),
 
-                idade
-
+                idade:idade.trim()
 
             });
 
 
-
         }
-
-
-
-        i++;
 
 
     }
@@ -237,5 +207,4 @@ function extrairAlunos(items){
 
     return alunos;
 
-
-}
+            }
