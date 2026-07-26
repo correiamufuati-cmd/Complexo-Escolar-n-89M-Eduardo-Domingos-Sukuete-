@@ -12,6 +12,8 @@ import {
     setDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+alert("Classes.js carregado");
+
 const db = getFirestore(app);
 
 
@@ -117,6 +119,8 @@ async function carregarTurmas(){
         const snapshot =
         await getDocs(collection(db,"turmas"));
 
+        alert("Turmas encontradas: " + snapshot.size);
+        
         console.log("Total de turmas:", snapshot.size);
 console.log(snapshot.docs.map(doc => doc.data()));
 
