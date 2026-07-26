@@ -270,29 +270,27 @@ alert(
         for(const aluno of alunos){
 
 
-            await setDoc(
+await setDoc(
 
-    doc(
-        db,
-        "turmas",
-        idTurma,
-        "alunos",
-        aluno.numero
-    ),
+doc(
+    db,
+    "turmas",
+    idTurma,
+    "alunos",
+    aluno.matricula
+),
 
-    {
-        numero: aluno.numero,
-        nome: aluno.nome,
-        sexo: aluno.sexo,
-        dataNascimento: aluno.data,
-        idade: aluno.idade,
-        criadoEm: serverTimestamp()
-    }
+{
+    numero: aluno.matricula,
+    nome: aluno.nome,
+    sexo: aluno.sexo,
+    criadoEm: serverTimestamp()
+}
 
 );
 
 
-        }
+}
 
 
 
