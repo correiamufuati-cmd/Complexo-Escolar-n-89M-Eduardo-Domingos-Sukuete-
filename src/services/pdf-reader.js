@@ -19,7 +19,7 @@ export async function lerPDF(file){
             let t = item.str.trim();
 
             if(t){
-                textos.push(t);
+                alert(textos.slice(50,120).join(" | "));
             }
 
         });
