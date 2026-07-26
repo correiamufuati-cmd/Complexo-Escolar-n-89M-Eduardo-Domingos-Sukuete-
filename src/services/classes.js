@@ -1,493 +1,246 @@
-import { app } from "./firebase.js";
-
-import { lerPDF } from "./pdf-reader.js";
-
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    serverTimestamp,
-    doc,
-    setDoc
-} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
-alert("Classes.js carregado");
-
-const db = getFirestore(app);
+import * as pdfjsLib from 
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 
 
-const saveButton = document.getElementById("saveClass");
-const classList = document.getElementById("classList");
-const studentList = document.getElementById("studentList");
-
-
-// ===============================
-// CRIAR TURMA
-// ===============================
-
-saveButton.addEventListener("click", async()=>{
-
-
-    const name =
-    document.getElementById("className").value.trim();
-
-
-    const level =
-    document.getElementById("classLevel").value.trim();
-
-
-    const year =
-    document.getElementById("schoolYear").value.trim();
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 
 
-    if(!name || !level || !year){
-
-        alert("Preencha todos os campos.");
-
-        return;
-
-    }
+export async function lerPDF(file){
 
 
+const dados = await file.arrayBuffer();
 
-    try{
 
-
-        await addDoc(collection(db,"turmas"),{
-
-            nome:name,
-
-            classe:level,
-
-            anoLetivo:year,
-
-            criadoEm:serverTimestamp()
-
-        });
+const pdf = await pdfjsLib.getDocument({
+data:dados
+}).promise;
 
 
 
-        alert("Turma criada com sucesso!");
+let todosAlunos = [];
+
+let turmaInfo = {};
 
 
 
-        document.getElementById("className").value="";
-
-        document.getElementById("classLevel").value="";
-
-        document.getElementById("schoolYear").value="";
+for(let pagina=1; pagina<=pdf.numPages; pagina++){
 
 
+const page = await pdf.getPage(pagina);
 
-        carregarTurmas();
+
+const content = await page.getTextContent();
 
 
 
-    }catch(erro){
+turmaInfo = extrairDadosTurma(content.items);
 
-        console.error(erro);
 
-        alert(
-            "Erro: " + erro.message
-        );
 
-    }
+const alunos = extrairAlunos(content.items);
+
+
+
+todosAlunos.push(...alunos);
+
+
+
+}
+
+
+
+return {
+
+turma: turmaInfo,
+
+alunos: todosAlunos,
+
+quantidade: todosAlunos.length
+
+};
+
+
+
+}
+
+
+
+
+function extrairDadosTurma(items){
+
+
+const texto = items
+.map(item=>item.str.trim())
+.join(" ");
+
+
+
+let classe="";
+let turma="";
+let ano="";
+
+
+
+let c = texto.match(/Classe:\s*(\d+)/);
+
+if(c){
+classe=c[1]+"ª";
+}
+
+
+
+let t = texto.match(/Turma:\s*([A-Z])/);
+
+if(t){
+turma=t[1];
+}
+
+
+
+let a = texto.match(/202\s?\d\s*\/\s*202\s?\d/);
+
+if(a){
+ano=a[0];
+}
+
+
+
+return {
+classe,
+turma,
+ano
+};
+
+
+}
+
+
+
+
+
+
+function extrairAlunos(items){
+
+
+let alunos=[];
+
+
+let iniciar=false;
+
+
+let i=0;
+
+
+
+while(i < items.length){
+
+
+let valor=items[i].str.trim();
+
+
+
+if(valor==="N°"){
+
+
+iniciar=true;
+
+i++;
+
+continue;
+
+}
+
+
+
+if(!iniciar){
+
+i++;
+
+continue;
+
+}
+
+
+
+
+
+if(/^\d+$/.test(valor)){
+
+
+
+let numero=valor;
+
+
+i++;
+
+
+let nome="";
+
+let sexo="";
+
+
+
+while(i<items.length){
+
+
+let campo=items[i].str.trim();
+
+
+
+if(campo==="M" || campo==="F"){
+
+
+sexo=campo;
+
+break;
+
+}
+
+
+
+if(campo!==""){
+
+nome+=campo+" ";
+
+}
+
+
+
+i++;
+
+
+}
+
+
+
+alunos.push({
+
+numero,
+
+nome:nome.trim(),
+
+sexo
 
 
 });
 
 
 
+}
 
-// ===============================
-// LISTAR TURMAS
-// ===============================
 
-async function carregarTurmas(){
 
+i++;
 
-    classList.innerHTML =
-    "A carregar turmas...";
-
-
-
-    try{
-
-
-        const snapshot =
-        await getDocs(collection(db,"turmas"));
-
-        alert("Turmas encontradas: " + snapshot.size);
-        
-        console.log("Total de turmas:", snapshot.size);
-console.log(snapshot.docs.map(doc => doc.data()));
-
-
-        classList.innerHTML="";
-
-
-
-        if(snapshot.empty){
-
-
-            classList.innerHTML =
-            "Nenhuma turma cadastrada.";
-
-
-            return;
-
-        }
-
-
-
-        snapshot.forEach(doc=>{
-
-
-            const turma = doc.data();
-
-
-
-            classList.innerHTML += `
-
-
-            <div class="card">
-
-
-                <h3>
-                ${turma.nome}
-                </h3>
-
-
-                <p>
-                <strong>Classe:</strong>
-                ${turma.classe}
-                </p>
-
-
-                <p>
-                <strong>Ano Letivo:</strong>
-                ${turma.anoLetivo}
-                </p>
-
-
-
-                <input
-
-                type="file"
-
-                accept="application/pdf"
-
-                id="pdf-${doc.id}"
-
-                >
-
-
-
-                <button onclick="importarPDF('${doc.id}')">
-
-                📄 Importar Lista PDF
-
-                </button>
-
-
-
-                <button onclick="verAlunos('${doc.id}')">
-
-                👨‍🎓 Ver Alunos
-
-                </button>
-
-
-
-            </div>
-
-
-            `;
-
-
-        });
-
-
-
-    }catch(erro){
-
-
-        classList.innerHTML =
-        "Erro: " + erro.message;
-
-
-    }
 
 
 }
 
 
 
-
-
-// ===============================
-// IMPORTAR PDF E GUARDAR ALUNOS
-// ===============================
-
-window.importarPDF = async function(idTurma){
-
-
-    const ficheiro =
-    document.getElementById(`pdf-${idTurma}`);
-
-
-
-    if(!ficheiro || !ficheiro.files[0]){
-
-        alert("Escolha primeiro o PDF.");
-
-        return;
-
-    }
-
-
-
-    try{
-
-
-const resultado =
-await lerPDF(ficheiro.files[0]);
-
-
-const alunos = resultado.alunos;
-
-
-alert(
-    "Quantidade de alunos: " 
-    + alunos.length
-);
-
-
-
-
-        for(const aluno of alunos){
-
-
-await setDoc(
-
-doc(
-    db,
-    "turmas",
-    idTurma,
-    "alunos",
-    aluno.matricula
-),
-
-{
-    numero: aluno.matricula,
-    nome: aluno.nome,
-    sexo: aluno.sexo,
-    criadoEm: serverTimestamp()
-}
-
-);
+return alunos;
 
 
 }
-
-
-
-        alert(
-            alunos.length +
-            " alunos guardados com sucesso!"
-        );
-
-
-
-        mostrarTabela(alunos);
-
-
-
-    }catch(erro){
-
-
-        console.error(erro);
-
-
-        alert(
-            "Erro: " + erro.message
-        );
-
-
-    }
-
-
-};
-
-
-
-
-
-
-
-// ===============================
-// MOSTRAR TABELA
-// ===============================
-
-function mostrarTabela(alunos){
-
-
-    let tabela = `
-
-
-<h3>Lista de Alunos</h3>
-
-
-<table border="1" cellpadding="8">
-
-
-<tr>
-
-<th>Nº</th>
-
-<th>Nome Completo</th>
-
-<th>Sexo</th>
-
-<th>Data Nascimento</th>
-
-<th>Idade</th>
-
-
-</tr>
-
-
-`;
-
-
-
-alunos.forEach(aluno=>{
-
-
-tabela += `
-
-
-<tr>
-
-
-<td>${aluno.numero || ""}</td>
-
-
-<td>${aluno.nome || ""}</td>
-
-
-<td>${aluno.sexo || ""}</td>
-
-
-<td>${aluno.dataNascimento || aluno.data || ""}</td>
-
-
-<td>${aluno.idade || ""}</td>
-
-
-</tr>
-
-
-`;
-
-
-});
-
-
-
-tabela += "</table>";
-
-
-
-studentList.innerHTML = tabela;
-
-
-}
-
-
-
-
-
-// ===============================
-// CARREGAR ALUNOS DO FIREBASE
-// ===============================
-
-async function carregarAlunosDaTurma(idTurma){
-
-
-    try{
-
-
-        const snapshot =
-        await getDocs(
-
-            collection(
-                db,
-                "turmas",
-                idTurma,
-                "alunos"
-            )
-
-        );
-
-
-
-        let alunos = [];
-
-
-
-        snapshot.forEach(doc=>{
-
-
-            alunos.push(doc.data());
-
-
-        });
-
-
-
-        mostrarTabela(alunos);
-
-
-
-    }catch(erro){
-
-
-        alert(
-            "Erro: " + erro.message
-        );
-
-
-    }
-
-
-}
-
-
-
-
-
-// ===============================
-// BOTÃO VER ALUNOS
-// ===============================
-
-window.verAlunos = function(idTurma){
-
-
-    carregarAlunosDaTurma(idTurma);
-
-
-};
-
-
-
-
-
-
-// ===============================
-// INICIAR
-// ===============================
-
-carregarTurmas();
