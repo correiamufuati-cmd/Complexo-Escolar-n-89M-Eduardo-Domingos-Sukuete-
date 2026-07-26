@@ -252,15 +252,17 @@ window.importarPDF = async function(idTurma){
     try{
 
 
-        const alunos =
-        await lerPDF(ficheiro.files[0]);
+const resultado =
+await lerPDF(ficheiro.files[0]);
 
 
+const alunos = resultado.alunos;
 
-        alert(
-            "Quantidade de alunos: " 
-            + alunos.length
-        );
+
+alert(
+    "Quantidade de alunos: " 
+    + alunos.length
+);
 
 
 
