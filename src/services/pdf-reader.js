@@ -156,36 +156,3 @@ function extrairAlunos(textos){
                 break;
 
             }
-
-
-            i++;
-
-        }
-
-
-
-
-        alunos.push({
-
-            numero,
-            nome:nome.trim(),
-            sexo,
-            data,
-            idade
-
-        });
-
-
-
-    }
-
-
-
-    alunos.sort((a,b)=>
-        Number(a.numero)-Number(b.numero)
-    );
-
-
-    return alunos;
-
-}
