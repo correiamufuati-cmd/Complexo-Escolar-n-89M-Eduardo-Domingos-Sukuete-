@@ -19,7 +19,147 @@ export async function lerPDF(file){
 
         const page = await pdf.getPage(pagina);
 
+function extrairAlunosPorLinha(items){
 
+    let linhas = [];
+
+    items.forEach(item=>{
+
+        let y = item.transform[5];
+
+        let linhaExistente = linhas.find(l => Math.abs(l.y - y) < 5);
+
+
+        if(!linhaExistente){
+
+            linhaExistente = {
+                y:y,
+                itens:[]
+            };
+
+            linhas.push(linhaExistente);
+
+        }
+
+
+        linhaExistente.itens.push({
+
+            texto:item.str.trim(),
+            x:item.transform[4]
+
+        });
+
+
+    });
+
+
+
+    let alunos = [];
+
+
+
+    linhas.forEach(linha=>{
+
+
+        linha.itens.sort((a,b)=>a.x-b.x);
+
+
+
+        let textos = linha.itens
+            .map(i=>i.texto)
+            .filter(t=>t);
+
+
+
+        if(textos.length < 2) return;
+
+
+
+        let numero = textos[0];
+
+
+
+        if(!/^\d+$/.test(numero)) return;
+
+
+
+        let sexo = textos.find(t=>t==="M" || t==="F");
+
+
+
+        if(!sexo) return;
+
+
+
+        textos.shift();
+
+
+
+        let nome = "";
+        let data = "";
+        let idade = "";
+
+
+
+        textos.forEach(campo=>{
+
+
+            if(campo==="M" || campo==="F")
+                return;
+
+
+
+            if(/\d{1,2}\s*[-/]\s*\d{1,2}\s*[-/]\s*\d{4}/.test(campo)){
+
+                data = campo;
+                return;
+
+            }
+
+
+
+            if(/\d+\s*(anos|ano)/i.test(campo)){
+
+                idade = campo;
+                return;
+
+            }
+
+
+
+            nome += campo + " ";
+
+
+        });
+
+
+
+        if(nome.trim()){
+
+
+            alunos.push({
+
+                numero,
+                nome:nome.trim(),
+                sexo,
+                data,
+                idade
+
+            });
+
+
+        }
+
+
+
+    });
+
+
+
+    return alunos;
+
+        }
+        
         const content = await page.getTextContent();
 
 
@@ -44,87 +184,7 @@ export async function lerPDF(file){
 
 
 
-function extrairAlunosPorLinha(items){
 
-
-    let linhas = {};
-
-
-
-    // Agrupar textos pela posição vertical
-
-    items.forEach(item=>{
-
-
-        let y = Math.round(item.transform[5]);
-
-
-        if(!linhas[y]){
-
-            linhas[y] = [];
-
-        }
-
-
-        linhas[y].push({
-
-            texto:item.str.trim(),
-
-            x:item.transform[4]
-
-        });
-
-
-    });
-
-
-
-
-
-    let alunos = [];
-
-
-
-    Object.values(linhas).forEach(linha=>{
-
-
-        // ordenar da esquerda para direita
-
-        linha.sort((a,b)=>a.x-b.x);
-
-
-
-        let textos = linha.map(x=>x.texto);
-
-
-
-        let numero = "";
-
-        let nome = "";
-
-        let sexo = "";
-
-        let data = "";
-
-        let idade = "";
-
-
-
-
-
-        // número
-
-        if(/^\d+$/.test(textos[0])){
-
-
-            numero = textos[0];
-
-
-        }else{
-
-            return;
-
-        }
 
 
 
