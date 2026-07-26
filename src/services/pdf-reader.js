@@ -90,7 +90,21 @@ function extrairAlunosPorLinha(items){
 
 
 
-        console.log(textos);
+        let debug = document.getElementById("debugPDF");
+
+if(!debug){
+
+    debug = document.createElement("pre");
+
+    debug.id = "debugPDF";
+
+    debug.style.whiteSpace = "pre-wrap";
+
+    document.body.appendChild(debug);
+
+}
+
+debug.innerHTML += JSON.stringify(textos) + "\n";
 
 
 
