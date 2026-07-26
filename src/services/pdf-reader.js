@@ -1,51 +1,34 @@
 export async function lerPDF(file){
 
-
     const dados = await file.arrayBuffer();
-
 
     const pdf = await pdfjsLib.getDocument({
         data:dados
     }).promise;
 
 
-
-    let todosTextos = [];
-
+    let todosAlunos = [];
 
 
     for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-
         const page = await pdf.getPage(pagina);
-
 
         const content = await page.getTextContent();
 
 
-
-        content.items.forEach(item=>{
-
-
-            let texto = item.str.trim();
+        const alunos = extrairPorLinha(content.items);
 
 
-            if(texto){
-
-                todosTextos.push(texto);
-
-            }
-
-
-        });
-
+        todosAlunos.push(...alunos);
 
     }
 
 
+    todosAlunos.sort((a,b)=>Number(a.numero)-Number(b.numero));
 
-    return extrairAlunos(todosTextos);
 
+    return todosAlunos;
 
 }
 
@@ -53,272 +36,170 @@ export async function lerPDF(file){
 
 
 
+function extrairPorLinha(items){
 
 
-function extrairAlunos(textos){
+    let linhas = [];
+
+
+
+    // juntar textos pela mesma linha visual
+
+    items.forEach(item=>{
+
+
+        let y = Math.round(item.transform[5]);
+
+
+        let linha = linhas.find(
+            l => Math.abs(l.y - y) <= 3
+        );
+
+
+        if(!linha){
+
+            linha = {
+                y:y,
+                itens:[]
+            };
+
+            linhas.push(linha);
+
+        }
+
+
+
+        linha.itens.push({
+
+            texto:item.str.trim(),
+
+            x:item.transform[4]
+
+        });
+
+
+    });
+
+
+
 
 
     let alunos = [];
 
 
-    let inicioTabela = false;
+
+    linhas.forEach(linha=>{
 
 
-    let i = 0;
-
-
-
-    while(i < textos.length){
+        linha.itens.sort((a,b)=>a.x-b.x);
 
 
 
-        // Encontrar início da lista de alunos
+        let textos = linha.itens
+        .map(i=>i.texto)
+        .filter(t=>t);
 
-        if(
-            textos[i] === "N°" ||
-            textos[i] === "Nº"
-        ){
 
-            inicioTabela = true;
 
-            i++;
+        // procurar linhas que começam com número
 
-            continue;
+        if(!/^\d+$/.test(textos[0])){
+
+            return;
 
         }
 
 
 
-        if(!inicioTabela){
-
-            i++;
-
-            continue;
-
-        }
+        let numero = textos[0];
 
 
 
+        let sexoIndex = textos.findIndex(
+            t=>t==="M" || t==="F"
+        );
 
 
-        // Ignorar cabeçalhos repetidos das páginas
+        if(sexoIndex === -1){
 
-        if(
-            textos[i] === "N°" ||
-            textos[i] === "Nº" ||
-            textos[i] === "Nome" ||
-            textos[i] === "Completo" ||
-            textos[i] === "Sexo" ||
-            textos[i] === "Data" ||
-            textos[i] === "Idade"
-        ){
-
-            i++;
-
-            continue;
+            return;
 
         }
 
 
 
+        let sexo = textos[sexoIndex];
 
 
 
-        // Encontrou número do aluno
+        let nome = textos
+        .slice(1,sexoIndex)
+        .join(" ");
 
-        if(/^\d+$/.test(textos[i])){
 
 
-            let numero = textos[i];
 
-            i++;
+        let numeros = textos
+        .slice(sexoIndex+1)
+        .filter(t=>/^\d+$/.test(t));
 
 
-            let nome = "";
 
-            let sexo = "";
+        let data = "";
 
-            let data = "";
+        let idade = "";
 
-            let idade = "";
 
 
+        if(numeros.length >= 3){
 
 
-
-            // Ler nome até encontrar sexo
-
-            while(i < textos.length){
-
-
-
-                if(
-                    textos[i] === "M" ||
-                    textos[i] === "F"
-                ){
-
-
-                    sexo = textos[i];
-
-                    i++;
-
-                    break;
-
-                }
-
-
-
-                nome += textos[i] + " ";
-
-                i++;
-
-
-            }
-
-
-
-
-
-            // Ler data nascimento
-
-            let partesData = [];
-
-
-
-            while(
-                i < textos.length &&
-                partesData.length < 3
-            ){
-
-
-
-                let valor = textos[i];
-
-
-
-                if(/^\d+$/.test(valor)){
-
-
-                    partesData.push(valor);
-
-
-                }
-
-
-                i++;
-
-
-            }
-
-
-
-
-            if(partesData.length === 3){
-
-
-                data =
-                partesData[0] +
-                "-" +
-                partesData[1] +
-                "-" +
-                partesData[2];
-
-
-            }
-
-
-
-
-
-
-
-            // Ler idade
-
-            while(i < textos.length){
-
-
-
-                if(
-                    /\d+\s*(anos|Anos|ano)/i
-                    .test(textos[i])
-                ){
-
-
-                    idade = textos[i];
-
-                    i++;
-
-                    break;
-
-
-                }
-
-
-                i++;
-
-
-            }
-
-
-
-
-
-
-            // Guardar aluno
-
-            if(
-                numero &&
-                nome.trim() &&
-                sexo
-            ){
-
-
-
-                alunos.push({
-
-
-                    numero: numero,
-
-
-                    nome: nome.trim(),
-
-
-                    sexo: sexo,
-
-
-                    data: data,
-
-
-                    idade: idade
-
-
-
-                });
-
-
-
-            }
-
-
-
-
-
-        }else{
-
-
-            i++;
+            data =
+            numeros[0]+"-"+
+            numeros[1]+"-"+
+            numeros[2];
 
 
         }
 
 
 
-    }
 
+        let idadeTexto = textos.find(
+            t=>/\d+\s*(anos|Anos|ano)/i.test(t)
+        );
+
+
+        if(idadeTexto){
+
+            idade = idadeTexto;
+
+        }
+
+
+
+
+        alunos.push({
+
+            numero,
+
+            nome,
+
+            sexo,
+
+            data,
+
+            idade
+
+        });
+
+
+
+    });
 
 
 
     return alunos;
 
 
-            }
+        }
