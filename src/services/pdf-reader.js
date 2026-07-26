@@ -1,33 +1,49 @@
 export async function lerPDF(file){
 
-
     const dados = await file.arrayBuffer();
-
 
     const pdf = await pdfjsLib.getDocument({
         data:dados
     }).promise;
 
 
-
     let todosAlunos = [];
-
 
 
     for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-
         const page = await pdf.getPage(pagina);
+
+        const content = await page.getTextContent();
+
+        const alunos = extrairAlunosPorLinha(content.items);
+
+        todosAlunos.push(...alunos);
+
+    }
+
+
+    return todosAlunos;
+
+}
+
+
 
 function extrairAlunosPorLinha(items){
 
+
     let linhas = [];
+
 
     items.forEach(item=>{
 
+
         let y = item.transform[5];
 
-        let linhaExistente = linhas.find(l => Math.abs(l.y - y) < 5);
+
+        let linhaExistente = linhas.find(
+            l => Math.abs(l.y - y) < 5
+        );
 
 
         if(!linhaExistente){
@@ -42,15 +58,18 @@ function extrairAlunosPorLinha(items){
         }
 
 
+
         linhaExistente.itens.push({
 
             texto:item.str.trim(),
+
             x:item.transform[4]
 
         });
 
 
     });
+
 
 
 
@@ -66,10 +85,13 @@ function extrairAlunosPorLinha(items){
 
 
         let textos = linha.itens
-            .map(i=>i.texto)
-            .filter(t=>t);
+        .map(i=>i.texto)
+        .filter(t=>t);
+
+
 
         console.log(textos);
+
 
 
         if(textos.length < 2) return;
@@ -84,7 +106,9 @@ function extrairAlunosPorLinha(items){
 
 
 
-        let sexo = textos.find(t=>t==="M" || t==="F");
+        let sexo = textos.find(
+            t => t==="M" || t==="F"
+        );
 
 
 
@@ -131,6 +155,7 @@ function extrairAlunosPorLinha(items){
             nome += campo + " ";
 
 
+
         });
 
 
@@ -152,133 +177,11 @@ function extrairAlunosPorLinha(items){
         }
 
 
-
     });
 
 
 
     return alunos;
 
-        }
-        
-        const content = await page.getTextContent();
-
-
-
-        const alunos = extrairAlunosPorLinha(content.items);
-
-
-
-        todosAlunos.push(...alunos);
-
-
-    }
-
-
-
-    return todosAlunos;
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-        textos.shift();
-
-
-
-
-        textos.forEach(campo=>{
-
-
-            if(campo==="M" || campo==="F"){
-
-
-                sexo = campo;
-
-                return;
 
             }
-
-
-
-
-            if(/\d{1,2}\s*-\s*\d{1,2}\s*-\s*\d{4}/.test(campo)){
-
-
-                data = campo;
-
-                return;
-
-            }
-
-
-
-
-
-            if(/\d+\s*(anos|ano)/i.test(campo)){
-
-
-                idade = campo;
-
-                return;
-
-            }
-
-
-
-
-
-            nome += campo + " ";
-
-
-
-        });
-
-
-
-
-
-
-        if(nome.trim() && sexo){
-
-
-            alunos.push({
-
-                numero,
-
-                nome:nome.trim(),
-
-                sexo,
-
-                data,
-
-                idade
-
-
-            });
-
-
-        }
-
-
-
-    });
-
-
-
-
-
-    return alunos;
-
-
-    }
