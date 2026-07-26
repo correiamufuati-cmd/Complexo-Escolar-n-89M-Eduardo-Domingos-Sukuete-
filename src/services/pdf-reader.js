@@ -1,208 +1,162 @@
-// pdf-reader.js
+import * as pdfjsLib from 
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
 
-import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
 
 
-// ================================
-// LER PDF
-// ================================
+
 export async function lerPDF(file){
 
-    const dados = await file.arrayBuffer();
 
-    const pdf = await pdfjsLib
-        .getDocument({data:dados})
-        .promise;
+const dados = await file.arrayBuffer();
 
 
-    let todasLinhas = [];
-
-
-    // Ler todas páginas
-    for(let pagina = 1; pagina <= pdf.numPages; pagina++){
-
-        const page = await pdf.getPage(pagina);
-
-        const conteudo = await page.getTextContent();
-
-
-        let itens = conteudo.items.map(item=>({
-            texto:item.str.trim(),
-            x:item.transform[4],
-            y:item.transform[5]
-        }));
-
-
-        // organizar por linhas
-        let linhas = juntarLinhas(itens);
-
-
-        todasLinhas.push(...linhas);
-    }
+const pdf = await pdfjsLib.getDocument({
+data:dados
+}).promise;
 
 
 
-    console.log("LINHAS ENCONTRADAS:");
-    console.log(todasLinhas);
-
-
-    const turma = extrairTurma(todasLinhas);
-
-    const alunos = extrairAlunos(todasLinhas);
-
-
-    console.log("Turma:", turma);
-    console.log("Alunos:", alunos);
+let textoCompleto = "";
 
 
 
-    return {
-        turma,
-        alunos
-    };
+for(let p=1; p<=pdf.numPages; p++){
+
+
+const pagina = await pdf.getPage(p);
+
+
+const conteudo = await pagina.getTextContent();
+
+
+
+let texto = conteudo.items
+.map(i=>i.str)
+.join(" ");
+
+
+
+textoCompleto += texto + "\n";
+
 
 }
 
 
 
-// ================================
-// JUNTAR TEXTO POR LINHA
-// ================================
-function juntarLinhas(itens){
-
-
-    let linhas = [];
-
-
-    itens.sort((a,b)=> b.y - a.y);
-
-
-    itens.forEach(item=>{
-
-
-        let linha = linhas.find(l=>
-            Math.abs(l.y - item.y) < 5
-        );
-
-
-        if(!linha){
-
-            linha={
-                y:item.y,
-                textos:[]
-            };
-
-            linhas.push(linha);
-
-        }
-
-
-        linha.textos.push(item);
-
-    });
+console.log(textoCompleto);
 
 
 
-    return linhas.map(l=>{
-
-        l.textos.sort((a,b)=>a.x-b.x);
-
-
-        return l.textos
-        .map(t=>t.texto)
-        .join(" ")
-        .replace(/\s+/g," ")
-        .trim();
-
-    });
-
-}
+let alunos = extrairAlunos(textoCompleto);
 
 
 
-// ================================
-// EXTRAIR TURMA
-// ================================
-function extrairTurma(linhas){
+let turma = extrairTurma(textoCompleto);
 
 
-    let texto = linhas.join(" ");
+
+return {
+
+turma,
+
+alunos
+
+};
 
 
-    let resultado =
-    texto.match(
-        /(Turma|Classe)\s*[:\-]?\s*([0-9A-Za-zªº]+)/i
-    );
-
-
-    if(resultado){
-
-        return resultado[2];
-
-    }
-
-
-    return "Sem turma";
 
 }
 
 
 
 
-// ================================
-// EXTRAIR ALUNOS
-// ================================
-function extrairAlunos(linhas){
+function extrairTurma(texto){
 
 
-    let alunos=[];
+let t = texto.match(/Turma\s*[:\-]?\s*([A-Za-z0-9ªº]+)/i);
 
 
-    for(let linha of linhas){
+return t ? t[1] : "Sem turma";
 
 
-        /*
-        Procura linhas que tenham:
-        - número de matrícula
-        - nome
-        - sexo M/F
-        */
+}
 
 
-        let encontrado =
-        linha.match(
-        /^(\d{1,5})\s+(.+?)\s+([MF])$/i
-        );
 
 
-        if(encontrado){
+
+function extrairAlunos(texto){
 
 
-            alunos.push({
-
-                matricula: encontrado[1],
-
-                nome: encontrado[2]
-                    .replace(/\d+/g,"")
-                    .trim(),
-
-                sexo:
-                encontrado[3]
-                .toUpperCase()
-
-            });
+let alunos=[];
 
 
-        }
+
+let linhas = texto
+.split("\n")
+.map(l=>l.trim())
+.filter(l=>l.length>0);
+
+
+
+for(let i=0;i<linhas.length;i++){
+
+
+
+let linha = linhas[i];
+
+
+
+let matricula =
+linha.match(/\b\d{1,5}\b/);
+
+
+
+let sexo =
+linha.match(/\b(M|F)\b/i);
+
+
+
+if(matricula && sexo){
+
+
+
+let nome = linha
+.replace(matricula[0],"")
+.replace(sexo[0],"")
+.trim();
+
+
+
+if(nome.length>3){
+
+
+alunos.push({
+
+matricula:matricula[0],
+
+nome:nome,
+
+sexo:sexo[0].toUpperCase()
+
+});
+
+
+}
+
+
+}
+
+
+
+}
+
+
+
+return alunos;
 
 
     }
-
-
-
-    return alunos;
-
-                      }
