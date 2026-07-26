@@ -1,27 +1,40 @@
-export async function lerPDF(file) {
+export async function lerPDF(file){
+
 
     const dados = await file.arrayBuffer();
 
+
     const pdf = await pdfjsLib.getDocument({
-        data: dados
+        data:dados
     }).promise;
 
 
-    let itens = [];
+
+    let todosAlunos = [];
 
 
-    for (let pagina = 1; pagina <= pdf.numPages; pagina++) {
+
+    for(let pagina = 1; pagina <= pdf.numPages; pagina++){
+
 
         const page = await pdf.getPage(pagina);
 
+
         const content = await page.getTextContent();
 
-        itens.push(...content.items);
+
+        const alunos = extrairAlunos(content.items);
+
+
+        todosAlunos.push(...alunos);
+
 
     }
 
 
-    return extrairAlunos(itens);
+
+    return todosAlunos;
+
 
 }
 
@@ -29,25 +42,32 @@ export async function lerPDF(file) {
 
 
 
-function extrairAlunos(itens) {
+function extrairAlunos(items){
 
 
     let alunos = [];
 
-    let inicio = false;
+
+    let iniciar = false;
+
+
+    let i = 0;
 
 
 
-    for (let i = 0; i < itens.length; i++) {
+    while(i < items.length){
 
 
-        let valor = itens[i].str.trim();
+        let valor = items[i].str.trim();
 
 
 
-        if (valor === "N°" || valor === "Nº") {
+        if(valor === "N°"){
 
-            inicio = true;
+
+            iniciar = true;
+
+            i++;
 
             continue;
 
@@ -55,7 +75,9 @@ function extrairAlunos(itens) {
 
 
 
-        if (!inicio) {
+        if(!iniciar){
+
+            i++;
 
             continue;
 
@@ -63,43 +85,48 @@ function extrairAlunos(itens) {
 
 
 
-        if (/^\d+$/.test(valor)) {
+        if(/^\d+$/.test(valor)){
 
 
-            let aluno = {
 
-                numero: valor,
-
-                nome: "",
-
-                sexo: "",
-
-                data: "",
-
-                idade: ""
-
-            };
+            let numero = valor;
 
 
             i++;
 
 
-            while (i < itens.length) {
+            let nome = "";
+
+            let sexo = "";
 
 
-                let campo = itens[i].str.trim();
 
 
-                if (campo === "M" || campo === "F") {
+            while(i < items.length){
 
-                    aluno.sexo = campo;
+
+                let campo = items[i].str.trim();
+
+
+
+                if(campo === "M" || campo === "F"){
+
+
+                    sexo = campo;
 
                     break;
 
                 }
 
 
-                aluno.nome += campo + " ";
+
+                if(campo !== ""){
+
+
+                    nome += campo + " ";
+
+                }
+
 
                 i++;
 
@@ -108,19 +135,107 @@ function extrairAlunos(itens) {
 
 
 
-            if (aluno.nome !== "" && aluno.sexo !== "") {
+            i++;
 
-                alunos.push(aluno);
+
+            let data = "";
+
+
+
+            while(i < items.length){
+
+
+                let campo = items[i].str.trim();
+
+
+
+                if(/^\d{4}$/.test(campo)){
+
+
+                    data += campo;
+
+
+                    i++;
+
+                    break;
+
+                }
+
+
+
+                if(campo !== ""){
+
+
+                    data += campo + " ";
+
+                }
+
+
+                i++;
+
 
             }
+
+
+
+            let idade = "";
+
+
+
+            while(i < items.length){
+
+
+                let campo = items[i].str.trim();
+
+
+
+                if(/\d+\s?(anos|Anos|ano)/i.test(campo)){
+
+
+                    idade = campo;
+
+                    break;
+
+                }
+
+
+                i++;
+
+
+            }
+
+
+
+
+            alunos.push({
+
+                numero,
+
+                nome:nome.trim(),
+
+                sexo,
+
+                data:data.trim(),
+
+                idade
+
+
+            });
+
 
 
         }
 
 
+
+        i++;
+
+
     }
+
 
 
     return alunos;
 
-            }
+
+}
