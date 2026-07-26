@@ -31,39 +31,27 @@ export async function lerPDF(file){
 
 function extrairAlunosPorLinha(items){
 
-
-    let linhas = [];
+    let linhas = {};
 
 
     items.forEach(item=>{
 
 
-        let y = item.transform[5];
+        let x = item.transform[4];
+        let y = Math.round(item.transform[5]);
 
 
-        let linhaExistente = linhas.find(
-            l => Math.abs(l.y - y) < 5
-        );
+        if(!linhas[y]){
 
-
-        if(!linhaExistente){
-
-            linhaExistente = {
-                y:y,
-                itens:[]
-            };
-
-            linhas.push(linhaExistente);
+            linhas[y] = [];
 
         }
 
 
-
-        linhaExistente.itens.push({
+        linhas[y].push({
 
             texto:item.str.trim(),
-
-            x:item.transform[4]
+            x:x
 
         });
 
@@ -72,118 +60,97 @@ function extrairAlunosPorLinha(items){
 
 
 
-
     let alunos = [];
 
 
-
-    linhas.forEach(linha=>{
-
-
-        linha.itens.sort((a,b)=>a.x-b.x);
+    Object.values(linhas).forEach(linha=>{
 
 
-
-        let textos = linha.itens
-        .map(i=>i.texto)
-        .filter(t=>t);
+        linha.sort((a,b)=>a.x-b.x);
 
 
 
-        let debug = document.getElementById("debugPDF");
-
-if(!debug){
-
-    debug = document.createElement("pre");
-
-    debug.id = "debugPDF";
-
-    debug.style.whiteSpace = "pre-wrap";
-
-    document.body.appendChild(debug);
-
-}
-
-debug.innerHTML += JSON.stringify(textos) + "\n";
-
-
-
-        if(textos.length < 2) return;
-
-
-
-        let numero = textos[0];
-
-
-
-        if(!/^\d+$/.test(numero)) return;
-
-
-
-        let sexo = textos.find(
-            t => t==="M" || t==="F"
-        );
-
-
-
-        if(!sexo) return;
-
-
-
-        textos.shift();
-
-
-
+        let numero = "";
         let nome = "";
+        let sexo = "";
         let data = "";
         let idade = "";
 
 
 
-        textos.forEach(campo=>{
+        linha.forEach(campo=>{
 
 
-            if(campo==="M" || campo==="F")
-                return;
-
-
-
-            if(/\d{1,2}\s*[-/]\s*\d{1,2}\s*[-/]\s*\d{4}/.test(campo)){
-
-                data = campo;
-                return;
-
-            }
+            let texto = campo.texto;
 
 
 
-            if(/\d+\s*(anos|ano)/i.test(campo)){
+            // Nº (primeira coluna)
+            if(!numero && /^\d+$/.test(texto)){
 
-                idade = campo;
+                numero = texto;
                 return;
 
             }
 
 
 
-            nome += campo + " ";
+            // Sexo
+            if(texto==="M" || texto==="F"){
 
+                sexo = texto;
+                return;
+
+            }
+
+
+
+            // Data
+            if(/\d{1,2}[-/]\d{1,2}[-/]\d{4}/.test(texto)){
+
+                data = texto;
+                return;
+
+            }
+
+
+
+            // Idade
+            if(/\d+/.test(texto) && texto.length <= 2){
+
+                idade = texto;
+                return;
+
+            }
+
+
+
+            // Nome
+            if(numero){
+
+                nome += texto + " ";
+
+            }
 
 
         });
 
 
 
-        if(nome.trim()){
+        if(numero && nome.trim()){
 
 
             alunos.push({
 
-                numero,
+                numero:numero,
+
                 nome:nome.trim(),
-                sexo,
-                data,
-                idade
+
+                sexo:sexo,
+
+                data:data,
+
+                idade:idade
 
             });
 
