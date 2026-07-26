@@ -378,6 +378,31 @@ function extrairAlunos(textos){
 
         }
 
+function extrairAlunos(textos){
+
+
+    let alunos = [];
+
+    let inicio = false;
+
+    let i = 0;
+
+
+
+    while(i < textos.length){
+
+
+        // Encontrar início da tabela
+        if(textos[i] === "N°" || textos[i] === "Nº"){
+
+            inicio = true;
+
+            i++;
+
+            continue;
+
+        }
+
 
 
         if(!inicio){
@@ -390,14 +415,12 @@ function extrairAlunos(textos){
 
 
 
-        // Ignorar cabeçalhos repetidos
-
+        // Ignorar títulos repetidos
         if(
-            textos[i] === "N°" ||
-            textos[i] === "Nº" ||
             textos[i] === "Nome" ||
             textos[i] === "Completo" ||
-            textos[i] === "Sexo"
+            textos[i] === "Sexo" ||
+            textos[i] === "Idade"
         ){
 
             i++;
@@ -409,17 +432,13 @@ function extrairAlunos(textos){
 
 
 
-
-        // Encontrar número do aluno
-
+        // Número do aluno
         if(/^\d+$/.test(textos[i])){
 
 
             let numero = textos[i];
 
-
             i++;
-
 
 
             let nome = "";
@@ -432,14 +451,11 @@ function extrairAlunos(textos){
 
 
 
-
-            // Nome até M ou F
-
+            // Nome até encontrar M ou F
             while(i < textos.length){
 
 
                 if(textos[i] === "M" || textos[i] === "F"){
-
 
                     sexo = textos[i];
 
@@ -448,7 +464,6 @@ function extrairAlunos(textos){
                     break;
 
                 }
-
 
 
                 nome += textos[i] + " ";
@@ -461,79 +476,53 @@ function extrairAlunos(textos){
 
 
 
-
-
-            // Data nascimento
-
-            let dataPartes = [];
+            // Ler data: dia - mês - ano
+            let partesData = [];
 
 
 
-            while(i < textos.length){
-
+            while(i < textos.length && partesData.length < 3){
 
 
                 if(/^\d+$/.test(textos[i])){
 
-
-                    dataPartes.push(textos[i]);
-
-
-                    i++;
-
-
-                    if(dataPartes.length === 3){
-
-                        break;
-
-                    }
-
-
-                }else{
-
-                    i++;
+                    partesData.push(textos[i]);
 
                 }
 
 
+                i++;
+
+
             }
 
 
 
-
-            if(dataPartes.length === 3){
-
+            if(partesData.length === 3){
 
                 data =
-                dataPartes[0] +
+                partesData[0] +
                 "-" +
-                dataPartes[1] +
+                partesData[1] +
                 "-" +
-                dataPartes[2];
-
+                partesData[2];
 
             }
 
 
 
 
-
-            // Idade
-
+            // Ler idade
             while(i < textos.length){
 
 
-                if(
-                    /\d+\s*(anos|Anos|ano)/i.test(textos[i])
-                ){
-
+                if(/\d+\s*(anos|Anos|ano)/i.test(textos[i])){
 
                     idade = textos[i];
 
                     i++;
 
                     break;
-
 
                 }
 
@@ -547,28 +536,25 @@ function extrairAlunos(textos){
 
 
 
-            if(numero && nome && sexo){
+            if(numero && nome.trim() && sexo){
 
 
                 alunos.push({
 
-                    numero,
+                    numero: numero,
 
-                    nome:nome.trim(),
+                    nome: nome.trim(),
 
-                    sexo,
+                    sexo: sexo,
 
-                    data,
+                    data: data,
 
-                    idade
-
+                    idade: idade
 
                 });
 
 
             }
-
-
 
 
         }else{
@@ -580,12 +566,10 @@ function extrairAlunos(textos){
         }
 
 
-
     }
-
 
 
     return alunos;
 
 
-            }
+}
