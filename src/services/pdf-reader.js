@@ -1,62 +1,34 @@
-
-alert("PDF READER ATUALIZADO");
+alert("ENTROU NO LEITOR");
 
 export async function lerPDF(file){
 
-
     const dados = await file.arrayBuffer();
-
 
     const pdf = await pdfjsLib.getDocument({
         data:dados
     }).promise;
 
 
-
-    let textos = [];
-
+    alert("Páginas: " + pdf.numPages);
 
 
-    for(let pagina = 1; pagina <= pdf.numPages; pagina++){
+    const page = await pdf.getPage(1);
 
 
-        const page = await pdf.getPage(pagina);
+    const content = await page.getTextContent();
 
 
-        const content = await page.getTextContent();
+    alert("Elementos página 1: " + content.items.length);
 
 
-
-        content.items.forEach(item=>{
-
-
-            let t = item.str.trim();
+    let texto = content.items
+    .map(i=>i.str)
+    .join(" | ");
 
 
-            if(t){
-
-                textos.push(t);
-
-            }
-
-
-        });
-
-
-    }
-
-
-
-    // MOSTRAR COMO O PDF ENTREGA OS DADOS
-
-    alert(
-        "Total de elementos: " + textos.length +
-        "\n\n" +
-        textos.slice(0,250).join(" | ")
-    );
-
+    alert(texto.substring(0,1000));
 
 
     return [];
 
-            }
+}
