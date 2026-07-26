@@ -1,6 +1,8 @@
 export async function lerPDF(file){
 
+
     const dados = await file.arrayBuffer();
+
 
     const pdf = await pdfjsLib.getDocument({
         data:dados
@@ -10,25 +12,38 @@ export async function lerPDF(file){
     let todosAlunos = [];
 
 
+
     for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
+
         const page = await pdf.getPage(pagina);
+
 
         const content = await page.getTextContent();
 
 
-        const alunos = extrairPorLinha(content.items);
+        const alunos = extrairAlunos(content.items);
 
 
         todosAlunos.push(...alunos);
 
+
     }
 
 
-    todosAlunos.sort((a,b)=>Number(a.numero)-Number(b.numero));
+
+    // ordenar pelo número do aluno
+
+    todosAlunos.sort((a,b)=>{
+
+        return Number(a.numero) - Number(b.numero);
+
+    });
+
 
 
     return todosAlunos;
+
 
 }
 
@@ -36,50 +51,47 @@ export async function lerPDF(file){
 
 
 
-function extrairPorLinha(items){
+
+function extrairAlunos(items){
 
 
-    let linhas = [];
+    let linhas = {};
 
 
-
-    // juntar textos pela mesma linha visual
 
     items.forEach(item=>{
+
+
+        let texto = item.str.trim();
+
+
+        if(!texto) return;
+
 
 
         let y = Math.round(item.transform[5]);
 
 
-        let linha = linhas.find(
-            l => Math.abs(l.y - y) <= 3
-        );
 
+        if(!linhas[y]){
 
-        if(!linha){
-
-            linha = {
-                y:y,
-                itens:[]
-            };
-
-            linhas.push(linha);
+            linhas[y] = [];
 
         }
 
 
 
-        linha.itens.push({
+        linhas[y].push({
 
-            texto:item.str.trim(),
+            texto:texto,
 
             x:item.transform[4]
 
         });
 
 
-    });
 
+    });
 
 
 
@@ -88,39 +100,30 @@ function extrairPorLinha(items){
 
 
 
-    linhas.forEach(linha=>{
+    Object.values(linhas).forEach(linha=>{
 
 
-        linha.itens.sort((a,b)=>a.x-b.x);
-
-
-
-        let textos = linha.itens
-        .map(i=>i.texto)
-        .filter(t=>t);
+        linha.sort((a,b)=>a.x-b.x);
 
 
 
-        // procurar linhas que começam com número
-
-        if(!/^\d+$/.test(textos[0])){
-
-            return;
-
-        }
+        let campos = linha.map(i=>i.texto);
 
 
 
-        let numero = textos[0];
+        // precisa começar por número
+
+        if(!/^\d+$/.test(campos[0])) return;
 
 
 
-        let sexoIndex = textos.findIndex(
-            t=>t==="M" || t==="F"
-        );
+        let numero = campos[0];
 
 
-        if(sexoIndex === -1){
+
+        // ignorar números grandes do cabeçalho
+
+        if(Number(numero) > 100){
 
             return;
 
@@ -128,20 +131,30 @@ function extrairPorLinha(items){
 
 
 
-        let sexo = textos[sexoIndex];
+        let posSexo = campos.findIndex(c=>c==="M" || c==="F");
 
 
 
-        let nome = textos
-        .slice(1,sexoIndex)
+        if(posSexo === -1) return;
+
+
+
+        let nome = campos
+        .slice(1,posSexo)
         .join(" ");
 
 
 
 
-        let numeros = textos
-        .slice(sexoIndex+1)
-        .filter(t=>/^\d+$/.test(t));
+        if(nome.length < 5) return;
+
+
+
+        let depoisSexo = campos.slice(posSexo+1);
+
+
+
+        let numeros = depoisSexo.filter(c=>/^\d+$/.test(c));
 
 
 
@@ -164,17 +177,18 @@ function extrairPorLinha(items){
 
 
 
-
-        let idadeTexto = textos.find(
-            t=>/\d+\s*(anos|Anos|ano)/i.test(t)
+        let idadeEncontrada = campos.find(c=>
+            /\d+\s*(anos|Anos|ano)/i.test(c)
         );
 
 
-        if(idadeTexto){
 
-            idade = idadeTexto;
+        if(idadeEncontrada){
+
+            idade = idadeEncontrada;
 
         }
+
 
 
 
@@ -185,7 +199,7 @@ function extrairPorLinha(items){
 
             nome,
 
-            sexo,
+            sexo: campos[posSexo],
 
             data,
 
@@ -202,4 +216,4 @@ function extrairPorLinha(items){
     return alunos;
 
 
-        }
+    }
