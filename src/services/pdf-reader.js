@@ -9,7 +9,8 @@ export async function lerPDF(file){
     }).promise;
 
 
-    let todosAlunos = [];
+
+    let textos = [];
 
 
 
@@ -22,19 +23,32 @@ export async function lerPDF(file){
         const content = await page.getTextContent();
 
 
-        const alunos = extrairAlunos(content.items);
+
+        content.items.forEach(item=>{
 
 
-        todosAlunos.push(...alunos);
+            let t = item.str.trim();
+
+
+            if(t){
+
+                textos.push(t);
+
+            }
+
+
+        });
 
 
     }
 
 
 
-    // ordenar pelo número do aluno
+    let alunos = extrairAlunos(textos);
 
-    todosAlunos.sort((a,b)=>{
+
+
+    alunos.sort((a,b)=>{
 
         return Number(a.numero) - Number(b.numero);
 
@@ -42,7 +56,7 @@ export async function lerPDF(file){
 
 
 
-    return todosAlunos;
+    return alunos;
 
 
 }
@@ -52,111 +66,71 @@ export async function lerPDF(file){
 
 
 
-function extrairAlunos(items){
-
-
-    let linhas = {};
-
-
-
-    items.forEach(item=>{
-
-
-        let texto = item.str.trim();
-
-
-        if(!texto) return;
-
-
-
-        let y = Math.round(item.transform[5]);
-
-
-
-        if(!linhas[y]){
-
-            linhas[y] = [];
-
-        }
-
-
-
-        linhas[y].push({
-
-            texto:texto,
-
-            x:item.transform[4]
-
-        });
-
-
-
-    });
-
-
+function extrairAlunos(textos){
 
 
     let alunos = [];
 
-
-
-    Object.values(linhas).forEach(linha=>{
-
-
-        linha.sort((a,b)=>a.x-b.x);
+    let iniciou = false;
 
 
 
-        let campos = linha.map(i=>i.texto);
+    for(let i = 0; i < textos.length; i++){
 
 
 
-        // precisa começar por número
+        // começar depois do cabeçalho
 
-        if(!/^\d+$/.test(campos[0])) return;
+        if(
+            textos[i] === "N°" ||
+            textos[i] === "Nº"
+        ){
 
+            iniciou = true;
 
-
-        let numero = campos[0];
-
-
-
-        // ignorar números grandes do cabeçalho
-
-        if(Number(numero) > 100){
-
-            return;
+            continue;
 
         }
 
 
 
-        let posSexo = campos.findIndex(c=>c==="M" || c==="F");
+        if(!iniciou){
 
+            continue;
 
-
-        if(posSexo === -1) return;
-
-
-
-        let nome = campos
-        .slice(1,posSexo)
-        .join(" ");
+        }
 
 
 
 
-        if(nome.length < 5) return;
+
+        // número do aluno
+
+        if(!/^\d+$/.test(textos[i])){
+
+            continue;
+
+        }
 
 
 
-        let depoisSexo = campos.slice(posSexo+1);
+        let numero = textos[i];
 
 
 
-        let numeros = depoisSexo.filter(c=>/^\d+$/.test(c));
+        // evitar números do cabeçalho
+
+        if(Number(numero) > 100){
+
+            continue;
+
+        }
 
 
+
+        let nome = "";
+
+        let sexo = "";
 
         let data = "";
 
@@ -164,28 +138,122 @@ function extrairAlunos(items){
 
 
 
-        if(numeros.length >= 3){
+        let j = i + 1;
+
+
+
+        // nome até encontrar M ou F
+
+        while(j < textos.length){
+
+
+            if(
+                textos[j] === "M" ||
+                textos[j] === "F"
+            ){
+
+                sexo = textos[j];
+
+                j++;
+
+                break;
+
+            }
+
+
+
+            nome += textos[j] + " ";
+
+            j++;
+
+
+        }
+
+
+
+
+        if(!sexo){
+
+            continue;
+
+        }
+
+
+
+
+
+        // procurar data dia-mês-ano
+
+        let partesData = [];
+
+
+
+        while(j < textos.length){
+
+
+
+            if(/^\d+$/.test(textos[j])){
+
+
+                partesData.push(textos[j]);
+
+
+                if(partesData.length === 3){
+
+                    break;
+
+                }
+
+
+            }
+
+
+            j++;
+
+
+        }
+
+
+
+
+        if(partesData.length === 3){
 
 
             data =
-            numeros[0]+"-"+
-            numeros[1]+"-"+
-            numeros[2];
+            partesData[0] +
+            "-" +
+            partesData[1] +
+            "-" +
+            partesData[2];
 
 
         }
 
 
 
-        let idadeEncontrada = campos.find(c=>
-            /\d+\s*(anos|Anos|ano)/i.test(c)
-        );
 
 
+        // procurar idade
 
-        if(idadeEncontrada){
+        while(j < textos.length){
 
-            idade = idadeEncontrada;
+
+            if(
+                /\d+\s*(anos|Anos|ano)/i
+                .test(textos[j])
+            ){
+
+
+                idade = textos[j];
+
+                break;
+
+
+            }
+
+
+            j++;
+
 
         }
 
@@ -193,27 +261,40 @@ function extrairAlunos(items){
 
 
 
-        alunos.push({
 
-            numero,
-
-            nome,
-
-            sexo: campos[posSexo],
-
-            data,
-
-            idade
-
-        });
+        if(
+            nome.trim().length > 3 &&
+            sexo
+        ){
 
 
 
-    });
+            alunos.push({
+
+                numero,
+
+                nome:nome.trim(),
+
+                sexo,
+
+                data,
+
+                idade
+
+
+            });
+
+
+
+        }
+
+
+
+    }
 
 
 
     return alunos;
 
 
-    }
+}
