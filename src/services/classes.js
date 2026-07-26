@@ -117,6 +117,8 @@ async function carregarTurmas(){
         const snapshot =
         await getDocs(collection(db,"turmas"));
 
+        console.log("Total de turmas:", snapshot.size);
+console.log(snapshot.docs.map(doc => doc.data()));
 
 
         classList.innerHTML="";
