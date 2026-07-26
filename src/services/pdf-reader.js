@@ -31,126 +31,118 @@ export async function lerPDF(file){
 
 function extrairAlunosPorLinha(items){
 
-    let linhas = {};
-
-
-    items.forEach(item=>{
-
-
-        let x = item.transform[4];
-        let y = Math.round(item.transform[5]);
-
-
-        if(!linhas[y]){
-
-            linhas[y] = [];
-
-        }
-
-
-        linhas[y].push({
-
-            texto:item.str.trim(),
-            x:x
-
-        });
-
-
-    });
-
+    let textos = items
+        .map(i => i.str.trim())
+        .filter(t => t);
 
 
     let alunos = [];
 
-
-    Object.values(linhas).forEach(linha=>{
-
-
-        linha.sort((a,b)=>a.x-b.x);
+    let i = 0;
 
 
+    while(i < textos.length){
 
-        let numero = "";
+
+        // procurar número do aluno
+        if(!/^\d+$/.test(textos[i])){
+
+            i++;
+            continue;
+
+        }
+
+
+        let numero = textos[i];
+
+        i++;
+
+
         let nome = "";
+
         let sexo = "";
+
         let data = "";
+
         let idade = "";
 
 
 
-        linha.forEach(campo=>{
+        // recolher nome até M ou F
+        while(i < textos.length){
 
+            if(textos[i] === "M" || textos[i] === "F"){
 
-            let texto = campo.texto;
+                sexo = textos[i];
 
+                i++;
 
-
-            // Nº (primeira coluna)
-            if(!numero && /^\d+$/.test(texto)){
-
-                numero = texto;
-                return;
+                break;
 
             }
 
 
+            nome += textos[i] + " ";
 
-            // Sexo
-            if(texto==="M" || texto==="F"){
+            i++;
 
-                sexo = texto;
-                return;
-
-            }
+        }
 
 
 
-            // Data
-            if(/\d{1,2}[-/]\d{1,2}[-/]\d{4}/.test(texto)){
+        // recolher data
+        while(i < textos.length){
 
-                data = texto;
-                return;
+            if(/\d{4}/.test(textos[i])){
 
-            }
+                data = textos[i-4] + "-" + textos[i-2] + "-" + textos[i];
 
+                i++;
 
-
-            // Idade
-            if(/\d+/.test(texto) && texto.length <= 2){
-
-                idade = texto;
-                return;
+                break;
 
             }
 
 
+            i++;
 
-            // Nome
-            if(numero){
+        }
 
-                nome += texto + " ";
+
+
+        // recolher idade
+        while(i < textos.length){
+
+            if(/\d+\s*(anos|Anos|ano)/.test(textos[i])){
+
+                idade = textos[i];
+
+                i++;
+
+                break;
 
             }
 
+            i++;
 
-        });
+        }
 
 
 
-        if(numero && nome.trim()){
+        if(numero && nome && sexo){
 
 
             alunos.push({
 
-                numero:numero,
+                numero,
 
                 nome:nome.trim(),
 
-                sexo:sexo,
+                sexo,
 
-                data:data,
+                data,
 
-                idade:idade
+                idade
 
             });
 
@@ -158,11 +150,9 @@ function extrairAlunosPorLinha(items){
         }
 
 
-    });
-
+    }
 
 
     return alunos;
 
-
-            }
+}
