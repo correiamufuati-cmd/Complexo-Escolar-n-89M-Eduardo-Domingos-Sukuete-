@@ -69,11 +69,13 @@ quantidade: todosAlunos.length
 
 
 function extrairDadosTurma(items){
+function extrairDadosTurma(items){
 
 
 const texto = items
-.map(item=>item.str.trim())
-.join(" ");
+.map(item=>item.str)
+.join(" ")
+.replace(/\s+/g," ");
 
 
 
@@ -83,34 +85,45 @@ let ano="";
 
 
 
-let c = texto.match(/Classe:\s*(\d+)/);
+// procura classe
+let c = texto.match(/(\d+)\s*[ªa]?\s*Classe/i);
 
 if(c){
-classe=c[1]+"ª";
+
+classe = c[1]+"ª";
+
 }
 
 
 
-let t = texto.match(/Turma:\s*([A-Z])/);
+// procura turma
+let t = texto.match(/Turma\s*[:\-]?\s*([A-Z])/i);
 
 if(t){
-turma=t[1];
+
+turma = t[1].toUpperCase();
+
 }
 
 
 
-let a = texto.match(/202\s?\d\s*\/\s*202\s?\d/);
+// procura ano letivo
+let a = texto.match(/20\d{2}\s*\/\s*20\d{2}/);
 
 if(a){
-ano=a[0];
+
+ano = a[0];
+
 }
 
 
 
 return {
+
 classe,
 turma,
 ano
+
 };
 
 
