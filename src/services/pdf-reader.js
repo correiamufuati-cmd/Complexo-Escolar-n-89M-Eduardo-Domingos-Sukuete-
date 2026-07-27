@@ -1,133 +1,147 @@
-import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+import * as pdfjsLib from 
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+
 
 export async function lerPDF(file){
 
     const dados = await file.arrayBuffer();
 
+
     const pdf = await pdfjsLib.getDocument({
-        data: dados
+        data:dados
     }).promise;
 
-    let todosAlunos = [];
-    let dadosTurma = {};
+
+    let textoCompleto = "";
+
 
     for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
         const page = await pdf.getPage(pagina);
 
-        const content = await page.getTextContent();
+        const conteudo = await page.getTextContent();
 
-        dadosTurma = extrairDadosTurma(content.items);
 
-        const alunos = extrairAlunos(content.items);
+        let linhas = [];
 
-        todosAlunos.push(...alunos);
+        let linhaAtual = "";
+        let ultimaY = null;
 
-    }
 
-    return {
-        turma: dadosTurma,
-        alunos: todosAlunos,
-        quantidade: todosAlunos.length
-    };
+        conteudo.items.forEach(item=>{
 
-}
+            const y = item.transform[5];
 
-function extrairDadosTurma(items){
 
-    const texto = items
-        .map(item => item.str.trim())
-        .join(" ");
+            if(ultimaY === null || Math.abs(y - ultimaY) < 5){
 
-    let classe = "";
-    let turma = "";
-    let ano = "";
+                linhaAtual += " " + item.str;
 
-    const c = texto.match(/Classe:\s*(\d+)/);
+            }else{
 
-    if(c) classe = c[1] + "ª";
-
-    const t = texto.match(/Turma:\s*([A-Z])/);
-
-    if(t) turma = t[1];
-
-    const a = texto.match(/202\s?\d\s*\/\s*202\s?\d/);
-
-    if(a) ano = a[0];
-
-    return {
-        classe,
-        turma,
-        ano
-    };
-
-}
-
-function extrairAlunos(items){
-
-    let alunos = [];
-
-    let iniciar = false;
-
-    let i = 0;
-
-    while(i < items.length){
-
-        let valor = items[i].str.trim();
-
-        if(valor === "N°" || valor === "Nº"){
-
-            iniciar = true;
-            i++;
-            continue;
-
-        }
-
-        if(!iniciar){
-
-            i++;
-            continue;
-
-        }
-
-        if(/^\d+$/.test(valor)){
-
-            let numero = valor;
-
-            i++;
-
-            let nome = "";
-            let sexo = "";
-            let data = "";
-            let idade = "";
-
-            while(i < items.length){
-
-                let campo = items[i].str.trim();
-
-                if(campo === "M" || campo === "F"){
-
-                    sexo = campo;
-                    i++;
-                    break;
-
-                }
-
-                if(campo !== ""){
-
-                    nome += campo + " ";
-
-                }
-
-                i++;
+                linhas.push(linhaAtual);
+                linhaAtual = item.str;
 
             }
 
-            while(i < items.length){
 
-                let campo = items[i].str.trim();
+            ultimaY = y;
 
-                if(/^\d{4}$/.test
+        });
+
+
+        if(linhaAtual){
+            linhas.push(linhaAtual);
+        }
+
+
+        textoCompleto += linhas.join("\n") + "\n";
+
+    }
+
+
+
+    console.log(textoCompleto);
+
+
+
+    const alunos = extrairAlunos(textoCompleto);
+
+
+
+    return {
+
+        alunos: alunos,
+
+        quantidade: alunos.length
+
+    };
+
+
+}
+
+
+
+
+function extrairAlunos(texto){
+
+
+    let alunos = [];
+
+
+    const linhas = texto.split("\n");
+
+
+    linhas.forEach(linha=>{
+
+
+        linha = linha.trim();
+
+
+        /*
+        Exemplo esperado:
+        01 12345 JOÃO ANTÓNIO M
+        */
+
+
+        const regex =
+        /^(\d+)\s+(\d+)\s+(.+?)\s+(M|F)$/i;
+
+
+
+        const resultado = linha.match(regex);
+
+
+
+        if(resultado){
+
+
+            alunos.push({
+
+                numero: resultado[1],
+
+                matricula: resultado[2],
+
+                nome: resultado[3].trim(),
+
+                sexo: resultado[4].toUpperCase()
+
+            });
+
+
+        }
+
+
+    });
+
+
+
+    return alunos;
+
+
+        }
