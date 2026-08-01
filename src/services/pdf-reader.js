@@ -9,38 +9,14 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
-    const dados = await file.arrayBuffer();
-
-
-    const pdf = await pdfjsLib.getDocument({
-        data:dados
-    }).promise;
-
-
-    let textoCompleto = "";
-
-
-    for(let pagina = 1; pagina <= pdf.numPages; pagina++){
-
-        const page = await pdf.getPage(pagina);
-
-        const conteudo = await page.getTextContent();
-
-
-        let linhas = [];
-
-        let linhaAtual = "";
-        let ultimaY = null;
-
-
-        conteudo.items.forEach(item=>{
-export async function lerPDF(file){
 
 const dados = await file.arrayBuffer();
 
+
 const pdf = await pdfjsLib.getDocument({
-data:dados
+    data:dados
 }).promise;
+
 
 
 let todosAlunos = [];
@@ -48,10 +24,42 @@ let todosAlunos = [];
 let turmaInfo = {};
 
 
-// ... todo o teu código continua aqui
+
+for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
 
-// COLOCA AQUI ANTES DO return
+    const page = await pdf.getPage(pagina);
+
+
+    const content = await page.getTextContent();
+
+
+
+    // Ler dados da turma
+    const dadosTurma = extrairDadosTurma(content.items);
+
+
+    if(dadosTurma.classe || dadosTurma.turma){
+
+        turmaInfo = dadosTurma;
+
+    }
+
+
+
+    // Ler alunos
+    const alunosPagina = extrairAlunos(content.items);
+
+
+    todosAlunos.push(...alunosPagina);
+
+
+
+}
+
+
+
+// TESTE
 console.log("TURMA ENCONTRADA:", turmaInfo);
 console.log("TOTAL ALUNOS:", todosAlunos.length);
 
@@ -59,11 +67,92 @@ console.log("TOTAL ALUNOS:", todosAlunos.length);
 
 return {
 
-turma: turmaInfo,
 
-alunos: todosAlunos,
+    turma: turmaInfo,
 
-quantidade: todosAlunos.length
+
+    alunos: todosAlunos,
+
+
+    quantidade: todosAlunos.length
+
+
+};
+
+
+
+}
+
+
+
+
+
+
+
+function extrairDadosTurma(items){
+
+
+const texto = items
+.map(item=>item.str.trim())
+.join(" ");
+
+
+
+let classe = "";
+let turma = "";
+let ano = "";
+
+
+
+// Classe
+
+let c = texto.match(/Classe\s*[:\-]?\s*(\d+)/i);
+
+
+if(c){
+
+    classe = c[1] + "ª";
+
+}
+
+
+
+
+// Turma
+
+let t = texto.match(/Turma\s*[:\-]?\s*([A-Z])/i);
+
+
+if(t){
+
+    turma = t[1].toUpperCase();
+
+}
+
+
+
+
+// Ano lectivo
+
+let a = texto.match(/20\d{2}\s*\/\s*20\d{2}/);
+
+
+if(a){
+
+    ano = a[0];
+
+}
+
+
+
+
+return {
+
+    classe,
+
+    turma,
+
+    ano
 
 };
 
@@ -73,60 +162,132 @@ quantidade: todosAlunos.length
 
 
 
-function extrairAlunos(texto){
-
-
-    let alunos = [];
-
-
-    const linhas = texto.split("\n");
-
-
-    linhas.forEach(linha=>{
-
-
-        linha = linha.trim();
-
-
-        /*
-        Exemplo esperado:
-        01 12345 JOÃO ANTÓNIO M
-        */
-
-
-        const regex =
-        /^(\d+)\s+(\d+)\s+(.+?)\s+(M|F)$/i;
 
 
 
-        const resultado = linha.match(regex);
+
+
+function extrairAlunos(items){
+
+
+let alunos = [];
+
+
+let iniciar = false;
 
 
 
-        if(resultado){
+for(let i = 0; i < items.length; i++){
 
 
-            alunos.push({
+let valor = items[i].str.trim();
 
-                numero: resultado[1],
 
-                matricula: resultado[2],
 
-                nome: resultado[3].trim(),
+if(valor === "N°" || valor === "Nº"){
 
-                sexo: resultado[4].toUpperCase()
 
-            });
+    iniciar = true;
+
+    continue;
+
+}
+
+
+
+
+if(!iniciar){
+
+    continue;
+
+}
+
+
+
+
+
+if(/^\d+$/.test(valor)){
+
+
+    let numero = valor;
+
+
+    let nome = "";
+
+    let sexo = "";
+
+
+
+    i++;
+
+
+
+    while(i < items.length){
+
+
+        let campo = items[i].str.trim();
+
+
+
+        if(campo === "M" || campo === "F"){
+
+
+            sexo = campo;
+
+            break;
 
 
         }
 
 
-    });
+
+        if(campo !== ""){
 
 
-
-    return alunos;
+            nome += campo + " ";
 
 
         }
+
+
+
+        i++;
+
+
+    }
+
+
+
+
+    if(nome.trim() !== ""){
+
+
+        alunos.push({
+
+            numero: numero,
+
+            nome: nome.trim(),
+
+            sexo: sexo
+
+
+        });
+
+
+    }
+
+
+
+}
+
+
+
+}
+
+
+
+return alunos;
+
+
+
+    }
