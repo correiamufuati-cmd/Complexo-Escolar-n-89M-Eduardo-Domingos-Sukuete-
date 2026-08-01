@@ -2,12 +2,87 @@
 <html lang="pt">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Turmas - SGE</title>
+<title>Gestão de Turmas</title>
 
-<link rel="stylesheet" href="../styles/dashboard.css">
+
+<style>
+
+body{
+
+    font-family: Arial, sans-serif;
+    padding:20px;
+    background:#f5f7fa;
+
+}
+
+
+.container{
+
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+
+}
+
+
+h2{
+
+    text-align:center;
+
+}
+
+
+
+input, select, button{
+
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    box-sizing:border-box;
+
+}
+
+
+
+button{
+
+    background:#1976d2;
+    color:white;
+    border:none;
+    cursor:pointer;
+    border-radius:5px;
+
+}
+
+
+
+button:hover{
+
+    opacity:0.8;
+
+}
+
+
+
+.turma-card{
+
+    background:#eeeeee;
+    padding:15px;
+    margin-top:15px;
+    border-radius:8px;
+
+}
+
+
+
+</style>
+
 
 </head>
 
@@ -15,87 +90,66 @@
 <body>
 
 
-<div class="sidebar">
 
-<h2 id="schoolName">Escola</h2>
+<div class="container">
 
-<a href="dashboard-gestor.html">📊 Dashboard</a>
-<a href="classes.html">🏫 Turmas</a>
-<a href="students.html">👨‍🎓 Alunos</a>
-<a href="teachers.html">👨‍🏫 Professores</a>
 
-<button id="logoutBtn">
-Sair
-</button>
-
-</div>
+<h2>
+Gestão de Turmas
+</h2>
 
 
 
-<div class="main">
-
-
-<header>
-
-<h1>Gestão de Turmas</h1>
-
-<p id="userInfo">
-Carregando...
-</p>
-
-</header>
-
-
-
-<div class="card">
-
-<h2>Nova Turma</h2>
-
+<label>
+Nome da Turma
+</label>
 
 <input 
-type="text"
 id="className"
-placeholder="Nome da turma (Ex: 7ª A)"
->
+placeholder="Ex: 7ª A">
 
 
-<input
-type="text"
-id="classLevel"
-placeholder="Classe (Ex: 7ª)"
->
+
+<label>
+Classe
+</label>
+
+<input 
+id="classe"
+placeholder="Ex: 7ª">
 
 
-<input
-type="text"
-id="schoolYear"
-placeholder="Ano letivo (Ex: 2026)"
->
+
+<label>
+Ano Lectivo
+</label>
+
+<input 
+id="anoLetivo"
+placeholder="Ex: 2026/2027">
+
+
+
 
 
 <button id="saveClass">
+
 Criar Turma
+
 </button>
 
 
-</div>
 
 
+<h3>
+Turmas Criadas
+</h3>
 
-
-<div class="card">
-
-<h2>Turmas Existentes</h2>
 
 
 <div id="classList">
 
-Nenhuma turma cadastrada.
-
-</div>
-
-
-<div id="studentList"></div>
+A carregar...
 
 </div>
 
@@ -104,9 +158,9 @@ Nenhuma turma cadastrada.
 </div>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-<script type="module" src="../services/classes.js"></script>
+
+<script type="module" src="../pages/classes.js"></script>
 
 
 </body>
