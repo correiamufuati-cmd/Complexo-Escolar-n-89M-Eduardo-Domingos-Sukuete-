@@ -13,29 +13,20 @@ body{
     padding:20px;
 }
 
-
 table{
-
     border-collapse: collapse;
     width:100%;
     margin-top:20px;
-
 }
 
-
 th,td{
-
     border:1px solid #000;
     padding:8px;
     text-align:left;
-
 }
 
-
 th{
-
     background:#ddd;
-
 }
 
 </style>
@@ -249,6 +240,7 @@ function extrairAlunos(items){
 
 
 
+
             let data = "";
 
 
@@ -440,6 +432,12 @@ const content = await page.getTextContent();
 
 
 
+// NOVO: mostra a estrutura real do PDF
+console.log("PÁGINA:", pagina);
+console.log(content.items);
+
+
+
 
 
 dadosTurma = extrairDadosTurma(content.items);
@@ -493,6 +491,9 @@ Complexo Escolar Nº89 M "Eduardo Domingos Sukuete"
 
 
 
+
+
+<h4>Total de alunos encontrados: ${todosAlunos.length}</h4>
 
 
 <table>
