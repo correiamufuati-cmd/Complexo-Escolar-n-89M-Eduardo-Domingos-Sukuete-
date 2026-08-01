@@ -1,6 +1,8 @@
-alert("classes.js carregou");
+alert("classes.js carregado");
+
 
 import { app } from "../config/firebase.js";
+
 
 import {
     getFirestore,
@@ -11,44 +13,50 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
+
 const db = getFirestore(app);
 
 
+
+// ELEMENTOS DA PÁGINA
+
 const saveButton = document.getElementById("saveClass");
+
 const classList = document.getElementById("classList");
 
-
 const nomeInput = document.getElementById("className");
+
 const classeInput = document.getElementById("classe");
+
 const anoInput = document.getElementById("anoLetivo");
 
 
 
-console.log("classes.js carregado");
 
+
+console.log("Elementos:");
+
+console.log(saveButton);
+console.log(classList);
+console.log(nomeInput);
+console.log(classeInput);
+console.log(anoInput);
+
+
+
+
+
+// ===============================
+// CARREGAR TURMAS
+// ===============================
 
 
 async function carregarTurmas(){
 
 
-    console.log("A procurar turmas...");
+    if(!classList){
 
-
-    classList.innerHTML = "A carregar turmas...";
-
-
-    const dados = await getDocs(
-        collection(db,"turmas")
-    );
-
-
-    classList.innerHTML = "";
-
-
-    if(dados.empty){
-
-        classList.innerHTML =
-        "Nenhuma turma encontrada";
+        console.log("Elemento classList não encontrado");
 
         return;
 
@@ -56,24 +64,88 @@ async function carregarTurmas(){
 
 
 
-    dados.forEach(doc=>{
+    classList.innerHTML = "A carregar turmas...";
 
 
-        const turma = doc.data();
+
+    try{
 
 
-        classList.innerHTML += `
-
-        <p>
-        ${turma.nome} -
-        ${turma.classe} -
-        ${turma.anoLetivo}
-        </p>
-
-        `;
+        const dados = await getDocs(
+            collection(db,"turmas")
+        );
 
 
-    });
+
+        classList.innerHTML = "";
+
+
+
+        if(dados.empty){
+
+
+            classList.innerHTML =
+            "Nenhuma turma criada";
+
+
+            return;
+
+        }
+
+
+
+
+        dados.forEach((doc)=>{
+
+
+            const turma = doc.data();
+
+
+
+            classList.innerHTML += `
+
+
+            <div>
+
+
+            <h3>
+            ${turma.nome || ""}
+            </h3>
+
+
+            <p>
+            Classe: ${turma.classe || ""}
+            </p>
+
+
+            <p>
+            Ano Lectivo: ${turma.anoLetivo || ""}
+            </p>
+
+
+            </div>
+
+
+            <hr>
+
+
+            `;
+
+
+
+        });
+
+
+
+    }catch(error){
+
+
+        classList.innerHTML =
+        "Erro ao carregar turmas: "
+        + error.message;
+
+
+    }
 
 
 }
@@ -82,37 +154,122 @@ async function carregarTurmas(){
 
 
 
+
+
+// ===============================
+// CRIAR TURMA
+// ===============================
+
+
+if(saveButton){
+
+
+
 saveButton.addEventListener("click", async()=>{
 
 
-    console.log("Botão clicado");
+
+    const nome = nomeInput.value.trim();
+
+    const classe = classeInput.value.trim();
+
+    const ano = anoInput.value.trim();
 
 
-    await addDoc(
-        collection(db,"turmas"),
-        {
-
-            nome:nomeInput.value,
-
-            classe:classeInput.value,
-
-            anoLetivo:anoInput.value,
-
-            criadoEm:serverTimestamp()
-
-        }
-    );
 
 
-    alert("Turma guardada");
+    if(!nome || !classe || !ano){
 
 
-    carregarTurmas();
+        alert("Preencha todos os campos");
+
+
+        return;
+
+    }
+
+
+
+
+
+    try{
+
+
+
+        await addDoc(
+
+            collection(db,"turmas"),
+
+            {
+
+
+                nome:nome,
+
+
+                classe:classe,
+
+
+                anoLetivo:ano,
+
+
+                criadoEm:serverTimestamp()
+
+
+            }
+
+
+        );
+
+
+
+
+        alert("Turma criada com sucesso");
+
+
+
+        nomeInput.value="";
+
+        classeInput.value="";
+
+        anoInput.value="";
+
+
+
+        carregarTurmas();
+
+
+
+    }catch(error){
+
+
+
+        alert(
+            "Erro ao criar turma: "
+            + error.message
+        );
+
+
+    }
+
 
 
 });
 
 
 
+}else{
+
+
+console.log("Botão saveClass não encontrado");
+
+
+}
+
+
+
+
+
+
+// iniciar lista
 
 carregarTurmas();
