@@ -1,259 +1,274 @@
-import * as pdfjsLib from 
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+import { app } from "../config/firebase.js";
 
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 
+const db = getFirestore(app);
 
-export async function lerPDF(file){
 
 
-const dados = await file.arrayBuffer();
+// ELEMENTOS DA PÁGINA
 
+const saveButton = document.getElementById("saveClass");
 
-const pdf = await pdfjsLib.getDocument({
-data:dados
-}).promise;
+const classList = document.getElementById("classList");
 
+const nomeInput = document.getElementById("className");
 
+const classeInput = document.getElementById("classe");
 
-let todosAlunos = [];
+const anoInput = document.getElementById("anoLetivo");
 
-let turmaInfo = {};
 
 
 
-for(let pagina=1; pagina<=pdf.numPages; pagina++){
+// ==============================
+// GUARDAR TURMA
+// ==============================
 
 
-const page = await pdf.getPage(pagina);
+saveButton.addEventListener("click", async()=>{
 
 
-const content = await page.getTextContent();
+    const turma = {
 
+        nome: nomeInput.value.trim(),
 
+        classe: classeInput.value.trim(),
 
-turmaInfo = extrairDadosTurma(content.items);
+        anoLetivo: anoInput.value.trim(),
 
+        criadoEm: serverTimestamp()
 
+    };
 
-const alunos = extrairAlunos(content.items);
 
 
+    if(!turma.nome || !turma.classe || !turma.anoLetivo){
 
-todosAlunos.push(...alunos);
+        alert("Preencha todos os campos");
 
+        return;
 
+    }
 
-}
 
 
+    try{
 
-return {
 
-turma: turmaInfo,
+        await addDoc(
 
-alunos: todosAlunos,
+            collection(db,"turmas"),
 
-quantidade: todosAlunos.length
+            turma
 
-};
+        );
 
 
 
-}
+        alert("Turma criada com sucesso");
 
 
+        limparCampos();
 
 
-function extrairDadosTurma(items){
-function extrairDadosTurma(items){
+        carregarTurmas();
 
 
-const texto = items
-.map(item=>item.str)
-.join(" ")
-.replace(/\s+/g," ");
 
+    }catch(error){
 
 
-let classe="";
-let turma="";
-let ano="";
+        alert(
+            "Erro ao guardar turma: "
+            + error.message
+        );
 
 
+    }
 
-// procura classe
-let c = texto.match(/(\d+)\s*[ªa]?\s*Classe/i);
-
-if(c){
-
-classe = c[1]+"ª";
-
-}
-
-
-
-// procura turma
-let t = texto.match(/Turma\s*[:\-]?\s*([A-Z])/i);
-
-if(t){
-
-turma = t[1].toUpperCase();
-
-}
-
-
-
-// procura ano letivo
-let a = texto.match(/20\d{2}\s*\/\s*20\d{2}/);
-
-if(a){
-
-ano = a[0];
-
-}
-
-
-
-return {
-
-classe,
-turma,
-ano
-
-};
-
-
-}
-
-
-
-
-
-
-function extrairAlunos(items){
-
-
-let alunos=[];
-
-
-let iniciar=false;
-
-
-let i=0;
-
-
-
-while(i < items.length){
-
-
-let valor=items[i].str.trim();
-
-
-
-if(valor==="N°"){
-
-
-iniciar=true;
-
-i++;
-
-continue;
-
-}
-
-
-
-if(!iniciar){
-
-i++;
-
-continue;
-
-}
-
-
-
-
-
-if(/^\d+$/.test(valor)){
-
-
-
-let numero=valor;
-
-
-i++;
-
-
-let nome="";
-
-let sexo="";
-
-
-
-while(i<items.length){
-
-
-let campo=items[i].str.trim();
-
-
-
-if(campo==="M" || campo==="F"){
-
-
-sexo=campo;
-
-break;
-
-}
-
-
-
-if(campo!==""){
-
-nome+=campo+" ";
-
-}
-
-
-
-i++;
-
-
-}
-
-
-
-alunos.push({
-
-numero,
-
-nome:nome.trim(),
-
-sexo
 
 
 });
 
 
 
+
+
+// ==============================
+// LISTAR TURMAS
+// ==============================
+
+
+async function carregarTurmas(){
+
+
+    classList.innerHTML = "A carregar...";
+
+
+
+    try{
+
+
+        const resultado = await getDocs(
+
+            collection(db,"turmas")
+
+        );
+
+
+
+        classList.innerHTML = "";
+
+
+
+        if(resultado.empty){
+
+
+            classList.innerHTML =
+            "<p>Nenhuma turma encontrada</p>";
+
+
+            return;
+
+        }
+
+
+
+
+
+        resultado.forEach((item)=>{
+
+
+
+            const turma = item.data();
+
+
+
+            classList.innerHTML += `
+
+
+            <div class="turma-card">
+
+
+                <h3>
+                ${turma.nome}
+                </h3>
+
+
+                <p>
+                Classe: ${turma.classe}
+                </p>
+
+
+                <p>
+                Ano: ${turma.anoLetivo}
+                </p>
+
+
+
+                <button 
+                onclick="removerTurma('${item.id}')">
+
+                Apagar
+
+                </button>
+
+
+            </div>
+
+
+
+            `;
+
+
+
+        });
+
+
+
+    }catch(error){
+
+
+        classList.innerHTML =
+        "Erro: "+error.message;
+
+
+    }
+
+
+
 }
 
 
 
-i++;
 
+
+// ==============================
+// APAGAR TURMA
+// ==============================
+
+
+window.removerTurma = async(id)=>{
+
+
+    const confirmar = confirm(
+        "Deseja apagar esta turma?"
+    );
+
+
+    if(!confirmar){
+
+        return;
+
+    }
+
+
+
+    await deleteDoc(
+
+        doc(db,"turmas",id)
+
+    );
+
+
+
+    carregarTurmas();
+
+
+};
+
+
+
+
+
+
+function limparCampos(){
+
+
+    nomeInput.value="";
+
+    classeInput.value="";
+
+    anoInput.value="";
 
 
 }
 
 
 
-return alunos;
 
 
-}
+// iniciar
+
+carregarTurmas();
