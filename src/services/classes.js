@@ -1,3 +1,5 @@
+alert("classes.js iniciou");
+
 import { app } from "../config/firebase.js";
 
 import {
