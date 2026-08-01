@@ -34,53 +34,38 @@ export async function lerPDF(file){
 
 
         conteudo.items.forEach(item=>{
+export async function lerPDF(file){
 
-            const y = item.transform[5];
+const dados = await file.arrayBuffer();
 
-
-            if(ultimaY === null || Math.abs(y - ultimaY) < 5){
-
-                linhaAtual += " " + item.str;
-
-            }else{
-
-                linhas.push(linhaAtual);
-                linhaAtual = item.str;
-
-            }
+const pdf = await pdfjsLib.getDocument({
+data:dados
+}).promise;
 
 
-            ultimaY = y;
+let todosAlunos = [];
 
-        });
-
-
-        if(linhaAtual){
-            linhas.push(linhaAtual);
-        }
+let turmaInfo = {};
 
 
-        textoCompleto += linhas.join("\n") + "\n";
+// ... todo o teu código continua aqui
 
-    }
+
+// COLOCA AQUI ANTES DO return
+console.log("TURMA ENCONTRADA:", turmaInfo);
+console.log("TOTAL ALUNOS:", todosAlunos.length);
 
 
 
-    console.log(textoCompleto);
+return {
 
+turma: turmaInfo,
 
+alunos: todosAlunos,
 
-    const alunos = extrairAlunos(textoCompleto);
+quantidade: todosAlunos.length
 
-
-
-    return {
-
-        alunos: alunos,
-
-        quantidade: alunos.length
-
-    };
+};
 
 
 }
