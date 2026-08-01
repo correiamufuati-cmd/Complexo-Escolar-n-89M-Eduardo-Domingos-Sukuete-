@@ -4,7 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
-<title>Teste PDF</title>
+<title>Leitor PDF Pauta Escolar</title>
 
 <style>
 
@@ -22,7 +22,6 @@ table{
 th,td{
     border:1px solid #000;
     padding:8px;
-    text-align:left;
 }
 
 th{
@@ -41,16 +40,14 @@ th{
 
 
 <input 
-type="file" 
-id="pdfFile" 
+type="file"
+id="pdfFile"
 accept="application/pdf"
 >
 
 
 <div id="resultado">
-
-Página carregada
-
+Aguardando PDF...
 </div>
 
 
@@ -67,54 +64,41 @@ const resultado = document.getElementById("resultado");
 
 
 
-
-
 function extrairDadosTurma(items){
 
 
     const texto = items
-    .map(item => item.str.trim())
+    .map(item=>item.str)
     .join(" ");
 
 
 
-    let classe = "";
-
-    let turma = "";
-
-    let ano = "";
+    let classe="";
+    let turma="";
+    let ano="";
 
 
 
-    const c = texto.match(/Classe:\s*(\d+)/);
-
+    let c = texto.match(/Classe[:\s]*(\d+)/i);
 
     if(c){
-
-        classe = c[1] + "ª";
-
+        classe = c[1]+"ª";
     }
 
 
 
-    const t = texto.match(/Turma:\s*([A-Z])/);
-
+    let t = texto.match(/Turma[:\s]*([A-Z])/i);
 
     if(t){
-
-        turma = t[1];
-
+        turma=t[1];
     }
 
 
 
-    const a = texto.match(/202\s?\d\s*\/\s*202\s?\d/);
-
+    let a = texto.match(/20\d{2}\s*\/\s*20\d{2}/);
 
     if(a){
-
-        ano = a[0];
-
+        ano=a[0];
     }
 
 
@@ -135,32 +119,28 @@ function extrairDadosTurma(items){
 
 
 
-
 function extrairAlunos(items){
 
 
-    let alunos = [];
+    let alunos=[];
 
 
-    let iniciar = false;
-
-
-    let i = 0;
+    let iniciou=false;
 
 
 
-    while(i < items.length){
+    for(let i=0; i<items.length; i++){
+
 
 
         let valor = items[i].str.trim();
 
 
 
-        if(valor === "N°"){
+        if(valor==="N°" || valor==="Nº"){
 
-            iniciar = true;
 
-            i++;
+            iniciou=true;
 
             continue;
 
@@ -168,9 +148,7 @@ function extrairAlunos(items){
 
 
 
-        if(!iniciar){
-
-            i++;
+        if(!iniciou){
 
             continue;
 
@@ -184,33 +162,40 @@ function extrairAlunos(items){
 
 
 
-            let numero = valor;
+            let numero=valor;
 
 
-            i++;
+            let nome="";
 
+            let sexo="";
 
+            let data="";
 
-            let nome = "";
-
-            let sexo = "";
-
-
-
-
-
-            while(i < items.length){
+            let idade="";
 
 
 
-                let campo = items[i].str.trim();
+
+
+            let j=i+1;
 
 
 
-                if(campo === "M" || campo === "F"){
+            while(j < items.length){
 
 
-                    sexo = campo;
+
+                let campo=items[j].str.trim();
+
+
+
+
+                if(campo==="M" || campo==="F"){
+
+
+                    sexo=campo;
+
+                    j++;
 
                     break;
 
@@ -218,21 +203,15 @@ function extrairAlunos(items){
 
 
 
+                if(campo!==""){
 
-                if(campo !== ""){
-
-
-                    nome += campo + " ";
+                    nome += campo+" ";
 
                 }
 
 
 
-                i++;
-
-
-
-                i++;
+                j++;
 
 
             }
@@ -242,36 +221,58 @@ function extrairAlunos(items){
 
 
 
-            let idade = "";
+            while(j < items.length){
 
 
 
-
-            while(i < items.length){
-
-
-
-                let campo = items[i].str.trim();
+                let campo=items[j].str.trim();
 
 
 
-                if(/\d+\s?(anos|Anos|ano)/i.test(campo)){
+                if(/\d{1,2}\/\d{1,2}\/\d{4}/.test(campo)){
 
 
-                    idade = campo;
+                    data=campo;
+
+                    j++;
 
                     break;
-
 
                 }
 
 
 
-                i++;
+                j++;
 
 
             }
 
+
+
+
+
+            while(j < items.length){
+
+
+
+                let campo=items[j].str.trim();
+
+
+
+                if(/^\d+$/.test(campo)){
+
+
+                    idade=campo;
+
+                    break;
+
+                }
+
+
+
+                j++;
+
+            }
 
 
 
@@ -279,28 +280,24 @@ function extrairAlunos(items){
 
             alunos.push({
 
-
                 numero,
 
                 nome:nome.trim(),
 
                 sexo,
 
-                data:data.trim(),
+                data,
 
                 idade
-
 
             });
 
 
 
+            i=j-1;
+
+
         }
-
-
-
-
-        i++;
 
 
 
@@ -308,13 +305,10 @@ function extrairAlunos(items){
 
 
 
-
     return alunos;
 
 
-
 }
-
 
 
 
@@ -326,9 +320,7 @@ function extrairAlunos(items){
 input.addEventListener("change", async()=>{
 
 
-
-const arquivo = input.files[0];
-
+const arquivo=input.files[0];
 
 
 if(!arquivo){
@@ -339,12 +331,7 @@ return;
 
 
 
-
-resultado.innerHTML =
-
-"A ler PDF: " + arquivo.name;
-
-
+resultado.innerHTML="A ler PDF...";
 
 
 
@@ -352,11 +339,11 @@ try{
 
 
 
-const dados = await arquivo.arrayBuffer();
+const dados=await arquivo.arrayBuffer();
 
 
 
-const pdf = await pdfjsLib.getDocument({
+const pdf=await pdfjsLib.getDocument({
 
 data:dados
 
@@ -364,12 +351,9 @@ data:dados
 
 
 
+let todosAlunos=[];
 
-
-let todosAlunos = [];
-
-let dadosTurma = {};
-
+let turma={};
 
 
 
@@ -379,33 +363,24 @@ for(let pagina=1; pagina<=pdf.numPages; pagina++){
 
 
 
-const page = await pdf.getPage(pagina);
+const page=await pdf.getPage(pagina);
 
 
 
-const content = await page.getTextContent();
-
-
-
-// NOVO: mostra a estrutura real do PDF
-console.log("PÁGINA:", pagina);
-console.log(content.items);
+const content=await page.getTextContent();
 
 
 
 
-
-dadosTurma = extrairDadosTurma(content.items);
-
+turma=extrairDadosTurma(content.items);
 
 
 
-const alunos = extrairAlunos(content.items);
+let alunos=extrairAlunos(content.items);
 
 
 
 todosAlunos.push(...alunos);
-
 
 
 
@@ -415,10 +390,7 @@ todosAlunos.push(...alunos);
 
 
 
-
-
-let html = `
-
+let html=`
 
 
 <h3>
@@ -427,81 +399,52 @@ Complexo Escolar Nº89 M "Eduardo Domingos Sukuete"
 
 
 <p>
-
-<strong>Classe:</strong> ${dadosTurma.classe}
-
-<br>
-
-
-<strong>Turma:</strong> ${dadosTurma.turma}
-
-
-<br>
-
-
-<strong>Ano Lectivo:</strong> ${dadosTurma.ano}
-
-
+Classe: ${turma.classe}<br>
+Turma: ${turma.turma}<br>
+Ano Lectivo: ${turma.ano}
 </p>
 
 
-
-
-
-<h4>Total de alunos encontrados: ${todosAlunos.length}</h4>
+<h4>
+Total encontrados: ${todosAlunos.length}
+</h4>
 
 
 <table>
 
-
 <tr>
 
 <th>Nº</th>
-
-<th>Nome Completo</th>
-
+<th>Nome</th>
 <th>Sexo</th>
-
-<th>Data Nascimento</th>
-
+<th>Data</th>
 <th>Idade</th>
 
-
 </tr>
-
-
-
 
 `;
 
 
 
 
+todosAlunos.forEach(a=>{
 
 
-
-todosAlunos.forEach(aluno=>{
-
-
-
-html += `
-
+html+=`
 
 <tr>
 
-<td>${aluno.numero}</td>
+<td>${a.numero}</td>
 
-<td>${aluno.nome}</td>
+<td>${a.nome}</td>
 
-<td>${aluno.sexo}</td>
+<td>${a.sexo}</td>
 
-<td>${aluno.data}</td>
+<td>${a.data}</td>
 
-<td>${aluno.idade}</td>
-
+<td>${a.idade}</td>
 
 </tr>
-
 
 
 `;
@@ -512,40 +455,26 @@ html += `
 
 
 
+html+="</table>";
 
 
 
-
-html += "</table>";
-
+resultado.innerHTML=html;
 
 
 
-
-resultado.innerHTML = html;
-
+}catch(e){
 
 
-
-
-}catch(erro){
-
-
-
-resultado.innerHTML =
-
-"Erro ao ler PDF: " + erro.message;
-
+resultado.innerHTML=
+"Erro: "+e.message;
 
 
 }
 
 
 
-
-
 });
-
 
 
 </script>
