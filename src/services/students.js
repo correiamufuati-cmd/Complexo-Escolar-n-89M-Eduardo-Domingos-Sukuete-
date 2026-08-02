@@ -282,6 +282,89 @@ async function carregarAlunos(){
 }
 
 
+importarAlunos.addEventListener("click", async()=>{
 
+
+    if(!turmaSelecionada){
+
+        alert("Selecione uma turma");
+
+        return;
+
+    }
+
+
+    const texto = listaImportar.value.trim();
+
+
+    if(texto===""){
+
+        alert("Cole a lista de alunos");
+
+        return;
+
+    }
+
+
+
+    const linhas = texto.split("\n");
+
+
+
+    for(let linha of linhas){
+
+
+        const dados = linha.split(";");
+
+
+
+        if(dados.length < 4){
+
+            continue;
+
+        }
+
+
+
+        await addDoc(
+
+            collection(
+                db,
+                "turmas",
+                turmaSelecionada,
+                "alunos"
+            ),
+
+            {
+
+                numero:dados[0].trim(),
+
+                nome:dados[1].trim(),
+
+                sexo:dados[2].trim(),
+
+                dataNascimento:dados[3].trim(),
+
+                criadoEm:serverTimestamp()
+
+            }
+
+        );
+
+
+    }
+
+
+
+    alert("Alunos importados com sucesso");
+
+
+    listaImportar.value="";
+
+
+    carregarAlunos();
+
+
+});
 
 carregarTurmas();
