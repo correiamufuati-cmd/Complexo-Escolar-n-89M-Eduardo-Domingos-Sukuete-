@@ -10,6 +10,7 @@ import {
 const form = document.getElementById("loginAluno");
 
 
+if(form){
 
 form.addEventListener("submit", async (e)=>{
 
