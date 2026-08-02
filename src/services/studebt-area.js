@@ -5,26 +5,23 @@ const aluno = JSON.parse(
 
 if(!aluno){
 
-    alert("Nenhum aluno autenticado");
+    alert("Sessão não encontrada");
 
     window.location.href = "student-login.html";
 
 }
 
 
-
-// Mostrar dados
-
 document.getElementById("nomeAluno").innerHTML =
-"👨‍🎓 " + aluno.nome;
+"👨‍🎓 " + (aluno.nome || "");
 
 
 document.getElementById("codigo").innerHTML =
-"Código: " + aluno.codigoAluno;
+"Código: " + (aluno.codigoAluno || "");
 
 
 document.getElementById("turma").innerHTML =
-"Turma: " + aluno.turmaNome;
+"Turma: " + (aluno.turmaNome || "");
 
 
 document.getElementById("estado").innerHTML =
