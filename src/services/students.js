@@ -646,21 +646,30 @@ window.alterarEstado = async function(codigo){
             if(aluno.data().codigoAluno === codigo){
 
 
-                await updateDoc(
+                const motivo = prompt(
+    "Digite o motivo da alteração:"
+);
 
-                    doc(
-                        db,
-                        "turmas",
-                        turma.id,
-                        "alunos",
-                        aluno.id
-                    ),
 
-                    {
-                        estado: novoEstado
-                    }
+await updateDoc(
 
-                );
+    doc(
+        db,
+        "turmas",
+        turma.id,
+        "alunos",
+        aluno.id
+    ),
+
+    {
+        estado: novoEstado,
+
+        motivoEstado: motivo || "",
+
+        dataEstado: serverTimestamp()
+    }
+
+);
 
 
                 alert("Estado atualizado");
