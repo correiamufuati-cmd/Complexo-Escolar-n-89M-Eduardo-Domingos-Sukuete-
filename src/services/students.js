@@ -246,7 +246,23 @@ async function carregarAlunos(){
 
 
 
-    dados.forEach(doc=>{
+    listaAlunos.innerHTML += `
+
+<table>
+
+<tr>
+
+<th>Nº</th>
+<th>Nome</th>
+<th>Sexo</th>
+<th>Data Nascimento</th>
+
+</tr>
+
+`;
+
+
+dados.forEach(doc=>{
 
 
     const aluno = doc.data();
@@ -254,28 +270,29 @@ async function carregarAlunos(){
 
     listaAlunos.innerHTML += `
 
-    <div class="aluno">
+<tr>
 
-    <strong>Nº:</strong> ${aluno.numero}
+<td>${aluno.numero}</td>
 
-    <br>
+<td>${aluno.nome}</td>
 
-    <strong>Nome:</strong> ${aluno.nome}
+<td>${aluno.sexo}</td>
 
-    <br>
+<td>${aluno.dataNascimento || ""}</td>
 
-    <strong>Sexo:</strong> ${aluno.sexo || ""}
+</tr>
 
-    <br>
-
-    <strong>Data:</strong> ${aluno.dataNascimento || ""}
-
-    </div>
-
-    `;
+`;
 
 
 });
+
+
+listaAlunos.innerHTML += `
+
+</table>
+
+`;
 
 
 
