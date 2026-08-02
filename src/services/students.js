@@ -119,6 +119,7 @@ async function carregarTurmas(){
 
 
 guardarAluno.addEventListener("click",async()=>{
+guardarAluno.addEventListener("click", async()=>{
 
 
     if(!turmaSelecionada){
@@ -132,8 +133,8 @@ guardarAluno.addEventListener("click",async()=>{
 
 
     if(
-        nomeAluno.value==="" ||
-        numeroAluno.value===""
+        nomeAluno.value.trim()==="" ||
+        numeroAluno.value.trim()===""
     ){
 
         alert("Preencha nome e número");
@@ -143,6 +144,60 @@ guardarAluno.addEventListener("click",async()=>{
     }
 
 
+
+    // verificar duplicado
+
+    const alunosExistentes = await getDocs(
+
+        collection(
+            db,
+            "turmas",
+            turmaSelecionada,
+            "alunos"
+        )
+
+    );
+
+
+
+    let existe = false;
+
+
+
+    alunosExistentes.forEach(doc=>{
+
+
+        const aluno = doc.data();
+
+
+
+        if(
+            aluno.numero === numeroAluno.value.trim()
+        ){
+
+            existe = true;
+
+        }
+
+
+    });
+
+
+
+    if(existe){
+
+        alert(
+        "Já existe um aluno com este número nesta turma."
+        );
+
+        return;
+
+    }
+
+
+
+
+    // guardar novo aluno
 
     await addDoc(
 
@@ -155,13 +210,13 @@ guardarAluno.addEventListener("click",async()=>{
 
         {
 
-            nome:nomeAluno.value,
+            nome:nomeAluno.value.trim(),
 
-            numero:numeroAluno.value,
+            numero:numeroAluno.value.trim(),
 
             sexo:sexoAluno.value,
 
-            dataNascimento:dataAluno.value,
+            dataNascimento:dataAluno.value.trim(),
 
             criadoEm:serverTimestamp()
 
@@ -171,7 +226,7 @@ guardarAluno.addEventListener("click",async()=>{
 
 
 
-    alert("Aluno guardado");
+    alert("Aluno guardado com sucesso");
 
 
 
@@ -179,6 +234,7 @@ guardarAluno.addEventListener("click",async()=>{
     numeroAluno.value="";
     sexoAluno.value="";
     dataAluno.value="";
+
 
 
     carregarAlunos();
