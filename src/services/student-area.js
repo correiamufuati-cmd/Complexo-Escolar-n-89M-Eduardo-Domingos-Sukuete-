@@ -66,11 +66,3 @@ window.verNotas = function(){
     window.location.href = "student-grades.html";
 
 };
-
-window.verNotas = function(){
-
-    alert("TESTE NOVO BOTÃO");
-
-    window.location.href = "student-grades.html";
-
-};
