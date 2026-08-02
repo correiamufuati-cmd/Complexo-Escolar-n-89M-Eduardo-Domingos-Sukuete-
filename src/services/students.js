@@ -62,6 +62,8 @@ async function carregarTurmas(){
 
     try{
 
+        alert("Entrou em carregarTurmas");
+
         turmaSelect.innerHTML =
         "<option>A procurar turmas...</option>";
 
@@ -70,53 +72,7 @@ async function carregarTurmas(){
             collection(db,"turmas")
         );
 
-
-        if(dados.empty){
-
-            turmaSelect.innerHTML =
-            "<option>Nenhuma turma encontrada</option>";
-
-            return;
-        }
-
-
-        turmaSelect.innerHTML =
-        "";
-
-
-        dados.forEach(doc=>{
-
-            const turma = doc.data();
-
-
-            turmaSelect.innerHTML += `
-
-            <option value="${doc.id}">
-            ${turma.nome} - ${turma.classe}
-            </option>
-
-            `;
-
-
-        });
-
-
-        turmaSelecionada = turmaSelect.value;
-
-
-        carregarAlunos();
-
-
-    }catch(erro){
-
-
-        turmaSelect.innerHTML =
-        "<option>Erro: "+erro.message+"</option>";
-
-
-    }
-
-}
+        alert("Leu Firebase: " + dados.size);
 
 
 // =============================
