@@ -510,8 +510,11 @@ turmaId:turmaSelecionada,
 
 turmaNome:turmaSelect.options[turmaSelect.selectedIndex].text,
 
-criadoEm:serverTimestamp()
+codigoAluno: gerarCodigoAluno(dados[0].trim()),
 
+senhaAcesso: gerarSenha(),
+
+criadoEm:serverTimestamp()
         }
 
         );
@@ -541,7 +544,7 @@ pesquisarAluno.addEventListener("input",()=>{
 
     const resultado = todosAlunos.filter(aluno=>
 
-        aluno.nome.toLowerCase().includes(texto) ||
+        (aluno.nome || "").toLowerCase().includes(texto) ||
 
         String(aluno.numero).includes(texto) ||
 
