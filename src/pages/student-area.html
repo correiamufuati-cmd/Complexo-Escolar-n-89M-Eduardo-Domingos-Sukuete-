@@ -26,6 +26,45 @@ body{
 
 </style>
 
+    .perfil{
+
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+
+}
+
+
+.cards{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+
+}
+
+
+.card{
+
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 5px #ccc;
+
+}
+
+
+.card button{
+
+padding:10px;
+background:#1976d2;
+color:white;
+border:none;
+border-radius:5px;
+
+}
+
 </head>
 
 <body>
@@ -36,9 +75,12 @@ body{
 
 <p>Bem-vindo ao sistema escolar.</p>
 
-<h3 id="nomeAluno">
+
+<div class="perfil">
+
+<h2 id="nomeAluno">
 Carregando...
-</h3>
+</h2>
 
 <p id="codigo"></p>
 
@@ -46,11 +88,85 @@ Carregando...
 
 <p id="estado"></p>
 
-    <button onclick="sairAluno()">
-Sair
-    </button>
-    
 </div>
+
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<h3>📊 Minhas Notas</h3>
+
+<p>
+Consultar avaliações
+</p>
+
+<button>
+Abrir
+</button>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>📄 Meu Boletim</h3>
+
+<p>
+Consultar boletim
+</p>
+
+<button>
+Abrir
+</button>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>👤 Meus Dados</h3>
+
+<p>
+Informações pessoais
+</p>
+
+<button>
+Ver
+</button>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>🔑 Alterar Senha</h3>
+
+<p>
+Segurança da conta
+</p>
+
+<button>
+Alterar
+</button>
+
+</div>
+
+
+</div>
+
+
+<button onclick="sairAluno()">
+Sair
+</button>
+
+
+    </div>
 
 <script type="module" src="../services/student-area.js"></script>
 
