@@ -118,7 +118,6 @@ async function carregarTurmas(){
 // =============================
 
 
-guardarAluno.addEventListener("click",async()=>{
 guardarAluno.addEventListener("click", async()=>{
 
 
