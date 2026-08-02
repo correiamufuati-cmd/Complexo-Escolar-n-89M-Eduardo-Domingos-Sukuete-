@@ -1,3 +1,5 @@
+alert("ALUNOS JS FUNCIONOU");
+
 import { app } from "./firebase.js";
 
 import {
