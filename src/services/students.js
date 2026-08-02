@@ -388,35 +388,10 @@ alunos.sort((a,b)=>{
 const corpoTabela = document.getElementById("corpoTabela");
 
 
-alunos.forEach(aluno=>{
+todosAlunos = alunos;
 
-
-
-
-    corpoTabela.innerHTML += `
-
-   <tr>
-
-<td>${aluno.codigoAluno || ""}</td>
-
-<td>${aluno.numero}</td>
-
-<td>${aluno.nome}</td>
-
-<td>${aluno.sexo || ""}</td>
-
-<td>${aluno.dataNascimento || ""}</td>
-
-<td>${calcularIdade(aluno.dataNascimento)}</td>
-
-<td>${aluno.turmaNome || ""}</td>
-
-</tr>
-
-    `;
-
-
-});
+mostrarAlunos(todosAlunos);
+    
 
         }
 
