@@ -61,7 +61,6 @@ window.sairAluno = function(){
 
 window.verNotas = function(){
 
-    window.location.href =
-    "student-grades.html";
+    window.location.href = "student-grades.html";
 
 };
