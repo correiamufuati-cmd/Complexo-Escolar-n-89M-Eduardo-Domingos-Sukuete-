@@ -1,3 +1,5 @@
+alert("alunos.js carregou");
+
 import { app } from "./firebase.js";
 
 import {
