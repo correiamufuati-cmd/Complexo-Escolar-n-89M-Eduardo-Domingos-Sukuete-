@@ -115,6 +115,54 @@ async function carregarTurmas(){
 }
 
 
+// =============================
+// GERAR CÓDIGO DO ALUNO
+// =============================
+
+function gerarCodigoAluno(numero){
+
+    const turmaTexto = turmaSelect.options[turmaSelect.selectedIndex].text;
+
+    let codigoTurma = turmaTexto
+    .replace("ª","")
+    .replace(" ","")
+    .split("-")[0];
+
+
+    return codigoTurma + "-" + 
+    String(numero).padStart(3,"0");
+
+}
+
+
+
+// =============================
+// GERAR SENHA AUTOMÁTICA
+// =============================
+
+function gerarSenha(){
+
+    const caracteres =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    let senha="";
+
+
+    for(let i=0;i<6;i++){
+
+        senha += caracteres.charAt(
+            Math.floor(
+                Math.random()*caracteres.length
+            )
+        );
+
+    }
+
+
+    return senha;
+
+        }
+
 
 
 // =============================
@@ -159,21 +207,25 @@ guardarAluno.addEventListener("click",async()=>{
 
     {
 
-        nome:nomeAluno.value,
+nome:nomeAluno.value,
 
-        numero:numeroAluno.value,
+numero:numeroAluno.value,
 
-        sexo:sexoAluno.value,
+sexo:sexoAluno.value,
 
-        dataNascimento:dataAluno.value,
+dataNascimento:dataAluno.value,
 
-        turmaId: turmaSelecionada,
+turmaId: turmaSelecionada,
 
-        turmaNome: turmaSelect.options[turmaSelect.selectedIndex].text,
+turmaNome: turmaSelect.options[turmaSelect.selectedIndex].text,
 
-        criadoEm:serverTimestamp()
+codigoAluno: gerarCodigoAluno(numeroAluno.value),
 
-    }
+senhaAcesso: gerarSenha(),
+
+criadoEm:serverTimestamp()
+
+        }
 
 );
 
