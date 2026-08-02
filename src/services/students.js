@@ -228,38 +228,29 @@ async function carregarAlunos(){
 
 
 
-    listaAlunos.innerHTML="";
-
-
-
-    if(dados.empty){
-
-
-        listaAlunos.innerHTML =
-        "Nenhum aluno cadastrado";
-
-
-        return;
-
-    }
-
-
-
-
-    listaAlunos.innerHTML += `
+    listaAlunos.innerHTML = `
 
 <table>
 
+<thead>
 <tr>
-
 <th>Nº</th>
 <th>Nome</th>
 <th>Sexo</th>
 <th>Data Nascimento</th>
-
 </tr>
+</thead>
+
+<tbody id="corpoTabela">
+
+</tbody>
+
+</table>
 
 `;
+
+
+const corpoTabela = document.getElementById("corpoTabela");
 
 
 dados.forEach(doc=>{
@@ -268,36 +259,26 @@ dados.forEach(doc=>{
     const aluno = doc.data();
 
 
-    listaAlunos.innerHTML += `
+    corpoTabela.innerHTML += `
 
-<tr>
+    <tr>
 
-<td>${aluno.numero}</td>
+    <td>${aluno.numero}</td>
 
-<td>${aluno.nome}</td>
+    <td>${aluno.nome}</td>
 
-<td>${aluno.sexo}</td>
+    <td>${aluno.sexo || ""}</td>
 
-<td>${aluno.dataNascimento || ""}</td>
+    <td>${aluno.dataNascimento || ""}</td>
 
-</tr>
+    </tr>
 
-`;
+    `;
 
 
 });
 
-
-listaAlunos.innerHTML += `
-
-</table>
-
-`;
-
-
-
-}
-
+        }
 
 importarAlunos.addEventListener("click", async()=>{
 
