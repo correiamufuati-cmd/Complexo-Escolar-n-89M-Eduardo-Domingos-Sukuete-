@@ -1,12 +1,12 @@
 alert("students.js carregou");
 
-import { app } from "./firebase.js";
-
 import {
     getFirestore,
     collection,
     getDocs,
     addDoc,
+    updateDoc,
+    doc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
@@ -588,7 +588,7 @@ pesquisarAluno.addEventListener("input",()=>{
 window.alterarEstado = async function(codigo){
 
     const opcao = prompt(
-        "Digite o novo estado:\n\n1 - ativo\n2 - transferido\n3 - desistiu\n4 - remover duplicado"
+        "Digite o novo estado:\n\n1 - ativo\n2 - transferido\n3 - desistiu\n4 - removido"
     );
 
 
@@ -616,10 +616,61 @@ window.alterarEstado = async function(codigo){
     }
 
 
-    alert(
-        "Estado alterado para: " + novoEstado
+
+    const turmas = await getDocs(
+        collection(db,"turmas")
     );
 
-};
 
-carregarTurmas();
+    for(const turma of turmas.docs){
+
+
+        const alunos = await getDocs(
+            collection(
+                db,
+                "turmas",
+                turma.id,
+                "alunos"
+            )
+        );
+
+
+        for(const aluno of alunos.docs){
+
+
+            if(aluno.data().codigoAluno === codigo){
+
+
+                await updateDoc(
+
+                    doc(
+                        db,
+                        "turmas",
+                        turma.id,
+                        "alunos",
+                        aluno.id
+                    ),
+
+                    {
+                        estado: novoEstado
+                    }
+
+                );
+
+
+                alert("Estado atualizado");
+
+
+                carregarAlunos();
+
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+};
