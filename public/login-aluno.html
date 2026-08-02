@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login do Aluno</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+
+body{
+
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#dff3ff,#1976d2);
+
+}
+
+
+form{
+
+    width:350px;
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 5px 15px #999;
+
+}
+
+
+h2{
+
+    text-align:center;
+    color:#1976d2;
+    margin-bottom:20px;
+
+}
+
+
+input{
+
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:8px;
+
+}
+
+
+button{
+
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#1976d2;
+    color:white;
+    font-size:16px;
+
+}
+
+
+button:hover{
+
+    background:#0d47a1;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<form id="loginAluno">
+
+
+<h2>👨‍🎓 Área do Aluno</h2>
+
+
+<input 
+type="text"
+id="codigoAluno"
+placeholder="Código do aluno"
+required
+>
+
+
+<input
+type="password"
+id="senha"
+placeholder="Senha"
+required
+>
+
+
+<button type="submit">
+Entrar
+</button>
+
+
+</form>
+
+
+
+<script type="module" src="../src/services/student-login.js"></script>
+
+
+</body>
+
+</html>
