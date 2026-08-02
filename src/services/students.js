@@ -380,8 +380,8 @@ todosAlunos = alunos;
 <th>Data Nascimento</th>
 <th>Idade</th>
 <th>Turma</th>
-<th>Ações</th>
 <th>Estado</th>
+<th>Ações</th>
 </tr>
 </thead>
 
@@ -406,9 +406,7 @@ mostrarAlunos(todosAlunos);
 
 function mostrarAlunos(lista){
 
-
 const corpoTabela = document.getElementById("corpoTabela");
-
 
 corpoTabela.innerHTML="";
 
@@ -442,8 +440,6 @@ corpoTabela.innerHTML += `
 ⚙️ Estado
 </button>
 
-</td>
-
 <button onclick="verAluno('${aluno.codigoAluno}')">
 👁️
 </button>
@@ -458,13 +454,14 @@ corpoTabela.innerHTML += `
 
 </td>
 
-`;
+</tr>
 
+`;
 
 });
 
 
-    }
+}
     
 
 // =============================
