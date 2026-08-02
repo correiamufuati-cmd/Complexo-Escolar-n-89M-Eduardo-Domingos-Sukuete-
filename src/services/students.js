@@ -1,5 +1,7 @@
 alert("students.js carregou");
 
+import { app } from "./firebase.js";
+
 import {
     getFirestore,
     collection,
