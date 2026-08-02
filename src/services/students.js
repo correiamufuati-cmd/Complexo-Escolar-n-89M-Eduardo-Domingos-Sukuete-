@@ -45,59 +45,63 @@ let turmaSelecionada = "";
 
 async function carregarTurmas(){
 
+    try{
 
-    const dados = await getDocs(
-        collection(db,"turmas")
-    );
-
-
-    turmaSelect.innerHTML = "";
+        turmaSelect.innerHTML =
+        "<option>A procurar turmas...</option>";
 
 
-    dados.forEach(doc=>{
+        const dados = await getDocs(
+            collection(db,"turmas")
+        );
 
 
-        const turma = doc.data();
+        if(dados.empty){
+
+            turmaSelect.innerHTML =
+            "<option>Nenhuma turma encontrada</option>";
+
+            return;
+        }
 
 
-
-        turmaSelect.innerHTML += `
-
-        <option value="${doc.id}">
-
-        ${turma.nome} - ${turma.classe}
-
-        </option>
-
-        `;
+        turmaSelect.innerHTML =
+        "";
 
 
-    });
+        dados.forEach(doc=>{
+
+            const turma = doc.data();
 
 
+            turmaSelect.innerHTML += `
 
-    turmaSelecionada = turmaSelect.value;
+            <option value="${doc.id}">
+            ${turma.nome} - ${turma.classe}
+            </option>
+
+            `;
 
 
-    carregarAlunos();
+        });
 
+
+        turmaSelecionada = turmaSelect.value;
+
+
+        carregarAlunos();
+
+
+    }catch(erro){
+
+
+        turmaSelect.innerHTML =
+        "<option>Erro: "+erro.message+"</option>";
+
+
+    }
 
 }
-
-
-
-
-
-turmaSelect.addEventListener("change",()=>{
-
-
-    turmaSelecionada = turmaSelect.value;
-
-
-    carregarAlunos();
-
-
-});
 
 
 
