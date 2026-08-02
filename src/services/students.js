@@ -850,6 +850,84 @@ window.editarAluno = async function(codigo){
 
 };
 
+// =============================
+// APAGAR ALUNO (APENAS DUPLICADOS)
+// =============================
+
+window.apagarAluno = async function(codigo){
+
+    const confirmar = confirm(
+        "Tem certeza que deseja remover este aluno?\n\nUse apenas para duplicados ou erros de cadastro."
+    );
+
+
+    if(!confirmar){
+
+        return;
+
+    }
+
+
+    const turmas = await getDocs(
+        collection(db,"turmas")
+    );
+
+
+    for(const turma of turmas.docs){
+
+
+        const alunos = await getDocs(
+            collection(
+                db,
+                "turmas",
+                turma.id,
+                "alunos"
+            )
+        );
+
+
+        for(const aluno of alunos.docs){
+
+
+            const dados = aluno.data();
+
+
+            if(dados.codigoAluno === codigo){
+
+
+                await deleteDoc(
+
+                    doc(
+                        db,
+                        "turmas",
+                        turma.id,
+                        "alunos",
+                        aluno.id
+                    )
+
+                );
+
+
+                alert(
+                    "Aluno removido com sucesso"
+                );
+
+
+                carregarAlunos();
+
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+};
+
+
         alert("CHEGUEI AO FINAL DO FICHEIRO");
 
 carregarTurmas();
