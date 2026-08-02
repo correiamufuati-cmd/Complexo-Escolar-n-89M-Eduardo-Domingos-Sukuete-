@@ -290,10 +290,12 @@ async function carregarAlunos(){
 
 <thead>
 <tr>
+<th>Código</th>
 <th>Nº</th>
 <th>Nome</th>
 <th>Sexo</th>
 <th>Data Nascimento</th>
+<th>Turma</th>
 </tr>
 </thead>
 
@@ -317,17 +319,21 @@ dados.forEach(doc=>{
 
     corpoTabela.innerHTML += `
 
-    <tr>
+   <tr>
 
-    <td>${aluno.numero}</td>
+<td>${aluno.codigoAluno || ""}</td>
 
-    <td>${aluno.nome}</td>
+<td>${aluno.numero}</td>
 
-    <td>${aluno.sexo || ""}</td>
+<td>${aluno.nome}</td>
 
-    <td>${aluno.dataNascimento || ""}</td>
+<td>${aluno.sexo || ""}</td>
 
-    </tr>
+<td>${aluno.dataNascimento || ""}</td>
+
+<td>${aluno.turmaNome || ""}</td>
+
+</tr>
 
     `;
 
