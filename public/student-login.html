@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Área do Aluno</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f4f6f9;
+    padding:20px;
+}
+
+
+.login{
+    max-width:400px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+}
+
+
+input,button{
+
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+
+}
+
+
+button{
+
+    background:#1976d2;
+    color:white;
+    border:none;
+    border-radius:5px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="login">
+
+
+<h2>
+Login do Aluno
+</h2>
+
+
+<input 
+id="codigoAluno"
+placeholder="Código do aluno">
+
+
+<input 
+id="senhaAluno"
+placeholder="Senha">
+
+
+<button id="entrarAluno">
+Entrar
+</button>
+
+
+</div>
+
+
+
+<script type="module" src="../services/student-login.js"></script>
+
+
+</body>
+
+</html>
