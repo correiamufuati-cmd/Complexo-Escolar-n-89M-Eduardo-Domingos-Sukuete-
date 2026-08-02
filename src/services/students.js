@@ -15,6 +15,7 @@ import {
 
 const db = getFirestore(app);
 
+alert("Firebase carregado");
 
 // Elementos
 
