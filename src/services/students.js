@@ -1,4 +1,4 @@
-alert("alunos.js carregou");
+alert("students.js carregou");
 
 import { app } from "./firebase.js";
 
