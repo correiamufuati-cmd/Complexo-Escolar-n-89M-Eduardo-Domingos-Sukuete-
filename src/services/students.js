@@ -314,7 +314,8 @@ function calcularIdade(data){
 
 async function carregarAlunos(){
 
-
+let todosAlunos = [];
+    
     if(!turmaSelecionada){
 
         return;
@@ -355,6 +356,7 @@ alunos.sort((a,b)=>{
 
     return Number(a.numero) - Number(b.numero);
 
+    todosAlunos = alunos;
 });
     
 
@@ -494,7 +496,46 @@ criadoEm:serverTimestamp()
 
     }
 
+function mostrarAlunos(lista){
 
+
+const corpoTabela = document.getElementById("corpoTabela");
+
+
+corpoTabela.innerHTML="";
+
+
+lista.forEach(aluno=>{
+
+
+corpoTabela.innerHTML += `
+
+<tr>
+
+<td>${aluno.codigoAluno || ""}</td>
+
+<td>${aluno.numero}</td>
+
+<td>${aluno.nome}</td>
+
+<td>${aluno.sexo || ""}</td>
+
+<td>${aluno.dataNascimento || ""}</td>
+
+<td>${calcularIdade(aluno.dataNascimento)}</td>
+
+<td>${aluno.turmaNome || ""}</td>
+
+</tr>
+
+`;
+
+
+});
+
+
+    }
+    
 
     alert("Alunos importados com sucesso");
 
@@ -506,5 +547,34 @@ criadoEm:serverTimestamp()
 
 
 });
+
+function mostrarAlunos(lista){
+
+    // ... código da função ...
+
+}
+
+
+// PESQUISAR ALUNOS
+pesquisarAluno.addEventListener("input",()=>{
+
+    const texto = pesquisarAluno.value.toLowerCase();
+
+    const resultado = todosAlunos.filter(aluno=>
+
+        aluno.nome.toLowerCase().includes(texto) ||
+
+        String(aluno.numero).includes(texto) ||
+
+        (aluno.codigoAluno || "").toLowerCase().includes(texto)
+
+    );
+
+    mostrarAlunos(resultado);
+
+});
+
+
+carregarTurmas();
 
 carregarTurmas();
