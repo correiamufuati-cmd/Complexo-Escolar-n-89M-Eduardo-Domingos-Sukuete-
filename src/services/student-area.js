@@ -1,23 +1,17 @@
-alert("NOVO student-area.js carregado");
-
 const aluno = JSON.parse(
     localStorage.getItem("alunoLogado")
 );
-
 
 
 if(!aluno){
 
     alert("Sessão não encontrada");
 
-    window.location.href =
-    "student-login.html";
+    window.location.href="../pages/student-login.html";
 
 }
+else{
 
-
-
-// Dados principais
 
 document.getElementById("nomeAluno").innerHTML =
 "👨‍🎓 " + (aluno.nome || "");
@@ -36,33 +30,26 @@ document.getElementById("estado").innerHTML =
 
 
 
-
-// Atualizar título
-
 document.title =
 "Aluno - " + aluno.nome;
 
 
 
+window.sairAluno=function(){
 
-// Função de sair
+    localStorage.removeItem("alunoLogado");
 
-window.sairAluno = function(){
-
-
-    localStorage.removeItem(
-        "alunoLogado"
-    );
-
-
-    window.location.href =
-    "student-login.html";
-
+    window.location.href="student-login.html";
 
 };
 
-window.verNotas = function(){
 
-    window.location.href = "student-grades.html";
+
+window.verNotas=function(){
+
+    window.location.href="student-grades.html";
 
 };
+
+
+    }
