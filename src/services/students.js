@@ -378,8 +378,8 @@ todosAlunos = alunos;
 <th>Data Nascimento</th>
 <th>Idade</th>
 <th>Turma</th>
-<th>Ações</th>
 <th>Estado</th>
+<th>Ações</th>
 </tr>
 </thead>
 
@@ -440,8 +440,6 @@ corpoTabela.innerHTML += `
 ⚙️ Estado
 </button>
 
-</td>
-
 <button onclick="verAluno('${aluno.codigoAluno}')">
 👁️
 </button>
@@ -455,6 +453,8 @@ corpoTabela.innerHTML += `
 </button>
 
 </td>
+
+</tr>
 
 `;
 
