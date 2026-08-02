@@ -1,3 +1,5 @@
+alert("NOVO student-area.js carregado");
+
 const aluno = JSON.parse(
     localStorage.getItem("alunoLogado")
 );
@@ -60,6 +62,14 @@ window.sairAluno = function(){
 };
 
 window.verNotas = function(){
+
+    window.location.href = "student-grades.html";
+
+};
+
+window.verNotas = function(){
+
+    alert("TESTE NOVO BOTÃO");
 
     window.location.href = "student-grades.html";
 
