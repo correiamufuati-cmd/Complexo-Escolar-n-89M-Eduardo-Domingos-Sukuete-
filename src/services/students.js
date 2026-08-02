@@ -18,6 +18,13 @@ const db = getFirestore(app);
 
 const turmaSelect = document.getElementById("turmaSelect");
 
+if(!turmaSelect){
+    alert("ERRO: Não encontrei o campo turmaSelect");
+}
+else{
+    alert("Campo turmaSelect encontrado");
+}
+
 const nomeAluno = document.getElementById("nomeAluno");
 
 const numeroAluno = document.getElementById("numeroAluno");
