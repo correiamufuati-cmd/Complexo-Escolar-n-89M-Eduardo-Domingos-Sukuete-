@@ -11,52 +11,88 @@
 <style>
 
 body{
-    font-family:Arial;
+    font-family:Arial, sans-serif;
     background:linear-gradient(135deg,#dff3ff,#1976d2);
     padding:20px;
 }
 
+
 .container{
     max-width:900px;
     margin:auto;
-    background:white;
-    padding:20px;
-    border-radius:10px;
 }
+
 
 .perfil{
     background:white;
     padding:20px;
-    border-radius:10px;
+    border-radius:15px;
     margin-bottom:20px;
+    box-shadow:0 4px 10px #999;
 }
+
 
 .cards{
+
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+
 }
+
 
 .card{
+
     background:white;
     padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 5px #ccc;
+    border-radius:15px;
+    box-shadow:0 4px 10px #999;
+
 }
 
+
 .card button{
-    padding:10px;
+
+    width:100%;
+    padding:12px;
     background:#1976d2;
     color:white;
     border:none;
-    border-radius:5px;
+    border-radius:8px;
+    cursor:pointer;
+
 }
+
+
+.card button:hover{
+
+    background:#0d47a1;
+
+}
+
+
+.sair{
+
+    margin-top:20px;
+    padding:12px;
+    background:#d32f2f;
+    color:white;
+    border:none;
+    border-radius:8px;
+
+}
+
 
 </style>
 
 </head>
 
+
+<body>
+
+
 <div class="container">
+
 
 <h1>Área do Aluno</h1>
 
@@ -75,6 +111,7 @@ Carregando...
 
 <p id="estado"></p>
 
+
 </div>
 
 
@@ -90,9 +127,9 @@ Carregando...
 Consultar avaliações
 </p>
 
-<button onclick="window.location.href='student-grades.html'">
+<button onclick="verNotas()">
 Abrir
-    </button>
+</button>
 
 </div>
 
@@ -148,15 +185,19 @@ Alterar
 </div>
 
 
-<button onclick="sairAluno()">
+<button class="sair" onclick="sairAluno()">
 Sair
 </button>
 
 
-    </div>
+
+</div>
+
+
 
 <script type="module" src="../services/student-area.js"></script>
 
+
 </body>
 
-  </html>
+    </html>
