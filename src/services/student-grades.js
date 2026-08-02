@@ -1,19 +1,18 @@
-const aluno = JSON.parse(
-    localStorage.getItem("alunoLogado")
-);
+const aluno = JSON.parse(localStorage.getItem("alunoLogado"));
 
-
-if(aluno){
-
-    document.getElementById("nomeAluno").innerHTML =
-    "👨‍🎓 " + aluno.nome;
-
+if(!aluno){
+    alert("Sessão não encontrada");
+    window.location.href = "student-login.html";
 }
 
+document.getElementById("nomeAluno").innerHTML =
+"👨‍🎓 " + (aluno.nome || "");
 
-window.voltar = function(){
+document.getElementById("codigo").innerHTML =
+"Código: " + (aluno.codigoAluno || "");
 
-    window.location.href =
-    "student-area.html";
+document.getElementById("turma").innerHTML =
+"Turma: " + (aluno.turmaNome || "");
 
-};
+document.getElementById("estado").innerHTML =
+"Estado: " + (aluno.estado || "ativo");
