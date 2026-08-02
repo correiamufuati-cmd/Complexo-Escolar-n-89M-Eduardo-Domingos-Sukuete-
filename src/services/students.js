@@ -679,6 +679,6 @@ window.alterarEstado = async function(codigo){
 
 };
 
-        alert("Vai iniciar carregarTurmas");
+        alert("CHEGUEI AO FINAL DO FICHEIRO");
 
 carregarTurmas();
