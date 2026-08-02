@@ -61,6 +61,7 @@ window.sairAluno = function(){
 
 window.verNotas = function(){
 
-    alert("Módulo de notas em preparação");
+    window.location.href =
+    "student-grades.html";
 
 };
