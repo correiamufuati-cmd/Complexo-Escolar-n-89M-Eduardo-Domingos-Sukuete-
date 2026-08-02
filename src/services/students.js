@@ -689,6 +689,69 @@ await updateDoc(
 
 };
 
+// =============================
+// VER DETALHES DO ALUNO
+// =============================
+
+window.verAluno = async function(codigo){
+
+    const turmas = await getDocs(
+        collection(db,"turmas")
+    );
+
+
+    for(const turma of turmas.docs){
+
+
+        const alunos = await getDocs(
+            collection(
+                db,
+                "turmas",
+                turma.id,
+                "alunos"
+            )
+        );
+
+
+        for(const aluno of alunos.docs){
+
+
+            const dados = aluno.data();
+
+
+            if(dados.codigoAluno === codigo){
+
+
+                alert(
+`Código: ${dados.codigoAluno}
+
+Nome: ${dados.nome}
+
+Número: ${dados.numero}
+
+Sexo: ${dados.sexo || ""}
+
+Data nascimento: ${dados.dataNascimento || ""}
+
+Turma: ${dados.turmaNome}
+
+Estado: ${dados.estado || "ativo"}
+
+Senha: ${dados.senhaAcesso || ""}`
+                );
+
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+};
+
         alert("CHEGUEI AO FINAL DO FICHEIRO");
 
 carregarTurmas();
