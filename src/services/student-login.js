@@ -1,5 +1,4 @@
-import { app } from "../config/firebase.js";
-
+import { app } from "./firebase.js";
 
 import {
 
