@@ -35,6 +35,10 @@ const dataAluno = document.getElementById("dataAluno");
 
 const guardarAluno = document.getElementById("guardarAluno");
 
+const listaImportar = document.getElementById("listaImportar");
+
+const importarAlunos = document.getElementById("importarAlunos");
+
 const listaAlunos = document.getElementById("listaAlunos");
 
 
