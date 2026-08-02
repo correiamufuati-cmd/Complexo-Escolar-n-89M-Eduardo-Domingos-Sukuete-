@@ -254,6 +254,48 @@ criadoEm:serverTimestamp()
 // LISTAR ALUNOS
 // =============================
 
+function calcularIdade(data){
+
+    if(!data){
+        return "";
+    }
+
+    const partes = data.split("-");
+
+    if(partes.length !== 3){
+        return "";
+    }
+
+
+    const nascimento = new Date(
+        partes[0],
+        partes[1] - 1,
+        partes[2]
+    );
+
+
+    const hoje = new Date();
+
+
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+
+
+    const mes = hoje.getMonth() - nascimento.getMonth();
+
+
+    if(
+        mes < 0 ||
+        (mes === 0 && hoje.getDate() < nascimento.getDate())
+    ){
+
+        idade--;
+
+    }
+
+
+    return idade;
+
+        }
 
 async function carregarAlunos(){
 
@@ -283,6 +325,23 @@ async function carregarAlunos(){
     );
 
 
+    let alunos = [];
+
+
+dados.forEach(doc=>{
+
+    alunos.push(doc.data());
+
+});
+
+
+
+alunos.sort((a,b)=>{
+
+    return Number(a.numero) - Number(b.numero);
+
+});
+    
 
     listaAlunos.innerHTML = `
 
@@ -295,6 +354,7 @@ async function carregarAlunos(){
 <th>Nome</th>
 <th>Sexo</th>
 <th>Data Nascimento</th>
+<th>Idade</th>
 <th>Turma</th>
 </tr>
 </thead>
@@ -311,10 +371,9 @@ async function carregarAlunos(){
 const corpoTabela = document.getElementById("corpoTabela");
 
 
-dados.forEach(doc=>{
+alunos.forEach(aluno=>{
 
 
-    const aluno = doc.data();
 
 
     corpoTabela.innerHTML += `
@@ -330,6 +389,8 @@ dados.forEach(doc=>{
 <td>${aluno.sexo || ""}</td>
 
 <td>${aluno.dataNascimento || ""}</td>
+
+<td>${calcularIdade(aluno.dataNascimento)}</td>
 
 <td>${aluno.turmaNome || ""}</td>
 
