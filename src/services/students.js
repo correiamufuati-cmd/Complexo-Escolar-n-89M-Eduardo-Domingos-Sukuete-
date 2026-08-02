@@ -148,34 +148,34 @@ guardarAluno.addEventListener("click",async()=>{
 
 
 
-    await addDoc(
+ await addDoc(
 
-        collection(
-            db,
-            "turmas",
-            turmaSelecionada,
-            "alunos"
-        ),
+    collection(
+        db,
+        "turmas",
+        turmaSelecionada,
+        "alunos"
+    ),
 
-        {
+    {
 
-nome:nomeAluno.value,
+        nome:nomeAluno.value,
 
-numero:numeroAluno.value,
+        numero:numeroAluno.value,
 
-sexo:sexoAluno.value,
+        sexo:sexoAluno.value,
 
-dataNascimento:dataAluno.value,
+        dataNascimento:dataAluno.value,
 
-turmaId:turmaSelecionada,
+        turmaId: turmaSelecionada,
 
-turmaNome:turmaSelect.options[turmaSelect.selectedIndex].text,
+        turmaNome: turmaSelect.options[turmaSelect.selectedIndex].text,
 
-criadoEm:serverTimestamp()
+        criadoEm:serverTimestamp()
 
-}
+    }
 
-    );
+);
 
 
 
