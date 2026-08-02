@@ -1,107 +1,142 @@
-import {
-  addStudent,
-  getStudentsBySchool,
-  deleteStudent,
-  updateStudent
-} from "./students.service.js";
+<!DOCTYPE html>
+<html lang="pt">
 
-import { getClassesBySchool } from "./classes.service.js";
+<head>
 
-const user = window.currentUser;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-let classesMap = {};
+<title>Gestão de Alunos</title>
 
-// 🚀 inicialização
-async function init() {
-  await loadClasses();
-  await loadStudents();
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+padding:20px;
 }
 
-// 📚 carregar turmas
-async function loadClasses() {
-  const classes = await getClassesBySchool(user.schoolId);
-
-  classesMap = {};
-
-  classes.forEach(c => {
-    classesMap[c.id] = c.name;
-  });
+.container{
+max-width:600px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
 }
 
-// ➕ adicionar aluno
-document.getElementById("addBtn").addEventListener("click", async () => {
-
-  const name = document.getElementById("name").value;
-  const age = document.getElementById("age").value;
-  const classId = document.getElementById("classId").value;
-
-  await addStudent({
-    name,
-    age,
-    classId,
-    schoolId: user.schoolId
-  });
-
-  await loadStudents();
-});
-
-// 📋 listar alunos
-async function loadStudents() {
-
-  const students = await getStudentsBySchool(user.schoolId);
-
-  const list = document.getElementById("studentsList");
-
-  list.innerHTML = "";
-
-  students.forEach(s => {
-
-    const className = classesMap[s.classId] || "Sem turma";
-
-    list.innerHTML += `
-      <div style="padding:10px; border:1px solid #ccc; margin:5px;">
-        
-        <b>${s.name}</b> - ${s.age} anos  
-        <br>
-        Turma: ${className}
-
-        <br><br>
-
-        <button onclick="editStudent('${s.id}', '${s.name}', '${s.age}', '${s.classId}')">
-          Editar
-        </button>
-
-        <button onclick="removeStudent('${s.id}')">
-          Eliminar
-        </button>
-
-      </div>
-    `;
-  });
+input,select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
 }
 
-// ❌ eliminar
-window.removeStudent = async (id) => {
-  await deleteStudent(id);
-  await loadStudents();
-};
+button{
+background:#1976d2;
+color:white;
+border:none;
+border-radius:5px;
+}
 
-// ✏️ editar
-window.editStudent = async (id, name, age, classId) => {
+.aluno{
+background:#eee;
+padding:10px;
+margin-top:10px;
+border-radius:5px;
+}
 
-  const newName = prompt("Nome:", name);
-  const newAge = prompt("Idade:", age);
-  const newClass = prompt("ID da turma:", classId);
+</style>
 
-  if (newName) {
-    await updateStudent(id, {
-      name: newName,
-      age: newAge,
-      classId: newClass
-    });
+</head>
 
-    await loadStudents();
-  }
-};
 
-init();
+<body>
+
+
+<div class="container">
+
+
+<h2>
+Gestão de Alunos
+</h2>
+
+
+<label>
+Selecionar Turma
+</label>
+
+
+<select id="turmaSelect">
+
+<option>
+Carregar turmas...
+</option>
+
+</select>
+
+
+
+<input 
+id="nomeAluno"
+placeholder="Nome completo">
+
+
+
+<input 
+id="numeroAluno"
+placeholder="Número">
+
+
+
+<select id="sexoAluno">
+
+<option value="">
+Sexo
+</option>
+
+<option value="M">
+Masculino
+</option>
+
+<option value="F">
+Feminino
+</option>
+
+</select>
+
+
+
+<input 
+id="dataAluno"
+placeholder="Data nascimento">
+
+
+
+<button id="guardarAluno">
+
+Guardar Aluno
+
+</button>
+
+
+
+<h3>
+Lista de alunos
+</h3>
+
+
+<div id="listaAlunos">
+
+</div>
+
+
+
+</div>
+
+
+
+<script type="module" src="../services/alunos.js"></script>
+
+
+</body>
+
+  </html>
