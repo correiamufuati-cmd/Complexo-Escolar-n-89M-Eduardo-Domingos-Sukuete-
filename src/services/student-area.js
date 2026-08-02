@@ -1,35 +1,60 @@
-alert("student-area.js carregou");
-
-
 const aluno = JSON.parse(
     localStorage.getItem("alunoLogado")
 );
 
 
-alert(JSON.stringify(aluno));
-
 
 if(!aluno){
 
-    alert("Aluno não encontrado");
+    alert("Sessão não encontrada");
 
-    window.location.href = "student-login.html";
+    window.location.href =
+    "student-login.html";
 
 }
 
 
 
+// Dados principais
+
 document.getElementById("nomeAluno").innerHTML =
-"👨‍🎓 " + aluno.nome;
+"👨‍🎓 " + (aluno.nome || "");
 
 
 document.getElementById("codigo").innerHTML =
-"Código: " + aluno.codigoAluno;
+"Código: " + (aluno.codigoAluno || "");
 
 
 document.getElementById("turma").innerHTML =
-"Turma: " + aluno.turmaNome;
+"Turma: " + (aluno.turmaNome || "");
 
 
 document.getElementById("estado").innerHTML =
 "Estado: " + (aluno.estado || "ativo");
+
+
+
+
+// Atualizar título
+
+document.title =
+"Aluno - " + aluno.nome;
+
+
+
+
+// Função de sair
+
+window.sairAluno = function(){
+
+
+    localStorage.removeItem(
+        "alunoLogado"
+    );
+
+
+    window.location.href =
+    "student-login.html";
+
+
+};
