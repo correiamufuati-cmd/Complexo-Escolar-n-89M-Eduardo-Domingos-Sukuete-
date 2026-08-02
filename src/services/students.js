@@ -436,6 +436,12 @@ corpoTabela.innerHTML += `
 
 <td>
 
+<button onclick="alterarEstado('${aluno.codigoAluno}')">
+⚙️ Estado
+</button>
+
+</td>
+
 <button onclick="verAluno('${aluno.codigoAluno}')">
 👁️
 </button>
@@ -449,8 +455,6 @@ corpoTabela.innerHTML += `
 </button>
 
 </td>
-
-</tr>
 
 `;
 
