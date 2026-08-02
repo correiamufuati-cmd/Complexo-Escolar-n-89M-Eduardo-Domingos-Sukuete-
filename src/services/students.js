@@ -398,6 +398,51 @@ mostrarAlunos(todosAlunos);
 
         }
 
+function mostrarAlunos(lista){
+
+
+const corpoTabela = document.getElementById("corpoTabela");
+
+
+corpoTabela.innerHTML="";
+
+
+lista.forEach(aluno=>{
+
+
+corpoTabela.innerHTML += `
+
+<tr>
+
+<td>${aluno.codigoAluno || ""}</td>
+
+<td>${aluno.numero}</td>
+
+<td>${aluno.nome}</td>
+
+<td>${aluno.sexo || ""}</td>
+
+<td>${aluno.dataNascimento || ""}</td>
+
+<td>${calcularIdade(aluno.dataNascimento)}</td>
+
+<td>${aluno.turmaNome || ""}</td>
+
+</tr>
+
+`;
+
+
+});
+
+
+    }
+    
+
+// =============================
+// IMPORTAR ALUNOS
+// =============================
+
 importarAlunos.addEventListener("click", async()=>{
 
 
@@ -474,46 +519,7 @@ criadoEm:serverTimestamp()
 
     }
 
-function mostrarAlunos(lista){
 
-
-const corpoTabela = document.getElementById("corpoTabela");
-
-
-corpoTabela.innerHTML="";
-
-
-lista.forEach(aluno=>{
-
-
-corpoTabela.innerHTML += `
-
-<tr>
-
-<td>${aluno.codigoAluno || ""}</td>
-
-<td>${aluno.numero}</td>
-
-<td>${aluno.nome}</td>
-
-<td>${aluno.sexo || ""}</td>
-
-<td>${aluno.dataNascimento || ""}</td>
-
-<td>${calcularIdade(aluno.dataNascimento)}</td>
-
-<td>${aluno.turmaNome || ""}</td>
-
-</tr>
-
-`;
-
-
-});
-
-
-    }
-    
 
     alert("Alunos importados com sucesso");
 
