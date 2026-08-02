@@ -1,131 +1,267 @@
+import { app } from "./firebase.js";
+
 import {
-  addStudent,
-  getStudentsBySchool,
-  deleteStudent,
-  updateStudent
-} from "./students.service.js";
+    getFirestore,
+    collection,
+    getDocs,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-import { getClassesBySchool } from "./classes.service.js";
 
-const user = window.currentUser;
+const db = getFirestore(app);
 
-let classesMap = {};
-let classesList = [];
 
-// 🚀 iniciar tudo
-async function init() {
-  await loadClasses();
-  await loadStudents();
-}
+// Elementos
 
-// 📚 carregar turmas + preencher dropdown
-async function loadClasses() {
+const turmaSelect = document.getElementById("turmaSelect");
 
-  classesList = await getClassesBySchool(user.schoolId);
+const nomeAluno = document.getElementById("nomeAluno");
 
-  const select = document.getElementById("classSelect");
+const numeroAluno = document.getElementById("numeroAluno");
 
-  select.innerHTML = `
-    <option value="">Selecionar turma</option>
-  `;
+const sexoAluno = document.getElementById("sexoAluno");
 
-  classesMap = {};
+const dataAluno = document.getElementById("dataAluno");
 
-  classesList.forEach(c => {
+const guardarAluno = document.getElementById("guardarAluno");
 
-    classesMap[c.id] = c.name;
+const listaAlunos = document.getElementById("listaAlunos");
 
-    select.innerHTML += `
-      <option value="${c.id}">
-        ${c.name} - ${c.level}
-      </option>
-    `;
-  });
-}
 
-// ➕ adicionar aluno
-document.getElementById("addBtn").addEventListener("click", async () => {
 
-  const name = document.getElementById("name").value;
-  const age = document.getElementById("age").value;
-  const classId = document.getElementById("classSelect").value;
+// guardar ID da turma selecionada
 
-  if (!classId) {
-    alert("Seleciona uma turma!");
-    return;
-  }
+let turmaSelecionada = "";
 
-  await addStudent({
-    name,
-    age,
-    classId,
-    schoolId: user.schoolId
-  });
 
-  await loadStudents();
-});
 
-// 📋 listar alunos
-async function loadStudents() {
 
-  const students = await getStudentsBySchool(user.schoolId);
+// =============================
+// CARREGAR TURMAS
+// =============================
 
-  const list = document.getElementById("studentsList");
+async function carregarTurmas(){
 
-  list.innerHTML = "";
 
-  students.forEach(s => {
+    const dados = await getDocs(
+        collection(db,"turmas")
+    );
 
-    const className = classesMap[s.classId] || "Sem turma";
 
-    list.innerHTML += `
-      <div style="padding:10px; border:1px solid #ccc; margin:5px;">
-        
-        <b>${s.name}</b> - ${s.age} anos  
-        <br>
-        Turma: ${className}
+    turmaSelect.innerHTML = "";
 
-        <br><br>
 
-        <button onclick="editStudent('${s.id}', '${s.name}', '${s.age}', '${s.classId}')">
-          Editar
-        </button>
+    dados.forEach(doc=>{
 
-        <button onclick="removeStudent('${s.id}')">
-          Eliminar
-        </button>
 
-      </div>
-    `;
-  });
-}
+        const turma = doc.data();
 
-// ❌ eliminar
-window.removeStudent = async (id) => {
-  await deleteStudent(id);
-  await loadStudents();
-};
 
-// ✏️ editar
-window.editStudent = async (id, name, age, classId) => {
 
-  const newName = prompt("Nome:", name);
-  const newAge = prompt("Idade:", age);
+        turmaSelect.innerHTML += `
 
-  const newClass = prompt(
-    "ID da turma (abre dropdown depois vamos melhorar):",
-    classId
-  );
+        <option value="${doc.id}">
 
-  if (newName) {
-    await updateStudent(id, {
-      name: newName,
-      age: newAge,
-      classId: newClass
+        ${turma.nome} - ${turma.classe}
+
+        </option>
+
+        `;
+
+
     });
 
-    await loadStudents();
-  }
-};
 
-init();
+
+    turmaSelecionada = turmaSelect.value;
+
+
+    carregarAlunos();
+
+
+}
+
+
+
+
+
+turmaSelect.addEventListener("change",()=>{
+
+
+    turmaSelecionada = turmaSelect.value;
+
+
+    carregarAlunos();
+
+
+});
+
+
+
+
+// =============================
+// GUARDAR ALUNO
+// =============================
+
+
+guardarAluno.addEventListener("click",async()=>{
+
+
+    if(!turmaSelecionada){
+
+        alert("Selecione uma turma");
+
+        return;
+
+    }
+
+
+
+    if(
+        nomeAluno.value==="" ||
+        numeroAluno.value===""
+    ){
+
+        alert("Preencha nome e número");
+
+        return;
+
+    }
+
+
+
+    await addDoc(
+
+        collection(
+            db,
+            "turmas",
+            turmaSelecionada,
+            "alunos"
+        ),
+
+        {
+
+            nome:nomeAluno.value,
+
+            numero:numeroAluno.value,
+
+            sexo:sexoAluno.value,
+
+            dataNascimento:dataAluno.value,
+
+            criadoEm:serverTimestamp()
+
+        }
+
+    );
+
+
+
+    alert("Aluno guardado");
+
+
+
+    nomeAluno.value="";
+    numeroAluno.value="";
+    sexoAluno.value="";
+    dataAluno.value="";
+
+
+    carregarAlunos();
+
+
+});
+
+
+
+
+
+// =============================
+// LISTAR ALUNOS
+// =============================
+
+
+async function carregarAlunos(){
+
+
+    if(!turmaSelecionada){
+
+        return;
+
+    }
+
+
+
+    listaAlunos.innerHTML =
+    "A carregar alunos...";
+
+
+
+    const dados = await getDocs(
+
+        collection(
+            db,
+            "turmas",
+            turmaSelecionada,
+            "alunos"
+        )
+
+    );
+
+
+
+    listaAlunos.innerHTML="";
+
+
+
+    if(dados.empty){
+
+
+        listaAlunos.innerHTML =
+        "Nenhum aluno cadastrado";
+
+
+        return;
+
+    }
+
+
+
+
+    dados.forEach(doc=>{
+
+
+        const aluno = doc.data();
+
+
+
+        listaAlunos.innerHTML += `
+
+        <div class="aluno">
+
+        Nº ${aluno.numero}
+
+        <br>
+
+        ${aluno.nome}
+
+        <br>
+
+        Sexo: ${aluno.sexo}
+
+        </div>
+
+        `;
+
+
+    });
+
+
+
+}
+
+
+
+
+carregarTurmas();
