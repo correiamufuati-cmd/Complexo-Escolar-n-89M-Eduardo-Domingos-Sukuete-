@@ -63,3 +63,51 @@ body {
   padding: 20px;
   border-radius: 10px;
 }
+
+/* =========================
+   TABELA DE ALUNOS
+========================= */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+}
+
+
+th{
+  background:#1f2937;
+  color:white;
+  padding:8px;
+  text-align:left;
+}
+
+
+td{
+  padding:5px 8px;
+  border-bottom:1px solid #ddd;
+  white-space:nowrap;
+  height:28px;
+}
+
+
+/* coluna do nome maior */
+td:nth-child(3){
+  min-width:180px;
+}
+
+
+/* evita nomes partidos em várias linhas */
+td{
+  max-width:220px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* botões pequenos */
+td button{
+  padding:3px 6px;
+  font-size:12px;
+  margin:2px;
+  }
