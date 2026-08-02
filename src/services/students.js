@@ -225,7 +225,9 @@ codigoAluno: gerarCodigoAluno(numeroAluno.value),
 
 senhaAcesso: gerarSenha(),
 
-criadoEm:serverTimestamp()
+estado: "ativo",
+
+criadoEm: serverTimestamp()
 
         }
 
@@ -376,6 +378,8 @@ todosAlunos = alunos;
 <th>Data Nascimento</th>
 <th>Idade</th>
 <th>Turma</th>
+<th>Ações</th>
+<th>Estado</th>
 </tr>
 </thead>
 
@@ -427,6 +431,24 @@ corpoTabela.innerHTML += `
 <td>${calcularIdade(aluno.dataNascimento)}</td>
 
 <td>${aluno.turmaNome || ""}</td>
+
+<td>${aluno.estado || "ativo"}</td>
+
+<td>
+
+<button onclick="verAluno('${aluno.codigoAluno}')">
+👁️
+</button>
+
+<button onclick="editarAluno('${aluno.codigoAluno}')">
+✏️
+</button>
+
+<button onclick="apagarAluno('${aluno.codigoAluno}')">
+🗑️
+</button>
+
+</td>
 
 </tr>
 
@@ -508,13 +530,15 @@ dataNascimento:dados[3].trim(),
 
 turmaId:turmaSelecionada,
 
-turmaNome:turmaSelect.options[turmaSelect.selectedIndex].text,
+turmaNome: turmaSelect.options[turmaSelect.selectedIndex].text,
 
 codigoAluno: gerarCodigoAluno(dados[0].trim()),
 
 senhaAcesso: gerarSenha(),
 
-criadoEm:serverTimestamp()
+estado: "ativo",
+
+criadoEm: serverTimestamp()
         }
 
         );
