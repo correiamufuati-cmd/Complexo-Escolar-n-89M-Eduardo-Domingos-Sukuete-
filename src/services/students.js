@@ -60,8 +60,6 @@ async function carregarTurmas(){
 
     try{
 
-        alert("Entrou em carregarTurmas");
-
         turmaSelect.innerHTML =
         "<option>A procurar turmas...</option>";
 
@@ -70,7 +68,53 @@ async function carregarTurmas(){
             collection(db,"turmas")
         );
 
-        alert("Leu Firebase: " + dados.size);
+
+        if(dados.empty){
+
+            turmaSelect.innerHTML =
+            "<option>Nenhuma turma encontrada</option>";
+
+            return;
+        }
+
+
+        turmaSelect.innerHTML =
+        "";
+
+
+        dados.forEach(doc=>{
+
+            const turma = doc.data();
+
+
+            turmaSelect.innerHTML += `
+
+            <option value="${doc.id}">
+            ${turma.nome} - ${turma.classe}
+            </option>
+
+            `;
+
+
+        });
+
+
+        turmaSelecionada = turmaSelect.value;
+
+
+        carregarAlunos();
+
+
+    }catch(erro){
+
+
+        turmaSelect.innerHTML =
+        "<option>Erro: "+erro.message+"</option>";
+
+
+    }
+
+}
 
 
 // =============================
@@ -334,8 +378,8 @@ todosAlunos = alunos;
 <th>Data Nascimento</th>
 <th>Idade</th>
 <th>Turma</th>
-<th>Estado</th>
 <th>Ações</th>
+<th>Estado</th>
 </tr>
 </thead>
 
@@ -360,7 +404,9 @@ mostrarAlunos(todosAlunos);
 
 function mostrarAlunos(lista){
 
+
 const corpoTabela = document.getElementById("corpoTabela");
+
 
 corpoTabela.innerHTML="";
 
@@ -394,6 +440,8 @@ corpoTabela.innerHTML += `
 ⚙️ Estado
 </button>
 
+</td>
+
 <button onclick="verAluno('${aluno.codigoAluno}')">
 👁️
 </button>
@@ -408,14 +456,13 @@ corpoTabela.innerHTML += `
 
 </td>
 
-</tr>
-
 `;
+
 
 });
 
 
-}
+    }
     
 
 // =============================
@@ -540,8 +587,8 @@ pesquisarAluno.addEventListener("input",()=>{
 
 window.alterarEstado = async function(codigo){
 
-    let opcao = prompt(
-        "Escolha o estado:\n\n1 - Ativo\n2 - Transferido\n3 - Desistiu\n4 - Remover duplicado"
+    const opcao = prompt(
+        "Digite o novo estado:\n\n1 - ativo\n2 - transferido\n3 - desistiu\n4 - remover duplicado"
     );
 
 
@@ -569,64 +616,10 @@ window.alterarEstado = async function(codigo){
     }
 
 
-    const turmas = await getDocs(
-        collection(db,"turmas")
+    alert(
+        "Estado alterado para: " + novoEstado
     );
 
-
-    for(const turma of turmas.docs){
-
-
-        const alunos = await getDocs(
-            collection(
-                db,
-                "turmas",
-                turma.id,
-                "alunos"
-            )
-        );
-
-
-        for(const aluno of alunos.docs){
-
-
-            const dados = aluno.data();
-
-
-            if(dados.codigoAluno === codigo){
-
-
-                await updateDoc(
-
-                    doc(
-                        db,
-                        "turmas",
-                        turma.id,
-                        "alunos",
-                        aluno.id
-                    ),
-
-                    {
-                        estado: novoEstado
-                    }
-
-                );
-
-
-                alert(
-                    "Estado alterado para: " + novoEstado
-                );
-
-
-                carregarAlunos();
-
-                return;
-
-            }
-
-        }
-
-    }
-
-
 };
+
+carregarTurmas();
