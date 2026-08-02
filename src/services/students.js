@@ -254,23 +254,33 @@ criadoEm:serverTimestamp()
 // LISTAR ALUNOS
 // =============================
 
+
 function calcularIdade(data){
 
     if(!data){
         return "";
     }
 
-    const partes = data.split("-");
+
+    let partes = data.split("-");
+
 
     if(partes.length !== 3){
+
         return "";
+
     }
 
 
+    let dia = Number(partes[0]);
+    let mes = Number(partes[1]) - 1;
+    let ano = Number(partes[2]);
+
+
     const nascimento = new Date(
-        partes[0],
-        partes[1] - 1,
-        partes[2]
+        ano,
+        mes,
+        dia
     );
 
 
@@ -280,12 +290,16 @@ function calcularIdade(data){
     let idade = hoje.getFullYear() - nascimento.getFullYear();
 
 
-    const mes = hoje.getMonth() - nascimento.getMonth();
+    let diferencaMes =
+    hoje.getMonth() - nascimento.getMonth();
 
 
     if(
-        mes < 0 ||
-        (mes === 0 && hoje.getDate() < nascimento.getDate())
+        diferencaMes < 0 ||
+        (
+            diferencaMes === 0 &&
+            hoje.getDate() < nascimento.getDate()
+        )
     ){
 
         idade--;
@@ -295,7 +309,8 @@ function calcularIdade(data){
 
     return idade;
 
-        }
+                     }
+
 
 async function carregarAlunos(){
 
