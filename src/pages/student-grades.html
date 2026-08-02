@@ -1,66 +1,119 @@
-const aluno = JSON.parse(
-    localStorage.getItem("alunoLogado")
-);
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 
+<title>Minhas Notas</title>
 
-if(!aluno){
 
-    alert("Sessão não encontrada");
+<style>
 
-    window.location.href =
-    "student-login.html";
+body{
+
+font-family:Arial;
+background:#dff3ff;
+padding:20px;
 
 }
 
 
+.container{
 
-// Dados principais
+max-width:800px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:15px;
 
-document.getElementById("nomeAluno").innerHTML =
-"👨‍🎓 " + (aluno.nome || "");
-
-
-document.getElementById("codigo").innerHTML =
-"Código: " + (aluno.codigoAluno || "");
-
-
-document.getElementById("turma").innerHTML =
-"Turma: " + (aluno.turmaNome || "");
+}
 
 
-document.getElementById("estado").innerHTML =
-"Estado: " + (aluno.estado || "ativo");
+table{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+
+td,th{
+
+border:1px solid #ccc;
+padding:10px;
+
+}
+
+
+th{
+
+background:#1976d2;
+color:white;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>📊 Minhas Notas</h1>
+
+
+<h2 id="nomeAluno">
+</h2>
+
+
+<p id="turma">
+</p>
+
+
+<table>
+
+<tr>
+
+<th>Disciplina</th>
+
+<th>MAC</th>
+
+<th>NPT</th>
+
+<th>MF</th>
+
+</tr>
+
+
+<tr>
+
+<td colspan="4">
+Nenhuma nota disponível
+</td>
+
+</tr>
+
+
+</table>
 
 
 
-
-// Atualizar título
-
-document.title =
-"Aluno - " + aluno.nome;
+</div>
 
 
+<script type="module" src="../services/student-grades.js"></script>
 
 
-// Função de sair
+</body>
 
-window.sairAluno = function(){
-
-
-    localStorage.removeItem(
-        "alunoLogado"
-    );
-
-
-    window.location.href =
-    "student-login.html";
-
-
-};
-
-window.verNotas = function(){
-
-    alert("Módulo de notas em preparação");
-
-};
+    </html>
