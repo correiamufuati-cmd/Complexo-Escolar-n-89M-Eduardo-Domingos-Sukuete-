@@ -9,6 +9,7 @@ import {
     addDoc,
     updateDoc,
     doc,
+    deleteDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
