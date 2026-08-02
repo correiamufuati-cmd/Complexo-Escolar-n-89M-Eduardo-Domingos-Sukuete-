@@ -752,6 +752,104 @@ Senha: ${dados.senhaAcesso || ""}`
 
 };
 
+// =============================
+// EDITAR ALUNO
+// =============================
+
+window.editarAluno = async function(codigo){
+
+    const turmas = await getDocs(
+        collection(db,"turmas")
+    );
+
+
+    for(const turma of turmas.docs){
+
+
+        const alunos = await getDocs(
+            collection(
+                db,
+                "turmas",
+                turma.id,
+                "alunos"
+            )
+        );
+
+
+        for(const aluno of alunos.docs){
+
+
+            const dados = aluno.data();
+
+
+            if(dados.codigoAluno === codigo){
+
+
+                const novoNome = prompt(
+                    "Nome do aluno:",
+                    dados.nome
+                );
+
+
+                const novoNumero = prompt(
+                    "Número do aluno:",
+                    dados.numero
+                );
+
+
+                const novoSexo = prompt(
+                    "Sexo:",
+                    dados.sexo || ""
+                );
+
+
+                const novaData = prompt(
+                    "Data de nascimento:",
+                    dados.dataNascimento || ""
+                );
+
+
+                await updateDoc(
+
+                    doc(
+                        db,
+                        "turmas",
+                        turma.id,
+                        "alunos",
+                        aluno.id
+                    ),
+
+                    {
+
+                        nome: novoNome,
+
+                        numero: novoNumero,
+
+                        sexo: novoSexo,
+
+                        dataNascimento: novaData
+
+                    }
+
+                );
+
+
+                alert("Aluno atualizado com sucesso");
+
+
+                carregarAlunos();
+
+
+                return;
+
+            }
+
+        }
+
+    }
+
+};
+
         alert("CHEGUEI AO FINAL DO FICHEIRO");
 
 carregarTurmas();
