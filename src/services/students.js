@@ -676,3 +676,7 @@ window.alterarEstado = async function(codigo){
 
 
 };
+
+        alert("Vai iniciar carregarTurmas");
+
+carregarTurmas();
