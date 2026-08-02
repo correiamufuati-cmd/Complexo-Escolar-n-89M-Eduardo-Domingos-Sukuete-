@@ -12,13 +12,13 @@
 
 *{
     box-sizing:border-box;
-    font-family:Arial,sans-serif;
+    font-family:Arial, sans-serif;
 }
 
 
 body{
 
-    height:100vh;
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
@@ -33,7 +33,7 @@ form{
     background:white;
     padding:30px;
     border-radius:15px;
-    box-shadow:0 5px 15px #999;
+    box-shadow:0 5px 15px rgba(0,0,0,.3);
 
 }
 
@@ -42,7 +42,7 @@ h2{
 
     text-align:center;
     color:#1976d2;
-    margin-bottom:20px;
+    margin-bottom:25px;
 
 }
 
@@ -54,6 +54,16 @@ input{
     margin-bottom:15px;
     border:1px solid #ccc;
     border-radius:8px;
+    font-size:16px;
+    color:#000;
+    background:white;
+
+}
+
+
+input::placeholder{
+
+    color:#777;
 
 }
 
@@ -67,6 +77,7 @@ button{
     background:#1976d2;
     color:white;
     font-size:16px;
+    cursor:pointer;
 
 }
 
@@ -76,7 +87,6 @@ button:hover{
     background:#0d47a1;
 
 }
-
 
 </style>
 
@@ -122,4 +132,4 @@ Entrar
 
 </body>
 
-</html>
+    </html>
