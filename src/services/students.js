@@ -159,17 +159,21 @@ guardarAluno.addEventListener("click",async()=>{
 
         {
 
-            nome:nomeAluno.value,
+nome:nomeAluno.value,
 
-            numero:numeroAluno.value,
+numero:numeroAluno.value,
 
-            sexo:sexoAluno.value,
+sexo:sexoAluno.value,
 
-            dataNascimento:dataAluno.value,
+dataNascimento:dataAluno.value,
 
-            criadoEm:serverTimestamp()
+turmaId:turmaSelecionada,
 
-        }
+turmaNome:turmaSelect.options[turmaSelect.selectedIndex].text,
+
+criadoEm:serverTimestamp()
+
+}
 
     );
 
@@ -335,17 +339,21 @@ importarAlunos.addEventListener("click", async()=>{
 
             {
 
-                numero:dados[0].trim(),
+numero:dados[0].trim(),
 
-                nome:dados[1].trim(),
+nome:dados[1].trim(),
 
-                sexo:dados[2].trim(),
+sexo:dados[2].trim(),
 
-                dataNascimento:dados[3].trim(),
+dataNascimento:dados[3].trim(),
 
-                criadoEm:serverTimestamp()
+turmaId:turmaSelecionada,
 
-            }
+turmaNome:turmaSelect.options[turmaSelect.selectedIndex].text,
+
+criadoEm:serverTimestamp()
+
+        }
 
         );
 
