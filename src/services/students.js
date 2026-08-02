@@ -65,8 +65,10 @@ async function carregarTurmas(){
 
 
         const dados = await getDocs(
-            collection(db,"turmas")
-        );
+    collection(db,"turmas")
+);
+
+alert("Turmas encontradas: " + dados.size);
 
 
         if(dados.empty){
