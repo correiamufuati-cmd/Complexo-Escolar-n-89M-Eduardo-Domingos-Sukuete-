@@ -585,4 +585,41 @@ pesquisarAluno.addEventListener("input",()=>{
 });
 
 
+window.alterarEstado = async function(codigo){
+
+    const opcao = prompt(
+        "Digite o novo estado:\n\n1 - ativo\n2 - transferido\n3 - desistiu\n4 - remover duplicado"
+    );
+
+
+    let novoEstado = "";
+
+
+    if(opcao === "1"){
+        novoEstado = "ativo";
+    }
+
+    else if(opcao === "2"){
+        novoEstado = "transferido";
+    }
+
+    else if(opcao === "3"){
+        novoEstado = "desistiu";
+    }
+
+    else if(opcao === "4"){
+        novoEstado = "removido";
+    }
+
+    else{
+        return;
+    }
+
+
+    alert(
+        "Estado alterado para: " + novoEstado
+    );
+
+};
+
 carregarTurmas();
