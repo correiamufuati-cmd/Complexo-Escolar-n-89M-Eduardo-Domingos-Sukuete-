@@ -1,155 +1,90 @@
-import { app } from "./firebase.js";
+import { db } from "../config/firebase.js";
 
 import {
-    getFirestore,
     collection,
-    getDocs,
-    updateDoc,
-    doc,
-    serverTimestamp
+    getDocs
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-const db = getFirestore(app);
 
-
-// Campos
-
-const codigoAluno = document.getElementById("codigoAluno");
-
-const senhaAluno = document.getElementById("senhaAluno");
-
-const entrarAluno = document.getElementById("entrarAluno");
+const form = document.getElementById("loginAluno");
 
 
 
-// Login
+form.addEventListener("submit", async (e)=>{
 
-entrarAluno.addEventListener("click", async()=>{
-
-
-    const codigo = codigoAluno.value
-    .trim()
-    .toUpperCase();
-
-
-    const senha = senhaAluno.value
-    .trim();
+    e.preventDefault();
 
 
 
-    if(!codigo || !senha){
+    const codigoAluno =
+    document.getElementById("codigoAluno").value.trim();
 
-        alert("Preencha o código e a senha");
 
-        return;
 
-    }
+    const senha =
+    document.getElementById("senha").value.trim();
+
+
+
+    let encontrado = false;
 
 
 
     try{
 
 
-        const turmas = await getDocs(
-            collection(db,"turmas")
-        );
+        const turmasSnapshot =
+        await getDocs(collection(db,"turmas"));
 
 
 
-        for(const turma of turmas.docs){
+        for(const turmaDoc of turmasSnapshot.docs){
+
+
+            const alunosRef =
+            collection(db,"turmas",turmaDoc.id,"alunos");
 
 
 
-            const alunos = await getDocs(
-
-                collection(
-                    db,
-                    "turmas",
-                    turma.id,
-                    "alunos"
-                )
-
-            );
+            const alunosSnapshot =
+            await getDocs(alunosRef);
 
 
 
-            for(const aluno of alunos.docs){
+            for(const alunoDoc of alunosSnapshot.docs){
 
 
-
-                const dados = aluno.data();
+                const aluno =
+                alunoDoc.data();
 
 
 
                 if(
-
-                    dados.codigoAluno
-                    &&
-                    dados.codigoAluno.toUpperCase()
-                    === codigo
-
-                    &&
-
-                    dados.senhaAcesso
-                    === senha
-
+                    aluno.codigoAluno === codigoAluno &&
+                    aluno.senha === senha
                 ){
 
 
+                    encontrado = true;
 
-                    // Atualizar acesso
-
-                    await updateDoc(
-
-                        doc(
-                            db,
-                            "turmas",
-                            turma.id,
-                            "alunos",
-                            aluno.id
-                        ),
-
-                        {
-
-                            ultimoAcesso:
-                            serverTimestamp(),
-
-                            online:true
-
-                        }
-
-                    );
-
-
-
-
-
-                    // Guardar sessão
 
 
                     localStorage.setItem(
-
                         "alunoLogado",
-
                         JSON.stringify({
 
-                            id: aluno.id,
+                            id: alunoDoc.id,
 
-                            turmaId: turma.id,
+                            nome: aluno.nome,
 
-                            ...dados
+                            codigoAluno: aluno.codigoAluno,
+
+                            turmaNome: aluno.turma,
+
+                            estado: aluno.estado || "ativo"
 
                         })
-
-                    );
-
-
-
-
-
-                    alert(
-                        "Bem-vindo, " + dados.nome
                     );
 
 
@@ -161,38 +96,31 @@ entrarAluno.addEventListener("click", async()=>{
 
                     return;
 
-
                 }
 
 
-
             }
-
 
 
         }
 
 
 
-        alert(
-            "Código ou senha inválidos"
-        );
+        if(!encontrado){
+
+            alert("Código ou senha incorretos");
+
+        }
 
 
 
-    }
-    catch(erro){
+    }catch(error){
 
+        console.error(error);
 
-        alert(
-            "Erro no login: "
-            +
-            erro.message
-        );
-
+        alert("Erro ao fazer login");
 
     }
-
 
 
 });
