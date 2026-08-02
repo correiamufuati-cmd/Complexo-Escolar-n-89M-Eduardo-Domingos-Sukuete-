@@ -41,12 +41,14 @@ const importarAlunos = document.getElementById("importarAlunos");
 
 const listaAlunos = document.getElementById("listaAlunos");
 
+const pesquisarAluno = document.getElementById("pesquisarAluno");
 
 
 // guardar ID da turma selecionada
 
 let turmaSelecionada = "";
 
+let todosAlunos = [];
 
 
 
@@ -314,7 +316,6 @@ function calcularIdade(data){
 
 async function carregarAlunos(){
 
-let todosAlunos = [];
     
     if(!turmaSelecionada){
 
@@ -356,8 +357,10 @@ alunos.sort((a,b)=>{
 
     return Number(a.numero) - Number(b.numero);
 
-    todosAlunos = alunos;
 });
+
+
+todosAlunos = alunos;
     
 
     listaAlunos.innerHTML = `
@@ -523,11 +526,6 @@ corpoTabela.innerHTML += `
 
 });
 
-function mostrarAlunos(lista){
-
-    // ... código da função ...
-
-}
 
 
 // PESQUISAR ALUNOS
@@ -549,7 +547,5 @@ pesquisarAluno.addEventListener("input",()=>{
 
 });
 
-
-carregarTurmas();
 
 carregarTurmas();
