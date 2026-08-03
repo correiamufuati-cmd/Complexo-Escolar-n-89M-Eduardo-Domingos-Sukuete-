@@ -1,131 +1,207 @@
 <!DOCTYPE html>
 <html lang="pt">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard Gestor</title>
 
-  <link rel="stylesheet" href="../styles/dashboard.css">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard Gestor - SIGEA</title>
+
+<link rel="stylesheet" href="../styles/dashboard.css">
+
 </head>
+
 
 <body>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
 
-    <h2 id="schoolName">Escola</h2>
-
-    <a href="dashboard-gestor.html">📊 Visão Geral</a>
-
-    <a href="students.html">👨‍🎓 Alunos</a>
-
-    <a href="teachers.html">👨‍🏫 Professores</a>
-
-    <a href="classes.html">🏫 Turmas</a>
-
-    <a href="#">📚 Disciplinas</a>
-
-    <a href="grades.html">📝 Notas</a>
-
-    <a href="#">📄 Boletins</a>
-
-    <a href="#">⚙️ Definições</a>
+<div class="sidebar">
 
 
-    <button id="logoutBtn">
-      Sair
-    </button>
-
-  </div>
+<h2 id="schoolName">
+Escola
+</h2>
 
 
-
-  <!-- CONTEÚDO -->
-
-  <div class="main">
-
-
-    <header>
-
-      <h1>Dashboard</h1>
-
-      <p id="userInfo">
-        Carregando...
-      </p>
-
-    </header>
+<a href="dashboard-gestor.html">
+📊 Visão Geral
+</a>
 
 
+<a href="students.html">
+👨‍🎓 Alunos
+</a>
 
-    <!-- CARDS -->
 
-    <div class="cards">
+<a href="teachers.html">
+👨‍🏫 Professores
+</a>
 
 
-      <div class="card">
+<a href="classes.html">
+🏫 Turmas
+</a>
 
-        <h3>Alunos</h3>
 
-        <p id="totalStudents">
-          0
-        </p>
+<a href="#">
+📚 Disciplinas
+</a>
 
-      </div>
+
+<a href="grades.html">
+📝 Notas
+</a>
+
+
+<a href="#">
+📄 Boletins
+</a>
+
+
+<a href="#">
+⚙️ Definições
+</a>
 
 
 
-      <div class="card">
-
-        <h3>Professores</h3>
-
-        <p id="totalTeachers">
-          0
-        </p>
-
-      </div>
+<button id="logoutBtn">
+Sair
+</button>
 
 
 
-      <div class="card">
-
-        <h3>Turmas</h3>
-
-        <p id="totalClasses">
-          0
-        </p>
-
-      </div>
-
-
-    </div>
+</div>
 
 
 
 
-    <!-- ATIVIDADE -->
-
-    <div class="section">
-
-      <h2>
-        Atividade recente
-      </h2>
-
-
-      <div id="activity">
-
-        Nenhuma atividade ainda.
-
-      </div>
-
-
-    </div>
-
-
-  </div>
+<div class="main">
 
 
 
-  <script type="module" src="../services/dashboard-gestor.js"></script>
+<header>
+
+
+<h1>
+Dashboard
+</h1>
+
+
+<p id="userInfo">
+Carregando...
+</p>
+
+
+</header>
+
+
+
+
+
+<div class="cards">
+
+
+
+<div class="card">
+
+<h3>
+👨‍🎓 Alunos
+</h3>
+
+<p id="totalStudents">
+0
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<h3>
+👨‍🏫 Professores
+</h3>
+
+<p id="totalTeachers">
+0
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<h3>
+🏫 Turmas
+</h3>
+
+<p id="totalClasses">
+0
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<h3>
+📚 Disciplinas
+</h3>
+
+<p id="totalSubjects">
+0
+</p>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="section">
+
+
+<h2>
+Atividade recente
+</h2>
+
+
+
+<div id="activity">
+
+Nenhuma atividade ainda.
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+<script type="module" src="../services/dashboard-gestor.js?v=1"></script>
+
 
 </body>
-      </html>
+
+  </html>
