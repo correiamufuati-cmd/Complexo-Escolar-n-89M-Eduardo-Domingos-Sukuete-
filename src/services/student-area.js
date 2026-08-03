@@ -58,5 +58,14 @@ window.verNotas=function(){
     "student-report.html";
 
 };
+
+
+    window.verDados = function(){
+
+    window.location.href =
+    "student-profile.html";
+
+};
+
     
              }
