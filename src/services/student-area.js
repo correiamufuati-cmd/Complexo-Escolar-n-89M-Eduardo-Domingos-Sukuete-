@@ -35,11 +35,12 @@ document.title =
 
 
 
-window.sairAluno=function(){
+window.sairAluno = function(){
 
     localStorage.removeItem("alunoLogado");
 
-    window.location.href="../../login-aluno.html";
+    window.location.href =
+    "../login-aluno.html";
 
 };
 
