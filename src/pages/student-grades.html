@@ -4,61 +4,67 @@
 <head>
 
 <meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Minhas Notas</title>
-
 
 <style>
 
 body{
-
-font-family:Arial;
-background:#dff3ff;
-padding:20px;
-
+    font-family:Arial;
+    background:#f4f6f9;
+    padding:20px;
 }
 
 
 .container{
 
-max-width:800px;
-margin:auto;
-background:white;
-padding:25px;
-border-radius:15px;
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
 
 }
 
 
 table{
 
-width:100%;
-border-collapse:collapse;
+    width:100%;
+    border-collapse:collapse;
 
 }
 
 
-td,th{
+th,td{
 
-border:1px solid #ccc;
-padding:10px;
+    border:1px solid #ccc;
+    padding:10px;
+    text-align:center;
 
 }
 
 
 th{
 
-background:#1976d2;
-color:white;
+    background:#1976d2;
+    color:white;
 
 }
 
 
-</style>
+button{
 
+    margin-top:20px;
+    padding:10px 20px;
+    background:#1976d2;
+    color:white;
+    border:none;
+    border-radius:6px;
+
+}
+
+</style>
 
 </head>
 
@@ -72,43 +78,40 @@ color:white;
 <h1>📊 Minhas Notas</h1>
 
 
-<h2 id="nomeAluno">
-</h2>
-
-
-<p id="turma">
-</p>
-
-
 <table>
+
+
+<thead>
 
 <tr>
 
 <th>Disciplina</th>
-
 <th>MAC</th>
-
 <th>NPT</th>
-
 <th>MF</th>
 
 </tr>
 
+</thead>
 
-<tr>
 
-<td colspan="4">
-Nenhuma nota disponível
-</td>
+<tbody id="listaNotas">
 
-</tr>
+
+</tbody>
 
 
 </table>
 
 
 
+<button onclick="voltar()">
+Voltar
+</button>
+
+
 </div>
+
 
 
 <script type="module" src="../services/student-grades.js"></script>
