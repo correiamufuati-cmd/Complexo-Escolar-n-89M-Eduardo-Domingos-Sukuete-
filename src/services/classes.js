@@ -47,49 +47,58 @@ async function buscarDisciplinas(ensino, classe){
 
     try{
 
-        const ref = doc(
+        const referencia = doc(
             db,
             "config"
         );
 
 
-        const dados = await getDoc(ref);
+        const resultado = await getDoc(referencia);
 
 
-        if(!dados.exists()){
 
-            console.log("Config não encontrada");
+        if(!resultado.exists()){
+
+            console.log("Documento config não existe");
             return [];
 
         }
 
 
-        const config = dados.data();
+
+        const dados = resultado.data();
 
 
 
         if(
-            config.disciplinas &&
-            config.disciplinas[ensino] &&
-            config.disciplinas[ensino][classe]
+            dados.disciplinas &&
+            dados.disciplinas[ensino] &&
+            dados.disciplinas[ensino][classe]
         ){
 
-            return config.disciplinas[ensino][classe].disciplinas || [];
+            return dados.disciplinas[ensino][classe].disciplinas || [];
 
         }
 
 
+
         console.log(
-            "Classe não encontrada na configuração"
+            "Não encontrou disciplinas para:",
+            ensino,
+            classe
         );
 
 
         return [];
 
 
+
     }catch(error){
 
-        console.log(error);
+        console.log(
+            "Erro disciplinas:",
+            error
+        );
 
         return [];
 
