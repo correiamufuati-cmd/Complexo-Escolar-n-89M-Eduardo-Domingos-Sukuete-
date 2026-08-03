@@ -6,13 +6,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-alert("student-login.js carregou");
-
 
 const form = document.getElementById("loginAluno");
-
-
-alert("Formulário encontrado: " + form);
 
 
 
@@ -25,9 +20,6 @@ form.addEventListener("submit", async (e)=>{
     e.preventDefault();
 
 
-    alert("Botão Entrar clicado");
-
-
 
     const codigoAluno =
     document.getElementById("codigoAluno").value.trim();
@@ -35,22 +27,22 @@ form.addEventListener("submit", async (e)=>{
 
 
     const senha =
-    document.getElementById("senha").value.trim();
+    document.getElementById("senhaAluno").value.trim();
 
 
 
-    alert(
-        "Código: " + codigoAluno +
-        "\nSenha: " + senha
-    );
+    if(!codigoAluno || !senha){
+
+
+        alert("Preencha todos os campos");
+
+        return;
+
+    }
 
 
 
     try{
-
-
-        alert("A consultar Firebase...");
-
 
 
         const turmasSnapshot =
@@ -58,7 +50,7 @@ form.addEventListener("submit", async (e)=>{
 
 
 
-        let encontrado = false;
+        let alunoEncontrado = null;
 
 
 
@@ -88,72 +80,88 @@ form.addEventListener("submit", async (e)=>{
 
 
                 if(
+
                     aluno.codigoAluno === codigoAluno &&
+
                     aluno.senhaAcesso === senha
+
                 ){
 
 
 
-                    encontrado = true;
+                    alunoEncontrado = {
+
+
+                        id: alunoDoc.id,
+
+
+                        nome: aluno.nome,
+
+
+                        codigoAluno: aluno.codigoAluno,
+
+
+                        turmaNome: aluno.turmaNome,
+
+
+                        estado: aluno.estado || "ativo"
+
+
+                    };
 
 
 
-                    alert(
-                        "Aluno encontrado: " + aluno.nome
-                    );
-
-
-
-                    localStorage.setItem(
-                        "alunoLogado",
-                        JSON.stringify({
-
-                            id: alunoDoc.id,
-
-                            nome: aluno.nome,
-
-                            codigoAluno: aluno.codigoAluno,
-
-                            turmaNome: aluno.turmaNome,
-
-                            estado: aluno.estado || "ativo"
-
-                        })
-                    );
-
-
-
-                    alert("Vai abrir a área do aluno");
-
-
-
-                    window.location.href =
-                    "../pages/student-area.html";
-
-
-
-                    return;
+                    break;
 
 
                 }
-
 
 
             }
 
 
 
+            if(alunoEncontrado){
+
+                break;
+
+            }
+
+
         }
 
 
 
-        if(!encontrado){
+        if(!alunoEncontrado){
 
 
             alert("Código ou senha incorretos");
 
+            return;
+
 
         }
+
+
+
+        localStorage.setItem(
+
+            "alunoLogado",
+
+            JSON.stringify(alunoEncontrado)
+
+        );
+
+
+
+        alert(
+            "Login efetuado: " + alunoEncontrado.nome
+        );
+
+
+
+        window.location.href =
+        "../pages/student-area.html";
 
 
 
@@ -164,7 +172,7 @@ form.addEventListener("submit", async (e)=>{
 
 
         alert(
-            "Erro no Firebase: " + error.message
+            "Erro ao fazer login"
         );
 
 
@@ -175,4 +183,4 @@ form.addEventListener("submit", async (e)=>{
 });
 
 
-        }
+}
