@@ -89,20 +89,21 @@ try{
 
 
 
-                    let situacao = "";
+let observacao = "";
+let cor = "";
 
+if(nota.MF >= 10){
 
+    observacao = "Aprovado";
+    cor = "green";
 
-                    if(nota.MF >= 10){
+}
+else{
 
-                        situacao = "Aprovado";
+    observacao = "Reprovado";
+    cor = "red";
 
-                    }
-                    else{
-
-                        situacao = "Reprovado";
-
-                    }
+}
 
 
 
@@ -118,7 +119,9 @@ try{
 
                     <td>${nota.MF ?? "-"}</td>
 
-                    <td>${situacao}</td>
+                    <td style="color:${cor}; font-weight:bold;">
+${situacao}
+</td>
 
 
                     </tr>
