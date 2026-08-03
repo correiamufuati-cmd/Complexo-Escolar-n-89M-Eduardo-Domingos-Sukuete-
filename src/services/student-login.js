@@ -1,165 +1,95 @@
-import { db } from "./firebase.js";
+import { db } from "../config/firebase.js";
 
 import {
     collection,
-    getDocs
+    getDocs,
+    query,
+    where
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
 const form = document.getElementById("loginAluno");
 
 
-if(form){
+form.addEventListener("submit", async (e)=>{
 
+    e.preventDefault();
 
-form.addEventListener("submit", async(e)=>{
 
+    const codigo = document
+        .getElementById("codigoAluno")
+        .value
+        .trim();
 
-e.preventDefault();
 
+    const senha = document
+        .getElementById("senhaAluno")
+        .value
+        .trim();
 
-const codigoAluno =
-document.getElementById("codigoAluno").value.trim();
 
 
-const senha =
-document.getElementById("senhaAluno").value.trim();
+    try {
 
 
+        const alunosRef = collection(db,"alunos");
 
-if(!codigoAluno || !senha){
 
-alert("Preencha todos os campos");
+        const q = query(
+            alunosRef,
+            where("codigoAluno","==",codigo),
+            where("senha","==",senha)
+        );
 
-return;
 
-}
+        const resultado = await getDocs(q);
 
 
 
-try{
+        if(resultado.empty){
 
+            alert("Código ou senha incorretos");
+            return;
 
-const turmasSnapshot =
-await getDocs(collection(db,"turmas"));
+        }
 
 
 
-let alunoEncontrado = null;
+        const doc = resultado.docs[0];
 
 
+        const aluno = {
 
-for(const turmaDoc of turmasSnapshot.docs){
+            id: doc.id,
+            ...doc.data()
 
+        };
 
 
-const alunosSnapshot =
-await getDocs(
-collection(
-db,
-"turmas",
-turmaDoc.id,
-"alunos"
-)
-);
 
+        localStorage.setItem(
+            "alunoLogado",
+            JSON.stringify(aluno)
+        );
 
 
-for(const alunoDoc of alunosSnapshot.docs){
 
+        window.location.href =
+            "student-area.html";
 
 
-const aluno = alunoDoc.data();
 
+    }catch(erro){
 
 
-if(
-aluno.codigoAluno === codigoAluno &&
-aluno.senhaAcesso === senha
-){
+        console.error(erro);
 
-
-alunoEncontrado = {
-
-
-id: alunoDoc.id,
-
-turmaId: turmaDoc.id,
-
-nome: aluno.nome,
-
-codigoAluno: aluno.codigoAluno,
-
-turmaNome: aluno.turmaNome,
-
-estado: aluno.estado || "ativo",
-
-boletimUrl: aluno.boletimUrl || ""
-
-
-};
-
-
-break;
-
-
-}
-
-
-
-}
-
-
-
-if(alunoEncontrado){
-
-break;
-
-}
-
-
-
-}
-
-
-
-if(!alunoEncontrado){
-
-
-alert("Código ou senha incorretos");
-
-return;
-
-
-}
-
-
-
-localStorage.setItem(
-"alunoLogado",
-JSON.stringify(alunoEncontrado)
-);
-
-
-
-window.location.href =
-"/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
-
-
-
-}catch(error){
-
-
-alert(
-"Erro no login: " + error.message
-);
-
-
-}
-
-
-
-});
+        alert(
+            "Erro ao entrar no sistema"
+        );
 
 
     }
+
+
+});
