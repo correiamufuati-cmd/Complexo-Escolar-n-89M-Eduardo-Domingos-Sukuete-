@@ -15,122 +15,142 @@
     font-family:Arial, sans-serif;
 }
 
-
 body{
-
     min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
     background:linear-gradient(135deg,#dff3ff,#1976d2);
+}
+
+
+.login-box{
+
+    width:350px;
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.3);
 
 }
 
 
-forma {
+h2{
 
-    largura : 350 px ;
-    fundo : branco ;
-    preenchimento : 30 px ;
-    raio da borda : 15 px ;
-    box-shadow : 0  5 px  15 px  rgba ( 0 , 0 , 0 , .3 ) ;
+    text-align:center;
+    color:#1976d2;
+    margin-bottom:25px;
 
 }
 
 
-h2 {
+input{
 
-    alinhamento-do-texto : ao centro ;
-    cor : #1976d2;
-    margem-inferior : 25 px ;
-
-}
-
-
-entrada {
-
-    largura : 100 % ;
-    preenchimento : 12 px ;
-    margem-inferior : 15 px ;
-    borda : 1 px  sólida #ccc;
-    raio da borda : 8 px ;
-    tamanho da fonte : 16 px ;
-    cor : #000;
-    fundo : branco ;
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+    color:#000;
+    background:white;
 
 }
 
 
-entrada :: espaço reservado {
+button{
 
-    cor : #777;
-
-}
-
-
-botão {
-
-    largura : 100 % ;
-    preenchimento : 12 px ;
-    borda : nenhuma ;
-    raio da borda : 8 px ;
-    plano de fundo : #1976d2;
-    cor : branca ;
-    tamanho da fonte : 16 px ;
-    cursor : ponteiro ;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#1976d2;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
 
 }
 
 
-botão : passar o mouse {
+button:hover{
 
-    plano de fundo : #0d47a1;
+    background:#0d47a1;
 
 }
 
-</ estilo >
 
-</head>​​
+.voltar{
 
+    margin-top:15px;
+    text-align:center;
 
-< corpo >
-
-
-< form  id = "loginAluno" >
+}
 
 
-< h2 > 👨‍🎓 Área do Aluno </ h2 >
+.voltar a{
+
+    text-decoration:none;
+    color:#1976d2;
+
+}
+
+</style>
+
+</head>
 
 
-< entrada 
-tipo = "texto"
-id = "codigoAluno"
-placeholder = "Código do aluno"
-obrigatório
+<body>
+
+
+<div class="login-box">
+
+
+<form id="loginAluno">
+
+
+<h2>👨‍🎓 Área do Aluno</h2>
+
+
+<input 
+type="text"
+id="codigoAluno"
+placeholder="Código do aluno"
+required
 >
 
 
-< entrada
-tipo = "senha"
-id = "senha"
-marcador de posição = "Senha"
-obrigatório
+<input
+type="password"
+id="senha"
+placeholder="Senha"
+required
 >
 
 
-< button  type = "submit" >
+<button type="submit">
 Entrar
-</ botão >
+</button>
 
 
-</ formulário >
+<div class="voltar">
+
+<a href="index.html">
+Voltar
+</a>
+
+</div>
+
+
+</form>
+
+
+</div>
 
 
 
-<script>
-alert("HTML funcionando");
-</script>
+<script type="module" src="../src/services/student-login.js"></script>
 
-</body>​​
 
-    </ html >
+</body>
+
+    </html>
