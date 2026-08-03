@@ -6,20 +6,22 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-const tabela = document.getElementById("listaNotas");
+const tabela =
+document.getElementById("listaNotas");
 
 
-const alunoLogado = JSON.parse(
-    localStorage.getItem("alunoLogado")
+const aluno =
+JSON.parse(
+localStorage.getItem("alunoLogado")
 );
 
 
 
-if(!alunoLogado){
+if(!aluno){
 
-    alert("Aluno não encontrado");
+alert("Sessão não encontrada");
 
-    window.location.href="../login-aluno.html";
+window.location.href="student-login.html";
 
 }
 
@@ -31,152 +33,102 @@ async function carregarNotas(){
 try{
 
 
-    const turmasSnapshot =
-    await getDocs(collection(db,"turmas"));
+const notasSnapshot =
+await getDocs(
+collection(
+db,
+"turmas",
+aluno.turmaId,
+"alunos",
+aluno.id,
+"notas"
+)
+);
 
 
 
-    for(const turmaDoc of turmasSnapshot.docs){
+if(notasSnapshot.empty){
 
+alert("Nenhuma nota encontrada");
 
-        const alunosSnapshot =
-        await getDocs(
-            collection(
-                db,
-                "turmas",
-                turmaDoc.id,
-                "alunos"
-            )
-        );
+return;
 
+}
 
 
-        for(const alunoDoc of alunosSnapshot.docs){
 
+notasSnapshot.forEach((doc)=>{
 
-            if(alunoDoc.id === alunoLogado.id){
 
+const nota = doc.data();
 
 
-                const notasSnapshot =
-                await getDocs(
-                    collection(
-                        db,
-                        "turmas",
-                        turmaDoc.id,
-                        "alunos",
-                        alunoDoc.id,
-                        "notas"
-                    )
-                );
 
+let situacao;
+let cor;
 
 
-                notasSnapshot.forEach((notaDoc)=>{
 
+if(Number(nota.MF) >= 10){
 
-                    const nota = notaDoc.data();
+situacao = "Aprovado";
 
+cor = "green";
 
 
-                    let MF =
-                    Number(nota.MF);
+}else{
 
 
+situacao = "Reprovado";
 
-                    let situacao = "";
-                    let cor = "";
-
-
-
-                    if(MF >= 10){
-
-                        situacao = "Aprovado";
-                        cor = "green";
-
-                    }
-                    else{
-
-                        situacao = "Reprovado";
-                        cor = "red";
-
-                    }
-
-
-
-                    tabela.innerHTML += `
-
-                    <tr>
-
-                    <td>${notaDoc.id}</td>
-
-                    <td>${nota.MAC ?? "-"}</td>
-
-                    <td>${nota.NPT ?? "-"}</td>
-
-                    <td>${nota.MF ?? "-"}</td>
-
-                    <td style="color:${cor};font-weight:bold">
-                    ${situacao}
-                    </td>
-
-                    </tr>
-
-                    `;
-
-
-                });
-
-
-
-                return;
-
-
-            }
-
-
-        }
-
-
-    }
-
-
-catch(error){
-
-    console.error(error);
-
-
-    if(error.message.includes("permission")){
-
-        alert(
-        "Erro: Sem permissão para acessar as notas. Verifique as regras do Firebase."
-        );
-
-    }
-
-    else if(error.message.includes("notas")){
-
-        alert(
-        "Erro: A coleção de notas não foi encontrada. Verifique se o aluno possui a pasta notas."
-        );
-
-    }
-
-    else if(error.message.includes("turmas")){
-
-        alert(
-        "Erro: Não foi possível encontrar as turmas no Firebase."
-        );
-
-    }
-
-    else{
-
-        alert(
-        "Erro ao carregar notas.\nMotivo: " + error.message
-        );
-
-    }
+cor = "red";
 
 
 }
+
+
+
+tabela.innerHTML += `
+
+<tr>
+
+<td>${doc.id}</td>
+
+<td>${nota.MAC ?? "-"}</td>
+
+<td>${nota.NPT ?? "-"}</td>
+
+<td>${nota.MF ?? "-"}</td>
+
+<td style="color:${cor};font-weight:bold">
+${situacao}
+</td>
+
+
+</tr>
+
+`;
+
+
+
+});
+
+
+
+}catch(error){
+
+
+alert(
+"Erro ao carregar notas: " + error.message
+);
+
+
+}
+
+
+
+}
+
+
+
+carregarNotas();
