@@ -79,8 +79,7 @@ form.addEventListener("submit", async (e)=>{
 
 
 
-                    window.location.href =
-                    "src/pages/student-area.html";
+                    window.location.href = "../src/pages/student-area.html";
 
 
                     return;
