@@ -141,30 +141,42 @@ try{
     }
 
 
-
-}catch(error){
-
+catch(error){
 
     console.error(error);
 
-    alert(
-        "Erro ao carregar notas: " + error.message
-    );
+
+    if(error.message.includes("permission")){
+
+        alert(
+        "Erro: Sem permissão para acessar as notas. Verifique as regras do Firebase."
+        );
+
+    }
+
+    else if(error.message.includes("notas")){
+
+        alert(
+        "Erro: A coleção de notas não foi encontrada. Verifique se o aluno possui a pasta notas."
+        );
+
+    }
+
+    else if(error.message.includes("turmas")){
+
+        alert(
+        "Erro: Não foi possível encontrar as turmas no Firebase."
+        );
+
+    }
+
+    else{
+
+        alert(
+        "Erro ao carregar notas.\nMotivo: " + error.message
+        );
+
+    }
 
 
 }
-
-
-}
-
-
-
-carregarNotas();
-
-
-
-window.voltar=function(){
-
-    history.back();
-
-};
