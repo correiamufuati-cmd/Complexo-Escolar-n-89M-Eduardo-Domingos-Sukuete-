@@ -12,167 +12,154 @@ const form = document.getElementById("loginAluno");
 if(form){
 
 
-form.addEventListener("submit", async (e)=>{
+form.addEventListener("submit", async(e)=>{
 
 
-    e.preventDefault();
+e.preventDefault();
 
 
-
-    const codigoAluno =
-    document.getElementById("codigoAluno").value.trim();
-
+const codigoAluno =
+document.getElementById("codigoAluno").value.trim();
 
 
-    const senha =
-    document.getElementById("senhaAluno").value.trim();
-
-
-
-    if(!codigoAluno || !senha){
-
-
-        alert("Preencha todos os campos");
-
-        return;
-
-    }
+const senha =
+document.getElementById("senhaAluno").value.trim();
 
 
 
-    try{
+if(!codigoAluno || !senha){
 
+alert("Preencha todos os campos");
 
-        const turmasSnapshot =
-        await getDocs(collection(db,"turmas"));
+return;
 
-
-
-        let alunoEncontrado = null;
-
-
-
-        for(const turmaDoc of turmasSnapshot.docs){
+}
 
 
 
-            const alunosSnapshot =
-            await getDocs(
-                collection(
-                    db,
-                    "turmas",
-                    turmaDoc.id,
-                    "alunos"
-                )
-            );
+try{
+
+
+const turmasSnapshot =
+await getDocs(collection(db,"turmas"));
 
 
 
-            for(const alunoDoc of alunosSnapshot.docs){
+let alunoEncontrado = null;
 
 
 
-                const aluno =
-                alunoDoc.data();
+for(const turmaDoc of turmasSnapshot.docs){
 
 
 
-                if(
+const alunosSnapshot =
+await getDocs(
+collection(
+db,
+"turmas",
+turmaDoc.id,
+"alunos"
+)
+);
 
-                    aluno.codigoAluno === codigoAluno &&
 
-                    aluno.senhaAcesso === senha
 
-                ){
+for(const alunoDoc of alunosSnapshot.docs){
 
 
 
-                    alunoEncontrado = {
+const aluno = alunoDoc.data();
 
-    id: alunoDoc.id,
 
-    nome: aluno.nome,
 
-    codigoAluno: aluno.codigoAluno,
+if(
+aluno.codigoAluno === codigoAluno &&
+aluno.senhaAcesso === senha
+){
 
-    turmaNome: aluno.turmaNome,
 
-    estado: aluno.estado || "ativo",
+alunoEncontrado = {
 
-    boletimUrl: aluno.boletimUrl || ""
+
+id: alunoDoc.id,
+
+turmaId: turmaDoc.id,
+
+nome: aluno.nome,
+
+codigoAluno: aluno.codigoAluno,
+
+turmaNome: aluno.turmaNome,
+
+estado: aluno.estado || "ativo",
+
+boletimUrl: aluno.boletimUrl || ""
+
 
 };
 
 
-
-                    break;
-
-
-                }
+break;
 
 
-            }
+}
 
 
 
-            if(alunoEncontrado){
-
-                break;
-
-            }
-
-
-        }
+}
 
 
 
-        if(!alunoEncontrado){
+if(alunoEncontrado){
 
+break;
 
-            alert(
-                "Código ou senha incorretos"
-            );
-
-
-            return;
-
-
-        }
+}
 
 
 
-        localStorage.setItem(
-
-            "alunoLogado",
-
-            JSON.stringify(alunoEncontrado)
-
-        );
+}
 
 
 
-        window.location.href =
-        "/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
+if(!alunoEncontrado){
+
+
+alert("Código ou senha incorretos");
+
+return;
+
+
+}
 
 
 
-    }catch(error){
+localStorage.setItem(
+"alunoLogado",
+JSON.stringify(alunoEncontrado)
+);
 
 
-        console.error(error);
+
+window.location.href =
+"student-area.html";
 
 
 
-        alert(
-            "Erro ao fazer login"
-        );
+}catch(error){
 
 
-    }
+alert(
+"Erro no login: " + error.message
+);
+
+
+}
 
 
 
 });
 
 
-}
+      }
