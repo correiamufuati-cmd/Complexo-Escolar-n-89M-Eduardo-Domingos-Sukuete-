@@ -7,7 +7,7 @@ if(!aluno){
 
     alert("Sessão não encontrada");
 
-    window.location.href="../pages/student-login.html";
+    window.location.href="../../login-aluno.html";
 
 }
 else{
@@ -39,7 +39,7 @@ window.sairAluno=function(){
 
     localStorage.removeItem("alunoLogado");
 
-    window.location.href="student-login.html";
+    window.location.href="../../login-aluno.html";
 
 };
 
@@ -52,4 +52,4 @@ window.verNotas=function(){
 };
 
 
-    }
+             }
