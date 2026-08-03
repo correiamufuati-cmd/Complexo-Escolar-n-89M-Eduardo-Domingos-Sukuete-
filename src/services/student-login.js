@@ -193,12 +193,12 @@ form.addEventListener("submit", async (e)=>{
 
 
         alert(
-            "Dados guardados. Abrindo área do aluno"
-        );
+    "Dados guardados. Abrindo área do aluno"
+);
 
 
 window.location.href =
-"../src/pages/student-area.html";
+"/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
 
 
 
