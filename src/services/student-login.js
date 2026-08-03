@@ -89,19 +89,19 @@ form.addEventListener("submit", async (e)=>{
 
                     alunoEncontrado = {
 
+    id: alunoDoc.id,
 
-                        id: alunoDoc.id,
+    nome: aluno.nome,
 
-                        nome: aluno.nome,
+    codigoAluno: aluno.codigoAluno,
 
-                        codigoAluno: aluno.codigoAluno,
+    turmaNome: aluno.turmaNome,
 
-                        turmaNome: aluno.turmaNome,
+    estado: aluno.estado || "ativo",
 
-                        estado: aluno.estado || "ativo"
+    boletimUrl: aluno.boletimUrl || ""
 
-
-                    };
+};
 
 
 
