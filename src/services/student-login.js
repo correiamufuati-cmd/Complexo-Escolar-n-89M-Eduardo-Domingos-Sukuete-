@@ -10,6 +10,9 @@ import {
 const form = document.getElementById("loginAluno");
 
 
+alert("student-login.js carregado");
+
+
 
 if(form){
 
@@ -19,7 +22,10 @@ form.addEventListener("submit", async (e)=>{
 
     e.preventDefault();
 
-alert("Entrou no processo de login");
+
+    alert("Botão entrou no processo");
+
+
 
     const codigoAluno =
     document.getElementById("codigoAluno").value.trim();
@@ -29,10 +35,14 @@ alert("Entrou no processo de login");
     const senha =
     document.getElementById("senhaAluno").value.trim();
 
-alert(
-"Código: " + codigoAluno +
-"\nSenha: " + senha
-);
+
+
+    alert(
+        "Código: " + codigoAluno +
+        "\nSenha: " + senha
+    );
+
+
 
     if(!codigoAluno || !senha){
 
@@ -47,8 +57,11 @@ alert(
 
     try{
 
-alert("A consultar turmas no Firebase");
-        
+
+        alert("A procurar turmas no Firebase");
+
+
+
         const turmasSnapshot =
         await getDocs(collection(db,"turmas"));
 
@@ -59,6 +72,12 @@ alert("A consultar turmas no Firebase");
 
 
         for(const turmaDoc of turmasSnapshot.docs){
+
+
+
+            alert(
+                "Analisando turma: " + turmaDoc.id
+            );
 
 
 
@@ -83,6 +102,12 @@ alert("A consultar turmas no Firebase");
 
 
 
+                alert(
+                    "Aluno encontrado na lista: " + aluno.nome
+                );
+
+
+
                 if(
 
                     aluno.codigoAluno === codigoAluno &&
@@ -90,6 +115,12 @@ alert("A consultar turmas no Firebase");
                     aluno.senhaAcesso === senha
 
                 ){
+
+
+
+                    alert(
+                        "Login confirmado: " + aluno.nome
+                    );
 
 
 
@@ -139,7 +170,10 @@ alert("A consultar turmas no Firebase");
         if(!alunoEncontrado){
 
 
-            alert("Código ou senha incorretos");
+            alert(
+                "Código ou senha incorretos"
+            );
+
 
             return;
 
@@ -159,7 +193,7 @@ alert("A consultar turmas no Firebase");
 
 
         alert(
-            "Login efetuado: " + alunoEncontrado.nome
+            "Dados guardados. Abrindo área do aluno"
         );
 
 
@@ -175,8 +209,9 @@ alert("A consultar turmas no Firebase");
         console.error(error);
 
 
+
         alert(
-            "Erro ao fazer login"
+            "Erro: " + error.message
         );
 
 
@@ -187,4 +222,12 @@ alert("A consultar turmas no Firebase");
 });
 
 
-}
+}else{
+
+
+alert(
+"Formulário loginAluno não encontrado"
+);
+
+
+                      }
