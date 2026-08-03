@@ -52,4 +52,11 @@ window.verNotas=function(){
 };
 
 
+    window.verBoletim = function () {
+
+    window.location.href =
+    "student-report.html";
+
+};
+    
              }
