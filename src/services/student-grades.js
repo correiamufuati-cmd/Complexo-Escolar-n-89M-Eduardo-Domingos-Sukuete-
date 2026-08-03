@@ -79,7 +79,13 @@ try{
                     const nota =
                     notaDoc.data();
 
-
+alert(
+"Disciplina: " + notaDoc.id +
+"\nMAC: " + nota.MAC +
+"\nNPT: " + nota.NPT +
+"\nMF: " + nota.MF
+);
+                    
 
                     tabela.innerHTML += `
 
