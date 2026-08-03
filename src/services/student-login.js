@@ -143,7 +143,7 @@ JSON.stringify(alunoEncontrado)
 
 
 window.location.href =
-"student-area.html";
+"/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
 
 
 
