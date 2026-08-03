@@ -19,8 +19,7 @@ if(!alunoLogado){
 
     alert("Aluno não encontrado");
 
-    window.location.href =
-    "../login-aluno.html";
+    window.location.href="../login-aluno.html";
 
 }
 
@@ -37,7 +36,12 @@ try{
 
 
 
+    let encontrado = false;
+
+
+
     for(const turmaDoc of turmasSnapshot.docs){
+
 
 
         const alunosSnapshot =
@@ -55,7 +59,11 @@ try{
         for(const alunoDoc of alunosSnapshot.docs){
 
 
+
             if(alunoDoc.id === alunoLogado.id){
+
+
+                encontrado = true;
 
 
 
@@ -76,43 +84,68 @@ try{
                 notasSnapshot.forEach((notaDoc)=>{
 
 
-                    const nota =
-                    notaDoc.data();
 
-                    
+                    const nota = notaDoc.data();
+
+
+
+                    let situacao = "";
+
+
+
+                    if(nota.MF >= 10){
+
+                        situacao = "Aprovado";
+
+                    }
+                    else{
+
+                        situacao = "Reprovado";
+
+                    }
+
+
 
                     tabela.innerHTML += `
 
                     <tr>
 
-                    <td>
-                    ${notaDoc.id}
-                    </td>
+                    <td>${notaDoc.id}</td>
 
-                    <td>
-${nota.MAC}
-</td>
+                    <td>${nota.MAC ?? "-"}</td>
 
-<td>
-${nota.NPT}
-</td>
+                    <td>${nota.NPT ?? "-"}</td>
 
-<td>
-${nota.MF}
-</td>
+                    <td>${nota.MF ?? "-"}</td>
+
+                    <td>${situacao}</td>
+
+
                     </tr>
 
                     `;
 
 
+
                 });
+
 
 
             }
 
 
+
         }
 
+
+
+    }
+
+
+
+    if(!encontrado){
+
+        alert("Aluno não encontrado no sistema");
 
     }
 
@@ -121,11 +154,9 @@ ${nota.MF}
 }catch(error){
 
 
-console.error(error);
+    console.error(error);
 
-alert(
-"Erro ao carregar notas"
-);
+    alert("Erro ao carregar notas");
 
 
 }
@@ -141,6 +172,6 @@ carregarNotas();
 
 window.voltar=function(){
 
-history.back();
+    history.back();
 
 };
