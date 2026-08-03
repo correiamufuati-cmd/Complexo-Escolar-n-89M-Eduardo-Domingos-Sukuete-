@@ -8,6 +8,7 @@
 
 <title>Área do Aluno</title>
 
+
 <style>
 
 body{
@@ -24,11 +25,13 @@ body{
 
 
 .perfil{
+
     background:white;
     padding:20px;
     border-radius:15px;
     margin-bottom:20px;
     box-shadow:0 4px 10px #999;
+
 }
 
 
@@ -71,27 +74,41 @@ body{
 }
 
 
+
 .sair{
 
     margin-top:20px;
     padding:12px;
+    width:100%;
     background:#d32f2f;
     color:white;
     border:none;
     border-radius:8px;
+    cursor:pointer;
+
+}
+
+
+.sair:hover{
+
+    background:#b71c1c;
 
 }
 
 
 </style>
 
+
 </head>
+
 
 
 <body>
 
 
+
 <div class="container">
+
 
 
 <h1>Área do Aluno</h1>
@@ -99,11 +116,17 @@ body{
 <p>Bem-vindo ao sistema escolar.</p>
 
 
+
+
 <div class="perfil">
 
+
 <h2 id="nomeAluno">
+
 Carregando...
+
 </h2>
+
 
 <p id="codigo"></p>
 
@@ -116,7 +139,11 @@ Carregando...
 
 
 
+
+
+
 <div class="cards">
+
 
 
 <div class="card">
@@ -128,10 +155,16 @@ Consultar avaliações
 </p>
 
 <button onclick="verNotas()">
+
 Abrir
+
 </button>
 
+
 </div>
+
+
+
 
 
 
@@ -143,11 +176,19 @@ Abrir
 Consultar boletim
 </p>
 
+
 <button onclick="verBoletim()">
+
 Abrir
+
 </button>
 
+
 </div>
+
+
+
+
 
 
 
@@ -159,11 +200,20 @@ Abrir
 Informações pessoais
 </p>
 
+
 <button onclick="verDados()">
+
 Ver
-    </button>
+
+</button>
+
 
 </div>
+
+
+
+
+
 
 
 
@@ -175,27 +225,48 @@ Ver
 Segurança da conta
 </p>
 
+
 <button onclick="alterarSenha()">
+
 Alterar
-    </button>
+
+</button>
+
 
 </div>
 
 
+
+
+
 </div>
 
 
-<button class="sair" onclick="sairAluno()">
-Sair
+
+
+
+<button 
+id="btnSair"
+class="sair"
+onclick="sairAluno()">
+
+🚪 Sair
+
 </button>
 
 
 
+
+
+
 </div>
 
 
 
+
+
 <script type="module" src="../services/student-area.js"></script>
+
 
 
 </body>
