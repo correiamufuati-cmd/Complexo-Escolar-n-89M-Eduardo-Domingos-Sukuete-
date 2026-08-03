@@ -291,7 +291,12 @@ async()=>{
         );
 
 
-
+alert(
+"Ensino: " + ensino +
+"\nClasse: " + classe +
+"\nDisciplinas encontradas: " + disciplinas.length
+);
+        
 
 
         await addDoc(
