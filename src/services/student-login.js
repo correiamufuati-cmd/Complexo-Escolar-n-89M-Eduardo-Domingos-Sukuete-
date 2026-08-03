@@ -198,7 +198,7 @@ form.addEventListener("submit", async (e)=>{
 
 
 window.location.href =
-"/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";";
+"/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
 
 
 
@@ -229,4 +229,4 @@ alert(
 );
 
 
-                      }
+}
