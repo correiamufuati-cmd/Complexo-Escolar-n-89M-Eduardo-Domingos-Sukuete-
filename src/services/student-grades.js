@@ -36,12 +36,7 @@ try{
 
 
 
-    let encontrado = false;
-
-
-
     for(const turmaDoc of turmasSnapshot.docs){
-
 
 
         const alunosSnapshot =
@@ -59,11 +54,7 @@ try{
         for(const alunoDoc of alunosSnapshot.docs){
 
 
-
             if(alunoDoc.id === alunoLogado.id){
-
-
-                encontrado = true;
 
 
 
@@ -84,26 +75,32 @@ try{
                 notasSnapshot.forEach((notaDoc)=>{
 
 
-
                     const nota = notaDoc.data();
 
 
 
-let situacao = "";
-let cor = "";
+                    let MF =
+                    Number(nota.MF);
 
-if(nota.MF >= 10){
 
-    situacao = "Aprovado";
-    cor = "green";
 
-}
-else{
+                    let situacao = "";
+                    let cor = "";
 
-    situacao = "Reprovado";
-    cor = "red";
 
-}
+
+                    if(MF >= 10){
+
+                        situacao = "Aprovado";
+                        cor = "green";
+
+                    }
+                    else{
+
+                        situacao = "Reprovado";
+                        cor = "red";
+
+                    }
 
 
 
@@ -119,36 +116,27 @@ else{
 
                     <td>${nota.MF ?? "-"}</td>
 
-                    <td style="color:${cor}; font-weight:bold;">
-${situacao}
-</td>
-
+                    <td style="color:${cor};font-weight:bold">
+                    ${situacao}
+                    </td>
 
                     </tr>
 
                     `;
 
 
-
                 });
 
+
+
+                return;
 
 
             }
 
 
-
         }
 
-
-
-    }
-
-
-
-    if(!encontrado){
-
-        alert("Aluno não encontrado no sistema");
 
     }
 
@@ -159,7 +147,9 @@ ${situacao}
 
     console.error(error);
 
-    alert("Erro ao carregar notas");
+    alert(
+        "Erro ao carregar notas: " + error.message
+    );
 
 
 }
