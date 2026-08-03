@@ -67,5 +67,11 @@ window.verNotas=function(){
 
 };
 
+    window.alterarSenha = function(){
+
+    window.location.href =
+    "student-password.html";
+
+};
     
              }
