@@ -1,5 +1,3 @@
-alert("student-login carregado");
-
 import { db } from "./firebase.js";
 
 import {
@@ -10,6 +8,8 @@ import {
 
 const form = document.getElementById("loginAluno");
 
+
+if(form){
 
 form.addEventListener("submit", async (e)=>{
 
@@ -24,17 +24,24 @@ form.addEventListener("submit", async (e)=>{
     document.getElementById("senha").value.trim();
 
 
+
     try{
 
 
-        const turmas =
+        const turmasSnapshot =
         await getDocs(collection(db,"turmas"));
 
 
-        for(const turmaDoc of turmas.docs){
+
+        let alunoEncontrado = null;
 
 
-            const alunos =
+
+        for(const turmaDoc of turmasSnapshot.docs){
+
+
+
+            const alunosSnapshot =
             await getDocs(
                 collection(
                     db,
@@ -46,7 +53,7 @@ form.addEventListener("submit", async (e)=>{
 
 
 
-            for(const alunoDoc of alunos.docs){
+            for(const alunoDoc of alunosSnapshot.docs){
 
 
                 const aluno =
@@ -60,49 +67,83 @@ form.addEventListener("submit", async (e)=>{
                 ){
 
 
-                    localStorage.setItem(
-                        "alunoLogado",
-                        JSON.stringify({
-
-                            id: alunoDoc.id,
-
-                            nome: aluno.nome,
-
-                            codigoAluno: aluno.codigoAluno,
-
-                            turmaNome: aluno.turmaNome,
-
-                            estado: aluno.estado
-
-                        })
-                    );
+                    alunoEncontrado = {
 
 
+                        id: alunoDoc.id,
 
-                    window.location.href = "../src/pages/student-area.html";
+
+                        nome: aluno.nome,
 
 
-                    return;
+                        codigoAluno: aluno.codigoAluno,
+
+
+                        turmaNome: aluno.turmaNome,
+
+
+                        estado: aluno.estado || "ativo"
+
+
+                    };
+
+
+                    break;
 
                 }
 
+
             }
+
+
+
+            if(alunoEncontrado){
+
+                break;
+
+            }
+
 
         }
 
 
-        alert("Código ou senha incorretos");
+
+        if(!alunoEncontrado){
+
+
+            alert("Código ou senha incorretos");
+
+            return;
+
+
+        }
+
+
+
+        localStorage.setItem(
+            "alunoLogado",
+            JSON.stringify(alunoEncontrado)
+        );
+
+
+
+        window.location.href =
+        "/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
+
 
 
     }catch(error){
 
 
-        console.log(error);
+        console.error(error);
 
-        alert("Erro no login");
+
+        alert("Erro ao fazer login");
 
 
     }
 
 
 });
+
+
