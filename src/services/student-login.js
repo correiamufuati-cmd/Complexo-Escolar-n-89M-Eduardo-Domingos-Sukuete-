@@ -9,57 +9,58 @@ import {
 const form = document.getElementById("loginAluno");
 
 
-if(form){
+form.addEventListener("submit", async (e)=>{
 
-    form.addEventListener("submit", async (e)=>{
-
-        e.preventDefault();
+    e.preventDefault();
 
 
-        const codigoAluno =
-        document.getElementById("codigoAluno").value.trim();
+    const codigoAluno =
+    document.getElementById("codigoAluno").value.trim();
 
 
-        const senha =
-        document.getElementById("senha").value.trim();
+    const senha =
+    document.getElementById("senha").value.trim();
 
 
+    try{
 
-        try{
+
+        const turmas =
+        await getDocs(collection(db,"turmas"));
 
 
-            const turmasSnapshot = await getDocs(
-                collection(db,"turmas")
+        for(const turmaDoc of turmas.docs){
+
+
+            const alunos =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas",
+                    turmaDoc.id,
+                    "alunos"
+                )
             );
 
 
-            let alunoEncontrado = null;
+
+            for(const alunoDoc of alunos.docs){
+
+
+                const aluno =
+                alunoDoc.data();
 
 
 
-            for(const turmaDoc of turmasSnapshot.docs){
+                if(
+                    aluno.codigoAluno === codigoAluno &&
+                    aluno.senhaAcesso === senha
+                ){
 
 
-                const alunosSnapshot = await getDocs(
-                    collection(db,"turmas",turmaDoc.id,"alunos")
-                );
-
-
-
-                for(const alunoDoc of alunosSnapshot.docs){
-
-
-                    const aluno = alunoDoc.data();
-
-
-
-                    if(
-                        aluno.codigoAluno === codigoAluno &&
-                        aluno.senha === senha
-                    ){
-
-
-                        alunoEncontrado = {
+                    localStorage.setItem(
+                        "alunoLogado",
+                        JSON.stringify({
 
                             id: alunoDoc.id,
 
@@ -67,67 +68,40 @@ if(form){
 
                             codigoAluno: aluno.codigoAluno,
 
-                            turmaNome: aluno.turma || turmaDoc.id,
+                            turmaNome: aluno.turmaNome,
 
-                            estado: aluno.estado || "ativo"
+                            estado: aluno.estado
 
-                        };
+                        })
+                    );
 
 
-                        break;
 
-                    }
+                    window.location.href =
+                    "src/pages/student-area.html";
 
+
+                    return;
 
                 }
 
-
-                if(alunoEncontrado){
-                    break;
-                }
-
-
             }
-
-
-
-            if(!alunoEncontrado){
-
-
-                alert("Código ou senha incorretos");
-
-                return;
-
-
-            }
-
-
-
-            localStorage.setItem(
-                "alunoLogado",
-                JSON.stringify(alunoEncontrado)
-            );
-
-
-
-            window.location.href =
-            "../src/pages/student-area.html";
-
-
-
-        }catch(error){
-
-
-            console.error(error);
-
-
-            alert("Erro ao fazer login");
-
 
         }
 
 
-    });
+        alert("Código ou senha incorretos");
 
 
-                            }
+    }catch(error){
+
+
+        console.log(error);
+
+        alert("Erro no login");
+
+
+    }
+
+
+});
