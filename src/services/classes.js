@@ -45,31 +45,23 @@ const escolaId = "SIGEA";
 
 async function buscarDisciplinas(ensino, classe){
 
-
     try{
 
-
-        const referencia = doc(
+        const ref = doc(
             db,
-            "config",
-            "disciplinas"
+            "config"
         );
 
 
-        const dados = await getDoc(referencia);
-
+        const dados = await getDoc(ref);
 
 
         if(!dados.exists()){
 
-            console.log(
-                "Config disciplinas não encontrada"
-            );
-
+            console.log("Config não encontrada");
             return [];
 
         }
-
 
 
         const config = dados.data();
@@ -77,39 +69,31 @@ async function buscarDisciplinas(ensino, classe){
 
 
         if(
-            config[ensino] &&
-            config[ensino][classe]
+            config.disciplinas &&
+            config.disciplinas[ensino] &&
+            config.disciplinas[ensino][classe]
         ){
 
-
-            return (
-                config[ensino][classe].disciplinas
-                || []
-            );
-
+            return config.disciplinas[ensino][classe].disciplinas || [];
 
         }
 
 
-
-        return [];
-
-
-
-    }catch(error){
-
-
         console.log(
-            "Erro ao buscar disciplinas:",
-            error
+            "Classe não encontrada na configuração"
         );
 
 
         return [];
 
 
-    }
+    }catch(error){
 
+        console.log(error);
+
+        return [];
+
+    }
 
 }
 
