@@ -26,10 +26,9 @@ form.addEventListener("submit", async (event) => {
 
 
         alert("Login efetuado com sucesso!");
+        
 
-
-        window.location.href =
-        "../pages/dashboard-gestor.html";
+window.location.href = "../pages/dashboard-gestor.html";
 
 
     }else{
