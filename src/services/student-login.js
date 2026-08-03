@@ -19,7 +19,7 @@ form.addEventListener("submit", async (e)=>{
 
     e.preventDefault();
 
-
+alert("Entrou no processo de login");
 
     const codigoAluno =
     document.getElementById("codigoAluno").value.trim();
@@ -29,7 +29,10 @@ form.addEventListener("submit", async (e)=>{
     const senha =
     document.getElementById("senhaAluno").value.trim();
 
-
+alert(
+"Código: " + codigoAluno +
+"\nSenha: " + senha
+);
 
     if(!codigoAluno || !senha){
 
@@ -44,7 +47,8 @@ form.addEventListener("submit", async (e)=>{
 
     try{
 
-
+alert("A consultar turmas no Firebase");
+        
         const turmasSnapshot =
         await getDocs(collection(db,"turmas"));
 
