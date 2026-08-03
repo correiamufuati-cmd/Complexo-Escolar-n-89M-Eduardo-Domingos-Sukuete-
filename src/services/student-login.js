@@ -197,8 +197,7 @@ form.addEventListener("submit", async (e)=>{
         );
 
 
-
-        window.location.href =
+window.location.href =
 "../src/pages/student-area.html";
 
 
