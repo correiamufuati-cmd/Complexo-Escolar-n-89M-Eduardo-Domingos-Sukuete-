@@ -47,33 +47,49 @@ button{
 
 </head>
 
+
 <body>
+
 
 <div class="login">
 
+
 <h2>Área do Aluno</h2>
+
+
+<form id="loginAluno">
+
 
 <input
 id="codigoAluno"
-placeholder="Código do aluno">
+placeholder="Código do aluno"
+required>
+
 
 <input
 type="password"
 id="senhaAluno"
-placeholder="Senha">
+placeholder="Senha"
+required>
 
-<button id="entrarAluno">
+
+<button type="submit">
 
 Entrar
 
 </button>
 
+
+</form>
+
+
 </div>
 
-<script>
-console.log("HTML do login aluno carregado");
-    </script>
+
+
+<script type="module" src="../services/student-login.js"></script>
+
 
 </body>
 
-  </html>
+    </html>
