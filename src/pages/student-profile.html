@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Meus Dados</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f4f6f9;
+    padding:20px;
+}
+
+
+.container{
+
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+
+}
+
+
+p{
+
+    font-size:18px;
+
+}
+
+
+button{
+
+    padding:10px 20px;
+    background:#1976d2;
+    color:white;
+    border:none;
+    border-radius:8px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>👤 Meus Dados</h1>
+
+
+<p id="nome"></p>
+
+<p id="codigo"></p>
+
+<p id="turma"></p>
+
+<p id="estado"></p>
+
+
+
+<button onclick="voltar()">
+Voltar
+</button>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+const aluno = JSON.parse(
+localStorage.getItem("alunoLogado")
+);
+
+
+
+if(aluno){
+
+
+document.getElementById("nome").innerHTML =
+"Nome: " + (aluno.nome || "");
+
+
+document.getElementById("codigo").innerHTML =
+"Código: " + (aluno.codigoAluno || "");
+
+
+document.getElementById("turma").innerHTML =
+"Turma: " + (aluno.turmaNome || "");
+
+
+document.getElementById("estado").innerHTML =
+"Estado: " + (aluno.estado || "ativo");
+
+
+}
+
+
+
+window.voltar=function(){
+
+history.back();
+
+}
+
+
+</script>
+
+
+</body>
+
+  </html>
