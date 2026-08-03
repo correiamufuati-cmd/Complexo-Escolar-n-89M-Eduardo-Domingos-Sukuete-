@@ -89,18 +89,18 @@ try{
 
 
 
-let observacao = "";
+let situacao = "";
 let cor = "";
 
 if(nota.MF >= 10){
 
-    observacao = "Aprovado";
+    situacao = "Aprovado";
     cor = "green";
 
 }
 else{
 
-    observacao = "Reprovado";
+    situacao = "Reprovado";
     cor = "red";
 
 }
