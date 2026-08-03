@@ -1,11 +1,12 @@
 import { app } from "./firebase.js";
 
-
 import {
     getFirestore,
     collection,
     addDoc,
     getDocs,
+    getDoc,
+    doc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
@@ -13,145 +14,230 @@ import {
 const db = getFirestore(app);
 
 
+// ELEMENTOS
 
-// Elementos
+const btnCriar = document.getElementById("saveClass");
 
-const btnCriar =
-document.getElementById("saveClass");
+const listaTurmas = document.getElementById("classList");
 
+const nomeInput = document.getElementById("className");
 
-const listaTurmas =
-document.getElementById("classList");
+const classeInput = document.getElementById("classe");
 
+const ensinoInput = document.getElementById("ensino");
 
-const nomeInput =
-document.getElementById("className");
-
-
-const classeInput =
-document.getElementById("classe");
-
-
-const ensinoInput =
-document.getElementById("ensino");
-
-
-const anoInput =
-document.getElementById("anoLetivo");
+const anoInput = document.getElementById("anoLetivo");
 
 
 
-
-// ID da escola (temporário)
-// depois virá do login do gestor
+// ID DA ESCOLA
+// temporário para teste
+// depois vem do login do gestor
 
 const escolaId = "SIGEA";
 
 
 
 
+// ===============================
+// BUSCAR DISCIPLINAS AUTOMÁTICAS
+// ===============================
 
-// carregar turmas
+async function buscarDisciplinas(ensino, classe){
+
+
+    try{
+
+
+        const referencia = doc(
+            db,
+            "config",
+            "disciplinas"
+        );
+
+
+        const dados = await getDoc(referencia);
+
+
+
+        if(!dados.exists()){
+
+            console.log(
+                "Config disciplinas não encontrada"
+            );
+
+            return [];
+
+        }
+
+
+
+        const config = dados.data();
+
+
+
+        if(
+            config[ensino] &&
+            config[ensino][classe]
+        ){
+
+
+            return (
+                config[ensino][classe].disciplinas
+                || []
+            );
+
+
+        }
+
+
+
+        return [];
+
+
+
+    }catch(error){
+
+
+        console.log(
+            "Erro ao buscar disciplinas:",
+            error
+        );
+
+
+        return [];
+
+
+    }
+
+
+}
+
+
+
+
+
+// ===============================
+// CARREGAR TURMAS
+// ===============================
 
 async function carregarTurmas(){
 
 
-try{
+    try{
 
 
-listaTurmas.innerHTML =
-"A carregar...";
-
-
-
-const dados =
-await getDocs(
-collection(db,"turmas")
-);
+        listaTurmas.innerHTML =
+        "A carregar turmas...";
 
 
 
-listaTurmas.innerHTML="";
+        const resultado =
+        await getDocs(
+            collection(db,"turmas")
+        );
 
 
 
-if(dados.empty){
+        listaTurmas.innerHTML="";
 
-listaTurmas.innerHTML =
-"Nenhuma turma criada";
 
-return;
+
+        if(resultado.empty){
+
+
+            listaTurmas.innerHTML =
+            "Nenhuma turma criada";
+
+
+            return;
+
+        }
+
+
+
+
+
+        resultado.forEach((documento)=>{
+
+
+            const turma =
+            documento.data();
+
+
+
+            listaTurmas.innerHTML += `
+
+
+            <div class="turma-card">
+
+
+            <strong>
+            ${turma.nome}
+            </strong>
+
+
+            <br>
+
+            Classe:
+            ${turma.classe}
+
+
+            <br>
+
+            Ensino:
+            ${turma.ensino}
+
+
+            <br>
+
+            Ano:
+            ${turma.anoLetivo}
+
+
+            <br>
+
+            Disciplinas:
+            ${
+            turma.disciplinas
+            ?
+            turma.disciplinas.length
+            :
+            0
+            }
+
+
+            </div>
+
+
+            `;
+
+
+        });
+
+
+
+    }catch(error){
+
+
+        listaTurmas.innerHTML =
+        "Erro: " + error.message;
+
+
+    }
+
 
 }
 
 
 
 
-dados.forEach((doc)=>{
-
-
-const turma =
-doc.data();
 
 
 
-listaTurmas.innerHTML += `
-
-<div class="turma-card">
-
-<strong>
-${turma.nome}
-</strong>
-
-<br>
-
-Classe:
-${turma.classe}
-
-<br>
-
-Ensino:
-${turma.ensino}
-
-<br>
-
-Ano:
-${turma.anoLetivo}
-
-<br>
-
-Disciplinas:
-${turma.disciplinas?.length || 0}
-
-</div>
-
-`;
-
-
-
-});
-
-
-
-}catch(error){
-
-
-listaTurmas.innerHTML =
-"Erro: "+error.message;
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-// criar turma
+// ===============================
+// CRIAR TURMA
+// ===============================
 
 
 btnCriar.addEventListener(
@@ -159,110 +245,140 @@ btnCriar.addEventListener(
 async()=>{
 
 
-const nome =
-nomeInput.value.trim();
 
-
-const classe =
-classeInput.value.trim();
-
-
-const ensino =
-ensinoInput.value;
-
-
-const ano =
-anoInput.value.trim();
+    const nome =
+    nomeInput.value.trim();
 
 
 
-
-
-if(
-nome==="" ||
-classe==="" ||
-ano===""
-){
-
-alert(
-"Preencha todos os campos"
-);
-
-return;
-
-}
+    const classe =
+    classeInput.value.trim();
 
 
 
-
-try{
-
-
-
-const turma = {
+    const ensino =
+    ensinoInput.value;
 
 
-nome:nome,
 
-classe:classe,
-
-ensino:ensino,
-
-anoLetivo:ano,
-
-escolaId:escolaId,
-
-disciplinas:[],
-
-
-criadoEm:
-serverTimestamp()
-
-
-};
+    const ano =
+    anoInput.value.trim();
 
 
 
 
 
-await addDoc(
-collection(db,"turmas"),
-turma
-);
+    if(
+        nome === "" ||
+        classe === "" ||
+        ano === ""
+    ){
+
+
+        alert(
+        "Preencha todos os campos"
+        );
+
+
+        return;
+
+
+    }
 
 
 
-alert(
-"Turma criada com sucesso"
-);
+
+
+    try{
+
+
+        // buscar disciplinas
+
+        const disciplinas =
+        await buscarDisciplinas(
+            ensino,
+            classe
+        );
 
 
 
-nomeInput.value="";
-
-classeInput.value="";
-
-anoInput.value="";
 
 
-
-carregarTurmas();
-
-
-
-}catch(error){
+        await addDoc(
+            collection(db,"turmas"),
+            {
 
 
-alert(
-"Erro: "+error.message
-);
+                nome:nome,
 
 
-}
+                classe:classe,
+
+
+                ensino:ensino,
+
+
+                anoLetivo:ano,
+
+
+                escolaId:escolaId,
+
+
+                disciplinas:disciplinas,
+
+
+                criadoEm:
+                serverTimestamp()
+
+
+            }
+
+        );
+
+
+
+
+
+        alert(
+        "Turma criada com sucesso"
+        );
+
+
+
+
+
+        nomeInput.value="";
+
+        classeInput.value="";
+
+        anoInput.value="";
+
+
+
+
+
+        carregarTurmas();
+
+
+
+
+
+    }catch(error){
+
+
+        alert(
+        "Erro ao criar turma: "
+        +
+        error.message
+        );
+
+
+    }
 
 
 
 });
+
 
 
 
