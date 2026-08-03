@@ -90,17 +90,16 @@ try{
                     </td>
 
                     <td>
-                    ${nota.MAC || ""}
-                    </td>
+${nota.MAC}
+</td>
 
-                    <td>
-                    ${nota.NPT || ""}
-                    </td>
+<td>
+${nota.NPT}
+</td>
 
-                    <td>
-                    ${nota.MF || ""}
-                    </td>
-
+<td>
+${nota.MF}
+</td>
                     </tr>
 
                     `;
