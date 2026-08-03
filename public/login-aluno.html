@@ -27,13 +27,13 @@ body{
 }
 
 
-.login-box{
+.login{
 
     width:350px;
     background:white;
     padding:30px;
     border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,.3);
+    box-shadow:0 5px 15px rgba(0,0,0,.25);
 
 }
 
@@ -42,7 +42,7 @@ h2{
 
     text-align:center;
     color:#1976d2;
-    margin-bottom:25px;
+    margin-bottom:20px;
 
 }
 
@@ -51,20 +51,10 @@ input{
 
     width:100%;
     padding:12px;
-    margin-bottom:15px;
+    margin-top:12px;
     border:1px solid #ccc;
     border-radius:8px;
     font-size:16px;
-    color:#000;
-    background:#fff;
-
-}
-
-
-input:focus{
-
-    outline:none;
-    border-color:#1976d2;
 
 }
 
@@ -73,6 +63,7 @@ button{
 
     width:100%;
     padding:12px;
+    margin-top:15px;
     border:none;
     border-radius:8px;
     background:#1976d2;
@@ -90,21 +81,6 @@ button:hover{
 }
 
 
-.voltar{
-
-    text-align:center;
-    margin-top:15px;
-
-}
-
-
-.voltar a{
-
-    color:#1976d2;
-    text-decoration:none;
-
-}
-
 </style>
 
 </head>
@@ -113,7 +89,7 @@ button:hover{
 <body>
 
 
-<div class="login-box">
+<div class="login">
 
 
 <form id="loginAluno">
@@ -125,19 +101,15 @@ button:hover{
 <input
 type="text"
 id="codigoAluno"
-name="codigoAluno"
 placeholder="Código do aluno"
-autocomplete="off"
 required
 >
 
 
 <input
 type="password"
-id="senha"
-name="senha"
+id="senhaAluno"
 placeholder="Senha"
-autocomplete="off"
 required
 >
 
@@ -145,15 +117,6 @@ required
 <button type="submit">
 Entrar
 </button>
-
-
-<div class="voltar">
-
-<a href="index.html">
-Voltar
-</a>
-
-</div>
 
 
 </form>
