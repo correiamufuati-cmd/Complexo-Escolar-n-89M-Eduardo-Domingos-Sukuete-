@@ -74,5 +74,37 @@ window.verNotas=function(){
     "student-password.html";
 
 };
+
+    window.verBoletim = function(){
+
+    const aluno = JSON.parse(
+        localStorage.getItem("alunoLogado")
+    );
+
+
+    if(!aluno){
+
+        alert("Aluno não encontrado");
+
+        return;
+
+    }
+
+
+    if(!aluno.boletimUrl){
+
+        alert("Boletim ainda não disponível");
+
+        return;
+
+    }
+
+
+    window.open(
+        aluno.boletimUrl,
+        "_blank"
+    );
+
+};
     
              }
