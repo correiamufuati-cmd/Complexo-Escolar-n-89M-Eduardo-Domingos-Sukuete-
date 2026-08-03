@@ -1,3 +1,5 @@
+alert("student-login carregado");
+
 import { db } from "./firebase.js";
 
 import {
