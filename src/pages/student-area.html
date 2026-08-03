@@ -1,1 +1,38 @@
 alert("Área do aluno carregada");
+
+const aluno = JSON.parse(localStorage.getItem("alunoLogado"));
+
+if (!aluno) {
+    alert("Sessão expirada. Faça login novamente.");
+    window.location.href = "login-aluno.html";
+}
+
+document.getElementById("nomeAluno").textContent = aluno.nome;
+document.getElementById("codigo").textContent = "Código: " + aluno.codigoAluno;
+document.getElementById("turma").textContent = "Classe: " + aluno.classe;
+document.getElementById("estado").textContent = "Estado: " + aluno.estado;
+
+window.verNotas = function () {
+    alert("Módulo de notas em desenvolvimento.");
+};
+
+window.verBoletim = function () {
+    alert("Módulo de boletim em desenvolvimento.");
+};
+
+window.verDados = function () {
+    alert(
+        "Nome: " + aluno.nome +
+        "\nSexo: " + aluno.sexo +
+        "\nAno Letivo: " + aluno.anoLetivo
+    );
+};
+
+window.alterarSenha = function () {
+    alert("Função alterar senha em desenvolvimento.");
+};
+
+window.sairAluno = function () {
+    localStorage.removeItem("alunoLogado");
+    window.location.href = "login-aluno.html";
+};
