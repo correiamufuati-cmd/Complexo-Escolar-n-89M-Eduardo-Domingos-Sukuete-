@@ -49,41 +49,42 @@ async function buscarDisciplinas(ensino, classe){
 
         const referencia = doc(
             db,
-            "config"
+            "config",
+            "disciplinas"
         );
 
 
         const resultado = await getDoc(referencia);
 
 
-
         if(!resultado.exists()){
 
-            console.log("Documento config não existe");
+            console.log("Documento disciplinas não encontrado");
+
             return [];
 
         }
-
 
 
         const dados = resultado.data();
 
 
 
-        if(
-            dados.disciplinas &&
-            dados.disciplinas[ensino] &&
-            dados.disciplinas[ensino][classe]
-        ){
+        const lista =
+        dados[ensino]?.[classe]?.disciplinas;
 
-            return dados.disciplinas[ensino][classe].disciplinas || [];
+
+
+        if(lista){
+
+            return lista;
 
         }
 
 
 
         console.log(
-            "Não encontrou disciplinas para:",
+            "Não encontrou:",
             ensino,
             classe
         );
@@ -92,13 +93,9 @@ async function buscarDisciplinas(ensino, classe){
         return [];
 
 
-
     }catch(error){
 
-        console.log(
-            "Erro disciplinas:",
-            error
-        );
+        console.log(error);
 
         return [];
 
