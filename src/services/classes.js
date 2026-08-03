@@ -1,6 +1,5 @@
-alert("ALUNOS JS FUNCIONOU");
-
 import { app } from "./firebase.js";
+
 
 import {
     getFirestore,
@@ -11,112 +10,137 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-
 const db = getFirestore(app);
 
 
 
-// elementos da página
+// Elementos
 
-const btnCriar = document.getElementById("saveClass");
-
-const listaTurmas = document.getElementById("classList");
-
-const nomeInput = document.getElementById("className");
-
-const classeInput = document.getElementById("classe");
-
-const anoInput = document.getElementById("anoLetivo");
+const btnCriar =
+document.getElementById("saveClass");
 
 
+const listaTurmas =
+document.getElementById("classList");
+
+
+const nomeInput =
+document.getElementById("className");
+
+
+const classeInput =
+document.getElementById("classe");
+
+
+const ensinoInput =
+document.getElementById("ensino");
+
+
+const anoInput =
+document.getElementById("anoLetivo");
 
 
 
-// carregar turmas existentes
+
+// ID da escola (temporário)
+// depois virá do login do gestor
+
+const escolaId = "SIGEA";
+
+
+
+
+
+// carregar turmas
 
 async function carregarTurmas(){
 
 
-    try{
+try{
 
 
-        listaTurmas.innerHTML = "A carregar turmas...";
-
-
-
-        const resultado = await getDocs(
-            collection(db,"turmas")
-        );
+listaTurmas.innerHTML =
+"A carregar...";
 
 
 
-        listaTurmas.innerHTML = "";
+const dados =
+await getDocs(
+collection(db,"turmas")
+);
 
 
 
-        if(resultado.empty){
-
-
-            listaTurmas.innerHTML =
-            "Nenhuma turma criada";
-
-
-            return;
-
-        }
+listaTurmas.innerHTML="";
 
 
 
+if(dados.empty){
 
-        resultado.forEach((doc)=>{
+listaTurmas.innerHTML =
+"Nenhuma turma criada";
 
+return;
 
-            const turma = doc.data();
-
-
-
-            listaTurmas.innerHTML += `
-
-
-            <div class="turma-card">
-
-
-            <strong>
-            ${turma.nome}
-            </strong>
-
-
-            <br>
-
-            Classe:
-            ${turma.classe}
-
-
-            <br>
-
-            Ano:
-            ${turma.anoLetivo}
-
-
-            </div>
-
-
-            `;
-
-
-        });
+}
 
 
 
-    }catch(error){
+
+dados.forEach((doc)=>{
 
 
-        listaTurmas.innerHTML =
-        "Erro: " + error.message;
+const turma =
+doc.data();
 
 
-    }
 
+listaTurmas.innerHTML += `
+
+<div class="turma-card">
+
+<strong>
+${turma.nome}
+</strong>
+
+<br>
+
+Classe:
+${turma.classe}
+
+<br>
+
+Ensino:
+${turma.ensino}
+
+<br>
+
+Ano:
+${turma.anoLetivo}
+
+<br>
+
+Disciplinas:
+${turma.disciplinas?.length || 0}
+
+</div>
+
+`;
+
+
+
+});
+
+
+
+}catch(error){
+
+
+listaTurmas.innerHTML =
+"Erro: "+error.message;
+
+
+}
 
 
 }
@@ -126,84 +150,115 @@ async function carregarTurmas(){
 
 
 
+
 // criar turma
 
 
-btnCriar.addEventListener("click", async()=>{
+btnCriar.addEventListener(
+"click",
+async()=>{
 
 
-
-    const nome = nomeInput.value.trim();
-
-    const classe = classeInput.value.trim();
-
-    const ano = anoInput.value.trim();
+const nome =
+nomeInput.value.trim();
 
 
+const classe =
+classeInput.value.trim();
 
 
-    if(nome === "" || classe === "" || ano === ""){
+const ensino =
+ensinoInput.value;
 
 
-        alert("Preencha todos os campos");
-
-        return;
-
-    }
-
-
-
-
-    try{
-
-
-
-        await addDoc(
-            collection(db,"turmas"),
-            {
-
-                nome:nome,
-
-                classe:classe,
-
-                anoLetivo:ano,
-
-                criadoEm:serverTimestamp()
-
-            }
-
-        );
+const ano =
+anoInput.value.trim();
 
 
 
 
-        alert("Turma criada com sucesso");
+
+if(
+nome==="" ||
+classe==="" ||
+ano===""
+){
+
+alert(
+"Preencha todos os campos"
+);
+
+return;
+
+}
 
 
 
-        nomeInput.value="";
 
-        classeInput.value="";
-
-        anoInput.value="";
+try{
 
 
 
-        carregarTurmas();
+const turma = {
+
+
+nome:nome,
+
+classe:classe,
+
+ensino:ensino,
+
+anoLetivo:ano,
+
+escolaId:escolaId,
+
+disciplinas:[],
+
+
+criadoEm:
+serverTimestamp()
+
+
+};
 
 
 
-    }catch(error){
 
 
-        alert(
-            "Erro ao criar turma: "
-            + error.message
-        );
+await addDoc(
+collection(db,"turmas"),
+turma
+);
 
 
-    }
 
+alert(
+"Turma criada com sucesso"
+);
+
+
+
+nomeInput.value="";
+
+classeInput.value="";
+
+anoInput.value="";
+
+
+
+carregarTurmas();
+
+
+
+}catch(error){
+
+
+alert(
+"Erro: "+error.message
+);
+
+
+}
 
 
 
