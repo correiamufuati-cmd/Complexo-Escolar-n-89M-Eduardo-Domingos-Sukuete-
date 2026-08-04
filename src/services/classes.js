@@ -1,3 +1,5 @@
+alert("VERSÃO NOVA DO CLASSES.JS");
+
 import { app } from "./firebase.js";
 
 import {
