@@ -3,32 +3,6 @@ import { app } from "./firebase.js";
 import {
     getFirestore,
     collection,
-
-    const disciplinas =
-await buscarDisciplinas(
-    ensino,
-    classe
-);
-
-
-alert(
-"Vou guardar: " + JSON.stringify(disciplinas)
-);
-
-
-await addDoc(
-collection(db,"turmas"),
-{
-    nome:nome,
-    classe:classe,
-    ensino:ensino,
-    anoLetivo:ano,
-    escolaId:escolaId,
-    disciplinas:disciplinas,
-    criadoEm:serverTimestamp()
-}
-);
-
     addDoc,
     getDocs,
     getDoc,
@@ -38,6 +12,7 @@ collection(db,"turmas"),
 
 
 const db = getFirestore(app);
+
 
 
 // ELEMENTOS
@@ -57,8 +32,7 @@ const anoInput = document.getElementById("anoLetivo");
 
 
 // ID DA ESCOLA
-// temporário para teste
-// depois vem do login do gestor
+// temporário
 
 const escolaId = "SIGEA";
 
@@ -66,40 +40,85 @@ const escolaId = "SIGEA";
 
 
 // ===============================
-// BUSCAR DISCIPLINAS AUTOMÁTICAS
+// BUSCAR DISCIPLINAS
 // ===============================
 
 async function buscarDisciplinas(ensino, classe){
 
-    const referencia = doc(
-        db,
-        "config",
-        "disciplinas"
-    );
+
+    try{
 
 
-    const resultado = await getDoc(referencia);
+        const referencia = doc(
+            db,
+            "config",
+            "disciplinas"
+        );
 
 
-    if(!resultado.exists()){
+
+        const resultado = await getDoc(referencia);
+
+
+
+        if(!resultado.exists()){
+
+            alert(
+                "Documento disciplinas não encontrado"
+            );
+
+            return [];
+
+        }
+
+
+
+        const dados = resultado.data();
+
+
+
+        const disciplinas =
+        dados[ensino]?.[classe]?.disciplinas;
+
+
+
+        if(disciplinas){
+
+            return disciplinas;
+
+        }
+
+
+
+        alert(
+            "Não encontrou disciplinas para: "
+            + ensino +
+            " - " +
+            classe
+        );
+
+
+        return [];
+
+
+
+    }catch(error){
+
+
+        alert(
+            "Erro ao buscar disciplinas: "
+            + error.message
+        );
+
 
         return [];
 
     }
 
 
-    const dados = resultado.data();
-
-
-    const disciplinas =
-    dados[ensino][classe].disciplinas;
-
-
-    return disciplinas || [];
-
 }
 
-}
+
 
 
 
@@ -127,7 +146,7 @@ async function carregarTurmas(){
 
 
 
-        listaTurmas.innerHTML="";
+        listaTurmas.innerHTML = "";
 
 
 
@@ -156,47 +175,39 @@ async function carregarTurmas(){
 
             listaTurmas.innerHTML += `
 
-
             <div class="turma-card">
 
+                <strong>
+                ${turma.nome}
+                </strong>
 
-            <strong>
-            ${turma.nome}
-            </strong>
+                <br>
 
+                Classe:
+                ${turma.classe}
 
-            <br>
+                <br>
 
-            Classe:
-            ${turma.classe}
+                Ensino:
+                ${turma.ensino}
 
+                <br>
 
-            <br>
+                Ano:
+                ${turma.anoLetivo}
 
-            Ensino:
-            ${turma.ensino}
+                <br>
 
-
-            <br>
-
-            Ano:
-            ${turma.anoLetivo}
-
-
-            <br>
-
-            Disciplinas:
-            ${
-            turma.disciplinas
-            ?
-            turma.disciplinas.length
-            :
-            0
-            }
-
+                Disciplinas:
+                ${
+                    turma.disciplinas
+                    ?
+                    turma.disciplinas.length
+                    :
+                    0
+                }
 
             </div>
-
 
             `;
 
@@ -227,31 +238,25 @@ async function carregarTurmas(){
 // CRIAR TURMA
 // ===============================
 
-
 btnCriar.addEventListener(
 "click",
 async()=>{
-
 
 
     const nome =
     nomeInput.value.trim();
 
 
-
     const classe =
     classeInput.value.trim();
-
 
 
     const ensino =
     ensinoInput.value;
 
 
-
     const ano =
     anoInput.value.trim();
-
 
 
 
@@ -262,25 +267,19 @@ async()=>{
         ano === ""
     ){
 
-
         alert(
-        "Preencha todos os campos"
+            "Preencha todos os campos"
         );
 
-
         return;
-
 
     }
 
 
 
 
-
     try{
 
-
-        // buscar disciplinas
 
         const disciplinas =
         await buscarDisciplinas(
@@ -289,40 +288,36 @@ async()=>{
         );
 
 
-alert(
-"Ensino: " + ensino +
-"\nClasse: " + classe +
-"\nDisciplinas encontradas: " + disciplinas.length
-);
-        
+
+
+        alert(
+            "Vou guardar:\n\n"
+            +
+            JSON.stringify(disciplinas)
+        );
+
+
+
 
 
         await addDoc(
             collection(db,"turmas"),
             {
 
-
                 nome:nome,
-
 
                 classe:classe,
 
-
                 ensino:ensino,
-
 
                 anoLetivo:ano,
 
-
                 escolaId:escolaId,
-
 
                 disciplinas:disciplinas,
 
-
                 criadoEm:
                 serverTimestamp()
-
 
             }
 
@@ -331,22 +326,18 @@ alert(
 
 
 
-
         alert(
-        "Turma criada com sucesso"
+            "Turma criada com sucesso"
         );
 
 
 
 
+        nomeInput.value = "";
 
-        nomeInput.value="";
+        classeInput.value = "";
 
-        classeInput.value="";
-
-        anoInput.value="";
-
-
+        anoInput.value = "";
 
 
 
@@ -354,20 +345,17 @@ alert(
 
 
 
-
-
     }catch(error){
 
 
         alert(
-        "Erro ao criar turma: "
-        +
-        error.message
+            "Erro ao criar turma: "
+            +
+            error.message
         );
 
 
     }
-
 
 
 });
@@ -377,5 +365,6 @@ alert(
 
 
 
+// iniciar
 
 carregarTurmas();
