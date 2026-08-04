@@ -14,8 +14,9 @@ import {
 const db = getFirestore(app);
 
 
-
-// ELEMENTOS
+// ===============================
+// ELEMENTOS DA PÁGINA
+// ===============================
 
 const btnCriar = document.getElementById("saveClass");
 
@@ -30,9 +31,8 @@ const ensinoInput = document.getElementById("ensino");
 const anoInput = document.getElementById("anoLetivo");
 
 
-
 // ID DA ESCOLA
-// temporário
+// depois será substituído pelo ID vindo do login
 
 const escolaId = "SIGEA";
 
@@ -45,26 +45,24 @@ const escolaId = "SIGEA";
 
 async function buscarDisciplinas(ensino, classe){
 
-
     try{
 
 
-        const referencia = doc(
+        const ref = doc(
             db,
             "config",
             "disciplinas"
         );
 
 
-
-        const resultado = await getDoc(referencia);
+        const resultado = await getDoc(ref);
 
 
 
         if(!resultado.exists()){
 
-            alert(
-                "Documento disciplinas não encontrado"
+            console.log(
+                "Documento disciplinas não existe"
             );
 
             return [];
@@ -77,23 +75,29 @@ async function buscarDisciplinas(ensino, classe){
 
 
 
-        const disciplinas =
-        dados[ensino]?.[classe]?.disciplinas;
+        console.log(
+            "Config disciplinas:",
+            dados
+        );
 
 
 
-        if(disciplinas){
+        const lista =
+        dados?.[ensino]?.[classe]?.disciplinas;
 
-            return disciplinas;
+
+
+        if(Array.isArray(lista)){
+
+            return lista;
 
         }
 
 
 
-        alert(
-            "Não encontrou disciplinas para: "
-            + ensino +
-            " - " +
+        console.log(
+            "Disciplina não encontrada:",
+            ensino,
             classe
         );
 
@@ -105,16 +109,15 @@ async function buscarDisciplinas(ensino, classe){
     }catch(error){
 
 
-        alert(
-            "Erro ao buscar disciplinas: "
-            + error.message
+        console.log(
+            "Erro disciplinas:",
+            error
         );
 
 
         return [];
 
     }
-
 
 }
 
@@ -125,88 +128,82 @@ async function buscarDisciplinas(ensino, classe){
 
 
 // ===============================
-// CARREGAR TURMAS
+// LISTAR TURMAS
 // ===============================
 
-async function buscarDisciplinas(ensino, classe){
-
-    const referencia = doc(
-        db,
-        "config",
-        "disciplinas"
-    );
-
-    const resultado = await getDoc(referencia);
+async function carregarTurmas(){
 
 
-    if(!resultado.exists()){
-
-        return [];
-
-    }
+    try{
 
 
-    const dados = resultado.data();
+        listaTurmas.innerHTML =
+        "A carregar turmas...";
 
 
-    console.log(dados);
+
+        const resultado =
+        await getDocs(
+            collection(db,"turmas")
+        );
 
 
-    if(
-        dados[ensino] &&
-        dados[ensino][classe]
-    ){
 
-        return dados[ensino][classe].disciplinas || [];
-
-    }
+        listaTurmas.innerHTML = "";
 
 
-    alert(
-        "Não encontrado: "
-        + ensino +
-        " / "
-        + classe
-    );
+
+        if(resultado.empty){
 
 
-    return [];
+            listaTurmas.innerHTML =
+            "Nenhuma turma criada";
+
+
+            return;
 
         }
 
 
 
 
-        resultado.forEach((documento)=>{
+
+        resultado.forEach((item)=>{
 
 
             const turma =
-            documento.data();
+            item.data();
 
 
 
             listaTurmas.innerHTML += `
 
+
             <div class="turma-card">
 
+
                 <strong>
-                ${turma.nome}
+                    ${turma.nome || ""}
                 </strong>
+
 
                 <br>
 
                 Classe:
-                ${turma.classe}
+                ${turma.classe || ""}
+
 
                 <br>
 
                 Ensino:
-                ${turma.ensino}
+                ${turma.ensino || ""}
+
 
                 <br>
 
                 Ano:
-                ${turma.anoLetivo}
+                ${turma.anoLetivo || ""}
+
 
                 <br>
 
@@ -219,7 +216,9 @@ async function buscarDisciplinas(ensino, classe){
                     0
                 }
 
+
             </div>
+
 
             `;
 
@@ -232,7 +231,8 @@ async function buscarDisciplinas(ensino, classe){
 
 
         listaTurmas.innerHTML =
-        "Erro: " + error.message;
+        "Erro ao carregar: "
+        + error.message;
 
 
     }
@@ -264,7 +264,7 @@ async()=>{
 
 
     const ensino =
-    ensinoInput.value;
+    ensinoInput.value.trim();
 
 
     const ano =
@@ -276,6 +276,7 @@ async()=>{
     if(
         nome === "" ||
         classe === "" ||
+        ensino === "" ||
         ano === ""
     ){
 
@@ -289,9 +290,10 @@ async()=>{
 
 
 
-
     try{
 
+
+        // buscar disciplinas
 
         const disciplinas =
         await buscarDisciplinas(
@@ -301,12 +303,34 @@ async()=>{
 
 
 
-
         alert(
-            "Vou guardar:\n\n"
+            "Disciplinas encontradas: "
             +
-            JSON.stringify(disciplinas)
+            disciplinas.length
         );
+
+
+
+
+        const novaTurma =
+        {
+
+            nome:nome,
+
+            classe:classe,
+
+            ensino:ensino,
+
+            anoLetivo:ano,
+
+            escolaId:escolaId,
+
+            disciplinas:disciplinas,
+
+            criadoEm:
+            serverTimestamp()
+
+        };
 
 
 
@@ -314,25 +338,7 @@ async()=>{
 
         await addDoc(
             collection(db,"turmas"),
-            {
-
-                nome:nome,
-
-                classe:classe,
-
-                ensino:ensino,
-
-                anoLetivo:ano,
-
-                escolaId:escolaId,
-
-                disciplinas:disciplinas,
-
-                criadoEm:
-                serverTimestamp()
-
-            }
-
+            novaTurma
         );
 
 
@@ -341,7 +347,6 @@ async()=>{
         alert(
             "Turma criada com sucesso"
         );
-
 
 
 
@@ -370,6 +375,7 @@ async()=>{
     }
 
 
+
 });
 
 
@@ -377,6 +383,8 @@ async()=>{
 
 
 
-// iniciar
+// ===============================
+// INICIAR
+// ===============================
 
 carregarTurmas();
