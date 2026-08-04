@@ -121,6 +121,11 @@ async function buscarDisciplinas(ensino, classe){
 
         const dados = resultado.data();
 
+        alert(
+"EnsinoPrimario completo:\n\n" +
+JSON.stringify(dados["ensinoPrimario"], null, 2)
+);
+        
 alert(
 JSON.stringify(dados, null, 2)
 );
