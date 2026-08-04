@@ -43,10 +43,6 @@ const escolaId = "SIGEA";
 // BUSCAR DISCIPLINAS
 // ===============================
 
-alert(
-"Ensino = " + ensino +
-"\nClasse = " + classe
-);
 
 async function buscarDisciplinas(ensino, classe){
 
@@ -271,7 +267,11 @@ async()=>{
     const ensino =
     ensinoInput.value.trim();
 
-
+alert(
+"Ensino = " + ensino +
+"\nClasse = " + classe
+);
+    
     const ano =
     anoInput.value.trim();
 
