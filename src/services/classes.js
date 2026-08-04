@@ -267,15 +267,14 @@ async()=>{
     const ensino =
     ensinoInput.value.trim();
 
-alert(
-"Ensino = " + ensino +
-"\nClasse = " + classe
-);
     
     const ano =
     anoInput.value.trim();
 
-
+alert(
+"Ensino = " + ensino +
+"\nClasse = " + classe
+);
 
 
     if(
