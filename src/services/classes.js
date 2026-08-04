@@ -3,6 +3,32 @@ import { app } from "./firebase.js";
 import {
     getFirestore,
     collection,
+
+    const disciplinas =
+await buscarDisciplinas(
+    ensino,
+    classe
+);
+
+
+alert(
+"Vou guardar: " + JSON.stringify(disciplinas)
+);
+
+
+await addDoc(
+collection(db,"turmas"),
+{
+    nome:nome,
+    classe:classe,
+    ensino:ensino,
+    anoLetivo:ano,
+    escolaId:escolaId,
+    disciplinas:disciplinas,
+    criadoEm:serverTimestamp()
+}
+);
+
     addDoc,
     getDocs,
     getDoc,
