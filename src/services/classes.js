@@ -1,4 +1,4 @@
-alert("VERSÃO NOVA DF CLASSES.JS");
+alert("VERSÃO NOVA DS CLASSES.JS");
 
 import { app } from "./firebase.js";
 
@@ -156,8 +156,10 @@ const chaveClasse = Object.keys(mapaEnsino)
 );
 
 alert(
-"Classe procurada: [" + classe + "]" +
-"\nClasse encontrada: [" + chaveClasse + "]"
+"Todas as classes no Firebase:\n\n" +
+Object.keys(mapaEnsino)
+.map(x => "[" + x + "]")
+.join("\n")
 );
 
 if(!chaveClasse){
