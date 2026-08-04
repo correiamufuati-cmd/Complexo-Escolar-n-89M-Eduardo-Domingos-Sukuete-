@@ -42,4 +42,4 @@ async function buscarDisciplinas(ensino, classe){
 
     return [];
 
-}
+        }
