@@ -43,6 +43,11 @@ const escolaId = "SIGEA";
 // BUSCAR DISCIPLINAS
 // ===============================
 
+alert(
+"Ensino = " + ensino +
+"\nClasse = " + classe
+);
+
 async function buscarDisciplinas(ensino, classe){
 
     try{
