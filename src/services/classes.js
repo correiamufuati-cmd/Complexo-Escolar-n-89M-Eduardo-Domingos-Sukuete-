@@ -45,61 +45,33 @@ const escolaId = "SIGEA";
 
 async function buscarDisciplinas(ensino, classe){
 
-    try{
-
-        const referencia = doc(
-            db,
-            "config",
-            "disciplinas"
-        );
+    const referencia = doc(
+        db,
+        "config",
+        "disciplinas"
+    );
 
 
-        const resultado = await getDoc(referencia);
+    const resultado = await getDoc(referencia);
 
 
-        if(!resultado.exists()){
-
-            console.log("Documento disciplinas não encontrado");
-
-            return [];
-
-        }
-
-
-        const dados = resultado.data();
-
-alert(JSON.stringify(dados));
-
-        const lista =
-        dados[ensino]?.[classe]?.disciplinas;
-
-
-
-        if(lista){
-
-            return lista;
-
-        }
-
-
-
-        console.log(
-            "Não encontrou:",
-            ensino,
-            classe
-        );
-
-
-        return [];
-
-
-    }catch(error){
-
-        console.log(error);
+    if(!resultado.exists()){
 
         return [];
 
     }
+
+
+    const dados = resultado.data();
+
+
+    const disciplinas =
+    dados[ensino][classe].disciplinas;
+
+
+    return disciplinas || [];
+
+}
 
 }
 
