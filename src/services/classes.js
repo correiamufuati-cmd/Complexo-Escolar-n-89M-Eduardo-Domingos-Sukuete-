@@ -129,9 +129,7 @@ JSON.stringify(dados, null, 2)
         );
 
 alert(
-"Ensino recebido: " + ensino +
-"\n\nTodos os níveis encontrados:\n" +
-Object.keys(dados).join("\n")
+JSON.stringify(dados["ensinoPrimario"], null, 2)
 );
 
         const lista =
