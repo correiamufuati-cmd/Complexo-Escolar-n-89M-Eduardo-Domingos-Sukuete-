@@ -30,6 +30,51 @@ const ensinoInput = document.getElementById("ensino");
 
 const anoInput = document.getElementById("anoLetivo");
 
+const classesPorEnsino = {
+
+    ensinoPrimario: [
+        "1classe",
+        "2classe",
+        "3classe",
+        "4classe",
+        "5classe",
+        "6classe",
+        "1etapa",
+        "2etapa",
+        "3etapa"
+    ],
+
+    primeiroCiclo: [
+        "7classe",
+        "8classe",
+        "9classe",
+        "Eja1",
+        "Eja2"
+    ]
+
+};
+
+
+function atualizarClasses(){
+
+    const ensino = ensinoInput.value;
+
+    classeInput.innerHTML = "";
+
+    classesPorEnsino[ensino].forEach(classe=>{
+
+        const option = document.createElement("option");
+
+        option.value = classe;
+
+        option.textContent = classe;
+
+        classeInput.appendChild(option);
+
+    });
+
+}
+
 
 // ID DA ESCOLA
 // depois será substituído pelo ID vindo do login
@@ -383,6 +428,12 @@ alert(
 });
 
 
+ensinoInput.addEventListener(
+    "change",
+    atualizarClasses
+);
+
+atualizarClasses();
 
 
 
