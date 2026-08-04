@@ -119,7 +119,10 @@ async function buscarDisciplinas(ensino, classe){
 
         const dados = resultado.data();
 
-
+console.log(
+    "Classes disponíveis:",
+    Object.keys(dados[ensino])
+);
 
         console.log(
             "Config disciplinas:",
