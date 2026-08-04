@@ -1,4 +1,4 @@
-alert("VERSÃO NOVA DS CLASSES.JS");
+alert("VERSÃO NOVA DTS CLASSES.JS");
 
 import { app } from "./firebase.js";
 
