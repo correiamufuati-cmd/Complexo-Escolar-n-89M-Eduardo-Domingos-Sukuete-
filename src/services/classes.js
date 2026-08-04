@@ -129,8 +129,11 @@ JSON.stringify(dados, null, 2)
         );
 
 alert(
-"Conteúdo ensinoPrimario:\n\n" +
-JSON.stringify(dados["ensinoPrimario"], null, 2)
+JSON.stringify(
+dados["ensinoPrimario"]["2classe"],
+null,
+2
+)
 );
 
         const lista =
