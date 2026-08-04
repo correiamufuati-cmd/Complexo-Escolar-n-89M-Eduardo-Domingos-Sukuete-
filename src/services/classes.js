@@ -1,4 +1,4 @@
-alert("VERSÃO NOVA DO CLASSES.JS");
+alert("VERSÃO NOVA DF CLASSES.JS");
 
 import { app } from "./firebase.js";
 
@@ -172,28 +172,16 @@ if(!chaveClasse){
 
 
 
-const lista =
-mapaEnsino[chaveClasse]?.disciplinas;
-
-alert(
-"Conteúdo da classe:\n" +
-JSON.stringify(mapaEnsino[chaveClasse], null, 2)
-);
-        
-if(Array.isArray(lista)){
-
-    return lista;
-
-}
-
+const lista = 
+mapaEnsino[chaveClasse]["disciplinas"];
 
 
 alert(
-"Esta classe não possui disciplinas"
+"Quantidade de disciplinas: " + lista.length
 );
 
 
-return [];
+return lista;
 
 
 
