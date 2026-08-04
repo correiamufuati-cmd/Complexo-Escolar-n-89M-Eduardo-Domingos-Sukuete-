@@ -129,13 +129,10 @@ JSON.stringify(dados, null, 2)
         );
 
 alert(
-JSON.stringify(
-dados["ensinoPrimario"]["2classe"],
-null,
-2
-)
+Object.keys(dados["ensinoPrimario"])
+.map(x => "[" + x + "]")
+.join("\n")
 );
-
         const lista =
         dados?.[ensino]?.[classe]?.disciplinas;
 
