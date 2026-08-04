@@ -155,7 +155,10 @@ const chaveClasse = Object.keys(mapaEnsino)
     chave => chave.trim() === classe.trim()
 );
 
-
+alert(
+"Classe procurada: [" + classe + "]" +
+"\nClasse encontrada: [" + chaveClasse + "]"
+);
 
 if(!chaveClasse){
 
@@ -173,11 +176,10 @@ const lista =
 mapaEnsino[chaveClasse]?.disciplinas;
 
 alert(
-"Classe encontrada: " + chaveClasse +
-"\n\nDados da classe:\n" +
+"Conteúdo da classe:\n" +
 JSON.stringify(mapaEnsino[chaveClasse], null, 2)
 );
-
+        
 if(Array.isArray(lista)){
 
     return lista;
