@@ -129,9 +129,9 @@ JSON.stringify(dados, null, 2)
         );
 
 alert(
-"Classe recebida: " + classe +
-"\n\nClasses reais no Firebase:\n" +
-Object.keys(dados[ensino]).join("\n")
+"Ensino recebido: " + ensino +
+"\n\nTodos os níveis encontrados:\n" +
+Object.keys(dados).join("\n")
 );
 
         const lista =
