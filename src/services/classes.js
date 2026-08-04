@@ -120,8 +120,7 @@ async function buscarDisciplinas(ensino, classe){
         const dados = resultado.data();
 
 alert(
-"Classes disponíveis:\n\n" +
-Object.keys(dados[ensino]).join("\n")
+JSON.stringify(dados, null, 2)
 );
 
         console.log(
