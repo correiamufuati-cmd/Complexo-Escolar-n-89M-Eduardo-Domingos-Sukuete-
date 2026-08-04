@@ -76,9 +76,9 @@ async function buscarDisciplinas(ensino, classe){
         const dados = resultado.data();
 
 
-
-        const disciplinas =
-        dados[ensino]?.[classe]?.disciplinas;
+alert(
+JSON.stringify(dados)
+);
 
 
 
