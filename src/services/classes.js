@@ -170,7 +170,11 @@ if(!chaveClasse){
 const lista =
 mapaEnsino[chaveClasse]?.disciplinas;
 
-
+alert(
+"Classe encontrada: " + chaveClasse +
+"\n\nDados da classe:\n" +
+JSON.stringify(mapaEnsino[chaveClasse], null, 2)
+);
 
 if(Array.isArray(lista)){
 
