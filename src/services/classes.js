@@ -128,7 +128,12 @@ JSON.stringify(dados, null, 2)
             dados
         );
 
-
+alert(
+"Ensino recebido: " + ensino +
+"\nClasse recebida: " + classe +
+"\nExiste no Firebase: " +
+(dados[ensino] && dados[ensino][classe] ? "SIM" : "NÃO")
+);
 
         const lista =
         dados?.[ensino]?.[classe]?.disciplinas;
