@@ -129,10 +129,9 @@ JSON.stringify(dados, null, 2)
         );
 
 alert(
-"Ensino recebido: " + ensino +
-"\nClasse recebida: " + classe +
-"\nExiste no Firebase: " +
-(dados[ensino] && dados[ensino][classe] ? "SIM" : "NÃO")
+"Classe recebida: " + classe +
+"\n\nClasses reais no Firebase:\n" +
+Object.keys(dados[ensino]).join("\n")
 );
 
         const lista =
