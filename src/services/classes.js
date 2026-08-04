@@ -132,17 +132,60 @@ alert(
 Object.keys(dados["ensinoPrimario"])
 .map(x => "[" + x + "]")
 .join("\n")
+);const mapaEnsino = dados?.[ensino];
+
+
+if(!mapaEnsino){
+
+    alert(
+        "Ensino não encontrado: " + ensino
+    );
+
+    return [];
+
+}
+
+
+// procurar a classe ignorando espaços
+
+const chaveClasse = Object.keys(mapaEnsino)
+.find(
+    chave => chave.trim() === classe.trim()
 );
-        const lista =
-        dados?.[ensino]?.[classe]?.disciplinas;
 
 
 
-        if(Array.isArray(lista)){
+if(!chaveClasse){
 
-            return lista;
+    alert(
+        "Classe não encontrada: " + classe
+    );
 
-        }
+    return [];
+
+}
+
+
+
+const lista =
+mapaEnsino[chaveClasse]?.disciplinas;
+
+
+
+if(Array.isArray(lista)){
+
+    return lista;
+
+}
+
+
+
+alert(
+"Esta classe não possui disciplinas"
+);
+
+
+return [];
 
 
 
