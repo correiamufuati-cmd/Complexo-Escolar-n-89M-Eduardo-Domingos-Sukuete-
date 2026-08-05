@@ -31,14 +31,15 @@ input{
     padding:5px;
 }
 
+select{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+}
+
 button{
     padding:10px;
     margin-top:15px;
-    cursor:pointer;
-}
-
-.importar{
-    margin-top:30px;
 }
 
 textarea{
@@ -57,14 +58,19 @@ textarea{
 <div class="main">
 
 
-<h1>Gestão de Notas - Mini Pauta</h1>
+<h1>
+Gestão de Notas - Mini Pauta
+</h1>
 
 
 
 <div class="section">
 
 
-<label>Turma</label>
+<label>
+Turma
+</label>
+
 
 <select id="classSelect">
 
@@ -76,13 +82,19 @@ Selecionar turma
 
 
 
-<label>Disciplina</label>
 
-<input 
-id="subject"
-placeholder="Ex: Matemática"
->
+<label>
+Disciplina
+</label>
 
+
+<select id="subject">
+
+<option>
+Selecionar disciplina
+</option>
+
+</select>
 
 
 
@@ -94,7 +106,10 @@ placeholder="Ex: Matemática"
 <div class="section">
 
 
-<h2>Mini Pauta</h2>
+<h2>
+Lançamento de Notas
+</h2>
+
 
 
 <table>
@@ -145,21 +160,19 @@ Guardar Mini-Pauta
 
 
 
+<div class="section">
 
-<div class="section importar">
 
-
-<h2>Importar do Excel</h2>
+<h2>
+Importar do Excel
+</h2>
 
 
 <p>
-Cole aqui os dados copiados do Excel:
+Formato:
 <br>
-
-Número ; Nome ; MAC ; NPT
-
+Número;Nome;MAC;NPT
 </p>
-
 
 
 <textarea id="excelInput"></textarea>
@@ -173,28 +186,16 @@ Importar Notas
 </button>
 
 
-
 </div>
 
 
 
-
-
-<div class="section">
-
-
-<h2>Resultado</h2>
 
 
 <div id="gradesList"></div>
 
 
 </div>
-
-
-
-</div>
-
 
 
 
