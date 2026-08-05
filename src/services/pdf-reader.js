@@ -43,21 +43,13 @@ export async function lerPDF(file){
 
         conteudo.items.forEach(item=>{
 
+    alert(
+        item.str +
+        " X:" + item.transform[4] +
+        " Y:" + item.transform[5]
+    );
 
-            const y = Math.round(item.transform[5]);
-
-
-            if(!linhas[y]){
-
-                linhas[y] = "";
-
-            }
-
-
-            linhas[y] += " " + item.str;
-
-
-        });
+});
 
 
 
