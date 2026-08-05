@@ -1,13 +1,14 @@
 import * as pdfjsLib from 
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.mjs";
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.mjs";
 
 
 export async function lerPDF(file){
+
+    alert("ENTROU NO LEITOR PDF");
 
 
     const dados = await file.arrayBuffer();
@@ -18,170 +19,40 @@ export async function lerPDF(file){
     }).promise;
 
 
+    alert("PDF ABERTO");
 
-    let todasLinhas = [];
 
+    let textoCompleto = "";
 
 
     for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-
         const page = await pdf.getPage(pagina);
-
 
         const conteudo = await page.getTextContent();
 
 
+        conteudo.items.forEach(item=>{
 
-        let linhasPagina = organizarLinhas(conteudo.items);
+            textoCompleto += item.str + " ";
 
-
-
-        todasLinhas.push(...linhasPagina);
-
-
+        });
 
     }
 
 
-
-    let textoCompleto = todasLinhas.join("\n");
-
-
-
-    console.log("TEXTO ORGANIZADO:");
-    console.log(textoCompleto);
-
-
-
-    const alunos = extrairAlunos(textoCompleto);
-
-
-
-    console.log("TOTAL ALUNOS:", alunos.length);
-
+    alert("Texto extraído");
 
 
     return {
 
-        quantidade: alunos.length,
+        quantidade:0,
 
-        alunos: alunos,
+        alunos:[],
 
-        texto: textoCompleto
+        texto:textoCompleto
 
     };
-
-}
-
-
-
-
-
-function organizarLinhas(items){
-
-
-    let linhas = {};
-
-
-
-    items.forEach(item=>{
-
-
-        let y = Math.round(item.transform[5]);
-
-
-
-        if(!linhas[y]){
-
-            linhas[y] = [];
-
-        }
-
-
-
-        linhas[y].push(item.str);
-
-
-
-    });
-
-
-
-    return Object.keys(linhas)
-
-        .sort((a,b)=> b-a)
-
-        .map(y=> linhas[y].join(" "));
-
-}
-
-
-
-
-
-function extrairAlunos(texto){
-
-
-    const linhas = texto
-        .split("\n")
-        .map(l=>l.trim())
-        .filter(l=>l);
-
-
-
-    let alunos=[];
-
-
-
-    linhas.forEach(linha=>{
-
-
-        /*
-        Procura linhas como:
-
-        1 12345 JOÃO MANUEL M
-
-        ou
-
-        1 JOÃO MANUEL M
-        */
-
-
-        if(/^\d+\s+/.test(linha)){
-
-
-            let partes = linha.split(/\s+/);
-
-
-
-            let numero = partes.shift();
-
-
-
-            let nome = partes.join(" ");
-
-
-
-            alunos.push({
-
-                numero: numero,
-
-                nome: nome,
-
-                sexo:""
-
-            });
-
-
-        }
-
-
-    });
-
-
-
-    return alunos;
 
 
 }
