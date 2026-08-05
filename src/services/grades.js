@@ -1,3 +1,5 @@
+alert("GRADES.JS CARREGOU");
+
 import {
     collection,
     getDocs,
