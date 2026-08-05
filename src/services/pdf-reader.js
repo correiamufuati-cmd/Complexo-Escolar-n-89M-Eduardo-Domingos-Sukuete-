@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO FINAL Dg");
+alert("PDF-READER CARREGADO FINAL Dt");
 
 
 import * as pdfjsLib from 
@@ -92,37 +92,142 @@ export async function lerPDF(file){
 
 
 
-
 function extrairAlunos(itens){
 
-
-
     let alunos = [];
-
-
-
     let linhas = {};
-
-
-
-    // Agrupar por linha
 
     itens.forEach(item=>{
 
-
         let y = Math.round(item.y);
 
-
-
         if(!linhas[y]){
-
             linhas[y] = [];
+        }
+
+        linhas[y].push(item);
+
+    });
+
+
+    Object.values(linhas).forEach(linha=>{
+
+        linha.sort((a,b)=>a.x-b.x);
+
+
+        let numero="";
+        let nome="";
+        let sexo="";
+        let data="";
+        let idade="";
+
+
+        linha.forEach(item=>{
+
+            let texto=item.texto;
+
+            if(!texto) return;
+
+
+            if(item.x < 35){
+
+                numero += texto;
+
+            }
+
+            else if(item.x >=35 && item.x <270){
+
+                nome += " " + texto;
+
+            }
+
+            else if(item.x >=270 && item.x <300){
+
+                sexo += texto;
+
+            }
+
+            else if(item.x >=300 && item.x <370){
+
+                data += " " + texto;
+
+            }
+
+            else if(item.x >=370){
+
+                idade += " " + texto;
+
+            }
+
+
+        });
+
+
+        numero=numero.trim();
+        nome=nome.trim();
+        sexo=sexo.trim();
+        idade=idade.trim();
+
+
+        data=data
+        .replace(/\s+/g," ")
+        .trim();
+
+
+        data=data.replace(/\s*-\s*/g,"-");
+
+
+
+        if(numero && nome && /^\d+$/.test(numero)){
+
+
+            alunos.push({
+
+                numero:numero,
+
+                nome:nome,
+
+                sexo:sexo,
+
+                dataNascimento:data,
+
+                idade:idade
+
+            });
+
 
         }
 
 
+    });
 
-        linhas[y].push(item);
+
+
+    // eliminar duplicados
+
+    let resultado=[];
+
+    let usados=new Set();
+
+
+    alunos.forEach(aluno=>{
+
+
+        if(!usados.has(aluno.numero)){
+
+            usados.add(aluno.numero);
+
+            resultado.push(aluno);
+
+        }
+
+    });
+
+
+
+    return resultado;
+
+}
 
 
 
