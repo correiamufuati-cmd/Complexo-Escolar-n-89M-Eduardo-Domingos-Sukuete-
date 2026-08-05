@@ -66,6 +66,12 @@ let todosAlunos = [];
 // CARREGAR TURMAS
 // =============================
 
+alert("CHEGUEI AO FINAL DO FICHEIRO");
+
+alert("VOU CARREGAR TURMAS");
+
+carregarTurmas();
+
 async function carregarTurmas(){
 
     try{
