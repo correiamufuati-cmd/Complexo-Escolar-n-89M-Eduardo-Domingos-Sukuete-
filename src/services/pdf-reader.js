@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO FINAL Df");
+alert("PDF-READER CARREGADO FINAL Dg");
 
 
 import * as pdfjsLib from 
@@ -245,6 +245,139 @@ function extrairAlunos(itens){
 
 
 
+function extrairAlunos(itens){
+
+    let alunos = [];
+
+    let linhas = {};
+
+
+    // Agrupar por linha
+
+    itens.forEach(item=>{
+
+        let y = Math.round(item.y);
+
+        if(!linhas[y]){
+
+            linhas[y] = [];
+
+        }
+
+        linhas[y].push(item);
+
+    });
+
+
+
+    Object.values(linhas).forEach(linha=>{
+
+
+        linha.sort((a,b)=>a.x-b.x);
+
+
+
+        let numero="";
+        let nome="";
+        let sexo="";
+        let data="";
+        let idade="";
+
+
+
+        linha.forEach(item=>{
+
+
+            let texto = item.texto;
+
+
+            if(!texto){
+                return;
+            }
+
+
+
+            // Número
+
+            if(item.x < 35){
+
+                numero += texto;
+
+            }
+
+
+
+            // Nome
+
+            else if(item.x >=35 && item.x <270){
+
+                nome += " " + texto;
+
+            }
+
+
+
+            // Sexo
+
+            else if(item.x >=270 && item.x <300){
+
+                sexo += texto;
+
+            }
+
+
+
+            // Data nascimento
+
+            else if(item.x >=300 && item.x <370){
+
+                data += " " + texto;
+
+            }
+
+
+
+            // Idade
+
+            else if(item.x >=370){
+
+                idade += " " + texto;
+
+            }
+
+
+        });
+
+
+
+        numero = numero.trim();
+
+        nome = nome.trim();
+
+        sexo = sexo.trim();
+
+        idade = idade.trim();
+
+
+
+        // Corrigir data separada pelo PDF
+
+        data = data
+        .replace(/\s+/g," ")
+        .trim();
+
+
+
+        // transformar:
+        // 22 - 06 - 2012
+        // em:
+        // 22-06-2012
+
+        data = data.replace(
+            /\s*-\s*/g,
+            "-"
+        );
+
 
 
         if(
@@ -254,33 +387,22 @@ function extrairAlunos(itens){
         ){
 
 
-
             alunos.push({
 
+                numero,
 
-                numero:numero,
+                nome,
 
-
-                nome:nome,
-
-
-                sexo:sexo,
-
+                sexo,
 
                 dataNascimento:data,
 
-
-                idade:idade
-
-
+                idade
 
             });
 
 
-
         }
-
-
 
 
 
@@ -288,35 +410,34 @@ function extrairAlunos(itens){
 
 
 
+    // remover duplicados pelo número
 
-    return alunos;
+    let alunosSemDuplicados = [];
 
-// Remover alunos duplicados pelo número
-
-let alunosSemDuplicados = [];
-
-let numerosExistentes = new Set();
+    let numeros = new Set();
 
 
-alunos.forEach(aluno=>{
+
+    alunos.forEach(aluno=>{
 
 
-    if(!numerosExistentes.has(aluno.numero)){
+        if(!numeros.has(aluno.numero)){
 
 
-        numerosExistentes.add(aluno.numero);
+            numeros.add(aluno.numero);
 
 
-        alunosSemDuplicados.push(aluno);
+            alunosSemDuplicados.push(aluno);
 
 
-    }
+        }
 
 
-});
+    });
 
 
-return alunosSemDuplicados;
-    
+
+    return alunosSemDuplicados;
+
 
 }
