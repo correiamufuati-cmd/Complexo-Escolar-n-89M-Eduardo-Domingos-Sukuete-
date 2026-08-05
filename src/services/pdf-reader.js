@@ -1,5 +1,4 @@
-alert("PDF-READER FOI CARREGADO DG");
-
+alert("PDF-READER CARREGADO");
 
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -12,47 +11,161 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
-    alert("FUNÇÃO LER PDF");
+    alert("A ler PDF...");
+
 
     const arrayBuffer = await file.arrayBuffer();
+
 
     const pdf = await pdfjsLib.getDocument({
         data: arrayBuffer
     }).promise;
 
 
+
     let textoCompleto = "";
+
 
 
     for(let i=1;i<=pdf.numPages;i++){
 
+
         const pagina = await pdf.getPage(i);
+
 
         const conteudo = await pagina.getTextContent();
 
 
-        const textoPagina = conteudo.items
-        .map(item=>item.str)
-        .join(" ");
+
+        let linhas = {};
 
 
-        textoCompleto += textoPagina + "\n";
+
+        conteudo.items.forEach(item=>{
+
+
+            const y = Math.round(item.transform[5]);
+
+
+            if(!linhas[y]){
+
+                linhas[y] = "";
+
+            }
+
+
+            linhas[y] += " " + item.str;
+
+
+        });
+
+
+
+        Object.keys(linhas)
+        .sort((a,b)=>b-a)
+        .forEach(y=>{
+
+
+            textoCompleto += 
+            linhas[y].trim()+"\n";
+
+
+        });
+
+
 
     }
 
 
+
     alert(
-        "Texto extraído: " + textoCompleto.length
+        "Texto extraído: "+textoCompleto.length
     );
 
 
-    alert(textoCompleto.substring(0,1000));
+
+    const alunos = extrairAlunos(textoCompleto);
+
+
+
+    alert(
+        "Alunos encontrados: "+alunos.length
+    );
+
 
 
     return {
-        quantidade:0,
-        alunos:[],
+
+        quantidade: alunos.length,
+
+        alunos: alunos,
+
         texto:textoCompleto
+
     };
+
+
+}
+
+
+
+
+function extrairAlunos(texto){
+
+
+    let alunos=[];
+
+
+    const linhas = texto.split("\n");
+
+
+
+    linhas.forEach(linha=>{
+
+
+        linha = linha.trim();
+
+
+
+        /*
+        Procura linhas que começam com número
+        */
+
+
+        const encontrado = linha.match(
+            /^(\d+)\s+(.+?)\s+([MF])\b/i
+        );
+
+
+
+        if(encontrado){
+
+
+            alunos.push({
+
+                numero:
+                encontrado[1],
+
+
+                nome:
+                encontrado[2].trim(),
+
+
+                sexo:
+                encontrado[3].toUpperCase()
+
+
+            });
+
+
+        }
+
+
+    });
+
+
+
+    return alunos;
+
 
 }
