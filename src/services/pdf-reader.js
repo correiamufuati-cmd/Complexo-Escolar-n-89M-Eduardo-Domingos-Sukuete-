@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO FINAL Fyf");
+alert("PDF-READER CARREGADO FINAL");
 
 
 import * as pdfjsLib from 
@@ -17,7 +17,6 @@ export async function lerPDF(file){
 
 
     const arrayBuffer = await file.arrayBuffer();
-
 
 
     const pdf = await pdfjsLib.getDocument({
@@ -95,6 +94,7 @@ export async function lerPDF(file){
 
 
 
+
 function extrairAlunos(itens){
 
 
@@ -104,7 +104,7 @@ function extrairAlunos(itens){
 
 
 
-    // juntar itens que pertencem à mesma linha
+    // juntar itens pela posição vertical
 
     itens.forEach(item=>{
 
@@ -132,7 +132,7 @@ function extrairAlunos(itens){
     Object.values(linhas).forEach(linha=>{
 
 
-        // ordenar pelas colunas
+        // ordenar pela posição horizontal
 
         linha.sort((a,b)=>a.x-b.x);
 
@@ -143,6 +143,16 @@ function extrairAlunos(itens){
         let sexo = "";
         let data = "";
         let idade = "";
+
+
+
+        // texto completo da linha
+
+        let linhaTexto = linha
+            .map(i=>i.texto)
+            .join(" ");
+
+
 
 
 
@@ -203,52 +213,55 @@ function extrairAlunos(itens){
 
 
 
-            // Data nascimento
-
-else if(
-    item.x >=300 &&
-    item.x <370
-){
-
-    data += " " + texto;
-
-}
-
-
-// Idade
-
-else if(item.x >=370){
-
-    idade += " " + texto;
-
-}
-
-
-
         });
 
 
 
 
-        numero = numero.trim();
-nome = nome.trim();
-sexo = sexo.trim();
-data = data.trim();
-idade = idade.trim();
 
+        // Procurar data na linha completa
 
-        // corrigir data separada
-
-        data = data
-        .replace(/\s+/g," ")
-        .trim();
-
-
-
-        data = data.replace(
-            /\s*-\s*/g,
-            "-"
+        let dataEncontrada = linhaTexto.match(
+            /\d{2}[-\/]\d{2}[-\/]\d{4}/
         );
+
+
+        if(dataEncontrada){
+
+            data = dataEncontrada[0];
+
+        }
+
+
+
+
+        // Procurar idade na linha completa
+
+        let idadeEncontrada = linhaTexto.match(
+            /\d+\s*(Anos|anos)/
+        );
+
+
+        if(idadeEncontrada){
+
+            idade = idadeEncontrada[0];
+
+        }
+
+
+
+
+
+        numero = numero.trim();
+
+        nome = nome.trim();
+
+        sexo = sexo.trim();
+
+        data = data.trim();
+
+        idade = idade.trim();
+
 
 
 
@@ -285,7 +298,9 @@ idade = idade.trim();
 
 
 
-    // remover duplicados
+
+
+    // remover números repetidos
 
     let resultado = [];
 
@@ -315,4 +330,4 @@ idade = idade.trim();
     return resultado;
 
 
-        }
+            }
