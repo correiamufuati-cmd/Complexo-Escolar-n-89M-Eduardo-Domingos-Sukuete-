@@ -1,10 +1,27 @@
 alert("ENTROU NO STUDENTS JS");
 
-
 import { app } from "./firebase.js";
 
+alert("FIREBASE OK");
 
-alert("FIREBASE CARREGADO");
+import { lerPDF } from "./pdf-reader.js";
+
+alert("PDF OK");
+
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    addDoc,
+    updateDoc,
+    doc,
+    deleteDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+
+alert("FIRESTORE OK");
+
 
 // Elementos
 
