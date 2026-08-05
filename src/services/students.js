@@ -1,9 +1,10 @@
 alert("ENTROU NO STUDENTS JS");
 
 
-const db = getFirestore(app);
+import { app } from "./firebase.js";
 
-alert("Firebase carregado");
+
+alert("FIREBASE CARREGADO");
 
 // Elementos
 
