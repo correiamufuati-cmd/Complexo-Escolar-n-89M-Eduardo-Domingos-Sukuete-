@@ -1,4 +1,4 @@
-alert("PDF-READER FOI CARREGADO Df");
+alert("PDF-READER FOI CARREGADO DG");
 
 
 import * as pdfjsLib from 
@@ -12,31 +12,23 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
-
-    alert("A abrir PDF");
-
+    alert("FUNÇÃO LER PDF");
 
     const arrayBuffer = await file.arrayBuffer();
-
 
     const pdf = await pdfjsLib.getDocument({
         data: arrayBuffer
     }).promise;
 
 
-
     let textoCompleto = "";
-
 
 
     for(let i=1;i<=pdf.numPages;i++){
 
-
         const pagina = await pdf.getPage(i);
 
-
         const conteudo = await pagina.getTextContent();
-
 
 
         const textoPagina = conteudo.items
@@ -44,29 +36,23 @@ export async function lerPDF(file){
         .join(" ");
 
 
-
         textoCompleto += textoPagina + "\n";
-
 
     }
 
 
-
     alert(
-        "Texto extraído: " + textoCompleto.length + " caracteres"
+        "Texto extraído: " + textoCompleto.length
     );
 
 
+    alert(textoCompleto.substring(0,1000));
+
 
     return {
-
         quantidade:0,
-
         alunos:[],
-
         texto:textoCompleto
-
     };
 
-
-        }
+}
