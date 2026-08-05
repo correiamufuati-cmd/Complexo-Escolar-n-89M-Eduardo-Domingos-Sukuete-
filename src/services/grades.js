@@ -1,61 +1,63 @@
-import {
-    addGrade,
-    getGradesBySchool
-} from "./grades.service.js";
+import { db } from "./firebase.js";
 
 import {
-    getClassesBySchool
-} from "./classes.service.js";
+    collection,
+    getDocs,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-import {
-    getStudentsBySchool
-} from "./students.service.js";
-
-
-const user = window.currentUser;
 
 
 const classSelect = document.getElementById("classSelect");
-const studentSelect = document.getElementById("studentSelect");
-const subjectInput = document.getElementById("subject");
-const gradeValue = document.getElementById("gradeValue");
-const saveButton = document.getElementById("saveGrade");
+const subject = document.getElementById("subject");
+const pautaBody = document.getElementById("pautaBody");
+const saveGrades = document.getElementById("saveGrades");
+
+const excelInput = document.getElementById("excelInput");
+const importExcel = document.getElementById("importExcel");
+
 const gradesList = document.getElementById("gradesList");
 
 
-let students = [];
+
+let alunos = [];
+let turmaSelecionada = "";
 
 
-// 🚀 iniciar página
-
-async function init(){
-
-    await loadClasses();
-
-    await loadGrades();
-
-}
 
 
-// 📚 carregar turmas
+// ==========================
+// CARREGAR TURMAS
+// ==========================
 
-async function loadClasses(){
 
-    const classes = await getClassesBySchool(user.schoolId);
+async function carregarTurmas(){
+
+
+    const turmas = await getDocs(
+        collection(db,"turmas")
+    );
 
 
     classSelect.innerHTML =
     `<option value="">Selecionar turma</option>`;
 
 
-    classes.forEach(c=>{
+    turmas.forEach(turma=>{
 
-        classSelect.innerHTML +=
-        `
-        <option value="${c.id}">
-            ${c.name} - ${c.level}
+
+        let dados = turma.data();
+
+
+        classSelect.innerHTML += `
+
+        <option value="${turma.id}">
+            ${dados.nome || turma.id}
         </option>
+
         `;
+
 
     });
 
@@ -64,47 +66,22 @@ async function loadClasses(){
 
 
 
-// 👨‍🎓 quando escolher turma
+
+// ==========================
+// QUANDO ESCOLHE TURMA
+// ==========================
+
 
 classSelect.addEventListener(
 "change",
 async()=>{
 
 
-    const classId = classSelect.value;
+    turmaSelecionada =
+    classSelect.value;
 
 
-    studentSelect.innerHTML =
-    `<option value="">Selecionar aluno</option>`;
-
-
-    if(!classId) return;
-
-
-    const allStudents =
-    await getStudentsBySchool(user.schoolId);
-
-
-
-    students =
-    allStudents.filter(
-        s=>s.classId === classId
-    );
-
-
-
-    students.forEach(s=>{
-
-
-        studentSelect.innerHTML +=
-        `
-        <option value="${s.id}">
-            ${s.name}
-        </option>
-        `;
-
-
-    });
+    await carregarAlunos();
 
 
 });
@@ -112,126 +89,481 @@ async()=>{
 
 
 
-// 💾 guardar nota
+// ==========================
+// CARREGAR ALUNOS DA TURMA
+// ==========================
 
 
-saveButton.addEventListener(
-"click",
-async()=>{
+async function carregarAlunos(){
 
 
-    const studentId =
-    studentSelect.value;
+    pautaBody.innerHTML =
+    "A carregar alunos...";
 
 
-    const student =
-    students.find(
-        s=>s.id === studentId
+
+    alunos=[];
+
+
+
+    const dados =
+    await getDocs(
+
+        collection(
+            db,
+            "turmas",
+            turmaSelecionada,
+            "alunos"
+        )
+
     );
 
 
-    const subject =
-    subjectInput.value;
+
+    dados.forEach(doc=>{
 
 
-    const value =
-    Number(gradeValue.value);
+        alunos.push({
 
+            id:doc.id,
 
+            ...doc.data()
 
-    if(!studentId || !subject || !value){
+        });
 
-        alert("Preencha todos os campos");
-
-        return;
-    }
-
-
-
-    await addGrade({
-
-        studentId,
-
-        studentName:
-        student.name,
-
-        classId:
-        classSelect.value,
-
-        subject,
-
-        value,
-
-        schoolId:
-        user.schoolId
 
     });
 
 
 
-    alert("Nota guardada com sucesso");
 
-
-    gradeValue.value="";
-
-
-    await loadGrades();
-
-
-
-});
-
-
-
-
-// 📋 listar notas
-
-
-async function loadGrades(){
-
-
-    const grades =
-    await getGradesBySchool(
-        user.schoolId
+    alunos.sort(
+        (a,b)=>
+        Number(a.numero)-Number(b.numero)
     );
 
 
-    gradesList.innerHTML="";
 
-
-
-    grades.forEach(g=>{
-
-
-        gradesList.innerHTML +=
-        `
-        <div style="
-        padding:10px;
-        border:1px solid #ccc;
-        margin:5px;
-        ">
-
-        <b>${g.studentName}</b>
-
-        <br>
-
-        Disciplina:
-        ${g.subject}
-
-        <br>
-
-        Nota:
-        ${g.value}
-
-        </div>
-        `;
-
-
-    });
+    mostrarPauta();
 
 
 }
 
 
 
-init();
+
+// ==========================
+// MOSTRAR MINI PAUTA
+// ==========================
+
+
+function mostrarPauta(){
+
+
+    pautaBody.innerHTML="";
+
+
+
+    alunos.forEach((aluno,index)=>{
+
+
+        pautaBody.innerHTML += `
+
+<tr>
+
+
+<td>
+${aluno.numero || index+1}
+</td>
+
+
+<td>
+${aluno.nome}
+</td>
+
+
+
+<td>
+
+<input 
+type="number"
+min="0"
+max="20"
+class="mac"
+data-id="${aluno.id}"
+>
+
+</td>
+
+
+
+
+<td>
+
+<input 
+type="number"
+min="0"
+max="20"
+class="npt"
+data-id="${aluno.id}"
+>
+
+</td>
+
+
+
+
+<td class="mf"
+id="mf-${aluno.id}">
+0
+</td>
+
+
+</tr>
+
+`;
+
+
+
+    });
+
+
+
+    ativarCalculo();
+
+}
+
+
+
+
+
+// ==========================
+// CALCULAR MF
+// ==========================
+
+
+function ativarCalculo(){
+
+
+const campos =
+document.querySelectorAll(
+".mac,.npt"
+);
+
+
+
+campos.forEach(campo=>{
+
+
+campo.addEventListener(
+"input",
+()=>{
+
+
+const id =
+campo.dataset.id;
+
+
+
+const mac =
+Number(
+document.querySelector(
+`.mac[data-id="${id}"]`
+).value
+)
+||0;
+
+
+
+const npt =
+Number(
+document.querySelector(
+`.npt[data-id="${id}"]`
+).value
+)
+||0;
+
+
+
+const mf =
+Math.round(
+(mac+npt)/2
+);
+
+
+
+document.getElementById(
+"mf-"+id
+).innerText =
+mf;
+
+
+
+});
+
+
+
+});
+
+
+}
+
+
+
+
+// ==========================
+// GUARDAR MINI PAUTA
+// ==========================
+
+
+saveGrades.addEventListener(
+"click",
+async()=>{
+
+
+if(!subject.value){
+
+alert("Digite a disciplina");
+
+return;
+
+}
+
+
+
+
+const macs =
+document.querySelectorAll(".mac");
+
+
+for(const campo of macs){
+
+
+const id =
+campo.dataset.id;
+
+
+
+const aluno =
+alunos.find(
+a=>a.id===id
+);
+
+
+
+const mac =
+Number(campo.value)||0;
+
+
+
+const npt =
+Number(
+document.querySelector(
+`.npt[data-id="${id}"]`
+).value
+)||0;
+
+
+
+const mf =
+Math.round(
+(mac+npt)/2
+);
+
+
+
+await addDoc(
+
+collection(
+db,
+"turmas",
+turmaSelecionada,
+"alunos",
+id,
+"notas"
+),
+
+{
+
+
+disciplina:
+subject.value,
+
+
+MAC:mac,
+
+
+NPT:npt,
+
+
+MF:mf,
+
+
+criadoEm:
+serverTimestamp()
+
+
+}
+
+
+);
+
+
+
+}
+
+
+
+alert(
+"Mini-pauta guardada com sucesso"
+);
+
+
+
+});
+
+
+
+
+
+
+
+// ==========================
+// IMPORTAR DO EXCEL
+// ==========================
+
+
+importExcel.addEventListener(
+"click",
+async()=>{
+
+
+const texto =
+excelInput.value.trim();
+
+
+
+if(!texto){
+
+alert("Cole os dados do Excel");
+
+return;
+
+}
+
+
+
+const linhas =
+texto.split("\n");
+
+
+
+for(const linha of linhas){
+
+
+
+const dados =
+linha.split(";");
+
+
+
+if(dados.length < 4){
+
+continue;
+
+}
+
+
+
+
+const numero =
+dados[0].trim();
+
+
+
+const mac =
+Number(dados[2]);
+
+
+
+const npt =
+Number(dados[3]);
+
+
+
+
+const aluno =
+alunos.find(
+a=>String(a.numero)===numero
+);
+
+
+
+if(!aluno){
+
+continue;
+
+}
+
+
+
+
+await addDoc(
+
+collection(
+db,
+"turmas",
+turmaSelecionada,
+"alunos",
+aluno.id,
+"notas"
+),
+
+
+{
+
+
+disciplina:
+subject.value,
+
+
+MAC:mac,
+
+
+NPT:npt,
+
+
+MF:
+Math.round(
+(mac+npt)/2
+),
+
+
+criadoEm:
+serverTimestamp()
+
+
+}
+
+
+);
+
+
+
+}
+
+
+
+alert(
+"Notas importadas!"
+);
+
+
+
+});
+
+
+
+
+
+carregarTurmas();
