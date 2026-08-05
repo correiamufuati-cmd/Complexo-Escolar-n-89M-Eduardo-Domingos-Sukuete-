@@ -1,72 +1,200 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Notas</title>
-    <link rel="stylesheet" href="../styles/dashboard.css">
+<meta charset="UTF-8">
+<title>Mini-Pauta</title>
+
+<link rel="stylesheet" href="../styles/dashboard.css">
+
+<style>
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th{
+    background:#1976d2;
+    color:white;
+    padding:8px;
+}
+
+td{
+    border:1px solid #ddd;
+    padding:6px;
+}
+
+input{
+    width:80px;
+    padding:5px;
+}
+
+button{
+    padding:10px;
+    margin-top:15px;
+    cursor:pointer;
+}
+
+.importar{
+    margin-top:30px;
+}
+
+textarea{
+    width:100%;
+    height:150px;
+}
+
+</style>
+
 </head>
+
 
 <body>
 
+
 <div class="main">
 
-    <h1>Gestão de Notas</h1>
 
-
-    <div class="section">
-
-        <h2>Lançar Nota</h2>
-
-
-        <label>Turma</label>
-        <select id="classSelect">
-            <option value="">Selecionar turma</option>
-        </select>
-
-
-        <label>Disciplina</label>
-        <input 
-            type="text" 
-            id="subject"
-            placeholder="Ex: Matemática"
-        >
-
-
-        <label>Aluno</label>
-        <select id="studentSelect">
-            <option value="">Selecionar aluno</option>
-        </select>
-
-
-        <label>Nota</label>
-        <input 
-            type="number"
-            id="gradeValue"
-            min="0"
-            max="20"
-            placeholder="Nota 0-20"
-        >
-
-
-        <button id="saveGrade">
-            Guardar Nota
-        </button>
-
-
-    </div>
+<h1>Gestão de Notas - Mini Pauta</h1>
 
 
 
-    <div class="section">
+<div class="section">
 
-        <h2>Notas lançadas</h2>
 
-        <div id="gradesList"></div>
+<label>Turma</label>
 
-    </div>
+<select id="classSelect">
+
+<option>
+Selecionar turma
+</option>
+
+</select>
+
+
+
+<label>Disciplina</label>
+
+<input 
+id="subject"
+placeholder="Ex: Matemática"
+>
+
+
 
 
 </div>
+
+
+
+
+<div class="section">
+
+
+<h2>Mini Pauta</h2>
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>Nº</th>
+
+<th>Nome</th>
+
+<th>MAC</th>
+
+<th>NPT</th>
+
+<th>MF</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody id="pautaBody">
+
+
+</tbody>
+
+
+
+</table>
+
+
+
+<button id="saveGrades">
+
+Guardar Mini-Pauta
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="section importar">
+
+
+<h2>Importar do Excel</h2>
+
+
+<p>
+Cole aqui os dados copiados do Excel:
+<br>
+
+Número ; Nome ; MAC ; NPT
+
+</p>
+
+
+
+<textarea id="excelInput"></textarea>
+
+
+
+<button id="importExcel">
+
+Importar Notas
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<div class="section">
+
+
+<h2>Resultado</h2>
+
+
+<div id="gradesList"></div>
+
+
+</div>
+
+
+
+</div>
+
 
 
 
@@ -74,4 +202,5 @@
 
 
 </body>
-      </html>
+
+    </html>
