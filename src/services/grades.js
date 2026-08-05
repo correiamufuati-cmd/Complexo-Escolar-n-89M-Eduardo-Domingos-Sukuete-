@@ -12,25 +12,24 @@ import {
 const classSelect = document.getElementById("classSelect");
 const subject = document.getElementById("subject");
 const pautaBody = document.getElementById("pautaBody");
+
 const saveGrades = document.getElementById("saveGrades");
 
 const excelInput = document.getElementById("excelInput");
 const importExcel = document.getElementById("importExcel");
 
-const gradesList = document.getElementById("gradesList");
 
 
-
-let alunos = [];
 let turmaSelecionada = "";
 
+let alunos = [];
 
 
 
-// ==========================
+
+// ===============================
 // CARREGAR TURMAS
-// ==========================
-
+// ===============================
 
 async function carregarTurmas(){
 
@@ -41,19 +40,22 @@ async function carregarTurmas(){
 
 
     classSelect.innerHTML =
-    `<option value="">Selecionar turma</option>`;
+    `<option value="">
+    Selecionar turma
+    </option>`;
 
 
     turmas.forEach(turma=>{
 
 
-        let dados = turma.data();
+        const dados = turma.data();
 
 
-        classSelect.innerHTML += `
+        classSelect.innerHTML +=
+        `
 
         <option value="${turma.id}">
-            ${dados.nome || turma.id}
+        ${dados.nome || turma.id}
         </option>
 
         `;
@@ -67,9 +69,10 @@ async function carregarTurmas(){
 
 
 
-// ==========================
-// QUANDO ESCOLHE TURMA
-// ==========================
+
+// ===============================
+// ESCOLHER TURMA
+// ===============================
 
 
 classSelect.addEventListener(
@@ -81,7 +84,12 @@ async()=>{
     classSelect.value;
 
 
+
     await carregarAlunos();
+
+
+    await carregarDisciplinas();
+
 
 
 });
@@ -89,9 +97,81 @@ async()=>{
 
 
 
-// ==========================
-// CARREGAR ALUNOS DA TURMA
-// ==========================
+
+
+
+// ===============================
+// CARREGAR DISCIPLINAS
+// ===============================
+
+
+async function carregarDisciplinas(){
+
+
+    subject.innerHTML =
+    `
+    <option value="">
+    Selecionar disciplina
+    </option>
+    `;
+
+
+
+    if(!turmaSelecionada){
+
+        return;
+
+    }
+
+
+
+    const disciplinas =
+    await getDocs(
+
+        collection(
+            db,
+            "turmas",
+            turmaSelecionada,
+            "disciplinas"
+        )
+
+    );
+
+
+
+    disciplinas.forEach(doc=>{
+
+
+        const dados =
+        doc.data();
+
+
+
+        subject.innerHTML +=
+        `
+
+        <option value="${dados.nome}">
+        ${dados.nome}
+        </option>
+
+        `;
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// CARREGAR ALUNOS
+// ===============================
 
 
 async function carregarAlunos(){
@@ -136,7 +216,6 @@ async function carregarAlunos(){
 
 
 
-
     alunos.sort(
         (a,b)=>
         Number(a.numero)-Number(b.numero)
@@ -147,14 +226,18 @@ async function carregarAlunos(){
     mostrarPauta();
 
 
+
 }
 
 
 
 
-// ==========================
-// MOSTRAR MINI PAUTA
-// ==========================
+
+
+
+// ===============================
+// MOSTRAR PAUTA
+// ===============================
 
 
 function mostrarPauta(){
@@ -164,16 +247,16 @@ function mostrarPauta(){
 
 
 
-    alunos.forEach((aluno,index)=>{
+    alunos.forEach(aluno=>{
 
 
-        pautaBody.innerHTML += `
+        pautaBody.innerHTML +=
+        `
 
 <tr>
 
-
 <td>
-${aluno.numero || index+1}
+${aluno.numero}
 </td>
 
 
@@ -182,39 +265,33 @@ ${aluno.nome}
 </td>
 
 
-
 <td>
 
 <input 
-type="number"
-min="0"
-max="20"
 class="mac"
 data-id="${aluno.id}"
->
+type="number"
+min="0"
+max="20">
 
 </td>
-
 
 
 
 <td>
 
 <input 
-type="number"
-min="0"
-max="20"
 class="npt"
 data-id="${aluno.id}"
->
+type="number"
+min="0"
+max="20">
 
 </td>
 
 
 
-
-<td class="mf"
-id="mf-${aluno.id}">
+<td id="mf-${aluno.id}">
 0
 </td>
 
@@ -229,7 +306,8 @@ id="mf-${aluno.id}">
 
 
 
-    ativarCalculo();
+    calcularMF();
+
 
 }
 
@@ -237,31 +315,27 @@ id="mf-${aluno.id}">
 
 
 
-// ==========================
+
+// ===============================
 // CALCULAR MF
-// ==========================
+// ===============================
 
 
-function ativarCalculo(){
+function calcularMF(){
 
 
-const campos =
-document.querySelectorAll(
-".mac,.npt"
-);
+document
+.querySelectorAll(".mac,.npt")
+.forEach(input=>{
 
 
-
-campos.forEach(campo=>{
-
-
-campo.addEventListener(
+input.addEventListener(
 "input",
 ()=>{
 
 
 const id =
-campo.dataset.id;
+input.dataset.id;
 
 
 
@@ -270,89 +344,7 @@ Number(
 document.querySelector(
 `.mac[data-id="${id}"]`
 ).value
-)
-||0;
-
-
-
-const npt =
-Number(
-document.querySelector(
-`.npt[data-id="${id}"]`
-).value
-)
-||0;
-
-
-
-const mf =
-Math.round(
-(mac+npt)/2
-);
-
-
-
-document.getElementById(
-"mf-"+id
-).innerText =
-mf;
-
-
-
-});
-
-
-
-});
-
-
-}
-
-
-
-
-// ==========================
-// GUARDAR MINI PAUTA
-// ==========================
-
-
-saveGrades.addEventListener(
-"click",
-async()=>{
-
-
-if(!subject.value){
-
-alert("Digite a disciplina");
-
-return;
-
-}
-
-
-
-
-const macs =
-document.querySelectorAll(".mac");
-
-
-for(const campo of macs){
-
-
-const id =
-campo.dataset.id;
-
-
-
-const aluno =
-alunos.find(
-a=>a.id===id
-);
-
-
-
-const mac =
-Number(campo.value)||0;
+)||0;
 
 
 
@@ -365,57 +357,11 @@ document.querySelector(
 
 
 
-const mf =
+document.getElementById(
+"mf-"+id
+).innerHTML =
 Math.round(
 (mac+npt)/2
-);
-
-
-
-await addDoc(
-
-collection(
-db,
-"turmas",
-turmaSelecionada,
-"alunos",
-id,
-"notas"
-),
-
-{
-
-
-disciplina:
-subject.value,
-
-
-MAC:mac,
-
-
-NPT:npt,
-
-
-MF:mf,
-
-
-criadoEm:
-serverTimestamp()
-
-
-}
-
-
-);
-
-
-
-}
-
-
-
-alert(
-"Mini-pauta guardada com sucesso"
 );
 
 
@@ -424,28 +370,31 @@ alert(
 
 
 
+});
+
+
+}
 
 
 
 
-// ==========================
-// IMPORTAR DO EXCEL
-// ==========================
 
 
-importExcel.addEventListener(
+// ===============================
+// GUARDAR PAUTA
+// ===============================
+
+
+saveGrades.addEventListener(
 "click",
 async()=>{
 
 
-const texto =
-excelInput.value.trim();
+if(!subject.value){
 
-
-
-if(!texto){
-
-alert("Cole os dados do Excel");
+alert(
+"Selecione a disciplina"
+);
 
 return;
 
@@ -453,58 +402,25 @@ return;
 
 
 
-const linhas =
-texto.split("\n");
-
-
-
-for(const linha of linhas){
-
-
-
-const dados =
-linha.split(";");
-
-
-
-if(dados.length < 4){
-
-continue;
-
-}
-
-
-
-
-const numero =
-dados[0].trim();
-
+for(const aluno of alunos){
 
 
 const mac =
-Number(dados[2]);
+Number(
+document.querySelector(
+`.mac[data-id="${aluno.id}"]`
+)?.value
+)||0;
 
 
 
 const npt =
-Number(dados[3]);
-
-
-
-
-const aluno =
-alunos.find(
-a=>String(a.numero)===numero
-);
-
-
-
-if(!aluno){
-
-continue;
-
-}
-
+Number(
+document.querySelector(
+`.npt[data-id="${aluno.id}"]`
+)?.value
+)
+||0;
 
 
 
@@ -519,9 +435,7 @@ aluno.id,
 "notas"
 ),
 
-
 {
-
 
 disciplina:
 subject.value,
@@ -542,9 +456,7 @@ Math.round(
 criadoEm:
 serverTimestamp()
 
-
 }
-
 
 );
 
@@ -555,12 +467,128 @@ serverTimestamp()
 
 
 alert(
-"Notas importadas!"
+"Mini-pauta guardada"
 );
 
 
 
 });
+
+
+
+
+
+
+// ===============================
+// IMPORTAR EXCEL
+// ===============================
+
+
+importExcel.addEventListener(
+"click",
+async()=>{
+
+
+const linhas =
+excelInput.value
+.trim()
+.split("\n");
+
+
+
+for(const linha of linhas){
+
+
+
+const dados =
+linha.split(";");
+
+
+
+if(dados.length < 4){
+
+continue;
+
+}
+
+
+
+const numero =
+dados[0].trim();
+
+
+
+const aluno =
+alunos.find(
+a=>String(a.numero)===numero
+);
+
+
+
+if(!aluno){
+
+continue;
+
+}
+
+
+
+const mac =
+Number(dados[2]);
+
+
+
+const npt =
+Number(dados[3]);
+
+
+
+await addDoc(
+
+collection(
+db,
+"turmas",
+turmaSelecionada,
+"alunos",
+aluno.id,
+"notas"
+),
+
+{
+
+disciplina:
+subject.value,
+
+MAC:mac,
+
+NPT:npt,
+
+MF:
+Math.round(
+(mac+npt)/2
+),
+
+criadoEm:
+serverTimestamp()
+
+}
+
+);
+
+
+
+}
+
+
+
+alert(
+"Notas importadas com sucesso"
+);
+
+
+
+});
+
 
 
 
