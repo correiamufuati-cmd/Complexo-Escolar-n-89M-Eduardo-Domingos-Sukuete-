@@ -1,36 +1,93 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Professores</title>
-  <link rel="stylesheet" href="../styles/dashboard.css">
+
+<meta charset="UTF-8">
+
+<title>Professores</title>
+
+<link rel="stylesheet" href="../styles/dashboard.css">
+
 </head>
+
 
 <body>
 
-  <div class="main">
 
-    <h1>Gestão de Professores</h1>
+<div class="main">
 
-    <!-- FORMULÁRIO -->
-    <div class="section">
-      <h2>Adicionar Professor</h2>
 
-      <input type="text" id="name" placeholder="Nome do professor">
-      <input type="text" id="subjects" placeholder="Disciplinas">
+<h1>Gestão de Professores</h1>
 
-      <button id="addBtn">Adicionar</button>
-    </div>
 
-    <!-- LISTA -->
-    <div class="section">
-      <h2>Lista de Professores</h2>
-      <div id="teachersList"></div>
-    </div>
 
-  </div>
+<div class="section">
 
-  <script type="module" src="../services/teachers.js"></script>
+
+<h2>Adicionar Professor</h2>
+
+
+<input 
+id="name"
+placeholder="Nome do professor">
+
+
+
+<input 
+id="email"
+placeholder="Email">
+
+
+
+<h3>Disciplinas</h3>
+
+<select id="disciplinas" multiple>
+
+</select>
+
+
+
+<h3>Turmas</h3>
+
+<select id="turmas" multiple>
+
+</select>
+
+
+
+<button id="addBtn">
+
+Adicionar Professor
+
+</button>
+
+
+</div>
+
+
+
+
+<div class="section">
+
+
+<h2>Lista de Professores</h2>
+
+
+<div id="teachersList"></div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+<script type="module" src="../services/teachers.js"></script>
+
 
 </body>
-</html>
+
+  </html>
