@@ -291,6 +291,32 @@ function extrairAlunos(itens){
 
     return alunos;
 
+// Remover alunos duplicados pelo número
 
+let alunosSemDuplicados = [];
+
+let numerosExistentes = new Set();
+
+
+alunos.forEach(aluno=>{
+
+
+    if(!numerosExistentes.has(aluno.numero)){
+
+
+        numerosExistentes.add(aluno.numero);
+
+
+        alunosSemDuplicados.push(aluno);
+
+
+    }
+
+
+});
+
+
+return alunosSemDuplicados;
+    
 
 }
