@@ -1,21 +1,17 @@
 import { db } from "./firebase.js";
 
 import {
-    collection,
-    getDocs,
-    addDoc,
-    serverTimestamp,
-    deleteDoc,
-    doc,
-    updateDoc
+collection,
+getDocs,
+addDoc,
+deleteDoc,
+doc,
+serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
 
-// ===============================
 // CAMPOS
-// ===============================
-
 
 const nomeProfessor =
 document.getElementById("nomeProfessor");
@@ -25,35 +21,35 @@ const emailProfessor =
 document.getElementById("emailProfessor");
 
 
-const turmasProfessor =
-document.getElementById("turmasProfessor");
+const nivelEnsino =
+document.getElementById("nivelEnsino");
 
 
-const disciplinasProfessor =
-document.getElementById("disciplinasProfessor");
+const listaDisciplinas =
+document.getElementById("listaDisciplinas");
+
+
+const listaTurmas =
+document.getElementById("listaTurmas");
 
 
 const guardarProfessor =
 document.getElementById("guardarProfessor");
 
 
-const listaProfessores =
-document.getElementById("listaProfessores");
-
-
-
-let turmas = [];
+const tabelaProfessores =
+document.getElementById("tabelaProfessores");
 
 
 
 
 
-// ===============================
-// GERAR CÓDIGO PROFESSOR
-// ===============================
+// ==========================
+// GERAR CÓDIGO
+// ==========================
 
 
-function gerarCodigoProfessor(numero){
+function gerarCodigo(numero){
 
 
 return "PROF-" +
@@ -64,18 +60,15 @@ String(numero).padStart(3,"0");
 
 
 
-
-
-
-// ===============================
+// ==========================
 // GERAR SENHA
-// ===============================
+// ==========================
 
 
 function gerarSenha(){
 
 
-const letras =
+const caracteres =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 
@@ -85,10 +78,9 @@ let senha="";
 for(let i=0;i<6;i++){
 
 
-senha +=
-letras.charAt(
+senha += caracteres.charAt(
 Math.floor(
-Math.random()*letras.length
+Math.random()*caracteres.length
 )
 );
 
@@ -104,14 +96,137 @@ return senha;
 
 
 
+// ==========================
+// MUDAR NÍVEL
+// ==========================
 
 
-// ===============================
+nivelEnsino.addEventListener(
+"change",
+()=>{
+
+
+carregarDisciplinas();
+
+carregarTurmas();
+
+
+});
+
+
+
+
+
+
+// ==========================
+// CARREGAR DISCIPLINAS
+// ==========================
+
+
+async function carregarDisciplinas(){
+
+
+listaDisciplinas.innerHTML =
+"A carregar...";
+
+
+
+const ref =
+collection(
+db,
+"config"
+);
+
+
+
+const dados =
+await getDocs(ref);
+
+
+
+listaDisciplinas.innerHTML="";
+
+
+
+dados.forEach(item=>{
+
+
+if(item.id==="disciplinas"){
+
+
+const config =
+item.data();
+
+
+
+const nivel =
+config[nivelEnsino.value];
+
+
+
+if(!nivel){
+
+listaDisciplinas.innerHTML =
+"Nenhuma disciplina encontrada";
+
+return;
+
+}
+
+
+
+nivel.disciplinas?.forEach(d=>{
+
+
+listaDisciplinas.innerHTML +=
+`
+
+<div class="checkBox">
+
+<input 
+type="checkbox"
+class="disciplina"
+value="${d}">
+
+${d}
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+// ==========================
 // CARREGAR TURMAS
-// ===============================
+// ==========================
 
 
 async function carregarTurmas(){
+
+
+listaTurmas.innerHTML =
+"A carregar...";
+
 
 
 const dados =
@@ -121,11 +236,7 @@ collection(db,"turmas")
 
 
 
-turmas=[];
-
-
-
-turmasProfessor.innerHTML="";
+listaTurmas.innerHTML="";
 
 
 
@@ -137,110 +248,33 @@ item.data();
 
 
 
-turmas.push({
-
-id:item.id,
-
-...turma
-
-});
+if(
+turma.ensino === nivelEnsino.value
+){
 
 
 
-turmasProfessor.innerHTML +=
+listaTurmas.innerHTML +=
 `
 
-<option value="${item.id}">
+<div class="checkBox">
+
+<input 
+type="checkbox"
+class="turma"
+value="${item.id}">
 
 ${turma.nome}
 
-</option>
+</div>
+
 
 `;
 
 
 
-});
-
-
 }
 
-
-
-
-
-
-
-
-// ===============================
-// CARREGAR DISCIPLINAS
-// ===============================
-
-
-async function carregarDisciplinas(){
-
-
-const config =
-await getDocs(
-collection(db,"config")
-);
-
-
-
-disciplinasProfessor.innerHTML="";
-
-
-
-config.forEach(item=>{
-
-
-if(item.id==="disciplinas"){
-
-
-const dados =
-item.data();
-
-
-
-Object.values(dados)
-.forEach(nivel=>{
-
-
-Object.values(nivel)
-.forEach(classe=>{
-
-
-if(classe.disciplinas){
-
-
-classe.disciplinas.forEach(d=>{
-
-
-disciplinasProfessor.innerHTML +=
-`
-
-<option value="${d}">
-${d}
-</option>
-
-`;
-
-
-
-});
-
-
-}
-
-
-
-});
-
-
-});
-
-
-}
 
 
 });
@@ -254,10 +288,9 @@ ${d}
 
 
 
-
-// ===============================
+// ==========================
 // GUARDAR PROFESSOR
-// ===============================
+// ==========================
 
 
 guardarProfessor.addEventListener(
@@ -269,65 +302,59 @@ const nome =
 nomeProfessor.value.trim();
 
 
+
 const email =
 emailProfessor.value.trim();
 
 
 
-const turmasSelecionadas =
+const ensino =
+nivelEnsino.value;
+
+
+
+const disciplinas =
 Array.from(
-turmasProfessor.selectedOptions
+document.querySelectorAll(".disciplina:checked")
 )
 .map(
-op=>op.value
-);
-
-
-
-const disciplinasSelecionadas =
-Array.from(
-disciplinasProfessor.selectedOptions
-)
-.map(
-op=>op.value
+d=>d.value
 );
 
 
 
 
-if(!nome || turmasSelecionadas.length===0){
+const turmas =
+Array.from(
+document.querySelectorAll(".turma:checked")
+)
+.map(
+t=>t.value
+);
+
+
+
+
+
+if(
+!nome ||
+!ensino ||
+disciplinas.length===0 ||
+turmas.length===0
+){
 
 
 alert(
-"Preencha nome e selecione turmas"
+"Preencha todos os campos"
 );
 
 
 return;
 
-
 }
 
 
 
-
-// descobrir ensino automaticamente
-
-
-const primeiraTurma =
-turmas.find(
-t=>t.id===turmasSelecionadas[0]
-);
-
-
-
-const ensino =
-primeiraTurma?.ensino || "";
-
-
-
-
-// buscar quantidade de professores
 
 
 const professores =
@@ -343,6 +370,7 @@ professores.size + 1;
 
 
 
+
 await addDoc(
 
 collection(db,"professores"),
@@ -351,7 +379,7 @@ collection(db,"professores"),
 
 
 codigoProfessor:
-gerarCodigoProfessor(numero),
+gerarCodigo(numero),
 
 
 
@@ -365,13 +393,11 @@ ensino,
 
 
 
-turmas:
-turmasSelecionadas,
+disciplinas,
 
 
 
-disciplinas:
-disciplinasSelecionadas,
+turmas,
 
 
 
@@ -390,7 +416,6 @@ serverTimestamp()
 
 }
 
-
 );
 
 
@@ -407,7 +432,6 @@ nomeProfessor.value="";
 emailProfessor.value="";
 
 
-
 carregarProfessores();
 
 
@@ -422,12 +446,13 @@ carregarProfessores();
 
 
 
-// ===============================
+// ==========================
 // LISTAR PROFESSORES
-// ===============================
+// ==========================
 
 
 async function carregarProfessores(){
+
 
 
 const dados =
@@ -437,7 +462,7 @@ collection(db,"professores")
 
 
 
-listaProfessores.innerHTML="";
+tabelaProfessores.innerHTML="";
 
 
 
@@ -449,75 +474,73 @@ item.data();
 
 
 
-listaProfessores.innerHTML +=
+tabelaProfessores.innerHTML +=
 `
 
-<div style="
-border:1px solid #ccc;
-padding:10px;
-margin:5px;
-">
+<tr>
 
-
-<b>
+<td>
 ${p.codigoProfessor || ""}
-</b>
+</td>
 
 
-<br>
+<td>
+${p.nome || ""}
+</td>
 
-Nome:
-${p.nome}
+
+<td>
+${p.email || ""}
+</td>
 
 
-<br>
-
-Ensino:
+<td>
 ${p.ensino || ""}
+</td>
 
 
-<br>
-
-Turmas:
-${p.turmas?.length || 0}
-
-
-<br>
-
-Disciplinas:
+<td>
 ${p.disciplinas?.join(", ") || ""}
+</td>
 
 
-<br>
+<td>
+${p.turmas?.length || 0}
+turmas
+</td>
 
-Senha:
-${p.senhaAcesso || ""}
+
+<td>
+${p.ativo ? "Ativo":"Inativo"}
+</td>
 
 
-<br><br>
+
+<td>
 
 
 <button onclick="verProfessor('${item.id}')">
-
-👁️ Ver
-
+👁️
 </button>
 
 
 <button onclick="apagarProfessor('${item.id}')">
-
-🗑️ Apagar
-
+🗑️
 </button>
 
 
-</div>
+</td>
+
+
+</tr>
+
 
 `;
 
 
 
 });
+
 
 
 }
@@ -527,30 +550,65 @@ ${p.senhaAcesso || ""}
 
 
 
-// ===============================
+// ==========================
 // VER
-// ===============================
+// ==========================
 
 
 window.verProfessor =
 async(id)=>{
 
 
-const ref =
-doc(
-db,
-"professores",
-id
+const dados =
+await getDocs(
+collection(db,"professores")
 );
+
+
+
+dados.forEach(p=>{
+
+
+if(p.id===id){
+
+
+const professor =
+p.data();
 
 
 
 alert(
-JSON.stringify(
-(await getDocs(collection(db,"professores")))
-,null,2
-)
+
+`
+Código:
+${professor.codigoProfessor}
+
+
+Nome:
+${professor.nome}
+
+
+Senha:
+${professor.senhaAcesso}
+
+
+Disciplinas:
+${professor.disciplinas.join(", ")}
+
+
+Turmas:
+${professor.turmas.length}
+
+`
+
 );
+
+
+
+}
+
+
+});
 
 
 };
@@ -560,16 +618,20 @@ JSON.stringify(
 
 
 
-// ===============================
+
+
+// ==========================
 // APAGAR
-// ===============================
+// ==========================
 
 
 window.apagarProfessor =
 async(id)=>{
 
 
-if(confirm("Apagar professor?")){
+if(
+confirm("Apagar professor?")
+){
 
 
 await deleteDoc(
@@ -581,12 +643,10 @@ id
 );
 
 
-
 carregarProfessores();
 
 
 }
-
 
 
 };
@@ -595,10 +655,5 @@ carregarProfessores();
 
 
 
-
-
-carregarTurmas();
-
-carregarDisciplinas();
 
 carregarProfessores();
