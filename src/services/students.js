@@ -1,9 +1,8 @@
-alert("TESTE DFF 2");
+alert("TESTE DFg 1");
+
+import { app } from "./firebase.js";
 
 import { lerPDF } from "./pdf-reader.js";
-
-alert("IMPORT PDF OK");
-
 
 import {
     getFirestore,
@@ -17,7 +16,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-alert("TESTE 3");
+const db = getFirestore(app);
+
+
+alert("Firebase iniciado");
 
 
 // Elementos
