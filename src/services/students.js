@@ -1,5 +1,7 @@
 alert("students.js carregou");
 
+import { lerPDF } from "./pdf-reader.js";
+
 import { app } from "./firebase.js";
 
 import {
@@ -42,6 +44,10 @@ const guardarAluno = document.getElementById("guardarAluno");
 const listaImportar = document.getElementById("listaImportar");
 
 const importarAlunos = document.getElementById("importarAlunos");
+
+const arquivoPDF = document.getElementById("arquivoPDF");
+
+const importarPDF = document.getElementById("importarPDF");
 
 const listaAlunos = document.getElementById("listaAlunos");
 
@@ -569,6 +575,129 @@ criadoEm: serverTimestamp()
 
 });
 
+
+// =============================
+// IMPORTAR ALUNOS PELO PDF
+// =============================
+
+
+importarPDF.addEventListener("click", async()=>{
+
+
+    if(!turmaSelecionada){
+
+        alert("Selecione uma turma");
+
+        return;
+
+    }
+
+
+    const file = arquivoPDF.files[0];
+
+
+    if(!file){
+
+        alert("Selecione um PDF");
+
+        return;
+
+    }
+
+
+
+    try{
+
+
+        alert("A ler PDF...");
+
+
+        const resultado = await lerPDF(file);
+
+
+
+        alert(
+            "Alunos encontrados: "
+            + resultado.quantidade
+        );
+
+
+
+        for(const aluno of resultado.alunos){
+
+
+            await addDoc(
+
+                collection(
+                    db,
+                    "turmas",
+                    turmaSelecionada,
+                    "alunos"
+                ),
+
+
+                {
+
+                    numero: aluno.numero,
+
+                    nome: aluno.nome,
+
+                    sexo: aluno.sexo || "",
+
+                    turmaId: turmaSelecionada,
+
+
+                    turmaNome:
+                    turmaSelect.options[
+                    turmaSelect.selectedIndex
+                    ].text,
+
+
+                    codigoAluno:
+                    gerarCodigoAluno(aluno.numero),
+
+
+                    senhaAcesso:
+                    gerarSenha(),
+
+
+                    estado:"ativo",
+
+
+                    criadoEm:
+                    serverTimestamp()
+
+                }
+
+            );
+
+
+        }
+
+
+
+        alert(
+            "Importação concluída!"
+        );
+
+
+        carregarAlunos();
+
+
+
+    }catch(erro){
+
+
+        alert(
+            "Erro ao importar PDF: "
+            + erro.message
+        );
+
+
+    }
+
+
+});
 
 
 // PESQUISAR ALUNOS
