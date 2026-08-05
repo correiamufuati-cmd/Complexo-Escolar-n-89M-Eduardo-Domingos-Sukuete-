@@ -1,4 +1,4 @@
-alert("ENTROU NO STUDENTS JS");
+alert("ENTROU NSO STUDENTS JS");
 
 import { app } from "./firebase.js";
 
