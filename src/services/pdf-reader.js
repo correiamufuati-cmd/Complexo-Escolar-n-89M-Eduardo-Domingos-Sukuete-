@@ -11,7 +11,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
-    alert("A ler PDF...");
+    alert("A ler PDF do Franco...");
 
 
     const arrayBuffer = await file.arrayBuffer();
