@@ -1,4 +1,4 @@
-alert("TESTE DGF 1");
+alert("TESTE DFF 2");
 
 import { lerPDF } from "./pdf-reader.js";
 
@@ -80,12 +80,15 @@ async function carregarTurmas(){
         "<option>A procurar turmas...</option>";
 
 
-        const dados = await getDocs(
+        alert("Vou consultar Firestore");
+
+const dados = await getDocs(
     collection(db,"turmas")
 );
 
-alert("Turmas encontradas: " + dados.size);
+alert("Consulta terminou");
 
+alert("Quantidade: " + dados.size);
 
         if(dados.empty){
 
