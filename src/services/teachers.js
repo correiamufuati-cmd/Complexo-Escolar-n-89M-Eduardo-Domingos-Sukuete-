@@ -1,50 +1,105 @@
-import {
-addTeacher,
-getTeachersBySchool,
-deleteTeacher,
-updateTeacher
-} from "./teachers.service.js";
-
-
 import { db } from "./firebase.js";
 
-
 import {
-
-collection,
-getDocs
-
+    collection,
+    getDocs,
+    addDoc,
+    serverTimestamp,
+    deleteDoc,
+    doc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
 
-const user = window.currentUser;
+// ===============================
+// CAMPOS
+// ===============================
+
+
+const nomeProfessor =
+document.getElementById("nomeProfessor");
+
+
+const emailProfessor =
+document.getElementById("emailProfessor");
+
+
+const turmasProfessor =
+document.getElementById("turmasProfessor");
+
+
+const disciplinasProfessor =
+document.getElementById("disciplinasProfessor");
+
+
+const guardarProfessor =
+document.getElementById("guardarProfessor");
+
+
+const listaProfessores =
+document.getElementById("listaProfessores");
 
 
 
-const nameInput =
-document.getElementById("name");
-
-
-const emailInput =
-document.getElementById("email");
-
-
-const disciplinasSelect =
-document.getElementById("disciplinas");
-
-
-const turmasSelect =
-document.getElementById("turmas");
-
-
-const addBtn =
-document.getElementById("addBtn");
+let turmas = [];
 
 
 
-const teachersList =
-document.getElementById("teachersList");
+
+
+// ===============================
+// GERAR CÓDIGO PROFESSOR
+// ===============================
+
+
+function gerarCodigoProfessor(numero){
+
+
+return "PROF-" +
+String(numero).padStart(3,"0");
+
+
+}
+
+
+
+
+
+
+// ===============================
+// GERAR SENHA
+// ===============================
+
+
+function gerarSenha(){
+
+
+const letras =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+
+let senha="";
+
+
+for(let i=0;i<6;i++){
+
+
+senha +=
+letras.charAt(
+Math.floor(
+Math.random()*letras.length
+)
+);
+
+
+}
+
+
+return senha;
+
+
+}
 
 
 
@@ -66,22 +121,36 @@ collection(db,"turmas")
 
 
 
-turmasSelect.innerHTML="";
+turmas=[];
 
 
 
-dados.forEach(doc=>{
+turmasProfessor.innerHTML="";
+
+
+
+dados.forEach(item=>{
 
 
 const turma =
-doc.data();
+item.data();
 
 
 
-turmasSelect.innerHTML +=
+turmas.push({
+
+id:item.id,
+
+...turma
+
+});
+
+
+
+turmasProfessor.innerHTML +=
 `
 
-<option value="${doc.id}">
+<option value="${item.id}">
 
 ${turma.nome}
 
@@ -102,6 +171,7 @@ ${turma.nome}
 
 
 
+
 // ===============================
 // CARREGAR DISCIPLINAS
 // ===============================
@@ -110,33 +180,34 @@ ${turma.nome}
 async function carregarDisciplinas(){
 
 
-const ref =
+const config =
 await getDocs(
 collection(db,"config")
 );
 
 
 
-disciplinasSelect.innerHTML="";
+disciplinasProfessor.innerHTML="";
 
 
-// procura documento disciplinas
 
-ref.forEach(doc=>{
+config.forEach(item=>{
 
 
-if(doc.id==="disciplinas"){
+if(item.id==="disciplinas"){
 
 
 const dados =
-doc.data();
+item.data();
 
 
 
-Object.values(dados).forEach(ensino=>{
+Object.values(dados)
+.forEach(nivel=>{
 
 
-Object.values(ensino).forEach(classe=>{
+Object.values(nivel)
+.forEach(classe=>{
 
 
 if(classe.disciplinas){
@@ -145,7 +216,7 @@ if(classe.disciplinas){
 classe.disciplinas.forEach(d=>{
 
 
-disciplinasSelect.innerHTML +=
+disciplinasProfessor.innerHTML +=
 `
 
 <option value="${d}">
@@ -162,6 +233,7 @@ ${d}
 }
 
 
+
 });
 
 
@@ -174,7 +246,6 @@ ${d}
 });
 
 
-
 }
 
 
@@ -182,138 +253,260 @@ ${d}
 
 
 
+
+
 // ===============================
-// ADICIONAR PROFESSOR
+// GUARDAR PROFESSOR
 // ===============================
 
 
-addBtn.addEventListener(
+guardarProfessor.addEventListener(
 "click",
 async()=>{
 
 
-const disciplinas =
+const nome =
+nomeProfessor.value.trim();
+
+
+const email =
+emailProfessor.value.trim();
+
+
+
+const turmasSelecionadas =
 Array.from(
-disciplinasSelect.selectedOptions
+turmasProfessor.selectedOptions
 )
-.map(o=>o.value);
+.map(
+op=>op.value
+);
 
 
 
-const turmas =
+const disciplinasSelecionadas =
 Array.from(
-turmasSelect.selectedOptions
+disciplinasProfessor.selectedOptions
 )
-.map(o=>o.value);
+.map(
+op=>op.value
+);
 
 
 
 
-await addTeacher({
+if(!nome || turmasSelecionadas.length===0){
 
 
-name:
-nameInput.value,
+alert(
+"Preencha nome e selecione turmas"
+);
 
 
-email:
-emailInput.value,
+return;
 
 
-disciplinas,
+}
 
 
-turmas,
+
+
+// descobrir ensino automaticamente
+
+
+const primeiraTurma =
+turmas.find(
+t=>t.id===turmasSelecionadas[0]
+);
+
+
+
+const ensino =
+primeiraTurma?.ensino || "";
+
+
+
+
+// buscar quantidade de professores
+
+
+const professores =
+await getDocs(
+collection(db,"professores")
+);
+
+
+
+const numero =
+professores.size + 1;
+
+
+
+
+await addDoc(
+
+collection(db,"professores"),
+
+{
+
+
+codigoProfessor:
+gerarCodigoProfessor(numero),
+
+
+
+nome,
+
+email,
+
+
+
+ensino,
+
+
+
+turmas:
+turmasSelecionadas,
+
+
+
+disciplinas:
+disciplinasSelecionadas,
+
+
+
+senhaAcesso:
+gerarSenha(),
+
 
 
 ativo:true,
 
 
-schoolId:
-user.schoolId
+
+criadoEm:
+serverTimestamp()
 
 
-});
+}
 
 
-
-alert("Professor criado");
-
-
-
-loadTeachers();
-
-
-
-});
-
-
-
-
-
-
-
-// ===============================
-// LISTAR
-// ===============================
-
-
-async function loadTeachers(){
-
-
-
-const teachers =
-await getTeachersBySchool(
-user.schoolId
 );
 
 
 
-teachersList.innerHTML="";
+
+alert(
+"Professor cadastrado"
+);
 
 
 
-teachers.forEach(t=>{
+nomeProfessor.value="";
+
+emailProfessor.value="";
 
 
-teachersList.innerHTML +=
+
+carregarProfessores();
+
+
+
+});
+
+
+
+
+
+
+
+
+
+// ===============================
+// LISTAR PROFESSORES
+// ===============================
+
+
+async function carregarProfessores(){
+
+
+const dados =
+await getDocs(
+collection(db,"professores")
+);
+
+
+
+listaProfessores.innerHTML="";
+
+
+
+dados.forEach(item=>{
+
+
+const p =
+item.data();
+
+
+
+listaProfessores.innerHTML +=
 `
 
 <div style="
-padding:10px;
 border:1px solid #ccc;
+padding:10px;
 margin:5px;
 ">
 
 
-<b>${t.name}</b>
+<b>
+${p.codigoProfessor || ""}
+</b>
 
 
 <br>
 
-Email:
-${t.email || ""}
+Nome:
+${p.nome}
 
 
 <br>
 
-Disciplinas:
-${(t.disciplinas || []).join(", ")}
+Ensino:
+${p.ensino || ""}
 
 
 <br>
 
 Turmas:
-${(t.turmas || []).length}
+${p.turmas?.length || 0}
+
+
+<br>
+
+Disciplinas:
+${p.disciplinas?.join(", ") || ""}
+
+
+<br>
+
+Senha:
+${p.senhaAcesso || ""}
 
 
 <br><br>
 
 
+<button onclick="verProfessor('${item.id}')">
 
-<button onclick="removeTeacher('${t.id}')">
+👁️ Ver
 
-Eliminar
+</button>
+
+
+<button onclick="apagarProfessor('${item.id}')">
+
+🗑️ Apagar
 
 </button>
 
@@ -334,15 +527,66 @@ Eliminar
 
 
 
+// ===============================
+// VER
+// ===============================
 
-window.removeTeacher =
+
+window.verProfessor =
 async(id)=>{
 
 
-await deleteTeacher(id);
+const ref =
+doc(
+db,
+"professores",
+id
+);
 
 
-loadTeachers();
+
+alert(
+JSON.stringify(
+(await getDocs(collection(db,"professores")))
+,null,2
+)
+);
+
+
+};
+
+
+
+
+
+
+// ===============================
+// APAGAR
+// ===============================
+
+
+window.apagarProfessor =
+async(id)=>{
+
+
+if(confirm("Apagar professor?")){
+
+
+await deleteDoc(
+doc(
+db,
+"professores",
+id
+)
+);
+
+
+
+carregarProfessores();
+
+
+}
+
 
 
 };
@@ -357,4 +601,4 @@ carregarTurmas();
 
 carregarDisciplinas();
 
-loadTeachers();
+carregarProfessores();
