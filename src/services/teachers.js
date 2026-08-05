@@ -3,6 +3,7 @@ import { db } from "./firebase.js";
 import {
 collection,
 getDocs,
+getDoc,
 addDoc,
 deleteDoc,
 doc,
@@ -125,95 +126,88 @@ carregarTurmas();
 
 async function carregarDisciplinas(){
 
-
-listaDisciplinas.innerHTML =
-"A carregar...";
-
+    listaDisciplinas.innerHTML =
+    "A carregar disciplinas...";
 
 
-const ref =
-collection(
-db,
-"config"
-);
+    if(!nivelEnsino.value){
+        listaDisciplinas.innerHTML =
+        "Selecione o nível";
+        return;
+    }
 
 
-
-const dados =
-await getDocs(ref);
-
-
-
-listaDisciplinas.innerHTML="";
-
+    const referencia =
+    doc(
+        db,
+        "config",
+        "disciplinas"
+    );
 
 
-dados.forEach(item=>{
-
-
-if(item.id==="disciplinas"){
-
-
-const config =
-item.data();
+    const resultado =
+    await getDoc(referencia);
 
 
 
-const nivel =
-config[nivelEnsino.value];
+    if(!resultado.exists()){
+
+        listaDisciplinas.innerHTML =
+        "Configuração de disciplinas não encontrada";
+
+        return;
+    }
 
 
 
-if(!nivel){
-
-listaDisciplinas.innerHTML =
-"Nenhuma disciplina encontrada";
-
-return;
-
-}
+    const dados =
+    resultado.data();
 
 
 
-nivel.disciplinas?.forEach(d=>{
-
-
-listaDisciplinas.innerHTML +=
-`
-
-<div class="checkBox">
-
-<input 
-type="checkbox"
-class="disciplina"
-value="${d}">
-
-${d}
-
-</div>
-
-
-`;
+    const nivel =
+    dados[nivelEnsino.value];
 
 
 
-});
+    if(!nivel){
+
+        listaDisciplinas.innerHTML =
+        "Nenhuma disciplina para este nível";
+
+        return;
+    }
 
 
 
-}
+    listaDisciplinas.innerHTML="";
 
 
 
-});
+    nivel.disciplinas.forEach(disciplina=>{
+
+
+        listaDisciplinas.innerHTML +=
+        `
+
+        <div class="checkBox">
+
+        <input 
+        type="checkbox"
+        class="disciplina"
+        value="${disciplina}">
+
+        ${disciplina}
+
+        </div>
+
+        `;
+
+
+    });
 
 
 }
-
-
-
-
-
 
 
 // ==========================
