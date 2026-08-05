@@ -1,4 +1,4 @@
-alert("GRADES.JS CARREGOU Ds");
+alert("GRADES.JS CARREGOU Dg");
 
 import { db } from "./firebase.js";
 
@@ -156,13 +156,14 @@ async function carregarDisciplinas(){
 
 
 
+    // Ler dados da turma escolhida
+
     const turmaRef =
     doc(
         db,
         "turmas",
         turmaSelecionada
     );
-
 
 
     const turmaSnap =
@@ -180,23 +181,63 @@ async function carregarDisciplinas(){
 
 
 
-    const dados =
+    const turma =
     turmaSnap.data();
 
 
 
+    const ensino =
+    turma.ensino;
+
+
+    const classe =
+    turma.classe;
+
+
+
+    // Ler configuração das disciplinas
+
+
+    const configRef =
+    doc(
+        db,
+        "config",
+        "disciplinas"
+    );
+
+
+    const configSnap =
+    await getDoc(configRef);
+
+
+
+    if(!configSnap.exists()){
+
+        alert("Configuração não encontrada");
+
+        return;
+
+    }
+
+
+
+    const config =
+    configSnap.data();
+
+
+
     const disciplinas =
-    dados.disciplinas || [];
+    config[ensino][classe].disciplinas;
 
 
 
-    disciplinas.forEach(disciplina=>{
+    disciplinas.forEach(nome=>{
 
 
         subject.innerHTML +=
         `
-        <option value="${disciplina}">
-            ${disciplina}
+        <option value="${nome}">
+            ${nome}
         </option>
         `;
 
@@ -204,11 +245,8 @@ async function carregarDisciplinas(){
     });
 
 
-}
 
-
-
-
+        }
 
 
 // ===============================
