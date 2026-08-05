@@ -1,4 +1,4 @@
-alert("GRADES.JS CARREGOU");
+alert("GRADES.JS CARREGOU Df");
 
 import {
     collection,
@@ -32,41 +32,70 @@ let alunos = [];
 // CARREGAR TURMAS
 // ===============================
 
+
 async function carregarTurmas(){
 
-
-    const turmas = await getDocs(
-        collection(db,"turmas")
-    );
+    try{
 
 
-    classSelect.innerHTML =
-    `<option value="">
-    Selecionar turma
-    </option>`;
-
-
-    turmas.forEach(turma=>{
-
-
-        const dados = turma.data();
-
-
-        classSelect.innerHTML +=
+        classSelect.innerHTML =
         `
-
-        <option value="${turma.id}">
-        ${dados.nome || turma.id}
+        <option>
+        A carregar turmas...
         </option>
-
         `;
 
 
-    });
+        const dados =
+        await getDocs(
+            collection(db,"turmas")
+        );
 
 
-}
 
+        classSelect.innerHTML =
+        `
+        <option value="">
+        Selecionar turma
+        </option>
+        `;
+
+
+
+        dados.forEach(doc=>{
+
+
+            const turma =
+            doc.data();
+
+
+
+            classSelect.innerHTML +=
+            `
+            <option value="${doc.id}">
+                ${turma.nome} - ${turma.classe}
+            </option>
+            `;
+
+
+        });
+
+
+
+    }
+    catch(erro){
+
+
+        alert(
+            "Erro ao carregar turmas: "
+            + erro.message
+        );
+
+
+    }
+
+
+            }
 
 
 
