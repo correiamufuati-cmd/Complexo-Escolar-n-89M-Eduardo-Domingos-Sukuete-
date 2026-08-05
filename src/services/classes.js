@@ -1,4 +1,4 @@
-alert("VERSÃO NOVA DA CLASSES.JS");
+alert("VERSÃO NOVA DL CLASSES.JS");
 
 import { app } from "./firebase.js";
 
@@ -128,6 +128,11 @@ Object.keys(dados).join("\n")
 
         alert(
 "Ensino recebido pelo código: " + ensino
+);
+
+        alert(
+"Classes dentro de ensinoPrimario:\n\n" +
+Object.keys(dados.ensinoPrimario).join("\n")
 );
         
         alert(
