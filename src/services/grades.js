@@ -1,12 +1,11 @@
-import { db } from "./firebase.js";
-
 import {
     collection,
     getDocs,
     addDoc,
-    serverTimestamp
+    serverTimestamp,
+    doc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
 
 
 const classSelect = document.getElementById("classSelect");
@@ -116,7 +115,6 @@ async function carregarDisciplinas(){
     `;
 
 
-
     if(!turmaSelecionada){
 
         return;
@@ -125,44 +123,55 @@ async function carregarDisciplinas(){
 
 
 
-    const disciplinas =
-    await getDocs(
-
-        collection(
-            db,
-            "turmas",
-            turmaSelecionada,
-            "disciplinas"
-        )
-
+    const turmaRef =
+    doc(
+        db,
+        "turmas",
+        turmaSelecionada
     );
 
 
 
-    disciplinas.forEach(doc=>{
+    const turmaSnap =
+    await getDoc(turmaRef);
 
 
-        const dados =
-        doc.data();
 
+    if(!turmaSnap.exists()){
+
+        alert("Turma não encontrada");
+
+        return;
+
+    }
+
+
+
+    const dados =
+    turmaSnap.data();
+
+
+
+    const disciplinas =
+    dados.disciplinas || [];
+
+
+
+    disciplinas.forEach(disciplina=>{
 
 
         subject.innerHTML +=
         `
-
-        <option value="${dados.nome}">
-        ${dados.nome}
+        <option value="${disciplina}">
+            ${disciplina}
         </option>
-
         `;
 
 
     });
 
 
-
 }
-
 
 
 
