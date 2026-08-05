@@ -1,8 +1,5 @@
 alert("ENTROU NSO STUDENTS JS");
 
-import { app } from "./firebase.js";
-
-alert("FIREBASE OK");
 
 import { lerPDF } from "./pdf-reader.js";
 
