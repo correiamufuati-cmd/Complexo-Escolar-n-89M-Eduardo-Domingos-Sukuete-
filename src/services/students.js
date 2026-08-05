@@ -1,4 +1,4 @@
-alert("TESTE DFg 1");
+alert("TESTE DG 3");
 
 import { app } from "./firebase.js";
 
@@ -68,11 +68,10 @@ let todosAlunos = [];
 // CARREGAR TURMAS
 // =============================
 
-alert("CHEGUEI AO FINAL DO FICHEIRO");
-
 alert("VOU CARREGAR TURMAS");
 
 carregarTurmas();
+
 
 async function carregarTurmas(){
 
@@ -84,13 +83,17 @@ async function carregarTurmas(){
 
         alert("Vou consultar Firestore");
 
-const dados = await getDocs(
-    collection(db,"turmas")
-);
 
-alert("Consulta terminou");
+        const dados = await getDocs(
+            collection(db,"turmas")
+        );
 
-alert("Quantidade: " + dados.size);
+
+        alert("Consulta terminou");
+
+
+        alert("Quantidade: " + dados.size);
+
 
         if(dados.empty){
 
@@ -101,8 +104,7 @@ alert("Quantidade: " + dados.size);
         }
 
 
-        turmaSelect.innerHTML =
-        "";
+        turmaSelect.innerHTML = "";
 
 
         dados.forEach(doc=>{
@@ -117,7 +119,6 @@ alert("Quantidade: " + dados.size);
             </option>
 
             `;
-
 
         });
 
@@ -135,9 +136,30 @@ alert("Quantidade: " + dados.size);
         "<option>Erro: "+erro.message+"</option>";
 
 
+        alert("Erro: " + erro.message);
+
+
     }
 
 }
+
+
+// FORA DA FUNÇÃO
+
+turmaSelect.addEventListener("change",()=>{
+
+    turmaSelecionada = turmaSelect.value;
+
+
+    alert(
+        "Turma selecionada: " + turmaSelecionada
+    );
+
+
+    carregarAlunos();
+
+});
+
 
 
 // =============================
