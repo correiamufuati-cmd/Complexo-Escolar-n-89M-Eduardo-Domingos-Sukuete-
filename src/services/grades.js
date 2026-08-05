@@ -1,5 +1,7 @@
 alert("GRADES.JS CARREGOU Df");
 
+import { db } from "./firebase.js";
+
 import {
     collection,
     getDocs,
