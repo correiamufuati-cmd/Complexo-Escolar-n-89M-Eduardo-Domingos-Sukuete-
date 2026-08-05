@@ -1,15 +1,11 @@
-alert("TESTEI 1");
+alert("TESTE DF 1");
 
 
-import { app } from "./firebase.js";
-
-
-alert("TESTE 2");
-
+alert("STUDENTS");
 
 import { lerPDF } from "./pdf-reader.js";
 
-alert("PDF OK");
+alert("IMPORT PDF OK");
 
 
 import {
