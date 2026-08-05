@@ -1,4 +1,4 @@
-alert("GRADES.JS CARREGOU Df");
+alert("GRADES.JS CARREGOU Ds");
 
 import { db } from "./firebase.js";
 
