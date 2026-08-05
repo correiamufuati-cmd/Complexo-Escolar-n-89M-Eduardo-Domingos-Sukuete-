@@ -4,9 +4,42 @@
 <head>
 
 <meta charset="UTF-8">
+
 <title>Gestão de Professores</title>
 
 <link rel="stylesheet" href="../styles/dashboard.css">
+
+<style>
+
+.checkBox{
+padding:8px;
+border:1px solid #ddd;
+margin:5px;
+border-radius:5px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th{
+background:#1976d2;
+color:white;
+padding:8px;
+}
+
+td{
+border:1px solid #ddd;
+padding:8px;
+}
+
+button{
+padding:8px;
+}
+
+</style>
 
 </head>
 
@@ -17,14 +50,19 @@
 <div class="main">
 
 
-<h1>Gestão de Professores</h1>
+<h1>
+Gestão de Professores
+</h1>
 
 
 
 <div class="section">
 
 
-<h2>Cadastrar Professor</h2>
+<h2>
+Cadastrar Professor
+</h2>
+
 
 
 <input 
@@ -39,26 +77,59 @@ placeholder="Email">
 
 
 
-<h3>Selecionar Turmas</h3>
+<label>
+Nível de Ensino
+</label>
 
-<select 
-id="turmasProfessor"
-multiple
-style="height:150px;width:100%;">
+
+<select id="nivelEnsino">
+
+<option value="">
+Selecionar nível
+</option>
+
+<option value="ensinoPrimario">
+Ensino Primário
+</option>
+
+
+<option value="primeiroCiclo">
+Primeiro Ciclo
+</option>
+
 
 </select>
 
 
 
-<h3>Selecionar Disciplinas</h3>
+<h3>
+Disciplinas
+</h3>
 
-<select 
-id="disciplinasProfessor"
-multiple
-style="height:150px;width:100%;">
 
-</select>
+<div id="listaDisciplinas">
 
+Selecione o nível
+
+</div>
+
+
+
+
+<h3>
+Turmas
+</h3>
+
+
+<div id="listaTurmas">
+
+Selecione o nível
+
+</div>
+
+
+
+<br>
 
 
 <button id="guardarProfessor">
@@ -68,8 +139,8 @@ Guardar Professor
 </button>
 
 
-
 </div>
+
 
 
 
@@ -78,10 +149,48 @@ Guardar Professor
 <div class="section">
 
 
-<h2>Lista de Professores</h2>
+<h2>
+Lista de Professores
+</h2>
 
 
-<div id="listaProfessores"></div>
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>Código</th>
+
+<th>Nome</th>
+
+<th>Email</th>
+
+<th>Ensino</th>
+
+<th>Disciplinas</th>
+
+<th>Turmas</th>
+
+<th>Estado</th>
+
+<th>Ações</th>
+
+
+</tr>
+
+</thead>
+
+
+<tbody id="tabelaProfessores">
+
+
+</tbody>
+
+
+</table>
 
 
 </div>
@@ -96,7 +205,6 @@ Guardar Professor
 <script 
 type="module"
 src="../services/teachers.js">
-
 </script>
 
 
