@@ -1,9 +1,15 @@
-alert("ENTROU NSO STUDENTS JS");
+alert("TESTE 1");
 
 
-import { lerPDF } from "./pdf-reader.js";
+import { app } from "./firebase.js";
 
-alert("PDF OK");
+
+alert("TESTE 2");
+
+
+// deixa o pdf-reader comentado
+// import { lerPDF } from "./pdf-reader.js";
+
 
 import {
     getFirestore,
@@ -17,7 +23,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-alert("FIRESTORE OK");
+alert("TESTE 3");
 
 
 // Elementos
