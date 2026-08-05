@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO Ds");
+alert("PDF-READER CARREGADO Dp");
 
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -11,7 +11,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
-    alert("A ler PDF do Franco...");
+    alert("A ler PDF do Fr...");
 
 
     const arrayBuffer = await file.arrayBuffer();
@@ -83,7 +83,8 @@ export async function lerPDF(file){
     );
 
 
-
+alert(textoCompleto.substring(0,2000));
+    
     const alunos = extrairAlunos(textoCompleto);
 
 
@@ -119,6 +120,10 @@ function extrairAlunos(texto){
     .map(l=>l.trim())
     .filter(l=>l!=="");
 
+    alert("TOTAL LINHAS: " + linhas.length);
+
+alert(linhas.slice(0,50).join("\n"));
+    
 
     let iniciouTabela = false;
 
