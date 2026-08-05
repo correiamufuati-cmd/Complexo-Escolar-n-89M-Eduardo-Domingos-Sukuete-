@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO FINAL Dt");
+alert("PDF-READER CARREGADO FINAL");
 
 
 import * as pdfjsLib from 
@@ -30,11 +30,14 @@ export async function lerPDF(file){
 
 
 
-    for(let paginaNumero = 1; paginaNumero <= pdf.numPages; paginaNumero++){
+    for(
+        let paginaNumero = 1;
+        paginaNumero <= pdf.numPages;
+        paginaNumero++
+    ){
 
 
         const pagina = await pdf.getPage(paginaNumero);
-
 
 
         const conteudo = await pagina.getTextContent();
@@ -94,91 +97,176 @@ export async function lerPDF(file){
 
 function extrairAlunos(itens){
 
+
     let alunos = [];
+
     let linhas = {};
+
+
+
+    // juntar itens que pertencem à mesma linha
 
     itens.forEach(item=>{
 
+
         let y = Math.round(item.y);
 
+
+
         if(!linhas[y]){
+
             linhas[y] = [];
+
         }
 
+
         linhas[y].push(item);
+
 
     });
 
 
+
+
+
     Object.values(linhas).forEach(linha=>{
+
+
+        // ordenar pelas colunas
 
         linha.sort((a,b)=>a.x-b.x);
 
 
-        let numero="";
-        let nome="";
-        let sexo="";
-        let data="";
-        let idade="";
+
+        let numero = "";
+        let nome = "";
+        let sexo = "";
+        let data = "";
+        let idade = "";
+
 
 
         linha.forEach(item=>{
 
-            let texto=item.texto;
 
-            if(!texto) return;
+            let texto = item.texto;
 
+
+
+            if(!texto){
+
+                return;
+
+            }
+
+
+
+            // Número
 
             if(item.x < 35){
 
+
                 numero += texto;
+
 
             }
 
-            else if(item.x >=35 && item.x <270){
+
+
+            // Nome
+
+            else if(
+                item.x >=35 &&
+                item.x <270
+            ){
+
 
                 nome += " " + texto;
 
+
             }
 
-            else if(item.x >=270 && item.x <300){
+
+
+            // Sexo
+
+            else if(
+                item.x >=270 &&
+                item.x <300
+            ){
+
 
                 sexo += texto;
 
+
             }
 
-            else if(item.x >=300 && item.x <370){
+
+
+            // Data nascimento
+
+            else if(
+                item.x >=300 &&
+                item.x <370
+            ){
+
 
                 data += " " + texto;
 
+
             }
+
+
+
+            // Idade
 
             else if(item.x >=370){
 
+
                 idade += " " + texto;
 
+
             }
+
 
 
         });
 
 
-        numero=numero.trim();
-        nome=nome.trim();
-        sexo=sexo.trim();
-        idade=idade.trim();
 
 
-        data=data
+        numero = numero.trim();
+
+        nome = nome.trim();
+
+        sexo = sexo.trim();
+
+        idade = idade.trim();
+
+
+
+        // corrigir data separada
+
+        data = data
         .replace(/\s+/g," ")
         .trim();
 
 
-        data=data.replace(/\s*-\s*/g,"-");
+
+        data = data.replace(
+            /\s*-\s*/g,
+            "-"
+        );
 
 
 
-        if(numero && nome && /^\d+$/.test(numero)){
+
+
+        if(
+            numero &&
+            nome &&
+            /^\d+$/.test(numero)
+        ){
 
 
             alunos.push({
@@ -199,15 +287,18 @@ function extrairAlunos(itens){
         }
 
 
+
     });
 
 
 
-    // eliminar duplicados
 
-    let resultado=[];
+    // remover duplicados
 
-    let usados=new Set();
+    let resultado = [];
+
+    let usados = new Set();
+
 
 
     alunos.forEach(aluno=>{
@@ -215,11 +306,15 @@ function extrairAlunos(itens){
 
         if(!usados.has(aluno.numero)){
 
+
             usados.add(aluno.numero);
+
 
             resultado.push(aluno);
 
+
         }
+
 
     });
 
@@ -227,322 +322,5 @@ function extrairAlunos(itens){
 
     return resultado;
 
-}
-
-
-
-    });
-
-
-
-
-
-    Object.values(linhas).forEach(linha=>{
-
-
-
-        // ordenar esquerda para direita
-
-        linha.sort((a,b)=>a.x-b.x);
-
-
-
-        let numero="";
-        let nome="";
-        let sexo="";
-        let data="";
-        let idade="";
-
-
-
-
-        linha.forEach(item=>{
-
-
-            let texto = item.texto;
-
-
-
-            if(!texto){
-
-                return;
-
-            }
-
-
-
-
-            // Número
-
-            if(item.x < 35){
-
-
-                numero += texto;
-
-
-            }
-
-
-
-            // Nome
-
-            else if(item.x >=35 && item.x <270){
-
-
-                nome += " " + texto;
-
-
-            }
-
-
-
-            // Sexo
-
-            else if(item.x >=270 && item.x <300){
-
-
-                sexo += texto;
-
-
-            }
-
-
-
-            // Data nascimento
-
-            else if(item.x >=300 && item.x <370){
-
-
-                data += texto;
-
-
-            }
-
-
-
-            // Idade
-
-            else if(item.x >=370){
-
-
-                idade += " " + texto;
-
-
-            }
-
-
-
-        });
-
-
-
-
-
-        numero = numero.trim();
-
-        nome = nome.trim();
-
-        sexo = sexo.trim();
-
-        data = data.trim();
-
-        idade = idade.trim();
-
-
-
-function extrairAlunos(itens){
-
-    let alunos = [];
-
-    let linhas = {};
-
-
-    // Agrupar por linha
-
-    itens.forEach(item=>{
-
-        let y = Math.round(item.y);
-
-        if(!linhas[y]){
-
-            linhas[y] = [];
 
         }
-
-        linhas[y].push(item);
-
-    });
-
-
-
-    Object.values(linhas).forEach(linha=>{
-
-
-        linha.sort((a,b)=>a.x-b.x);
-
-
-
-        let numero="";
-        let nome="";
-        let sexo="";
-        let data="";
-        let idade="";
-
-
-
-        linha.forEach(item=>{
-
-
-            let texto = item.texto;
-
-
-            if(!texto){
-                return;
-            }
-
-
-
-            // Número
-
-            if(item.x < 35){
-
-                numero += texto;
-
-            }
-
-
-
-            // Nome
-
-            else if(item.x >=35 && item.x <270){
-
-                nome += " " + texto;
-
-            }
-
-
-
-            // Sexo
-
-            else if(item.x >=270 && item.x <300){
-
-                sexo += texto;
-
-            }
-
-
-
-            // Data nascimento
-
-            else if(item.x >=300 && item.x <370){
-
-                data += " " + texto;
-
-            }
-
-
-
-            // Idade
-
-            else if(item.x >=370){
-
-                idade += " " + texto;
-
-            }
-
-
-        });
-
-
-
-        numero = numero.trim();
-
-        nome = nome.trim();
-
-        sexo = sexo.trim();
-
-        idade = idade.trim();
-
-
-
-        // Corrigir data separada pelo PDF
-
-        data = data
-        .replace(/\s+/g," ")
-        .trim();
-
-
-
-        // transformar:
-        // 22 - 06 - 2012
-        // em:
-        // 22-06-2012
-
-        data = data.replace(
-            /\s*-\s*/g,
-            "-"
-        );
-
-
-
-        if(
-            numero &&
-            nome &&
-            /^\d+$/.test(numero)
-        ){
-
-
-            alunos.push({
-
-                numero,
-
-                nome,
-
-                sexo,
-
-                dataNascimento:data,
-
-                idade
-
-            });
-
-
-        }
-
-
-
-    });
-
-
-
-    // remover duplicados pelo número
-
-    let alunosSemDuplicados = [];
-
-    let numeros = new Set();
-
-
-
-    alunos.forEach(aluno=>{
-
-
-        if(!numeros.has(aluno.numero)){
-
-
-            numeros.add(aluno.numero);
-
-
-            alunosSemDuplicados.push(aluno);
-
-
-        }
-
-
-    });
-
-
-
-    return alunosSemDuplicados;
-
-
-}
