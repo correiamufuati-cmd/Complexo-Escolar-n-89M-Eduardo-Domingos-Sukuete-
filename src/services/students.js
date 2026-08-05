@@ -1,4 +1,4 @@
-alert("TESTE DF 1");
+alert("TESTE DGF 1");
 
 import { lerPDF } from "./pdf-reader.js";
 
