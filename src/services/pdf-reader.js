@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO");
+alert("PDF-READER CARREGADO Df");
 
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -112,48 +112,136 @@ export async function lerPDF(file){
 
 function extrairAlunos(texto){
 
-
-    let alunos=[];
-
+    let alunos = [];
 
     const linhas = texto.split("\n");
 
 
+    let iniciouTabela = false;
 
-    linhas.forEach(linha=>{
 
+    linhas.forEach(linha => {
 
         linha = linha.trim();
 
 
+        // Procurar início da tabela
+        if(
+            linha.toLowerCase().includes("nome") &&
+            (
+             linha.toLowerCase().includes("sexo") ||
+             linha.toLowerCase().includes("nº") ||
+             linha.toLowerCase().includes("numero")
+            )
+        ){
+
+            iniciouTabela = true;
+            return;
+
+        }
+
+
+
+        if(!iniciouTabela){
+            return;
+        }
+
+
 
         /*
-        Procura linhas que começam com número
+        Procurar linhas que começam com número
         */
 
+        const numero = linha.match(/^(\d+)/);
 
-        const encontrado = linha.match(
-            /^(\d+)\s+(.+?)\s+([MF])\b/i
+
+        if(!numero){
+            return;
+        }
+
+
+
+        let partes = linha.split(/\s+/);
+
+
+
+        let num = partes.shift();
+
+
+
+        let sexo = "";
+
+        let data = "";
+
+
+
+        // Procurar sexo
+
+        let posSexo = partes.findIndex(
+            p => p==="M" || p==="F"
         );
 
 
 
-        if(encontrado){
+        if(posSexo !== -1){
+
+            sexo = partes[posSexo];
+
+        }
+
+
+
+        // Procurar data
+
+        let posData = partes.findIndex(
+            p => /\d{2}[\/\-]\d{2}[\/\-]\d{4}/.test(p)
+        );
+
+
+
+        if(posData !== -1){
+
+            data = partes[posData];
+
+        }
+
+
+
+        // Nome fica antes do sexo/data
+
+        let fimNome = partes.length;
+
+
+        if(posSexo !== -1){
+            fimNome = posSexo;
+        }
+
+
+        if(posData !== -1 && posData < fimNome){
+            fimNome = posData;
+        }
+
+
+
+        let nome = partes
+        .slice(0,fimNome)
+        .join(" ")
+        .trim();
+
+
+
+        if(nome.length > 2){
 
 
             alunos.push({
 
-                numero:
-                encontrado[1],
+                numero:num,
 
+                nome:nome,
 
-                nome:
-                encontrado[2].trim(),
+                sexo:sexo,
 
-
-                sexo:
-                encontrado[3].toUpperCase()
-
+                dataNascimento:data
 
             });
 
@@ -161,11 +249,11 @@ function extrairAlunos(texto){
         }
 
 
+
     });
 
 
 
     return alunos;
-
 
 }
