@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO FINAL");
+alert("PDF-READER CARREGADO FINAL Df");
 
 
 import * as pdfjsLib from 
