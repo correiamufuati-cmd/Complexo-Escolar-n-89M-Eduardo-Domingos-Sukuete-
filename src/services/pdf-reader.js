@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO Df");
+alert("PDF-READER CARREGADO Ds");
 
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -114,144 +114,131 @@ function extrairAlunos(texto){
 
     let alunos = [];
 
-    const linhas = texto.split("\n");
+    const linhas = texto
+    .split("\n")
+    .map(l=>l.trim())
+    .filter(l=>l!=="");
 
 
     let iniciouTabela = false;
 
 
-    linhas.forEach(linha => {
+    for(let i=0;i<linhas.length;i++){
 
-        linha = linha.trim();
+        let linha = linhas[i];
 
 
-        // Procurar início da tabela
         if(
             linha.toLowerCase().includes("nome") &&
             (
              linha.toLowerCase().includes("sexo") ||
-             linha.toLowerCase().includes("nº") ||
-             linha.toLowerCase().includes("numero")
+             linha.toLowerCase().includes("nascimento")
             )
         ){
 
             iniciouTabela = true;
-            return;
+            continue;
 
         }
-
 
 
         if(!iniciouTabela){
-            return;
+            continue;
         }
 
 
 
-        /*
-        Procurar linhas que começam com número
-        */
-
-        const numero = linha.match(/^(\d+)/);
+        // procura número do aluno
+        let numeroEncontrado = linha.match(/^(\d{1,2})\b/);
 
 
-        if(!numero){
-            return;
-        }
+        if(numeroEncontrado){
 
 
+            let numero = numeroEncontrado[1];
 
-        let partes = linha.split(/\s+/);
-
-
-
-        let num = partes.shift();
+            let bloco = linha;
 
 
+            // junta próximas linhas até encontrar sexo ou data
+            for(let j=1;j<=4;j++){
 
-        let sexo = "";
+                if(linhas[i+j]){
 
-        let data = "";
+                    bloco += " " + linhas[i+j];
 
-
-
-        // Procurar sexo
-
-        let posSexo = partes.findIndex(
-            p => p==="M" || p==="F"
-        );
+                }
 
 
+                if(
+                    /\b[M|F]\b/.test(bloco) &&
+                    /\d{2}[-\/]\d{2}[-\/]\d{4}/.test(bloco)
+                ){
 
-        if(posSexo !== -1){
+                    break;
 
-            sexo = partes[posSexo];
+                }
 
-        }
+            }
 
 
 
-        // Procurar data
+            let sexo = "";
 
-        let posData = partes.findIndex(
-            p => /\d{2}[\/\-]\d{2}[\/\-]\d{4}/.test(p)
-        );
+            let sexoEncontrado = bloco.match(/\b(M|F)\b/);
 
+            if(sexoEncontrado){
 
+                sexo = sexoEncontrado[1];
 
-        if(posData !== -1){
-
-            data = partes[posData];
-
-        }
+            }
 
 
 
-        // Nome fica antes do sexo/data
+            let data = "";
 
-        let fimNome = partes.length;
-
-
-        if(posSexo !== -1){
-            fimNome = posSexo;
-        }
+            let dataEncontrada = bloco.match(
+                /\d{2}[-\/]\d{2}[-\/]\d{4}/
+            );
 
 
-        if(posData !== -1 && posData < fimNome){
-            fimNome = posData;
-        }
+            if(dataEncontrada){
 
+                data = dataEncontrada[0];
 
-
-        let nome = partes
-        .slice(0,fimNome)
-        .join(" ")
-        .trim();
+            }
 
 
 
-        if(nome.length > 2){
+            let nome = bloco
+            .replace(numero,"")
+            .replace(sexo,"")
+            .replace(data,"")
+            .trim();
 
 
-            alunos.push({
 
-                numero:num,
+            if(nome.length>2){
 
-                nome:nome,
 
-                sexo:sexo,
+                alunos.push({
 
-                dataNascimento:data
+                    numero:numero,
 
-            });
+                    nome:nome,
 
+                    sexo:sexo,
+
+                    dataNascimento:data
+
+                });
+
+
+            }
 
         }
 
-
-
-    });
-
+    }
 
 
     return alunos;
