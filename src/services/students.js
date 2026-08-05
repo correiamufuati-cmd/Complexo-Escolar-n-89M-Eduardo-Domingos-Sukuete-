@@ -1,19 +1,4 @@
-alert("students.js carregou");
-
-import { lerPDF } from "./pdf-reader.js";
-
-import { app } from "./firebase.js";
-
-import {
-    getFirestore,
-    collection,
-    getDocs,
-    addDoc,
-    updateDoc,
-    doc,
-    deleteDoc,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+alert("ENTROU NO STUDENTS JS");
 
 
 const db = getFirestore(app);
