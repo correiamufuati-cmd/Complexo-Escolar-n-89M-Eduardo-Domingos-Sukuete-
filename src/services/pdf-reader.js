@@ -9,6 +9,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
+
     const dados = await file.arrayBuffer();
 
 
@@ -18,34 +19,46 @@ export async function lerPDF(file){
 
 
 
-    let textoCompleto = "";
+    let todasLinhas = [];
 
 
 
     for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
+
         const page = await pdf.getPage(pagina);
+
 
         const conteudo = await page.getTextContent();
 
 
-        const linhas = conteudo.items
-            .map(item => item.str)
-            .join(" ");
+
+        let linhasPagina = organizarLinhas(conteudo.items);
 
 
-        textoCompleto += "\n" + linhas;
+
+        todasLinhas.push(...linhasPagina);
+
+
 
     }
 
 
 
-    console.log("TEXTO EXTRAÍDO:");
+    let textoCompleto = todasLinhas.join("\n");
+
+
+
+    console.log("TEXTO ORGANIZADO:");
     console.log(textoCompleto);
 
 
 
     const alunos = extrairAlunos(textoCompleto);
+
+
+
+    console.log("TOTAL ALUNOS:", alunos.length);
 
 
 
@@ -65,39 +78,80 @@ export async function lerPDF(file){
 
 
 
+function organizarLinhas(items){
+
+
+    let linhas = {};
+
+
+
+    items.forEach(item=>{
+
+
+        let y = Math.round(item.transform[5]);
+
+
+
+        if(!linhas[y]){
+
+            linhas[y] = [];
+
+        }
+
+
+
+        linhas[y].push(item.str);
+
+
+
+    });
+
+
+
+    return Object.keys(linhas)
+
+        .sort((a,b)=> b-a)
+
+        .map(y=> linhas[y].join(" "));
+
+}
+
+
+
+
+
 function extrairAlunos(texto){
 
 
     const linhas = texto
         .split("\n")
-        .map(l => l.trim())
-        .filter(l => l.length > 0);
+        .map(l=>l.trim())
+        .filter(l=>l);
 
 
 
-    let alunos = [];
+    let alunos=[];
 
 
 
-    for(let i = 0; i < linhas.length; i++){
-
-
-        let linha = linhas[i];
-
+    linhas.forEach(linha=>{
 
 
         /*
-        Aqui vamos procurar linhas
-        que começam com número de aluno.
-        Exemplo:
+        Procura linhas como:
+
+        1 12345 JOÃO MANUEL M
+
+        ou
+
         1 JOÃO MANUEL M
         */
 
 
-        if(/^\d+/.test(linha)){
+        if(/^\d+\s+/.test(linha)){
 
 
-            let partes = linha.split(" ");
+            let partes = linha.split(/\s+/);
 
 
 
@@ -123,11 +177,11 @@ function extrairAlunos(texto){
         }
 
 
-    }
+    });
 
 
 
     return alunos;
 
 
-}
+        }
