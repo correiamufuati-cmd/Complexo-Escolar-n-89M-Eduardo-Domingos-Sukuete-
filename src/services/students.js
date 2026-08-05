@@ -1,4 +1,4 @@
-alert("TESTE 1");
+alert("TESTEI 1");
 
 
 import { app } from "./firebase.js";
@@ -7,8 +7,9 @@ import { app } from "./firebase.js";
 alert("TESTE 2");
 
 
-// deixa o pdf-reader comentado
-// import { lerPDF } from "./pdf-reader.js";
+import { lerPDF } from "./pdf-reader.js";
+
+alert("PDF OK");
 
 
 import {
