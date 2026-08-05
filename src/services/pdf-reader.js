@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO Dp");
+alert("PDF-READER CARREGADO DG");
 
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -11,7 +11,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
-    alert("A ler PDF do Fr...");
+    alert("A ler PDF do FT...");
 
 
     const arrayBuffer = await file.arrayBuffer();
