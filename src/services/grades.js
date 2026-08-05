@@ -1,6 +1,8 @@
-alert("GRADES.JS CARREGOU Dg");
+alert("GRADES.JS PROFESSOR CARREGOU");
+
 
 import { db } from "./firebase.js";
+
 
 import {
     collection,
@@ -12,14 +14,48 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-const classSelect = document.getElementById("classSelect");
-const subject = document.getElementById("subject");
-const pautaBody = document.getElementById("pautaBody");
 
-const saveGrades = document.getElementById("saveGrades");
+// ===============================
+// PROFESSOR LOGADO
+// ===============================
 
-const excelInput = document.getElementById("excelInput");
-const importExcel = document.getElementById("importExcel");
+
+const professor =
+JSON.parse(
+localStorage.getItem("professorLogado")
+);
+
+
+
+if(!professor){
+
+    alert("Professor não encontrado");
+
+    window.location.href="login.html";
+
+}
+
+
+
+// ===============================
+// ELEMENTOS
+// ===============================
+
+
+const classSelect =
+document.getElementById("classSelect");
+
+
+const subject =
+document.getElementById("subject");
+
+
+const pautaBody =
+document.getElementById("pautaBody");
+
+
+const saveGrades =
+document.getElementById("saveGrades");
 
 
 
@@ -30,74 +66,111 @@ let alunos = [];
 
 
 
+
 // ===============================
-// CARREGAR TURMAS
+// INICIAR
 // ===============================
 
 
-async function carregarTurmas(){
-
-    try{
+async function iniciar(){
 
 
-        classSelect.innerHTML =
-        `
-        <option>
-        A carregar turmas...
-        </option>
-        `;
+    await carregarTurmasProfessor();
 
 
-        const dados =
-        await getDocs(
-            collection(db,"turmas")
+}
+
+
+
+
+// ===============================
+// CARREGAR TURMAS DO PROFESSOR
+// ===============================
+
+
+async function carregarTurmasProfessor(){
+
+
+    const professorRef =
+    doc(
+        db,
+        "professores",
+        professor.id
+    );
+
+
+    const professorSnap =
+    await getDoc(professorRef);
+
+
+
+    if(!professorSnap.exists()){
+
+        alert("Professor não encontrado no sistema");
+
+        return;
+
+    }
+
+
+
+    const dados =
+    professorSnap.data();
+
+
+
+    classSelect.innerHTML =
+    `
+    <option value="">
+    Selecionar turma
+    </option>
+    `;
+
+
+
+    for(const turmaId of dados.turmas){
+
+
+        const turmaRef =
+        doc(
+            db,
+            "turmas",
+            turmaId
         );
 
 
-
-        classSelect.innerHTML =
-        `
-        <option value="">
-        Selecionar turma
-        </option>
-        `;
+        const turmaSnap =
+        await getDoc(turmaRef);
 
 
 
-        dados.forEach(doc=>{
+        if(turmaSnap.exists()){
 
 
             const turma =
-            doc.data();
+            turmaSnap.data();
 
 
 
             classSelect.innerHTML +=
             `
-            <option value="${doc.id}">
-                ${turma.nome} - ${turma.classe}
+            <option value="${turmaId}">
+            ${turma.nome}
             </option>
             `;
 
 
-        });
-
-
-
-    }
-    catch(erro){
-
-
-        alert(
-            "Erro ao carregar turmas: "
-            + erro.message
-        );
+        }
 
 
     }
 
 
-            }
+
+}
+
+
+
 
 
 
@@ -117,10 +190,10 @@ async()=>{
 
 
 
+    await carregarDisciplinasProfessor();
+
+
     await carregarAlunos();
-
-
-    await carregarDisciplinas();
 
 
 
@@ -132,12 +205,14 @@ async()=>{
 
 
 
+
 // ===============================
-// CARREGAR DISCIPLINAS
+// CARREGAR DISCIPLINAS DO PROFESSOR
 // ===============================
 
 
-async function carregarDisciplinas(){
+async function carregarDisciplinasProfessor(){
+
 
 
     subject.innerHTML =
@@ -148,96 +223,33 @@ async function carregarDisciplinas(){
     `;
 
 
-    if(!turmaSelecionada){
 
-        return;
-
-    }
-
-
-
-    // Ler dados da turma escolhida
-
-    const turmaRef =
+    const professorRef =
     doc(
         db,
-        "turmas",
-        turmaSelecionada
+        "professores",
+        professor.id
     );
 
 
-    const turmaSnap =
-    await getDoc(turmaRef);
+
+    const professorSnap =
+    await getDoc(professorRef);
 
 
 
-    if(!turmaSnap.exists()){
-
-        alert("Turma não encontrada");
-
-        return;
-
-    }
+    const dados =
+    professorSnap.data();
 
 
 
-    const turma =
-    turmaSnap.data();
-
-
-
-    const ensino =
-    turma.ensino;
-
-
-    const classe =
-    turma.classe;
-
-
-
-    // Ler configuração das disciplinas
-
-
-    const configRef =
-    doc(
-        db,
-        "config",
-        "disciplinas"
-    );
-
-
-    const configSnap =
-    await getDoc(configRef);
-
-
-
-    if(!configSnap.exists()){
-
-        alert("Configuração não encontrada");
-
-        return;
-
-    }
-
-
-
-    const config =
-    configSnap.data();
-
-
-
-    const disciplinas =
-    config[ensino][classe].disciplinas;
-
-
-
-    disciplinas.forEach(nome=>{
+    dados.disciplinas.forEach(disciplina=>{
 
 
         subject.innerHTML +=
         `
-        <option value="${nome}">
-            ${nome}
+        <option value="${disciplina}">
+        ${disciplina}
         </option>
         `;
 
@@ -246,7 +258,12 @@ async function carregarDisciplinas(){
 
 
 
-        }
+}
+
+
+
+
+
 
 
 // ===============================
@@ -306,8 +323,8 @@ async function carregarAlunos(){
     mostrarPauta();
 
 
-
 }
+
 
 
 
@@ -335,14 +352,9 @@ function mostrarPauta(){
 
 <tr>
 
-<td>
-${aluno.numero}
-</td>
+<td>${aluno.numero}</td>
 
-
-<td>
-${aluno.nome}
-</td>
+<td>${aluno.nome}</td>
 
 
 <td>
@@ -357,7 +369,6 @@ max="20">
 </td>
 
 
-
 <td>
 
 <input 
@@ -368,7 +379,6 @@ min="0"
 max="20">
 
 </td>
-
 
 
 <td id="mf-${aluno.id}">
@@ -390,6 +400,7 @@ max="20">
 
 
 }
+
 
 
 
@@ -460,8 +471,10 @@ Math.round(
 
 
 
+
+
 // ===============================
-// GUARDAR PAUTA
+// GUARDAR NOTAS
 // ===============================
 
 
@@ -472,9 +485,7 @@ async()=>{
 
 if(!subject.value){
 
-alert(
-"Selecione a disciplina"
-);
+alert("Selecione a disciplina");
 
 return;
 
@@ -483,6 +494,7 @@ return;
 
 
 for(const aluno of alunos){
+
 
 
 const mac =
@@ -517,127 +529,7 @@ aluno.id,
 
 {
 
-disciplina:
-subject.value,
-
-
-MAC:mac,
-
-
-NPT:npt,
-
-
-MF:
-Math.round(
-(mac+npt)/2
-),
-
-
-criadoEm:
-serverTimestamp()
-
-}
-
-);
-
-
-
-}
-
-
-
-alert(
-"Mini-pauta guardada"
-);
-
-
-
-});
-
-
-
-
-
-
-// ===============================
-// IMPORTAR EXCEL
-// ===============================
-
-
-importExcel.addEventListener(
-"click",
-async()=>{
-
-
-const linhas =
-excelInput.value
-.trim()
-.split("\n");
-
-
-
-for(const linha of linhas){
-
-
-
-const dados =
-linha.split(";");
-
-
-
-if(dados.length < 4){
-
-continue;
-
-}
-
-
-
-const numero =
-dados[0].trim();
-
-
-
-const aluno =
-alunos.find(
-a=>String(a.numero)===numero
-);
-
-
-
-if(!aluno){
-
-continue;
-
-}
-
-
-
-const mac =
-Number(dados[2]);
-
-
-
-const npt =
-Number(dados[3]);
-
-
-
-await addDoc(
-
-collection(
-db,
-"turmas",
-turmaSelecionada,
-"alunos",
-aluno.id,
-"notas"
-),
-
-{
-
-disciplina:
-subject.value,
+disciplina:subject.value,
 
 MAC:mac,
 
@@ -648,9 +540,15 @@ Math.round(
 (mac+npt)/2
 ),
 
+
+professorId:
+professor.id,
+
+
 criadoEm:
 serverTimestamp()
 
+
 }
 
 );
@@ -661,10 +559,7 @@ serverTimestamp()
 
 
 
-alert(
-"Notas importadas com sucesso"
-);
-
+alert("Mini-pauta guardada");
 
 
 });
@@ -674,4 +569,5 @@ alert(
 
 
 
-carregarTurmas();
+
+iniciar();
