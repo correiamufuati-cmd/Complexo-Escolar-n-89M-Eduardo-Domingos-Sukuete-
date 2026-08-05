@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO FINAL");
+alert("PDF-READER CARREGADO FINAL Df");
 
 
 import * as pdfjsLib from 
@@ -205,16 +205,13 @@ function extrairAlunos(itens){
 
             // Data nascimento
 
-            else if(
-                item.x >=300 &&
-                item.x <370
-            ){
+            else if(item.x >=300 && item.x <360){
 
+    data += " " + texto;
 
-                data += " " + texto;
+    console.log("DATA ENCONTRADA:", texto);
 
-
-            }
+        }
 
 
 
