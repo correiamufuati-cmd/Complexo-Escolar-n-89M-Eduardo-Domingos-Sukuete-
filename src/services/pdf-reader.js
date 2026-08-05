@@ -1,4 +1,5 @@
-alert("PDF-READER CARREGADO DG");
+alert("PDF-READER CARREGADO FINAL");
+
 
 import * as pdfjsLib from 
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -11,10 +12,12 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 export async function lerPDF(file){
 
-    alert("A ler PDF do FT...");
+
+    alert("A ler PDF...");
 
 
     const arrayBuffer = await file.arrayBuffer();
+
 
 
     const pdf = await pdfjsLib.getDocument({
@@ -23,47 +26,36 @@ export async function lerPDF(file){
 
 
 
-    let textoCompleto = "";
+    let itensTabela = [];
 
 
 
-    for(let i=1;i<=pdf.numPages;i++){
+    for(let paginaNumero = 1; paginaNumero <= pdf.numPages; paginaNumero++){
 
 
-        const pagina = await pdf.getPage(i);
+        const pagina = await pdf.getPage(paginaNumero);
+
 
 
         const conteudo = await pagina.getTextContent();
 
 
 
-        let linhas = {};
-
-
-
         conteudo.items.forEach(item=>{
 
-    alert(
-        item.str +
-        " X:" + item.transform[4] +
-        " Y:" + item.transform[5]
-    );
 
-});
+            itensTabela.push({
 
+                texto:item.str.trim(),
 
+                x:item.transform[4],
 
-        Object.keys(linhas)
-        .sort((a,b)=>b-a)
-        .forEach(y=>{
+                y:item.transform[5]
 
-
-            textoCompleto += 
-            linhas[y].trim()+"\n";
+            });
 
 
         });
-
 
 
     }
@@ -71,18 +63,17 @@ export async function lerPDF(file){
 
 
     alert(
-        "Texto extraído: "+textoCompleto.length
+        "Itens encontrados: " + itensTabela.length
     );
 
 
-alert(textoCompleto.substring(0,2000));
-    
-    const alunos = extrairAlunos(textoCompleto);
+
+    const alunos = extrairAlunos(itensTabela);
 
 
 
     alert(
-        "Alunos encontrados: "+alunos.length
+        "Alunos encontrados: " + alunos.length
     );
 
 
@@ -91,9 +82,7 @@ alert(textoCompleto.substring(0,2000));
 
         quantidade: alunos.length,
 
-        alunos: alunos,
-
-        texto:textoCompleto
+        alunos: alunos
 
     };
 
@@ -103,141 +92,205 @@ alert(textoCompleto.substring(0,2000));
 
 
 
-function extrairAlunos(texto){
+
+function extrairAlunos(itens){
+
+
 
     let alunos = [];
 
-    const linhas = texto
-    .split("\n")
-    .map(l=>l.trim())
-    .filter(l=>l!=="");
-
-    alert("TOTAL LINHAS: " + linhas.length);
-
-alert(linhas.slice(0,50).join("\n"));
-    
-
-    let iniciouTabela = false;
 
 
-    for(let i=0;i<linhas.length;i++){
+    let linhas = {};
 
-        let linha = linhas[i];
+
+
+    // Agrupar por linha
+
+    itens.forEach(item=>{
+
+
+        let y = Math.round(item.y);
+
+
+
+        if(!linhas[y]){
+
+            linhas[y] = [];
+
+        }
+
+
+
+        linhas[y].push(item);
+
+
+
+    });
+
+
+
+
+
+    Object.values(linhas).forEach(linha=>{
+
+
+
+        // ordenar esquerda para direita
+
+        linha.sort((a,b)=>a.x-b.x);
+
+
+
+        let numero="";
+        let nome="";
+        let sexo="";
+        let data="";
+        let idade="";
+
+
+
+
+        linha.forEach(item=>{
+
+
+            let texto = item.texto;
+
+
+
+            if(!texto){
+
+                return;
+
+            }
+
+
+
+
+            // Número
+
+            if(item.x < 35){
+
+
+                numero += texto;
+
+
+            }
+
+
+
+            // Nome
+
+            else if(item.x >=35 && item.x <270){
+
+
+                nome += " " + texto;
+
+
+            }
+
+
+
+            // Sexo
+
+            else if(item.x >=270 && item.x <300){
+
+
+                sexo += texto;
+
+
+            }
+
+
+
+            // Data nascimento
+
+            else if(item.x >=300 && item.x <370){
+
+
+                data += texto;
+
+
+            }
+
+
+
+            // Idade
+
+            else if(item.x >=370){
+
+
+                idade += " " + texto;
+
+
+            }
+
+
+
+        });
+
+
+
+
+
+        numero = numero.trim();
+
+        nome = nome.trim();
+
+        sexo = sexo.trim();
+
+        data = data.trim();
+
+        idade = idade.trim();
+
+
+
 
 
         if(
-            linha.toLowerCase().includes("nome") &&
-            (
-             linha.toLowerCase().includes("sexo") ||
-             linha.toLowerCase().includes("nascimento")
-            )
+            numero &&
+            nome &&
+            /^\d+$/.test(numero)
         ){
 
-            iniciouTabela = true;
-            continue;
+
+
+            alunos.push({
+
+
+                numero:numero,
+
+
+                nome:nome,
+
+
+                sexo:sexo,
+
+
+                dataNascimento:data,
+
+
+                idade:idade
+
+
+
+            });
+
+
 
         }
 
 
-        if(!iniciouTabela){
-            continue;
-        }
 
 
 
-        // procura número do aluno
-        let numeroEncontrado = linha.match(/^(\d{1,2})\b/);
+    });
 
 
-        if(numeroEncontrado){
-
-
-            let numero = numeroEncontrado[1];
-
-            let bloco = linha;
-
-
-            // junta próximas linhas até encontrar sexo ou data
-            for(let j=1;j<=4;j++){
-
-                if(linhas[i+j]){
-
-                    bloco += " " + linhas[i+j];
-
-                }
-
-
-                if(
-                    /\b[M|F]\b/.test(bloco) &&
-                    /\d{2}[-\/]\d{2}[-\/]\d{4}/.test(bloco)
-                ){
-
-                    break;
-
-                }
-
-            }
-
-
-
-            let sexo = "";
-
-            let sexoEncontrado = bloco.match(/\b(M|F)\b/);
-
-            if(sexoEncontrado){
-
-                sexo = sexoEncontrado[1];
-
-            }
-
-
-
-            let data = "";
-
-            let dataEncontrada = bloco.match(
-                /\d{2}[-\/]\d{2}[-\/]\d{4}/
-            );
-
-
-            if(dataEncontrada){
-
-                data = dataEncontrada[0];
-
-            }
-
-
-
-            let nome = bloco
-            .replace(numero,"")
-            .replace(sexo,"")
-            .replace(data,"")
-            .trim();
-
-
-
-            if(nome.length>2){
-
-
-                alunos.push({
-
-                    numero:numero,
-
-                    nome:nome,
-
-                    sexo:sexo,
-
-                    dataNascimento:data
-
-                });
-
-
-            }
-
-        }
-
-    }
 
 
     return alunos;
+
+
 
 }
