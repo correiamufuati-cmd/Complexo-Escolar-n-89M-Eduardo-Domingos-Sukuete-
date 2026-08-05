@@ -1,4 +1,4 @@
-alert("VERSÃO NOVA DTS CLASSES.JS");
+alert("VERSÃO NOVA DA CLASSES.JS");
 
 import { app } from "./firebase.js";
 
@@ -121,6 +121,15 @@ async function buscarDisciplinas(ensino, classe){
 
         const dados = resultado.data();
 
+        alert(
+"Campos principais do documento:\n\n" +
+Object.keys(dados).join("\n")
+);
+
+        alert(
+"Ensino recebido pelo código: " + ensino
+);
+        
         alert(
 "EnsinoPrimario completo:\n\n" +
 JSON.stringify(dados["ensinoPrimario"], null, 2)
