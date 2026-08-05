@@ -1,4 +1,4 @@
-alert("PDF-READER CARREGADO FINAL Ff");
+alert("PDF-READER CARREGADO FINAL Fyf");
 
 
 import * as pdfjsLib from 
@@ -205,18 +205,23 @@ function extrairAlunos(itens){
 
             // Data nascimento
 
+else if(
+    item.x >=300 &&
+    item.x <370
+){
+
+    data += " " + texto;
+
+}
 
 
+// Idade
 
-            // Idade
+else if(item.x >=370){
 
-            else if(item.x >=370){
+    idade += " " + texto;
 
-
-                idade += " " + texto;
-
-
-            }
+}
 
 
 
@@ -225,22 +230,11 @@ function extrairAlunos(itens){
 
 
 
-        numero = numero.trim()
-            
-        else if(item.x >=300 && item.x <360){
-
-    data += " " + texto;
-
-    alert("DATA: " + texto);
-
-    };
-
-        nome = nome.trim();
-
-        sexo = sexo.trim();
-
-        idade = idade.trim();
-
+        numero = numero.trim();
+nome = nome.trim();
+sexo = sexo.trim();
+data = data.trim();
+idade = idade.trim();
 
 
         // corrigir data separada
