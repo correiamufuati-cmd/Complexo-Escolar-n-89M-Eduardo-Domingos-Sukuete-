@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO Dav");
+alert("TEACHERS.JS CARREGADO Dv");
 
 import { db } from "./firebase.js";
 
@@ -474,6 +474,15 @@ alert("Vai gravar no Firebase");
 "\nEnsino: " + ensino +
 "\nAtribuições: " + JSON.stringify(atribuicoes)
 );
+
+atribuicoes = atribuicoes.map(a => ({
+
+    turmaId: a.turmaId || "",
+    turmaNome: a.turmaNome || "",
+    classe: a.classe || "",
+    disciplina: a.disciplina || ""
+
+}));
 
 try{
 
