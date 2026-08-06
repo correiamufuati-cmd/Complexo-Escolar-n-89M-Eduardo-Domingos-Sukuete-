@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO D9");
+alert("TEACHERS.JS CARREGADO Dy");
 
 import { db } from "./firebase.js";
 
@@ -409,24 +409,14 @@ d.value
 
 });
 
-    }
-
-
-// =====================================
-// GUARDAR PROFESSOR
-// =====================================
-
+    
 guardarProfessor.addEventListener(
 "click",
 async()=>{
 
+
 alert("Botão guardar clicado");
 
-alert(nomeProfessor.value);
-    
-alert(nivelEnsino.value);
-    
-alert(atribuicoes.length);
 
 const nome =
 nomeProfessor.value.trim();
@@ -456,7 +446,6 @@ return;
 }
 
 
-
 // gerar código automático
 
 const professores =
@@ -465,15 +454,12 @@ collection(db,"professores")
 );
 
 
-
 const numero =
 professores.size + 1;
 
 
-
 const codigo =
 gerarCodigoProfessor(numero);
-
 
 
 const senha =
@@ -483,239 +469,133 @@ gerarSenha();
 alert("Vai gravar no Firebase");
 
 
-await addDoc(
+try{
 
-collection(db,"professores"),
+    await addDoc(
 
-{
+        collection(db,"professores"),
 
+        {
 
-codigoProfessor:
+            codigoProfessor: codigo,
 
-codigo,
+            senhaAcesso: senha,
 
+            nome: nome,
 
+            email: email,
 
-senhaAcesso:
+            ensino: ensino,
 
-senha,
+            atribuicoes: atribuicoes,
 
+            ativo: true,
 
+            criadoEm: serverTimestamp()
 
-nome:
+        }
 
-
-nome,
-
-
-
-email:
-
-
-email,
+    );
 
 
-
-ensino:
-
-
-ensino,
-
-
-
-atribuicoes:
-
-
-atribuicoes,
-
-
-
-ativo:
-
-
-true,
-
-
-
-criadoEm:
-
-
-serverTimestamp()
-
-
-}
-
-);
-
-
-
-
-alert(
-
-`Professor cadastrado!
+    alert(
+    `Professor cadastrado!
 
 Código:
 ${codigo}
 
 Senha:
 ${senha}`
-
-);
-
+    );
 
 
+    limparFormulario();
 
-limparFormulario();
-
-
-
-carregarProfessores();
+    carregarProfessores();
 
 
+}catch(erro){
+
+    alert(
+    "Erro ao guardar professor:\n\n" 
+    + erro.message
+    );
+
+    console.error(erro);
+
+}
 
 });
-
 
 // =====================================
 // LISTAR PROFESSORES
 // =====================================
 
-
 async function carregarProfessores(){
 
+    const dados =
+    await getDocs(
+        collection(db,"professores")
+    );
 
-const dados =
-try{
+    tabelaProfessores.innerHTML = "";
 
-await addDoc(
-collection(db,"professores"),
-{
+    dados.forEach(item=>{
 
-codigoProfessor: codigo,
+        const professor = item.data();
 
-senhaAcesso: senha,
+        let listaAtribuicoes = "";
 
-nome: nome,
+        if(professor.atribuicoes){
 
-email: email,
+            professor.atribuicoes.forEach(a=>{
 
-ensino: ensino,
+                listaAtribuicoes +=
+                `${a.turmaNome} - ${a.disciplina}<br>`;
 
-atribuicoes: atribuicoes,
+            });
 
-ativo: true,
+        }
 
-criadoEm: serverTimestamp()
+        tabelaProfessores.innerHTML += `
+
+        <tr>
+
+            <td>${professor.codigoProfessor || ""}</td>
+
+            <td>${professor.nome || ""}</td>
+
+            <td>${professor.email || ""}</td>
+
+            <td>${professor.ensino || ""}</td>
+
+            <td>${listaAtribuicoes}</td>
+
+            <td>${professor.senhaAcesso || ""}</td>
+
+            <td>
+
+                <button onclick="verProfessor('${item.id}')">
+                    👁️
+                </button>
+
+                <button onclick="editarProfessor('${item.id}')">
+                    ✏️
+                </button>
+
+                <button onclick="apagarProfessor('${item.id}')">
+                    🗑️
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
 
 }
-);
-
-alert("Professor gravado com sucesso!");
-
-}catch(erro){
-
-alert("Erro: " + erro.message);
-
-console.error(erro);
-
-}
-
-
-
-
-
-tabelaProfessores.innerHTML +=
-
-`
-
-<tr>
-
-
-<td>
-
-${ professor.codigoProfessor || "" }
-
-</td>
-
-
-
-<td>
-
-${ professor.nome || "" }
-
-</td>
-
-
-
-<td>
-
-${ professor.email || "" }
-
-</td>
-
-
-
-<td>
-
-${ professor.ensino || "" }
-
-</td>
-
-
-
-<td>
-
-${listaAtribuicoes}
-
-</td>
-
-
-
-<td>
-
-${ professor.senhaAcesso || "" }
-
-</td>
-
-
-
-<td>
-
-
-<button onclick="verProfessor('${item.id}')">
-
-👁️
-
-</button>
-
-
-
-<button onclick="apagarProfessor('${item.id}')">
-
-🗑️
-
-</button>
-
-
-
-</td>
-
-
-</tr>
-
-`;
-
-
-
-});
-
-
-}
-
-
-
-
-
 
 
 
