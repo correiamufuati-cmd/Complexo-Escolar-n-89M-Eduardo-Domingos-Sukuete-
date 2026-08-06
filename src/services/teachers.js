@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO");
+alert("TEACHERS.JS CARREGADO Df");
 
 import { db } from "./firebase.js";
 
@@ -434,7 +434,8 @@ guardarProfessor.addEventListener(
 "click",
 async()=>{
 
-
+alert("Botão guardar clicado");
+    
 const nome =
 nomeProfessor.value.trim();
 
