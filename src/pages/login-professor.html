@@ -4,39 +4,39 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Área do Professor</title>
-
+<title>Área do Professor - SGE</title>
 
 <style>
 
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+
 body{
-
-font-family: Arial, sans-serif;
-
-padding:20px;
-
+margin:0;
 background:#f1f5f9;
+}
+
+
+header{
+
+background:#1e3a8a;
+color:white;
+padding:25px;
+text-align:center;
 
 }
 
 
 .container{
 
-max-width:600px;
-
-margin:auto;
-
-}
-
-
-h1{
-
-text-align:center;
-
-color:#1e3a8a;
+max-width:400px;
+margin:40px auto;
+padding:20px;
 
 }
 
@@ -44,16 +44,17 @@ color:#1e3a8a;
 .card{
 
 background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 3px 10px rgba(0,0,0,.1);
 
-border:1px solid #ccc;
+}
 
-padding:20px;
 
-border-radius:10px;
+h2{
 
-margin-top:20px;
-
-box-shadow:0 3px 10px rgba(0,0,0,0.1);
+text-align:center;
+color:#1e3a8a;
 
 }
 
@@ -61,163 +62,102 @@ box-shadow:0 3px 10px rgba(0,0,0,0.1);
 label{
 
 display:block;
-
 margin-top:15px;
-
 font-weight:bold;
 
 }
 
 
-select,
+input{
+
+width:100%;
+padding:12px;
+margin-top:8px;
+border:1px solid #ccc;
+border-radius:8px;
+
+}
+
+
 button{
 
 width:100%;
-
-padding:12px;
-
-margin-top:8px;
-
-font-size:16px;
-
-}
-
-
-select{
-
-border-radius:5px;
-
-border:1px solid #aaa;
-
-}
-
-
-button{
-
-background:#1976d2;
-
+padding:13px;
+margin-top:25px;
+background:#1e3a8a;
 color:white;
-
 border:none;
-
-border-radius:5px;
-
-cursor:pointer;
-
-}
-
-
-button:hover{
-
-opacity:0.8;
+border-radius:8px;
+font-size:16px;
 
 }
 
 
 </style>
 
-
 </head>
-
 
 
 <body>
 
 
+<header>
+
+<h1>SGE</h1>
+
+<p style="color:white">
+Sistema de Gestão Escolar
+</p>
+
+</header>
+
 
 <div class="container">
-
-
-
-<h1>
-👨‍🏫 Área do Professor
-</h1>
-
 
 
 <div class="card">
 
 
-
-<h2 id="nomeProfessor">
-
-Carregando...
-
+<h2>
+👨‍🏫 Área do Professor
 </h2>
 
 
+<label>
+Código do Professor
+</label>
 
-<p>
-
-Selecione a turma e a disciplina para trabalhar.
-
-</p>
-
-
+<input 
+id="codigo"
+placeholder="Digite o código">
 
 
 <label>
-Turma:
+Senha
 </label>
 
-
-<select id="selectTurma">
-
-<option value="">
-Selecione a turma
-</option>
+<input 
+id="senha"
+type="password"
+placeholder="Digite a senha">
 
 
-</select>
+<button id="entrar">
 
-
-
-
-
-<label>
-Disciplina:
-</label>
-
-
-<select id="selectDisciplina">
-
-<option value="">
-Selecione a disciplina
-</option>
-
-
-</select>
-
-
-
-
-<br><br>
-
-
-
-<button id="abrirMiniPauta">
-
-📋 Abrir Mini-Pauta
+Entrar
 
 </button>
 
 
+</div>
+
 
 </div>
 
 
-
-</div>
-
-
-
-
-
-<script type="module" src="../services/login-professor.js?v=2"></script>
-
+<script type="module" src="../services/login-professor.js"></script>
 
 
 </body>
 
-
-</html>
+  </html>
