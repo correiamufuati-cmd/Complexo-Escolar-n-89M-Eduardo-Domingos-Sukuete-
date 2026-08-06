@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO Dp");
+alert("TEACHERS.JS CARREGADO D9p");
 
 import { db } from "./firebase.js";
 
@@ -12,7 +12,6 @@ deleteDoc,
 doc,
 serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
 
 
 // =====================================
@@ -41,7 +40,6 @@ const tabelaProfessores =
 document.getElementById("tabelaProfessores");
 
 
-
 // =====================================
 // VARIÁVEIS
 // =====================================
@@ -49,9 +47,6 @@ document.getElementById("tabelaProfessores");
 let turmas = [];
 
 let atribuicoes = [];
-
-
-
 
 // =====================================
 // GERAR CÓDIGO PROFESSOR
@@ -63,9 +58,6 @@ return "PROF-" +
 String(numero).padStart(3,"0");
 
 }
-
-
-
 
 // =====================================
 // GERAR SENHA
@@ -94,9 +86,6 @@ return senha;
 
 }
 
-
-
-
 // =====================================
 // LIMPAR FORMULÁRIO
 // =====================================
@@ -119,7 +108,6 @@ atribuicoes = [];
 
 }
 
-
 // =====================================
 // CARREGAR TURMAS
 // =====================================
@@ -131,7 +119,6 @@ async()=>{
 await carregarTurmas();
 
 });
-
 
 
 async function carregarTurmas(){
@@ -146,8 +133,7 @@ turmas = [];
 
 atribuicoes = [];
 
-
-
+    
 const snapshot =
 await getDocs(
 collection(db,"turmas")
@@ -627,8 +613,8 @@ professor.atribuicoes?.forEach(a=>{
 listaAtribuicoes +=
 
 `
-${ a . turmaNome } -
-${ a . disciplina }
+${ a.turmaNome } -
+${ a.disciplina }
 <br>
 ` ;
 
@@ -640,7 +626,7 @@ ${ a . disciplina }
 
 
 
-tabelaProfessores . HTML interno +=
+tabelaProfessores.innerHTML +=
 
 `
 
@@ -649,7 +635,7 @@ tabelaProfessores . HTML interno +=
 
 <td>
 
-${ professor . codigoProfessor || "" }
+${ professor.codigoProfessor || "" }
 
 </td>
 
@@ -657,7 +643,7 @@ ${ professor . codigoProfessor || "" }
 
 <td>
 
-${ professor . nome || "" }
+${ professor.nome || "" }
 
 </td>
 
@@ -665,7 +651,7 @@ ${ professor . nome || "" }
 
 <td>
 
-${ professor . email || "" }
+${ professor.email || "" }
 
 </td>
 
@@ -673,7 +659,7 @@ ${ professor . email || "" }
 
 <td>
 
-${ professor . ensino || "" }
+${ professor.ensino || "" }
 
 </td>
 
@@ -681,7 +667,7 @@ ${ professor . ensino || "" }
 
 <td>
 
-${ listaAtribuicos }
+${listaAtribuicoes}
 
 </td>
 
@@ -689,7 +675,7 @@ ${ listaAtribuicos }
 
 <td>
 
-${ professor . senhaAcesso || "" }
+${ professor.senhaAcesso || "" }
 
 </td>
 
