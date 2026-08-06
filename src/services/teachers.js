@@ -435,7 +435,13 @@ guardarProfessor.addEventListener(
 async()=>{
 
 alert("Botão guardar clicado");
+
+alert(nomeProfessor.value);
     
+alert(nivelEnsino.value);
+    
+alert(atribuicoes.length);
+
 const nome =
 nomeProfessor.value.trim();
 
