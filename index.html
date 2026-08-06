@@ -1,12 +1,262 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
+
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=public/index.html">
-<title>SGE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SGE - Sistema de Gestão Escolar</title>
+
+
+<style>
+
+*{
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+
+body{
+
+  margin:0;
+  background:#f1f5f9;
+  color:#1e293b;
+
+}
+
+
+
+header{
+
+  background:#1e3a8a;
+  color:white;
+  padding:25px;
+  text-align:center;
+
+}
+
+
+
+.container{
+
+  max-width:900px;
+  margin:30px auto;
+  padding:20px;
+
+}
+
+
+
+.card{
+
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
+  text-align:center;
+
+}
+
+
+
+h1{
+
+  margin-bottom:10px;
+
+}
+
+
+
+p{
+
+  color:#475569;
+
+}
+
+
+
+.menu{
+
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:20px;
+  margin-top:30px;
+
+}
+
+
+
+button{
+
+  padding:15px;
+  border:none;
+  border-radius:8px;
+  background:#1e3a8a;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+
+}
+
+
+
+button:hover{
+
+  opacity:.9;
+
+}
+
+
+
+.footer{
+
+  text-align:center;
+  margin-top:30px;
+  color:#64748b;
+
+}
+
+
+
+</style>
+
+
 </head>
 
+
 <body>
-<p>A carregar o Sistema de Gestão Escolar...</p>
+
+
+
+<header>
+
+<h1>SGE</h1>
+
+<p style="color:white">
+Sistema de Gestão Escolar
+</p>
+
+</header>
+
+
+
+
+
+<div class="container">
+
+
+<div class="card">
+
+
+<h2>Bem-vindo</h2>
+
+
+<p>
+
+Plataforma digital para gestão de escolas,
+alunos, professores, turmas, notas e documentos.
+
+</p>
+
+
+
+
+
+<div class="menu">
+
+
+
+<button onclick="abrirGestor()">
+
+🏫 Gestor / Administrador
+
+</button>
+
+
+
+
+<button onclick="abrirProfessor()">
+
+👨‍🏫 Professor
+
+</button>
+
+
+
+
+<button onclick="abrirAluno()">
+
+👨‍🎓 Aluno
+
+</button>
+
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div class="footer">
+
+<p>
+
+Sistema de Gestão Escolar © 2026
+
+</p>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<script>
+
+
+function abrirGestor(){
+
+window.location.href =
+"src/pages/login-gestor.html";
+
+}
+
+
+function abrirProfessor(){
+
+window.location.href =
+"src/pages/login-professor.html";
+
+}
+
+
+function abrirAluno(){
+
+window.location.href =
+"src/pages/student-login.html";
+
+}
+
+
+
+</script>
+
+
+
+
+
 </body>
-</html>
+
+  </html>
