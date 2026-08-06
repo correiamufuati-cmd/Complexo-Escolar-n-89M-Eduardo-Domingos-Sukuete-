@@ -1,4 +1,4 @@
-alert("PAINEL Dy");
+alert("PAINEL Dx");
 
 import { db } from "./firebase.js";
 
