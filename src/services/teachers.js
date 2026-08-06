@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO D9p");
+alert("TEACHERS.JS CARREGADO D9");
 
 import { db } from "./firebase.js";
 
@@ -585,42 +585,40 @@ async function carregarProfessores(){
 
 
 const dados =
-await getDocs(
-collection(db,"professores")
+try{
+
+await addDoc(
+collection(db,"professores"),
+{
+
+codigoProfessor: codigo,
+
+senhaAcesso: senha,
+
+nome: nome,
+
+email: email,
+
+ensino: ensino,
+
+atribuicoes: atribuicoes,
+
+ativo: true,
+
+criadoEm: serverTimestamp()
+
+}
 );
 
+alert("Professor gravado com sucesso!");
 
+}catch(erro){
 
-tabelaProfessores.innerHTML="";
+alert("Erro: " + erro.message);
 
+console.error(erro);
 
-
-dados.forEach(item=>{
-
-
-const professor =
-item.data();
-
-
-
-let listaAtribuicoes = "";
-
-
-
-professor.atribuicoes?.forEach(a=>{
-
-
-listaAtribuicoes +=
-
-`
-${ a.turmaNome } -
-${ a.disciplina }
-<br>
-` ;
-
-
-
-} ) ;
+}
 
 
 
@@ -779,7 +777,7 @@ Senha:
 ${p.senhaAcesso}
 
 
-Atribuições:
+Atribuicoes:
 
 `;
 
