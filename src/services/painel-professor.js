@@ -1,9 +1,9 @@
 import { db } from "./firebase.js";
 
 
-// =======================
-// VERIFICAR LOGIN
-// =======================
+// ==========================
+// VERIFICAR PROFESSOR LOGADO
+// ==========================
 
 const professor = JSON.parse(
     localStorage.getItem("professorLogado")
@@ -19,9 +19,9 @@ if(!professor){
 }
 
 
-// =======================
-// ELEMENTOS
-// =======================
+// ==========================
+// ELEMENTOS DA PÁGINA
+// ==========================
 
 const nomeProfessor =
 document.getElementById("nomeProfessor");
@@ -36,24 +36,35 @@ document.getElementById("selectDisciplina");
 
 
 
-// =======================
-// MOSTRAR NOME
-// =======================
 
-nomeProfessor.textContent =
+// ==========================
+// MOSTRAR NOME
+// ==========================
+
+nomeProfessor.innerHTML =
 "👨‍🏫 " + professor.nome;
 
 
 
-// =======================
-// CARREGAR TURMAS
-// =======================
 
+// ==========================
+// ATRIBUIÇÕES DO PROFESSOR
+// ==========================
 
 const atribuicoes =
 professor.atribuicoes || [];
 
 
+
+// TESTE (remover depois)
+// alert(JSON.stringify(atribuicoes));
+
+
+
+
+// ==========================
+// CARREGAR TURMAS
+// ==========================
 
 let turmas = [];
 
@@ -62,9 +73,12 @@ let turmas = [];
 atribuicoes.forEach(item=>{
 
 
-    if(!turmas.includes(item.turmaNome)){
+    if(
+        item.turmaNome &&
+        !turmas.includes(item.turmaNome)
+    ){
 
-        turmas.push(item.turmaNome;
+        turmas.push(item.turmaNome);
 
     }
 
@@ -76,21 +90,22 @@ atribuicoes.forEach(item=>{
 turmas.forEach(turma=>{
 
 
-selectTurma.innerHTML +=
-`
-<option value="${turma}">
-${turma}
-</option>
-`;
+    selectTurma.innerHTML +=
+    `
+    <option value="${turma}">
+        ${turma}
+    </option>
+    `;
 
 
 });
 
 
 
-// =======================
-// MUDAR TURMA
-// =======================
+
+// ==========================
+// QUANDO ESCOLHER TURMA
+// ==========================
 
 selectTurma.addEventListener(
 "change",
@@ -104,24 +119,28 @@ selectTurma.value;
 
 selectDisciplina.innerHTML =
 `
-<option>
+<option value="">
 Selecione a disciplina
 </option>
 `;
 
 
 
-atribuicoes
-.filter(item=>item.turmaNome === turmaSelecionada)
-.forEach(item=>{
+atribuicoes.forEach(item=>{
 
 
-selectDisciplina.innerHTML +=
-`
-<option value="${item.disciplina}">
-${item.disciplina}
-</option>
-`;
+    if(item.turmaNome === turmaSelecionada){
+
+
+        selectDisciplina.innerHTML +=
+        `
+        <option value="${item.disciplina}">
+            ${item.disciplina}
+        </option>
+        `;
+
+
+    }
 
 
 });
@@ -132,14 +151,19 @@ ${item.disciplina}
 
 
 
-// =======================
-// MINI-PAUTA
-// =======================
+// ==========================
+// ABRIR MINI-PAUTA
+// ==========================
+
+const botaoMiniPauta =
+document.getElementById("abrirMiniPauta");
 
 
-document
-.getElementById("abrirMiniPauta")
-.addEventListener(
+
+if(botaoMiniPauta){
+
+
+botaoMiniPauta.addEventListener(
 "click",
 ()=>{
 
@@ -183,3 +207,6 @@ window.location.href =
 
 
 });
+
+
+}
