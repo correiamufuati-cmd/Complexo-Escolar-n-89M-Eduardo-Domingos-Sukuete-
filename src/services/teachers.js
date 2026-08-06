@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO DH");
+alert("TEACHERS.JS CARREGADO Dp");
 
 import { db } from "./firebase.js";
 
@@ -494,7 +494,7 @@ const senha =
 gerarSenha();
 
 
-
+alert("Vai gravar no Firebase");
 
 
 await addDoc(
@@ -627,20 +627,20 @@ professor.atribuicoes?.forEach(a=>{
 listaAtribuicoes +=
 
 `
-${a.turmaNome} -
-${a.disciplina}
+${ a . turmaNome } -
+${ a . disciplina }
 <br>
-`;
+` ;
 
 
 
-});
+} ) ;
 
 
 
 
 
-tabelaProfessores.innerHTML +=
+tabelaProfessores . HTML interno +=
 
 `
 
@@ -649,7 +649,7 @@ tabelaProfessores.innerHTML +=
 
 <td>
 
-${professor.codigoProfessor || ""}
+${ professor . codigoProfessor || "" }
 
 </td>
 
@@ -657,7 +657,7 @@ ${professor.codigoProfessor || ""}
 
 <td>
 
-${professor.nome || ""}
+${ professor . nome || "" }
 
 </td>
 
@@ -665,7 +665,7 @@ ${professor.nome || ""}
 
 <td>
 
-${professor.email || ""}
+${ professor . email || "" }
 
 </td>
 
@@ -673,7 +673,7 @@ ${professor.email || ""}
 
 <td>
 
-${professor.ensino || ""}
+${ professor . ensino || "" }
 
 </td>
 
@@ -681,7 +681,7 @@ ${professor.ensino || ""}
 
 <td>
 
-${listaAtribuicoes}
+${ listaAtribuicos }
 
 </td>
 
@@ -689,7 +689,7 @@ ${listaAtribuicoes}
 
 <td>
 
-${professor.senhaAcesso || ""}
+${ professor . senhaAcesso || "" }
 
 </td>
 
