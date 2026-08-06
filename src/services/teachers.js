@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO Df");
+alert("TEACHERS.JS CARREGADO DH");
 
 import { db } from "./firebase.js";
 
