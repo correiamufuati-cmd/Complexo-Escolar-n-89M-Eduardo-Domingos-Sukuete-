@@ -1,3 +1,5 @@
+alert("TEACHERS.JS CARREGADO");
+
 import { db } from "./firebase.js";
 
 import {
@@ -5,6 +7,7 @@ collection,
 getDocs,
 getDoc,
 addDoc,
+updateDoc,
 deleteDoc,
 doc,
 serverTimestamp
@@ -12,256 +15,355 @@ serverTimestamp
 
 
 
+// =====================================
 // CAMPOS
+// =====================================
 
 const nomeProfessor =
 document.getElementById("nomeProfessor");
 
-
 const emailProfessor =
 document.getElementById("emailProfessor");
-
 
 const nivelEnsino =
 document.getElementById("nivelEnsino");
 
-
-const listaDisciplinas =
-document.getElementById("listaDisciplinas");
-
-
 const listaTurmas =
 document.getElementById("listaTurmas");
 
+const listaAtribuicoes =
+document.getElementById("listaAtribuicoes");
 
 const guardarProfessor =
 document.getElementById("guardarProfessor");
-
 
 const tabelaProfessores =
 document.getElementById("tabelaProfessores");
 
 
 
+// =====================================
+// VARIÁVEIS
+// =====================================
+
+let turmas = [];
+
+let atribuicoes = [];
 
 
-// ==========================
-// GERAR CÓDIGO
-// ==========================
 
 
-function gerarCodigo(numero){
+// =====================================
+// GERAR CÓDIGO PROFESSOR
+// =====================================
 
+function gerarCodigoProfessor(numero){
 
 return "PROF-" +
 String(numero).padStart(3,"0");
 
-
 }
 
 
 
-// ==========================
-// GERAR SENHA
-// ==========================
 
+// =====================================
+// GERAR SENHA
+// =====================================
 
 function gerarSenha(){
-
 
 const caracteres =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-
-let senha="";
-
+let senha = "";
 
 for(let i=0;i<6;i++){
 
-
 senha += caracteres.charAt(
+
 Math.floor(
 Math.random()*caracteres.length
 )
+
 );
 
-
 }
-
 
 return senha;
 
-
 }
 
 
 
 
-// ==========================
-// MUDAR NÍVEL
-// ==========================
+// =====================================
+// LIMPAR FORMULÁRIO
+// =====================================
 
+function limparFormulario(){
+
+nomeProfessor.value = "";
+
+emailProfessor.value = "";
+
+nivelEnsino.value = "";
+
+listaTurmas.innerHTML =
+"Selecione o nível";
+
+listaAtribuicoes.innerHTML =
+"Selecione uma turma";
+
+atribuicoes = [];
+
+}
+
+
+// =====================================
+// CARREGAR TURMAS
+// =====================================
 
 nivelEnsino.addEventListener(
 "change",
-()=>{
+async()=>{
 
-
-carregarDisciplinas();
-
-carregarTurmas();
-
+await carregarTurmas();
 
 });
 
 
 
-
-
-
-// ==========================
-// CARREGAR DISCIPLINAS
-// ==========================
-
-
-async function carregarDisciplinas(){
-
-    listaDisciplinas.innerHTML =
-    "A carregar disciplinas...";
-
-
-    if(!nivelEnsino.value){
-        listaDisciplinas.innerHTML =
-        "Selecione o nível";
-        return;
-    }
-
-
-    const referencia =
-    doc(
-        db,
-        "config",
-        "disciplinas"
-    );
-
-
-    const resultado =
-    await getDoc(referencia);
-
-
-
-    if(!resultado.exists()){
-
-        listaDisciplinas.innerHTML =
-        "Configuração de disciplinas não encontrada";
-
-        return;
-    }
-
-
-
-    const dados =
-    resultado.data();
-
-
-
-    const nivel =
-    dados[nivelEnsino.value];
-
-
-
-    if(!nivel){
-
-        listaDisciplinas.innerHTML =
-        "Nenhuma disciplina para este nível";
-
-        return;
-    }
-
-
-
-    listaDisciplinas.innerHTML="";
-
-
-
-    nivel.disciplinas.forEach(disciplina=>{
-
-
-        listaDisciplinas.innerHTML +=
-        `
-
-        <div class="checkBox">
-
-        <input 
-        type="checkbox"
-        class="disciplina"
-        value="${disciplina}">
-
-        ${disciplina}
-
-        </div>
-
-        `;
-
-
-    });
-
-
-}
-
-
-// ==========================
-// CARREGAR TURMAS
-// ==========================
-
-
 async function carregarTurmas(){
 
-
 listaTurmas.innerHTML =
-"A carregar...";
+"A carregar turmas...";
+
+listaAtribuicoes.innerHTML =
+"Selecione uma turma";
+
+turmas = [];
+
+atribuicoes = [];
 
 
 
-const dados =
+const snapshot =
 await getDocs(
 collection(db,"turmas")
 );
 
 
 
-listaTurmas.innerHTML="";
+listaTurmas.innerHTML = "";
 
 
 
-dados.forEach(item=>{
+snapshot.forEach(docSnap=>{
 
+const turma = {
 
-const turma =
-item.data();
+id:docSnap.id,
+
+...docSnap.data()
+
+};
 
 
 
 if(
-turma.ensino === nivelEnsino.value
+turma.ensino ===
+nivelEnsino.value
 ){
 
+turmas.push(turma);
 
+}
+
+});
+
+
+
+if(turmas.length===0){
+
+listaTurmas.innerHTML =
+"Nenhuma turma encontrada.";
+
+return;
+
+}
+
+
+
+turmas.forEach(turma=>{
 
 listaTurmas.innerHTML +=
 `
 
 <div class="checkBox">
 
-<input 
-type="checkbox"
-class="turma"
-value="${item.id}">
+<label>
 
-${turma.nome}
+<input
+type="checkbox"
+class="turmaCheck"
+value="${turma.id}">
+
+<b>${turma.nome}</b>
+
+(${turma.classe})
+
+</label>
 
 </div>
 
+`;
+
+});
+
+
+
+document
+.querySelectorAll(".turmaCheck")
+.forEach(check=>{
+
+check.addEventListener(
+"change",
+carregarAtribuicoes
+);
+
+});
+
+    }
+
+
+// =====================================
+// CARREGAR ATRIBUIÇÕES
+// (TURMA + DISCIPLINAS)
+// =====================================
+
+async function carregarAtribuicoes(){
+
+listaAtribuicoes.innerHTML="";
+
+atribuicoes = [];
+
+const selecionadas =
+document.querySelectorAll(
+".turmaCheck:checked"
+);
+
+
+
+if(selecionadas.length===0){
+
+listaAtribuicoes.innerHTML=
+"Selecione uma turma.";
+
+return;
+
+}
+
+
+
+for(const check of selecionadas){
+
+
+const turmaId = check.value;
+
+
+
+const turmaRef =
+doc(
+db,
+"turmas",
+turmaId
+);
+
+
+
+const turmaSnap =
+await getDoc(turmaRef);
+
+
+
+if(!turmaSnap.exists()){
+
+continue;
+
+}
+
+
+
+const turma =
+turmaSnap.data();
+
+
+
+listaAtribuicoes.innerHTML +=
+
+`
+
+<div class="section">
+
+<h3>
+
+${turma.nome}
+
+</h3>
+
+`;
+
+
+
+const disciplinas =
+turma.disciplinas || [];
+
+
+
+disciplinas.forEach(disciplina=>{
+
+
+listaAtribuicoes.innerHTML +=
+
+`
+
+<label>
+
+<input
+
+type="checkbox"
+
+class="disciplinaCheck"
+
+data-turma="${turmaId}"
+
+data-turmaNome="${turma.nome}"
+
+data-classe="${turma.classe}"
+
+value="${disciplina}"
+
+>
+
+${disciplina}
+
+</label>
+
+<br>
+
+`;
+
+
+});
+
+
+
+listaAtribuicoes.innerHTML +=
+
+`
+
+</div>
 
 `;
 
@@ -271,21 +373,62 @@ ${turma.nome}
 
 
 
+document
+.querySelectorAll(".disciplinaCheck")
+.forEach(item=>{
+
+
+item.addEventListener(
+"change",
+()=>{
+
+
+atribuicoes=[];
+
+
+
+document
+.querySelectorAll(".disciplinaCheck:checked")
+.forEach(d=>{
+
+
+atribuicoes.push({
+
+
+turmaId:
+d.dataset.turma,
+
+
+turmaNome:
+d.dataset.turmaNome,
+
+
+classe:
+d.dataset.classe,
+
+
+disciplina:
+d.value
+
+
 });
 
 
-}
+});
 
 
 
+});
 
 
+});
+
+    }
 
 
-// ==========================
+// =====================================
 // GUARDAR PROFESSOR
-// ==========================
-
+// =====================================
 
 guardarProfessor.addEventListener(
 "click",
@@ -296,10 +439,8 @@ const nome =
 nomeProfessor.value.trim();
 
 
-
 const email =
 emailProfessor.value.trim();
-
 
 
 const ensino =
@@ -307,41 +448,15 @@ nivelEnsino.value;
 
 
 
-const disciplinas =
-Array.from(
-document.querySelectorAll(".disciplina:checked")
-)
-.map(
-d=>d.value
-);
-
-
-
-
-const turmas =
-Array.from(
-document.querySelectorAll(".turma:checked")
-)
-.map(
-t=>t.value
-);
-
-
-
-
-
 if(
 !nome ||
 !ensino ||
-disciplinas.length===0 ||
-turmas.length===0
+atribuicoes.length === 0
 ){
 
-
 alert(
-"Preencha todos os campos"
+"Preencha nome, nível e atribuições"
 );
-
 
 return;
 
@@ -349,7 +464,7 @@ return;
 
 
 
-
+// gerar código automático
 
 const professores =
 await getDocs(
@@ -363,6 +478,16 @@ professores.size + 1;
 
 
 
+const codigo =
+gerarCodigoProfessor(numero);
+
+
+
+const senha =
+gerarSenha();
+
+
+
 
 
 await addDoc(
@@ -373,38 +498,55 @@ collection(db,"professores"),
 
 
 codigoProfessor:
-gerarCodigo(numero),
 
+codigo,
+
+
+
+senhaAcesso:
+
+senha,
+
+
+
+nome:
 
 
 nome,
 
+
+
+email:
+
+
 email,
 
+
+
+ensino:
 
 
 ensino,
 
 
 
-disciplinas,
+atribuicoes:
+
+
+atribuicoes,
 
 
 
-turmas,
+ativo:
 
 
-
-senhaAcesso:
-gerarSenha(),
-
-
-
-ativo:true,
+true,
 
 
 
 criadoEm:
+
+
 serverTimestamp()
 
 
@@ -416,14 +558,22 @@ serverTimestamp()
 
 
 alert(
-"Professor cadastrado"
+
+`Professor cadastrado!
+
+Código:
+${codigo}
+
+Senha:
+${senha}`
+
 );
 
 
 
-nomeProfessor.value="";
 
-emailProfessor.value="";
+limparFormulario();
+
 
 
 carregarProfessores();
@@ -433,20 +583,12 @@ carregarProfessores();
 });
 
 
-
-
-
-
-
-
-
-// ==========================
+// =====================================
 // LISTAR PROFESSORES
-// ==========================
+// =====================================
 
 
 async function carregarProfessores(){
-
 
 
 const dados =
@@ -463,49 +605,85 @@ tabelaProfessores.innerHTML="";
 dados.forEach(item=>{
 
 
-const p =
+const professor =
 item.data();
 
 
 
+let listaAtribuicoes = "";
+
+
+
+professor.atribuicoes?.forEach(a=>{
+
+
+listaAtribuicoes +=
+
+`
+${a.turmaNome} -
+${a.disciplina}
+<br>
+`;
+
+
+
+});
+
+
+
+
+
 tabelaProfessores.innerHTML +=
+
 `
 
 <tr>
 
+
 <td>
-${p.codigoProfessor || ""}
+
+${professor.codigoProfessor || ""}
+
 </td>
 
 
+
 <td>
-${p.nome || ""}
+
+${professor.nome || ""}
+
 </td>
 
 
+
 <td>
-${p.email || ""}
+
+${professor.email || ""}
+
 </td>
 
 
+
 <td>
-${p.ensino || ""}
+
+${professor.ensino || ""}
+
 </td>
 
 
+
 <td>
-${p.disciplinas?.join(", ") || ""}
+
+${listaAtribuicoes}
+
 </td>
 
 
-<td>
-${p.turmas?.length || 0}
-turmas
-</td>
-
 
 <td>
-${p.ativo ? "Ativo":"Inativo"}
+
+${professor.senhaAcesso || ""}
+
 </td>
 
 
@@ -514,13 +692,19 @@ ${p.ativo ? "Ativo":"Inativo"}
 
 
 <button onclick="verProfessor('${item.id}')">
+
 👁️
+
 </button>
+
 
 
 <button onclick="apagarProfessor('${item.id}')">
+
 🗑️
+
 </button>
+
 
 
 </td>
@@ -528,6 +712,95 @@ ${p.ativo ? "Ativo":"Inativo"}
 
 </tr>
 
+`;
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+// =====================================
+// VER PROFESSOR
+// =====================================
+
+
+window.verProfessor = async(id)=>{
+
+
+const referencia =
+doc(
+db,
+"professores",
+id
+);
+
+
+
+const resultado =
+await getDoc(referencia);
+
+
+
+if(!resultado.exists()){
+
+return;
+
+}
+
+
+
+const p =
+resultado.data();
+
+
+
+let texto =
+
+`
+Código:
+${p.codigoProfessor}
+
+
+Nome:
+${p.nome}
+
+
+Email:
+${p.email}
+
+
+Ensino:
+${p.ensino}
+
+
+Senha:
+${p.senhaAcesso}
+
+
+Atribuições:
+
+`;
+
+
+
+p.atribuicoes?.forEach(a=>{
+
+
+texto +=
+
+`
+${a.turmaNome}
+-
+${a.disciplina}
 
 `;
 
@@ -537,110 +810,56 @@ ${p.ativo ? "Ativo":"Inativo"}
 
 
 
-}
+alert(texto);
 
-
-
-
-
-
-// ==========================
-// VER
-// ==========================
-
-
-window.verProfessor =
-async(id)=>{
-
-
-const dados =
-await getDocs(
-collection(db,"professores")
-);
-
-
-
-dados.forEach(p=>{
-
-
-if(p.id===id){
-
-
-const professor =
-p.data();
-
-
-
-alert(
-
-`
-Código:
-${professor.codigoProfessor}
-
-
-Nome:
-${professor.nome}
-
-
-Senha:
-${professor.senhaAcesso}
-
-
-Disciplinas:
-${professor.disciplinas.join(", ")}
-
-
-Turmas:
-${professor.turmas.length}
-
-`
-
-);
-
-
-
-}
-
-
-});
 
 
 };
 
 
+// =====================================
+// APAGAR PROFESSOR
+// =====================================
+
+
+window.apagarProfessor = async(id)=>{
+
+
+const confirmar =
+confirm(
+"Tem certeza que deseja apagar este professor?"
+);
 
 
 
+if(!confirmar){
 
+return;
 
+}
 
-// ==========================
-// APAGAR
-// ==========================
-
-
-window.apagarProfessor =
-async(id)=>{
-
-
-if(
-confirm("Apagar professor?")
-){
 
 
 await deleteDoc(
+
 doc(
 db,
 "professores",
 id
 )
+
 );
+
+
+
+alert(
+"Professor apagado"
+);
+
 
 
 carregarProfessores();
 
-
-}
 
 
 };
@@ -648,6 +867,94 @@ carregarProfessores();
 
 
 
+
+
+// =====================================
+// EDITAR PROFESSOR
+// =====================================
+
+
+window.editarProfessor = async(id)=>{
+
+
+const referencia =
+doc(
+db,
+"professores",
+id
+);
+
+
+
+const resultado =
+await getDoc(referencia);
+
+
+
+if(!resultado.exists()){
+
+return;
+
+}
+
+
+
+const professor =
+resultado.data();
+
+
+
+const novoNome =
+prompt(
+"Novo nome:",
+professor.nome
+);
+
+
+
+if(!novoNome){
+
+return;
+
+}
+
+
+
+await updateDoc(
+
+referencia,
+
+{
+
+nome:
+novoNome
+
+}
+
+);
+
+
+
+alert(
+"Professor atualizado"
+);
+
+
+
+carregarProfessores();
+
+
+
+};
+
+
+
+
+
+
+// =====================================
+// INICIAR
+// =====================================
 
 
 carregarProfessores();
