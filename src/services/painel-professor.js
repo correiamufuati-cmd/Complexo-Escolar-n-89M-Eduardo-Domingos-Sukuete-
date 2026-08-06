@@ -1,3 +1,5 @@
+alert("PAINEL PROFESSOR JS ATUALIZADO");
+
 import { db } from "./firebase.js";
 
 
