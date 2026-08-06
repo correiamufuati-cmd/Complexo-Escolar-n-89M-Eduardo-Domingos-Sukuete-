@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO Dal");
+alert("TEACHERS.JS CARREGADO Dav");
 
 import { db } from "./firebase.js";
 
@@ -324,9 +324,9 @@ class="disciplinaCheck"
 
 data-turma="${turmaId}"
 
-data-turmaNome="${turma.nome}"
+data-turmaNome="${turma.nome || ""}"
 
-data-classe="${turma.classe}"
+data-classe="${turma.classe || ""}"
 
 value="${disciplina}"
 
@@ -380,22 +380,13 @@ document
 
 atribuicoes.push({
 
+turmaId: d.dataset.turma,
 
-turmaId:
-d.dataset.turma,
+turmaNome: d.dataset.turmaNome,
 
+classe: d.dataset.classe,
 
-turmaNome:
-d.dataset.turmaNome,
-
-
-classe:
-d.dataset.classe,
-
-
-disciplina:
-d.value
-
+disciplina: d.value
 
 });
 
