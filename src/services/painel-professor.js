@@ -1,4 +1,4 @@
-alert("PAINEL Dk");
+alert("PAINEL Dy");
 
 import { db } from "./firebase.js";
 
@@ -88,12 +88,14 @@ atribuicoes.forEach(item=>{
 });
 
 
-turmas.forEach(id=>{
+turmas.forEach(turma=>{
+
+    alert("TURMA ENCONTRADA: " + turma);
 
     selectTurma.innerHTML +=
     `
-    <option value="${id}">
-        ${id}
+    <option value="${turma}">
+        ${turma}
     </option>
     `;
 
