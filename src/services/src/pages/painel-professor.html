@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Painel do Professor - SGE</title>
+
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+
+body{
+
+margin:0;
+background:#f1f5f9;
+
+}
+
+
+header{
+
+background:#1e3a8a;
+color:white;
+padding:25px;
+text-align:center;
+
+}
+
+
+
+.container{
+
+max-width:600px;
+margin:30px auto;
+padding:20px;
+
+}
+
+
+
+.card{
+
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 3px 10px rgba(0,0,0,.1);
+margin-bottom:20px;
+
+}
+
+
+
+h2{
+
+color:#1e3a8a;
+
+}
+
+
+
+label{
+
+font-weight:bold;
+display:block;
+margin-top:15px;
+
+}
+
+
+
+select,button{
+
+width:100%;
+padding:12px;
+margin-top:8px;
+border-radius:8px;
+font-size:16px;
+
+}
+
+
+
+select{
+
+border:1px solid #ccc;
+
+}
+
+
+
+button{
+
+background:#1e3a8a;
+color:white;
+border:none;
+
+}
+
+
+
+</style>
+
+</head>
+
+
+
+<body>
+
+
+<header>
+
+<h1>SGE</h1>
+
+<p style="color:white">
+Painel do Professor
+</p>
+
+</header>
+
+
+
+<div class="container">
+
+
+
+<div class="card">
+
+
+<h2 id="nomeProfessor">
+
+Carregando...
+
+</h2>
+
+
+<p>
+Selecione a turma e disciplina para trabalhar.
+</p>
+
+
+
+<label>
+Turma
+</label>
+
+
+<select id="selectTurma">
+
+<option>
+Selecione a turma
+</option>
+
+</select>
+
+
+
+<label>
+Disciplina
+</label>
+
+
+<select id="selectDisciplina">
+
+<option>
+Selecione a disciplina
+</option>
+
+</select>
+
+
+
+<button id="abrirMiniPauta">
+
+📋 Abrir Mini-Pauta
+
+</button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<script type="module" src="../services/painel-professor.js"></script>
+
+
+</body>
+
+</html>
