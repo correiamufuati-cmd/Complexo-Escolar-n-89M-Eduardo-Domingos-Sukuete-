@@ -48,10 +48,10 @@ const q = query(
 
 professoresRef,
 
-where("codigo","==",codigo),
+where("codigoProfessor","==",codigo),
 
-where("senha","==",senha)
-
+where("senhaAcesso","==",senha)
+    
 );
 
 
