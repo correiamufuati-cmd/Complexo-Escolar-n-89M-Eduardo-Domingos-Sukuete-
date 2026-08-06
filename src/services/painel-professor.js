@@ -1,4 +1,4 @@
-alert("PAINEL PROFESSOR JS ATUALIZADO Df");
+alert("PAINEL Df");
 
 import { db } from "./firebase.js";
 
