@@ -90,14 +90,14 @@ ${t}
 
 selectTurma.addEventListener(
 "change",
-()=>{
-
-
-selectDisciplina.innerHTML="";
 
 
 
-const turmaSelecionada =
+selectDisciplina.innerHTML = " " ;​
+
+
+
+constante turmaSelecionada =
 selectTurma.value;
 
 
