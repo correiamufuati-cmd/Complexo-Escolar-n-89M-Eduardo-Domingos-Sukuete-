@@ -1,4 +1,4 @@
-alert("PROFESSOR-AREA.JS CARREGADO");
+alert("PROFESSOR-AREA.JS CAR3REGADO");
 
 import { db } from "./firebase.js";
 
