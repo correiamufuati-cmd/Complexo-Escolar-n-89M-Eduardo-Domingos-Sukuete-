@@ -62,9 +62,9 @@ let turmas = [];
 atribuicoes.forEach(item=>{
 
 
-    if(!turmas.includes(item.turma)){
+    if(!turmas.includes(item.turmaNome)){
 
-        turmas.push(item.turma);
+        turmas.push(item.turmaNome;
 
     }
 
@@ -112,7 +112,7 @@ Selecione a disciplina
 
 
 atribuicoes
-.filter(item=>item.turma === turmaSelecionada)
+.filter(item=>item.turmaNome === turmaSelecionada)
 .forEach(item=>{
 
 
