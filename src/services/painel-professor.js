@@ -1,4 +1,4 @@
-alert("PAINEL Dx");
+alert("PAINEL Dp");
 
 import { db } from "./firebase.js";
 
@@ -72,32 +72,29 @@ alert(
 // CARREGAR TURMAS
 // ==========================
 
-// CARREGAR TURMAS
-
-let turmas = [];
+selectTurma.innerHTML = `
+<option value="">
+Selecione a turma
+</option>
+`;
 
 
 atribuicoes.forEach(item=>{
 
-    if(item.turmaId && !turmas.includes(item.turmaId)){
 
-        turmas.push(item.turmaId);
+    if(item.turmaNome){
+
+
+        selectTurma.innerHTML +=
+        `
+        <option value="${item.turmaNome}">
+        ${item.turmaNome}
+        </option>
+        `;
+
 
     }
 
-});
-
-
-turmas.forEach(turma=>{
-
-    alert("TURMA ENCONTRADA: " + turma);
-
-    selectTurma.innerHTML +=
-    `
-    <option value="${turma}">
-        ${turma}
-    </option>
-    `;
 
 });
 
