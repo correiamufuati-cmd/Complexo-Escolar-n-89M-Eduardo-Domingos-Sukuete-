@@ -1,4 +1,4 @@
-alert("PAINEL PROFESSOR JS ATUALIZADO");
+alert("PAINEL PROFESSOR JS ATUALIZADO Df");
 
 import { db } from "./firebase.js";
 
@@ -56,7 +56,11 @@ nomeProfessor.innerHTML =
 const atribuicoes =
 professor.atribuicoes || [];
 
-
+alert(
+"Professor: " + professor.nome +
+"\nTotal de atribuições: " + atribuicoes.length +
+"\nDados: " + JSON.stringify(atribuicoes)
+);
 
 // TESTE (remover depois)
 // alert(JSON.stringify(atribuicoes));
