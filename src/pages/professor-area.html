@@ -1,44 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 
 <head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Área do Professor</title>
+
+
+<style>
+
+body{
+
+font-family: Arial, sans-serif;
+
+padding:20px;
+
+}
+
+
+.container{
+
+max-width:600px;
+
+margin:auto;
+
+}
+
+
+h1{
+
+text-align:center;
+
+}
+
+
+.card{
+
+border:1px solid #ccc;
+
+padding:20px;
+
+border-radius:10px;
+
+margin-top:20px;
+
+}
+
+
+label{
+
+display:block;
+
+margin-top:15px;
+
+font-weight:bold;
+
+}
+
+
+select,
+button{
+
+width:100%;
+
+padding:12px;
+
+margin-top:8px;
+
+font-size:16px;
+
+}
+
+
+button{
+
+background:#1976d2;
+
+color:white;
+
+border:none;
+
+border-radius:5px;
+
+cursor:pointer;
+
+}
+
+
+button:hover{
+
+opacity:0.8;
+
+}
+
+
+</style>
+
+
 </head>
+
+
 
 <body>
 
-<h2>Área do Professor</h2>
-
-<h3 id="nomeProfessor"></h3>
 
 
-<label>Turma:</label>
+<div class="container">
+
+
+
+<h1>
+Área do Professor
+</h1>
+
+
+
+<div class="card">
+
+
+
+<h2 id="nomeProfessor">
+
+Carregando...
+
+</h2>
+
+
+
+<p>
+Selecione a turma e a disciplina para trabalhar.
+</p>
+
+
+
+
+<label>
+Turma:
+</label>
+
 
 <select id="selectTurma">
-<option>Selecione</option>
+
+<option value="">
+Selecione a turma
+</option>
+
+
 </select>
 
 
-<br><br>
 
 
-<label>Disciplina:</label>
+
+<label>
+Disciplina:
+</label>
+
 
 <select id="selectDisciplina">
-<option>Selecione</option>
+
+<option value="">
+Selecione a disciplina
+</option>
+
+
 </select>
 
 
+
+
 <br><br>
+
 
 
 <button id="abrirMiniPauta">
+
 Abrir Mini-Pauta
+
 </button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
 
 
 <script type="module" src="../services/professor-area.js"></script>
 
+
+
 </body>
 
-</html>
+
+  </html>
