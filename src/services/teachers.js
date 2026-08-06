@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO Dy");
+alert("TEACHERS.JS CARREGADO Day");
 
 import { db } from "./firebase.js";
 
@@ -409,7 +409,13 @@ d.value
 
 });
 
-    
+}
+
+
+// =====================================
+// GUARDAR PROFESSOR
+// =====================================
+
 guardarProfessor.addEventListener(
 "click",
 async()=>{
