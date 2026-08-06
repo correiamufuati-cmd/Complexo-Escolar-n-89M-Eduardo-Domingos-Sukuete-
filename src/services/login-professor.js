@@ -1,109 +1,126 @@
-alert("LOGIN-PROFESSOR.JS CARREGADO");
-
 import { db } from "./firebase.js";
+
 import {
-    doc,
-    getDoc
+    collection,
+    getDocs,
+    query,
+    where
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-// =======================
-// PROFESSOR LOGADO
-// =======================
 
-const professor = JSON.parse(localStorage.getItem("professorLogado"));
+// CAMPOS
 
-if (!professor) {
-    window.location.href = "../pages/login-professor.html";
-    throw new Error("Professor não autenticado.");
+const codigoInput = document.getElementById("codigo");
+const senhaInput = document.getElementById("senha");
+const botaoEntrar = document.getElementById("entrar");
+
+
+
+// LOGIN
+
+botaoEntrar.addEventListener("click", async ()=>{
+
+
+const codigo = codigoInput.value.trim();
+
+const senha = senhaInput.value.trim();
+
+
+
+if(!codigo || !senha){
+
+alert("Preencha o código e a senha.");
+
+return;
+
 }
 
-// =======================
-// ELEMENTOS
-// =======================
 
-const nomeProfessor = document.getElementById("nomeProfessor");
-const selectTurma = document.getElementById("selectTurma");
-const selectDisciplina = document.getElementById("selectDisciplina");
-const abrirMiniPauta = document.getElementById("abrirMiniPauta");
 
-// =======================
-// NOME
-// =======================
+try{
 
-nomeProfessor.textContent = professor.nome || "Professor";
 
-// =======================
-// ATRIBUIÇÕES
-// =======================
+const professoresRef = collection(db,"professores");
 
-const atribuicoes = professor.atribuicoes || [];
 
-// =======================
-// CARREGAR TURMAS
-// =======================
 
-const turmas = [...new Set(atribuicoes.map(a => a.turmaNome))];
+const q = query(
 
-selectTurma.innerHTML =
-`<option value="">Selecione a turma</option>`;
+professoresRef,
 
-turmas.forEach(turma => {
+where("codigo","==",codigo),
 
-    selectTurma.innerHTML += `
-        <option value="${turma}">
-            ${turma}
-        </option>
-    `;
+where("senha","==",senha)
 
-});
+);
 
-// =======================
-// CARREGAR DISCIPLINAS
-// =======================
 
-selectTurma.addEventListener("change", () => {
 
-    const turmaSelecionada = selectTurma.value;
+const resultado = await getDocs(q);
 
-    selectDisciplina.innerHTML =
-    `<option value="">Selecione a disciplina</option>`;
 
-    atribuicoes
-        .filter(a => a.turmaNome === turmaSelecionada)
-        .forEach(a => {
 
-            selectDisciplina.innerHTML += `
-                <option value="${a.disciplina}">
-                    ${a.disciplina}
-                </option>
-            `;
+if(resultado.empty){
 
-        });
+alert("Código ou senha incorretos.");
+
+return;
+
+}
+
+
+
+
+let professor;
+
+
+
+resultado.forEach(doc=>{
+
+
+professor={
+
+id:doc.id,
+
+...doc.data()
+
+};
+
 
 });
 
-// =======================
-// ABRIR MINI-PAUTA
-// =======================
 
-abrirMiniPauta.addEventListener("click", () => {
 
-    const turma = selectTurma.value;
-    const disciplina = selectDisciplina.value;
 
-    if (!turma) {
-        alert("Selecione uma turma.");
-        return;
-    }
+// guardar sessão
 
-    if (!disciplina) {
-        alert("Selecione uma disciplina.");
-        return;
-    }
+localStorage.setItem(
 
-    localStorage.setItem("turmaSelecionada", turma);
-    localStorage.setItem("disciplinaSelecionada", disciplina);
+"professorLogado",
 
-    window.location.href = "../pages/mini-pauta.html";
+JSON.stringify(professor)
+
+);
+
+
+
+// ir para painel
+
+window.location.href =
+"painel-professor.html";
+
+
+
+}
+
+catch(erro){
+
+console.error(erro);
+
+alert("Erro ao entrar.");
+
+}
+
+
 
 });
