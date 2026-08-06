@@ -1,4 +1,4 @@
-alert("PAINEL Df");
+alert("PAINEL Dk");
 
 import { db } from "./firebase.js";
 
@@ -72,40 +72,32 @@ alert(
 // CARREGAR TURMAS
 // ==========================
 
-let turmas = [];
+// CARREGAR TURMAS
 
+let turmas = [];
 
 
 atribuicoes.forEach(item=>{
 
+    if(item.turmaId && !turmas.includes(item.turmaId)){
 
-    if(
-        item.turmaNome &&
-        !turmas.includes(item.turmaNome)
-    ){
-
-        turmas.push(item.turmaNome);
+        turmas.push(item.turmaId);
 
     }
 
-
 });
 
 
-
-turmas.forEach(turma=>{
-
+turmas.forEach(id=>{
 
     selectTurma.innerHTML +=
     `
-    <option value="${turma}">
-        ${turma}
+    <option value="${id}">
+        ${id}
     </option>
     `;
 
-
 });
-
 
 
 
