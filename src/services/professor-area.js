@@ -1,3 +1,5 @@
+alert("PROFESSOR-AREA.JS CARREGADO");
+
 import { db } from "./firebase.js";
 
 import {
