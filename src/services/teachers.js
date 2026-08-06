@@ -1,4 +1,4 @@
-alert("TEACHERS.JS CARREGADO Day");
+alert("TEACHERS.JS CARREGADO Dal");
 
 import { db } from "./firebase.js";
 
@@ -474,6 +474,15 @@ gerarSenha();
 
 alert("Vai gravar no Firebase");
 
+    alert(
+"Dados:\n\n" +
+"Codigo: " + codigo +
+"\nSenha: " + senha +
+"\nNome: " + nome +
+"\nEmail: " + email +
+"\nEnsino: " + ensino +
+"\nAtribuições: " + JSON.stringify(atribuicoes)
+);
 
 try{
 
