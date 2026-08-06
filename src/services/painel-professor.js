@@ -1,4 +1,4 @@
-alert("PAINEL Dp");
+alert("PAINEL Dt");
 
 import { db } from "./firebase.js";
 
@@ -152,20 +152,14 @@ atribuicoes.forEach(item=>{
 // ABRIR MINI-PAUTA
 // ==========================
 
-const botaoMiniPauta =
-document.getElementById("abrirMiniPauta");
-
-
-
-if(botaoMiniPauta){
-
-
-botaoMiniPauta.addEventListener(
+document
+.getElementById("abrirMiniPauta")
+.addEventListener(
 "click",
 ()=>{
 
 
-const turma =
+const turmaNome =
 selectTurma.value;
 
 
@@ -174,7 +168,7 @@ selectDisciplina.value;
 
 
 
-if(!turma || !disciplina){
+if(!turmaNome || !disciplina){
 
 alert("Selecione a turma e a disciplina.");
 
@@ -183,16 +177,43 @@ return;
 }
 
 
+// encontrar turmaId
+
+const atribuicao =
+atribuicoes.find(
+item => 
+item.turmaNome === turmaNome &&
+item.disciplina === disciplina
+);
+
+
+
+if(!atribuicao){
+
+alert("Atribuição não encontrada.");
+
+return;
+
+}
+
+
 
 localStorage.setItem(
-"turmaSelecionada",
-turma
+"turmaId",
+atribuicao.turmaId
 );
 
 
 
 localStorage.setItem(
-"disciplinaSelecionada",
+"turmaNome",
+turmaNome
+);
+
+
+
+localStorage.setItem(
+"disciplina",
 disciplina
 );
 
@@ -200,7 +221,6 @@ disciplina
 
 window.location.href =
 "mini-pauta.html";
-
 
 
 });
