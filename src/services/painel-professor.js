@@ -1,11 +1,11 @@
-alert("PAINEL PROFESSOR TESTE Did");
+alert("PAINEL PROFESSOR TESTE Dpk");
 
 
 import { db } from "./firebase.js";
 
 
 // ==========================
-// VERIFICAR PROFESSOR LOGADO
+// PROFESSOR LOGADO
 // ==========================
 
 const professor = JSON.parse(
@@ -24,7 +24,7 @@ if(!professor){
 
 
 // ==========================
-// ELEMENTOS DA PÁGINA
+// ELEMENTOS
 // ==========================
 
 const nomeProfessor =
@@ -46,12 +46,11 @@ document.getElementById("selectTrimestre");
 
 
 // ==========================
-// MOSTRAR NOME
+// NOME
 // ==========================
 
 nomeProfessor.innerHTML =
 "👨‍🏫 " + professor.nome;
-
 
 
 
@@ -67,9 +66,7 @@ professor.atribuicoes || [];
 alert(
 "Professor: " + professor.nome +
 "\nTotal de atribuições: " +
-atribuicoes.length +
-"\nDados: " +
-JSON.stringify(atribuicoes)
+atribuicoes.length
 );
 
 
@@ -77,7 +74,7 @@ JSON.stringify(atribuicoes)
 
 
 // ==========================
-// CARREGAR TURMAS
+// TURMAS
 // ==========================
 
 selectTurma.innerHTML = `
@@ -92,28 +89,30 @@ Selecione a turma
 const turmas = [];
 
 
+
 atribuicoes.forEach(item=>{
 
 
-    if(
-        item.turmaNome &&
-        !turmas.includes(item.turmaNome)
-    ){
+if(
+item.turmaNome &&
+!turmas.includes(item.turmaNome)
+){
 
 
-        turmas.push(item.turmaNome);
+turmas.push(item.turmaNome);
 
 
 
-        selectTurma.innerHTML += `
+selectTurma.innerHTML += `
 
-        <option value="${item.turmaNome}">
-        ${item.turmaNome}
-        </option>
+<option value="${item.turmaNome}">
+${item.turmaNome}
+</option>
 
-        `;
+`;
 
-    }
+
+}
 
 
 });
@@ -122,10 +121,10 @@ atribuicoes.forEach(item=>{
 
 
 
-// ==========================
-// CARREGAR DISCIPLINAS
-// ==========================
 
+// ==========================
+// DISCIPLINAS
+// ==========================
 
 selectTurma.addEventListener(
 "change",
@@ -154,32 +153,35 @@ const disciplinas = [];
 atribuicoes.forEach(item=>{
 
 
-    if(
-        item.turmaNome === turmaSelecionada &&
-        !disciplinas.includes(item.disciplina)
-    ){
+if(
+item.turmaNome === turmaSelecionada &&
+!disciplinas.includes(item.disciplina)
+){
 
 
-        disciplinas.push(item.disciplina);
+disciplinas.push(item.disciplina);
 
 
 
-        selectDisciplina.innerHTML += `
+selectDisciplina.innerHTML += `
 
-        <option value="${item.disciplina}">
-        ${item.disciplina}
-        </option>
+<option value="${item.disciplina}">
+${item.disciplina}
+</option>
 
-        `;
+`;
 
 
-    }
+
+}
+
 
 
 });
 
 
 });
+
 
 
 
@@ -210,7 +212,6 @@ selectTrimestre.value;
 
 
 
-
 if(!turmaNome || !disciplina){
 
 
@@ -223,7 +224,6 @@ return;
 
 
 }
-
 
 
 
@@ -241,9 +241,6 @@ return;
 }
 
 
-
-
-// encontrar atribuição correta
 
 
 const atribuicao =
@@ -275,9 +272,7 @@ return;
 
 
 
-
 // guardar dados
-
 
 localStorage.setItem(
 "turmaId",
@@ -303,6 +298,15 @@ disciplina
 localStorage.setItem(
 "trimestre",
 trimestre
+);
+
+
+
+// MUITO IMPORTANTE
+
+localStorage.setItem(
+"ensino",
+professor.ensino
 );
 
 
