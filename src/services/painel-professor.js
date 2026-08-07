@@ -1,4 +1,4 @@
-alert("PAINEL PROFESSOR TESTE FUNCIONOU");
+alert("PAINEL PROFESSOR TESTE Ds");
 
 import { db } from "./firebase.js";
 
@@ -145,8 +145,21 @@ atribuicoes.forEach(item=>{
 
 });
 
+const trimestre =
+document.getElementById("selectTrimestre").value;
 
+if(!trimestre){
 
+alert("Selecione o trimestre.");
+
+return;
+
+}
+
+localStorage.setItem(
+"trimestre",
+trimestre
+);
 
 // ==========================
 // ABRIR MINI-PAUTA
