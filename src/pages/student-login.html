@@ -4,92 +4,358 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Área do Aluno</title>
+
+<title>Área do Aluno - SGE</title>
+
+
 
 <style>
 
+
+*{
+
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+
+}
+
+
+
 body{
-    font-family:Arial;
-    background:#f4f6f9;
-}
 
-.login{
+margin:0;
 
-    width:350px;
-    margin:80px auto;
-    background:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,.15);
+background:#f1f5f9;
 
 }
 
-input,button{
 
-    width:100%;
-    padding:12px;
-    margin-top:10px;
+
+/* CABEÇALHO */
+
+header{
+
+background:#1e3a8a;
+
+color:white;
+
+padding:20px;
+
+text-align:center;
+
+box-shadow:0 2px 8px rgba(0,0,0,.2);
 
 }
+
+
+
+header h1{
+
+margin:0;
+
+font-size:25px;
+
+}
+
+
+
+/* CONTAINER */
+
+.container{
+
+width:95%;
+
+max-width:450px;
+
+margin:40px auto;
+
+}
+
+
+
+/* CARTÃO */
+
+.card{
+
+background:white;
+
+padding:25px;
+
+border-radius:15px;
+
+box-shadow:0 4px 12px rgba(0,0,0,.12);
+
+}
+
+
+
+.logo{
+
+text-align:center;
+
+font-size:50px;
+
+margin-bottom:10px;
+
+}
+
+
+
+h2{
+
+text-align:center;
+
+color:#1e3a8a;
+
+margin-bottom:20px;
+
+}
+
+
+
+/* CAMPOS */
+
+
+label{
+
+font-weight:bold;
+
+color:#334155;
+
+display:block;
+
+margin-top:15px;
+
+}
+
+
+
+input{
+
+
+width:100%;
+
+padding:12px;
+
+margin-top:6px;
+
+border:1px solid #cbd5e1;
+
+border-radius:8px;
+
+font-size:15px;
+
+
+}
+
+
+
+input:focus{
+
+outline:none;
+
+border-color:#1e3a8a;
+
+}
+
+
+
+/* BOTÃO */
+
 
 button{
 
-    background:#1976d2;
-    color:white;
-    border:none;
-    border-radius:5px;
+
+width:100%;
+
+padding:13px;
+
+margin-top:25px;
+
+background:#1e3a8a;
+
+color:white;
+
+border:none;
+
+border-radius:8px;
+
+font-size:16px;
+
+cursor:pointer;
+
 
 }
 
+
+
+button:hover{
+
+opacity:.9;
+
+}
+
+
+
+/* RODAPÉ */
+
+
+.info{
+
+margin-top:20px;
+
+text-align:center;
+
+font-size:13px;
+
+color:#64748b;
+
+}
+
+
+
 </style>
 
+
 </head>
+
 
 
 <body>
 
 
-<div class="login">
+
+<header>
 
 
-<h2>Área do Aluno</h2>
+<h1>
+🎓 Área do Aluno
+</h1>
+
+
+</header>
+
+
+
+
+<div class="container">
+
+
+
+<div class="card">
+
+
+
+<div class="logo">
+
+👨‍🎓
+
+</div>
+
+
+
+<h2>
+
+Entrar no Sistema
+
+</h2>
+
+
 
 
 <form id="loginAluno">
 
 
+
+<label>
+
+Código do Aluno
+
+</label>
+
+
 <input
+
 id="codigoAluno"
-placeholder="Código do aluno"
-required>
+
+type="text"
+
+placeholder="Digite o código do aluno"
+
+autocomplete="off"
+
+required
+
+>
+
+
+
+
+<label>
+
+Senha
+
+</label>
+
 
 
 <input
-type="password"
+
 id="senhaAluno"
-placeholder="Senha"
-required>
+
+type="password"
+
+placeholder="Digite a senha"
+
+required
+
+>
+
+
 
 
 <button type="submit">
 
-Entrar
+🔐 Entrar
 
 </button>
 
 
+
 </form>
+
+
+
+
+<div class="info">
+
+SGE - Sistema de Gestão Escolar
+
+<br>
+
+Acesso exclusivo aos alunos
+
+</div>
+
+
+
+</div>
 
 
 </div>
 
 
 
-<script type="module" src="../services/student-login.js?v=2"></script>
+
+
+<script type="module" src="../services/student-login.js?v=3"></script>
+
 
 
 </body>
+
 
     </html>
