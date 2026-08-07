@@ -1,79 +1,65 @@
 import { db } from "./firebase.js";
 
-
 import {
-
-collection,
-getDocs
-
+    collection,
+    getDocs,
+    doc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
 
 
 // ==========================
 // DADOS RECEBIDOS
 // ==========================
 
-
-const turmaId =
-localStorage.getItem("turmaId");
-
-
-const turmaNome =
-localStorage.getItem("turmaNome");
-
-
-const disciplina =
-localStorage.getItem("disciplina");
-
-
-const trimestre =
-localStorage.getItem("trimestre");
-
-
-const ensino =
-localStorage.getItem("ensino");
+const turmaId = localStorage.getItem("turmaId");
+const turmaNome = localStorage.getItem("turmaNome");
+const disciplina = localStorage.getItem("disciplina");
+const trimestre = localStorage.getItem("trimestre");
 
 
 
+const info = document.getElementById("info");
+const lista = document.getElementById("listaAlunos");
 
-// ==========================
-// ELEMENTOS
-// ==========================
-
-
-const info =
-document.getElementById("info");
-
-
-const lista =
-document.getElementById("listaAlunos");
-
-
-
-
-
-// ==========================
-// INFORMAÇÕES
-// ==========================
 
 
 info.innerHTML = `
-
-Turma: ${turmaNome}
-
-<br>
-
-Disciplina: ${disciplina}
-
-<br>
-
+Turma: ${turmaNome}<br>
+Disciplina: ${disciplina}<br>
 Trimestre: ${trimestre}º
-
 `;
 
 
 
+// ==========================
+// DESCOBRIR ENSINO
+// ==========================
+
+let ensino = "ensinoPrimario";
+
+
+async function carregarEnsino(){
+
+
+const turmaRef =
+doc(db,"turmas",turmaId);
+
+
+const turmaSnap =
+await getDoc(turmaRef);
+
+
+
+if(turmaSnap.exists()){
+
+    ensino =
+    turmaSnap.data().ensino || "ensinoPrimario";
+
+}
+
+
+}
 
 
 
@@ -82,29 +68,52 @@ Trimestre: ${trimestre}º
 // ==========================
 
 
-function classificarNota(valor){
+function classificarNota(nota){
 
 
-valor = Number(valor);
+nota = Number(nota);
 
 
 
 if(ensino === "ensinoPrimario"){
 
 
-    if(valor <= 2)
+    if(nota <=2)
         return "Mau";
 
 
-    if(valor <= 4)
+    if(nota <=4)
         return "Medíocre";
 
 
-    if(valor <= 6)
+    if(nota <=6)
         return "Suficiente";
 
 
-    if(valor <= 8)
+    if(nota <=8)
+        return "Bom";
+
+
+    return "Muito Bom";
+
+
+
+}else{
+
+
+    if(nota <=4)
+        return "Mau";
+
+
+    if(nota <=9)
+        return "Medíocre";
+
+
+    if(nota <=13)
+        return "Suficiente";
+
+
+    if(nota <=16)
         return "Bom";
 
 
@@ -114,40 +123,7 @@ if(ensino === "ensinoPrimario"){
 }
 
 
-
-
-if(ensino === "primeiroCiclo"){
-
-
-    if(valor <= 4)
-        return "Mau";
-
-
-    if(valor <= 9)
-        return "Medíocre";
-
-
-    if(valor <= 13)
-        return "Suficiente";
-
-
-    if(valor <= 16)
-        return "Bom";
-
-
-    return "Muito Bom";
-
-
 }
-
-
-
-return "";
-
-}
-
-
-
 
 
 
@@ -164,13 +140,13 @@ const linha =
 input.closest("tr");
 
 
-
 const macInput =
 linha.querySelector(".mac");
 
 
 const nptInput =
 linha.querySelector(".npt");
+
 
 
 const mf =
@@ -183,12 +159,22 @@ linha.querySelector(".classificacao");
 
 
 const mac =
-Number(macInput.value) || 0;
+Number(macInput.value);
 
 
 const npt =
-Number(nptInput.value) || 0;
+Number(nptInput.value);
 
+
+
+if(isNaN(mac) || isNaN(npt)){
+
+mf.value="";
+classificacao.innerHTML="";
+
+return;
+
+}
 
 
 
@@ -206,21 +192,15 @@ classificarNota(media);
 
 
 
-classificacao.value =
+classificacao.innerHTML =
 resultado;
 
 
 
+// limpar
 
-
-// limpar cores
-
-macInput.style.color="";
-nptInput.style.color="";
 mf.style.color="";
 classificacao.style.color="";
-
-
 
 
 
@@ -228,51 +208,38 @@ classificacao.style.color="";
 
 if(resultado==="Mau" || resultado==="Medíocre"){
 
-
-mf.style.color="red";
-
-classificacao.style.color="red";
-
-
-}
-else{
-
-
-mf.style.color="blue";
-
-classificacao.style.color="blue";
-
+    mf.style.color="red";
+    classificacao.style.color="red";
 
 }
 
 
 
+if(mac < (ensino==="ensinoPrimario"?5:10)){
 
-// notas abaixo do mínimo
+    macInput.style.color="red";
 
-const limite =
-ensino==="ensinoPrimario" ? 5 : 10;
+}else{
 
-
-
-if(mac < limite && macInput.value !== ""){
-
-macInput.style.color="red";
+    macInput.style.color="";
 
 }
 
 
 
-if(npt < limite && nptInput.value !== ""){
+if(npt < (ensino==="ensinoPrimario"?5:10)){
 
-nptInput.style.color="red";
+    nptInput.style.color="red";
+
+}else{
+
+    nptInput.style.color="";
 
 }
 
 
 
 };
-
 
 
 
@@ -287,8 +254,8 @@ nptInput.style.color="red";
 async function carregarAlunos(){
 
 
+await carregarEnsino();
 
-try{
 
 
 const alunosRef =
@@ -306,92 +273,55 @@ await getDocs(alunosRef);
 
 
 
-
-if(resultado.empty){
-
-
-lista.innerHTML = `
-
-<tr>
-
-<td colspan="7">
-
-Nenhum aluno encontrado
-
-</td>
-
-</tr>
-
-`;
-
-
-return;
-
-
-}
-
-
-
-
 const alunos=[];
-
 
 
 
 resultado.forEach(doc=>{
 
+alunos.push({
+id:doc.id,
+...doc.data()
+});
 
-alunos.push(doc.data());
+});
 
+
+
+// ordenar número
+
+alunos.sort((a,b)=>{
+
+return Number(a.numero)-Number(b.numero);
 
 });
 
 
 
 
-
-// ordenar número
-
-alunos.sort(
-(a,b)=>
-Number(a.numero)-Number(b.numero)
-);
-
-
-
+lista.innerHTML="";
 
 
 
 alunos.forEach(aluno=>{
 
 
-
 lista.innerHTML += `
-
 
 <tr>
 
-
 <td>
-
 ${aluno.numero || ""}
-
 </td>
-
 
 
 <td style="text-align:left">
-
 ${aluno.nome || ""}
-
 </td>
 
 
-
 <td>
-
 ${aluno.sexo || ""}
-
 </td>
 
 
@@ -399,73 +329,43 @@ ${aluno.sexo || ""}
 <td>
 
 <input
-
-type="number"
-
 class="mac"
-
-min="0"
-
-max="20"
-
-oninput="calcularMF(this)"
-
->
-
-</td>
-
-
-
-
-<td>
-
-<input
-
 type="number"
-
-class="npt"
-
 min="0"
-
-max="20"
-
+max="${ensino==="ensinoPrimario"?10:20}"
 oninput="calcularMF(this)"
-
 >
 
 </td>
 
 
 
+<td>
+
+<input
+class="npt"
+type="number"
+min="0"
+max="${ensino==="ensinoPrimario"?10:20}"
+oninput="calcularMF(this)"
+>
+
+</td>
+
+
 
 <td>
 
 <input
-
-type="text"
-
 class="mf"
-
 readonly
-
 >
 
 </td>
 
 
 
-
-<td>
-
-<input
-
-type="text"
-
-class="classificacao"
-
-readonly
-
->
+<td class="classificacao">
 
 </td>
 
@@ -473,35 +373,13 @@ readonly
 
 </tr>
 
-
 `;
-
 
 
 });
 
 
-
-
 }
-
-catch(e){
-
-
-console.error(e);
-
-
-alert(
-"Erro ao carregar alunos"
-);
-
-
-}
-
-
-
-}
-
 
 
 
