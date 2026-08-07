@@ -384,3 +384,16 @@ readonly
 
 
 carregarAlunos();
+
+
+// ==========================
+// TESTE BOTÃO GUARDAR
+// ==========================
+
+document
+.getElementById("guardarNotas")
+.addEventListener("click", ()=>{
+
+    alert("Botão guardar funcionando");
+
+});
