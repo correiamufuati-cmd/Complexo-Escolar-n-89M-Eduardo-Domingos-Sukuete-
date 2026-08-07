@@ -1,4 +1,4 @@
-alert("LOGIN ALUNO JS CARREGADO ✅");
+alert("LOGIN ALUNO JS DF CARREGADO ✅");
 
 
 import { db } from "./firebase.js";
