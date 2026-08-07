@@ -1,16 +1,24 @@
-alert("Área do aluno DF carregada ✅");
+alert("1 - Área do aluno DF carregada ✅");
 
 
-const aluno = JSON.parse(
-    localStorage.getItem("alunoLogado")
+const dados =
+localStorage.getItem("alunoLogado");
+
+
+alert(
+"2 - Dados guardados:\n\n" + dados
 );
+
+
+
+const aluno = JSON.parse(dados);
 
 
 
 if (!aluno) {
 
     alert(
-        "Sessão expirada. Faça login novamente."
+    "3 - Sessão vazia. Voltar ao login."
     );
 
     window.location.href =
@@ -22,26 +30,31 @@ if (!aluno) {
 
 
 
+alert(
+"4 - Aluno encontrado:\n\n" +
+"Nome: " + aluno.nome +
+"\nCódigo: " + aluno.codigoAluno +
+"\nTurma: " + aluno.turmaNome +
+"\nEstado: " + aluno.estado
+);
+
+
 
 document.getElementById("nomeAluno").textContent =
 aluno.nome || "";
 
-
-
 document.getElementById("codigo").textContent =
 "Código: " + (aluno.codigoAluno || "");
-
-
 
 document.getElementById("turma").textContent =
 "Turma: " + (aluno.turmaNome || "");
 
-
-
-
 document.getElementById("estado").textContent =
 "Estado: " + (aluno.estado || "");
 
+
+
+alert("5 - Dados colocados na página ✅");
 
 
 
