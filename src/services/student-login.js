@@ -59,11 +59,11 @@ document
 
 if(!codigoAluno || !senha){
 
-alert(
-"Preencha todos os campos."
-);
+    alert(
+    "Preencha todos os campos."
+    );
 
-return;
+    return;
 
 }
 
@@ -81,11 +81,11 @@ alert(
 
 
 
-// buscar turmas
+// Buscar todas as turmas
 
 const turmasSnap =
 await getDocs(
-collection(db,"turmas")
+    collection(db,"turmas")
 );
 
 
@@ -98,6 +98,8 @@ let alunoEncontrado = null;
 
 
 
+// Procurar aluno dentro das turmas
+
 for(const turma of turmasSnap.docs){
 
 
@@ -105,12 +107,12 @@ for(const turma of turmasSnap.docs){
 const alunosSnap =
 await getDocs(
 
-collection(
-db,
-"turmas",
-turma.id,
-"alunos"
-)
+    collection(
+        db,
+        "turmas",
+        turma.id,
+        "alunos"
+    )
 
 );
 
@@ -130,7 +132,9 @@ aluno.data();
 
 
 if(
-dados.codigoAluno === codigoAluno
+String(dados.codigoAluno).trim()
+===
+codigoAluno
 ){
 
 
@@ -140,7 +144,8 @@ alunoEncontrado = {
 id: aluno.id,
 
 
-turmaId: turma.id,
+turmaId:
+turma.id,
 
 
 turmaNome:
@@ -168,7 +173,7 @@ break;
 
 if(alunoEncontrado){
 
-break;
+    break;
 
 }
 
@@ -183,12 +188,12 @@ break;
 if(!alunoEncontrado){
 
 
-alert(
-"Aluno não encontrado."
-);
+    alert(
+    "Aluno não encontrado."
+    );
 
 
-return;
+    return;
 
 
 }
@@ -197,17 +202,28 @@ return;
 
 
 
+
+
+// verificar senha
+
 if(
-alunoEncontrado.senha !== senha
+
+String(alunoEncontrado.senhaAcesso)
+.trim()
+
+!==
+
+senha.trim()
+
 ){
 
 
-alert(
-"Senha incorreta."
-);
+    alert(
+    "Senha incorreta."
+    );
 
 
-return;
+    return;
 
 
 }
@@ -216,6 +232,8 @@ return;
 
 
 
+
+// guardar sessão
 
 localStorage.setItem(
 
@@ -237,8 +255,11 @@ alert(
 
 
 
+// abrir área do aluno
+
 window.location.href =
-"student-area.html";
+
+"../pages/student-area.html";
 
 
 
@@ -250,6 +271,7 @@ catch(error){
 
 
 console.error(
+"Erro:",
 error
 );
 
