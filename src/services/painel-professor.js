@@ -1,4 +1,4 @@
-alert("PAINEL PROFESSOR TESTE Ds");
+alert("PAINEL PROFESSOR TESTE Dad");
 
 import { db } from "./firebase.js";
 
@@ -78,23 +78,20 @@ Selecione a turma
 </option>
 `;
 
+const turmas = [];
 
 atribuicoes.forEach(item=>{
 
+    if(item.turmaNome && !turmas.includes(item.turmaNome)){
 
-    if(item.turmaNome){
+        turmas.push(item.turmaNome);
 
-
-        selectTurma.innerHTML +=
-        `
+        selectTurma.innerHTML += `
         <option value="${item.turmaNome}">
         ${item.turmaNome}
         </option>
         `;
-
-
     }
-
 
 });
 
@@ -104,62 +101,40 @@ atribuicoes.forEach(item=>{
 // QUANDO ESCOLHER TURMA
 // ==========================
 
-selectTurma.addEventListener(
-"change",
-()=>{
-
+selectTurma.addEventListener("change", ()=>{
 
 const turmaSelecionada =
 selectTurma.value;
 
-
-
-selectDisciplina.innerHTML =
-`
+selectDisciplina.innerHTML = `
 <option value="">
 Selecione a disciplina
 </option>
 `;
 
-
+const disciplinas = [];
 
 atribuicoes.forEach(item=>{
 
+    if(
+        item.turmaNome === turmaSelecionada &&
+        !disciplinas.includes(item.disciplina)
+    ){
 
-    if(item.turmaNome === turmaSelecionada){
+        disciplinas.push(item.disciplina);
 
-
-        selectDisciplina.innerHTML +=
-        `
+        selectDisciplina.innerHTML += `
         <option value="${item.disciplina}">
-            ${item.disciplina}
+        ${item.disciplina}
         </option>
         `;
-
-
     }
 
+});
 
 });
 
 
-});
-
-const trimestre =
-document.getElementById("selectTrimestre").value;
-
-if(!trimestre){
-
-alert("Selecione o trimestre.");
-
-return;
-
-}
-
-localStorage.setItem(
-"trimestre",
-trimestre
-);
 
 // ==========================
 // ABRIR MINI-PAUTA
@@ -172,14 +147,12 @@ document
 ()=>{
 
 
-const turmaNome =
-selectTurma.value;
+const turmaNome = selectTurma.value;
 
+const disciplina = selectDisciplina.value;
 
-const disciplina =
-selectDisciplina.value;
-
-
+const trimestre =
+document.getElementById("selectTrimestre").value;
 
 if(!turmaNome || !disciplina){
 
@@ -189,6 +162,15 @@ return;
 
 }
 
+if(!trimestre){
+
+alert("Selecione o trimestre.");
+
+return;
+
+}
+
+localStorage.setItem("trimestre", trimestre);
 
 // encontrar turmaId
 
