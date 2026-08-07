@@ -1,6 +1,8 @@
-alert("LOGIN ALUNO JS CARREGADO");
+alert("LOGIN ALUNO JS df CARREGADO ✅");
+
 
 import { db } from "../config/firebase.js";
+
 
 import {
     collection,
@@ -10,165 +12,323 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-const form = document.getElementById("loginAluno");
 
+console.log("PASSOU DO IMPORT FIREBASE");
 
-if(form){
 
-    form.addEventListener("submit", async (e)=>{
 
-        e.preventDefault();
+const form =
+document.getElementById("loginAluno");
 
 
-        const codigoAluno =
-            document.getElementById("codigoAluno")
-            .value
-            .trim();
 
+console.log(
+"FORMULÁRIO:",
+form
+);
 
-        const senha =
-            document.getElementById("senhaAluno")
-            .value
-            .trim();
 
 
+if(!form){
 
-        if(!codigoAluno || !senha){
+alert(
+"Erro: formulário de login não encontrado"
+);
 
-            alert("Preencha todos os campos.");
-            return;
+throw new Error(
+"Elemento loginAluno inexistente"
+);
 
-        }
+}
 
 
 
-        try{
 
 
-            const alunosRef =
-                collection(db,"alunos");
+form.addEventListener(
+"submit",
+async (e)=>{
 
 
+console.log(
+"BOTÃO ENTRAR FOI CLICADO"
+);
 
-            const busca =
-                query(
-                    alunosRef,
-                    where(
-                        "codigoAluno",
-                        "==",
-                        codigoAluno
-                    )
-                );
 
 
+e.preventDefault();
 
-            const resultado =
-                await getDocs(busca);
 
 
 
-            if(resultado.empty){
+const codigoAluno =
+document
+.getElementById("codigoAluno")
+.value
+.trim();
 
-                alert(
-                    "Aluno não encontrado."
-                );
 
-                return;
 
-            }
+const senha =
+document
+.getElementById("senhaAluno")
+.value
+.trim();
 
 
 
-            const documento =
-                resultado.docs[0];
 
+console.log(
+"Dados:",
+codigoAluno,
+senha
+);
 
 
-            const dadosAluno =
-                documento.data();
 
 
 
-            if(dadosAluno.senha !== senha){
+if(!codigoAluno || !senha){
 
-                alert(
-                    "Senha incorreta."
-                );
 
-                return;
+alert(
+"Preencha todos os campos."
+);
 
-            }
 
+return;
 
 
-            const alunoLogado = {
+}
 
-                id: documento.id,
 
-                nome:
-                dadosAluno.nome,
 
-                codigoAluno:
-                dadosAluno.codigoAluno,
 
-                turmaId:
-                dadosAluno.turmaId,
+try{
 
-                classe:
-                dadosAluno.classe,
 
-                ensino:
-                dadosAluno.ensino,
 
-                anoLetivo:
-                dadosAluno.anoLetivo,
+alert(
+"A procurar aluno..."
+);
 
-                sexo:
-                dadosAluno.sexo,
 
-                estado:
-                dadosAluno.estado
 
-            };
 
+const alunosRef =
+collection(
+db,
+"alunos"
+);
 
 
-            localStorage.setItem(
-                "alunoLogado",
-                JSON.stringify(alunoLogado)
-            );
 
 
 
-            alert(
-                "Login realizado com sucesso."
-            );
+const busca =
+query(
 
+alunosRef,
 
+where(
+"codigoAluno",
+"==",
+codigoAluno
+)
 
-            window.location.href =
-                "student-area.html";
+);
 
 
 
-        }catch(error){
 
 
-            console.error(
-                "Erro no login:",
-                error
-            );
+const resultado =
+await getDocs(busca);
 
 
-            alert(
-                "Erro ao ligar ao sistema."
-            );
 
 
-        }
 
+console.log(
+"Resultado:",
+resultado.size
+);
 
-    });
 
 
-                          }
+
+
+if(resultado.empty){
+
+
+alert(
+"Aluno não encontrado."
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+
+const documento =
+resultado.docs[0];
+
+
+
+const dadosAluno =
+documento.data();
+
+
+
+
+
+console.log(
+"DADOS ALUNO:",
+dadosAluno
+);
+
+
+
+
+
+if(
+dadosAluno.senha !== senha
+){
+
+
+alert(
+"Senha incorreta."
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+const alunoLogado = {
+
+
+id:
+documento.id,
+
+
+nome:
+dadosAluno.nome || "",
+
+
+
+codigoAluno:
+dadosAluno.codigoAluno || "",
+
+
+
+turmaId:
+dadosAluno.turmaId || "",
+
+
+
+classe:
+dadosAluno.classe || "",
+
+
+
+ensino:
+dadosAluno.ensino || "",
+
+
+
+anoLetivo:
+dadosAluno.anoLetivo || "",
+
+
+
+sexo:
+dadosAluno.sexo || "",
+
+
+
+estado:
+dadosAluno.estado || ""
+
+
+};
+
+
+
+
+
+
+localStorage.setItem(
+
+"alunoLogado",
+
+JSON.stringify(alunoLogado)
+
+);
+
+
+
+
+
+console.log(
+"ALUNO GUARDADO:",
+alunoLogado
+);
+
+
+
+
+
+alert(
+"Login realizado com sucesso ✅"
+);
+
+
+
+
+
+window.location.href =
+"student-area.html";
+
+
+
+
+}
+
+
+
+catch(error){
+
+
+
+console.error(
+"ERRO LOGIN:",
+error
+);
+
+
+
+alert(
+"Erro ao ligar ao sistema."
+);
+
+
+
+}
+
+
+
+});
