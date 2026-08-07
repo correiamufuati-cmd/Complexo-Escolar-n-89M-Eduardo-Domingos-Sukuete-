@@ -1,8 +1,7 @@
-alert("MINI-PAUTA.JS CARREGADO Df ✅");
+alert("MINI-PAUTA.JS CARREGADO ✅");
 
 
 import { db } from "./firebase.js";
-
 
 import {
     collection,
@@ -19,71 +18,45 @@ import {
 // DADOS
 // ==========================
 
-const turmaId =
-localStorage.getItem("turmaId");
-
-
-const turmaNome =
-localStorage.getItem("turmaNome");
-
-
-const disciplina =
-localStorage.getItem("disciplina");
-
-
-const trimestre =
-localStorage.getItem("trimestre");
+const turmaId = localStorage.getItem("turmaId");
+const turmaNome = localStorage.getItem("turmaNome");
+const disciplina = localStorage.getItem("disciplina");
+const trimestre = localStorage.getItem("trimestre");
 
 
 
-const info =
-document.getElementById("info");
-
-
-const lista =
-document.getElementById("listaAlunos");
+const info = document.getElementById("info");
+const lista = document.getElementById("listaAlunos");
+const estadoPauta = document.getElementById("estadoPauta");
 
 
 
 let ensino = "ensinoPrimario";
 
-
 let notasGuardadas = {};
 
+let pautaExiste = false;
 
 
-
-// ==========================
-// INFORMAÇÃO
-// ==========================
 
 info.innerHTML = `
-
-Turma: ${turmaNome}
-<br>
-
-Disciplina: ${disciplina}
-
-<br>
-
+Turma: ${turmaNome}<br>
+Disciplina: ${disciplina}<br>
 Trimestre: ${trimestre}º
-
 `;
 
 
 
 
 // ==========================
-// DESCOBRIR ENSINO
+// ENSINO
 // ==========================
-
 
 async function carregarEnsino(){
 
 
 const turmaRef =
 doc(db,"turmas",turmaId);
-
 
 
 const turmaSnap =
@@ -102,9 +75,7 @@ turmaSnap.data().ensino ||
 }
 
 
-
 }
-
 
 
 
@@ -112,7 +83,6 @@ turmaSnap.data().ensino ||
 // ==========================
 // CARREGAR NOTAS EXISTENTES
 // ==========================
-
 
 async function carregarNotas(){
 
@@ -139,6 +109,17 @@ await getDoc(notaRef);
 if(notaSnap.exists()){
 
 
+pautaExiste = true;
+
+
+estadoPauta.innerHTML =
+"✏️ Notas já lançadas - Modo edição";
+
+
+estadoPauta.style.color="blue";
+
+
+
 const dados =
 notaSnap.data();
 
@@ -154,6 +135,15 @@ notasGuardadas[aluno.numero] = aluno;
 
 
 }
+else{
+
+
+estadoPauta.innerHTML =
+"📝 Nova pauta - Sem notas lançadas";
+
+
+}
+
 
 
 
@@ -177,7 +167,6 @@ nota = Number(nota);
 if(ensino==="ensinoPrimario"){
 
 
-
 if(nota<=2)
 return "Mau";
 
@@ -197,9 +186,8 @@ return "Bom";
 return "Muito Bom";
 
 
-
-}else{
-
+}
+else{
 
 
 if(nota<=4)
@@ -221,9 +209,7 @@ return "Bom";
 return "Muito Bom";
 
 
-
 }
-
 
 
 }
@@ -236,8 +222,7 @@ return "Muito Bom";
 // ==========================
 
 
-window.calcularMF = function(input){
-
+window.calcularMF=function(input){
 
 
 const linha =
@@ -249,15 +234,12 @@ const macInput =
 linha.querySelector(".mac");
 
 
-
 const nptInput =
 linha.querySelector(".npt");
 
 
-
 const mf =
 linha.querySelector(".mf");
-
 
 
 const classificacao =
@@ -265,10 +247,21 @@ linha.querySelector(".classificacao");
 
 
 
+if(
+macInput.value==="" ||
+nptInput.value===""
+){
+
+mf.value="";
+classificacao.innerHTML="";
+return;
+
+}
+
+
 
 const mac =
 Number(macInput.value);
-
 
 
 const npt =
@@ -276,36 +269,12 @@ Number(nptInput.value);
 
 
 
-
-if(
-macInput.value==="" ||
-nptInput.value===""
-
-){
-
-
-mf.value="";
-
-classificacao.innerHTML="";
-
-return;
-
-
-}
-
-
-
-
-
 const media =
-((mac+npt)/2)
-.toFixed(1);
+((mac+npt)/2).toFixed(1);
 
 
 
-mf.value =
-media;
-
+mf.value=media;
 
 
 
@@ -325,51 +294,34 @@ classificacao.style.color="";
 
 
 const limite =
-ensino==="ensinoPrimario"
-?5
-:10;
+ensino==="ensinoPrimario" ? 5 : 10;
 
 
 
 if(Number(media)<limite){
 
-
 mf.style.color="red";
-
 classificacao.style.color="red";
 
-
 }
 
 
 
-if(mac<limite){
-
+if(mac<limite)
 macInput.style.color="red";
-
-}else{
-
+else
 macInput.style.color="";
 
-}
 
 
-
-
-if(npt<limite){
-
+if(npt<limite)
 nptInput.style.color="red";
-
-}else{
-
+else
 nptInput.style.color="";
-
-}
 
 
 
 };
-
 
 
 
@@ -383,12 +335,9 @@ nptInput.style.color="";
 async function carregarAlunos(){
 
 
-
 await carregarEnsino();
 
-
 await carregarNotas();
-
 
 
 
@@ -417,7 +366,6 @@ resultado.forEach(doc=>{
 alunos.push({
 
 id:doc.id,
-
 ...doc.data()
 
 });
@@ -427,17 +375,11 @@ id:doc.id,
 
 
 
+alunos.sort((a,b)=>
 
-// ordenar número
+Number(a.numero)-Number(b.numero)
 
-
-alunos.sort((a,b)=>{
-
-
-return Number(a.numero)-Number(b.numero);
-
-
-});
+);
 
 
 
@@ -455,125 +397,68 @@ notasGuardadas[aluno.numero] || {};
 
 lista.innerHTML += `
 
-
 <tr>
 
-
-<td>
-
-${aluno.numero || ""}
-
-</td>
-
-
+<td>${aluno.numero || ""}</td>
 
 <td style="text-align:left">
-
 ${aluno.nome || ""}
-
 </td>
 
-
-
-
 <td>
-
 ${aluno.sexo || ""}
-
 </td>
-
-
 
 
 <td>
 
-
 <input
-
 class="mac"
-
 type="number"
-
 min="0"
-
 max="${ensino==="ensinoPrimario"?10:20}"
-
 value="${nota.MAC || ""}"
-
 oninput="calcularMF(this)"
-
 >
-
 
 </td>
 
 
-
-
 <td>
 
-
 <input
-
 class="npt"
-
 type="number"
-
 min="0"
-
 max="${ensino==="ensinoPrimario"?10:20}"
-
 value="${nota.NPT || ""}"
-
 oninput="calcularMF(this)"
-
 >
 
-
 </td>
-
-
 
 
 <td>
 
-
 <input
-
 class="mf"
-
 readonly
-
 value="${nota.MF || ""}"
-
 >
 
-
 </td>
-
-
 
 
 <td class="classificacao">
-
-
 ${nota.classificacao || ""}
-
-
 </td>
-
 
 
 </tr>
 
-
-
 `;
 
-
-
 });
-
 
 
 }
@@ -582,15 +467,13 @@ ${nota.classificacao || ""}
 
 
 // ==========================
-// GUARDAR NOTAS
+// GUARDAR / ATUALIZAR
 // ==========================
 
 
 document
 .getElementById("guardarNotas")
-.addEventListener(
-"click",
-async ()=>{
+.addEventListener("click",async()=>{
 
 
 try{
@@ -612,9 +495,7 @@ document
 .forEach(linha=>{
 
 
-
 alunos.push({
-
 
 nome:
 linha.children[1].innerText,
@@ -625,30 +506,22 @@ linha.children[0].innerText,
 
 
 MAC:
-Number(
-linha.querySelector(".mac").value
-),
+Number(linha.querySelector(".mac").value),
 
 
 NPT:
-Number(
-linha.querySelector(".npt").value
-),
+Number(linha.querySelector(".npt").value),
 
 
 MF:
-Number(
-linha.querySelector(".mf").value
-),
+Number(linha.querySelector(".mf").value),
 
 
 classificacao:
 linha.querySelector(".classificacao").innerText
 
 
-
 });
-
 
 
 });
@@ -663,11 +536,7 @@ const idLancamento =
 
 await setDoc(
 
-doc(
-db,
-"notas",
-idLancamento
-),
+doc(db,"notas",idLancamento),
 
 {
 
@@ -685,8 +554,11 @@ professorId:
 professor?.id || "",
 
 
-
 criadoEm:
+serverTimestamp(),
+
+
+atualizadoEm:
 serverTimestamp(),
 
 
@@ -695,20 +567,25 @@ alunos
 
 }
 
-
-
 );
 
 
 
+pautaExiste=true;
+
+
+
+estadoPauta.innerHTML =
+"✏️ Notas lançadas - Modo edição";
+
+
 alert(
-"Notas guardadas com sucesso ✅"
+"Notas atualizadas com sucesso ✅"
 );
 
 
 
 }
-
 
 catch(e){
 
@@ -719,7 +596,6 @@ console.error(e);
 alert(
 "Erro ao guardar notas"
 );
-
 
 
 }
