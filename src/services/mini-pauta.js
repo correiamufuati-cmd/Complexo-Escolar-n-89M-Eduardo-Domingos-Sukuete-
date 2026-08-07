@@ -4,7 +4,9 @@ import {
     collection,
     getDocs,
     doc,
-    getDoc
+    getDoc,
+    setDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
@@ -387,13 +389,142 @@ carregarAlunos();
 
 
 // ==========================
-// TESTE BOTÃO GUARDAR
+// GUARDAR NOTAS
 // ==========================
 
 document
 .getElementById("guardarNotas")
-.addEventListener("click", ()=>{
+.addEventListener("click", async ()=>{
 
-    alert("Botão guardar funcionando");
+
+try{
+
+
+const professor =
+JSON.parse(
+localStorage.getItem("professorLogado")
+);
+
+
+
+const alunos = [];
+
+
+
+document
+.querySelectorAll("#listaAlunos tr")
+.forEach(linha=>{
+
+
+const numero =
+linha.children[0].innerText;
+
+
+const nome =
+linha.children[1].innerText;
+
+
+
+const mac =
+linha.querySelector(".mac").value;
+
+
+
+const npt =
+linha.querySelector(".npt").value;
+
+
+
+const mf =
+linha.querySelector(".mf").value;
+
+
+
+const classificacao =
+linha.querySelector(".classificacao").innerText;
+
+
+
+alunos.push({
+
+nome,
+numero,
+MAC:Number(mac),
+NPT:Number(npt),
+MF:Number(mf),
+classificacao
+
+
+});
+
+
+});
+
+
+
+
+// ID único do lançamento
+
+const idLancamento =
+`${turmaId}_${disciplina}_${trimestre}`;
+
+
+
+const notaRef =
+doc(
+db,
+"notas",
+idLancamento
+);
+
+
+
+
+
+await setDoc(
+notaRef,
+{
+
+turmaId,
+turmaNome,
+disciplina,
+trimestre,
+
+professorId:
+professor?.codigoProfessor || "",
+
+
+criadoEm:
+serverTimestamp(),
+
+
+alunos
+
+
+}
+
+);
+
+
+
+alert(
+"Notas guardadas com sucesso ✅"
+);
+
+
+
+}
+catch(e){
+
+console.error(e);
+
+alert(
+"Erro ao guardar notas"
+);
+
+
+}
+
+
 
 });
