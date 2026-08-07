@@ -1,4 +1,4 @@
-alert("PAINEL PROFESSOR TESTE Dad");
+alert("PAINEL PROFESSOR TESTE Dkd");
 
 import { db } from "./firebase.js";
 
@@ -37,6 +37,8 @@ const selectDisciplina =
 document.getElementById("selectDisciplina");
 
 
+const selectTrimestre =
+document.getElementById("selectTrimestre");
 
 
 // ==========================
@@ -152,7 +154,7 @@ const turmaNome = selectTurma.value;
 const disciplina = selectDisciplina.value;
 
 const trimestre =
-document.getElementById("selectTrimestre").value;
+selectTrimestre.value;
 
 if(!turmaNome || !disciplina){
 
