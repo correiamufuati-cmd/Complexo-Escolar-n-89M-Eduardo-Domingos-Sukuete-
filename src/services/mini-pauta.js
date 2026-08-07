@@ -112,15 +112,11 @@ turmaId,
 );
 
 
-
 const resultado =
 await getDocs(alunosRef);
 
 
-
-
 if(resultado.empty){
-
 
 lista.innerHTML =
 
@@ -141,15 +137,29 @@ return;
 }
 
 
+// Colocar os alunos num array
 
+const alunos = [];
 
 resultado.forEach(doc=>{
 
+alunos.push(doc.data());
 
-const aluno =
-doc.data();
+});
 
 
+// Ordenar pelo número do aluno
+
+alunos.sort((a,b)=>{
+
+return Number(a.numero) - Number(b.numero);
+
+});
+
+
+// Mostrar na tabela
+
+alunos.forEach(aluno=>{
 
 lista.innerHTML +=
 
@@ -157,13 +167,11 @@ lista.innerHTML +=
 
 <tr>
 
-
 <td>
 
 ${aluno.numero || ""}
 
 </td>
-
 
 
 <td style="text-align:left">
@@ -173,7 +181,6 @@ ${aluno.nome || ""}
 </td>
 
 
-
 <td>
 
 ${aluno.sexo || ""}
@@ -181,11 +188,9 @@ ${aluno.sexo || ""}
 </td>
 
 
-
-
 <td>
 
-<input 
+<input
 type="number"
 class="mac"
 min="0"
@@ -196,10 +201,9 @@ oninput="calcularMF(this)"
 </td>
 
 
-
 <td>
 
-<input 
+<input
 type="number"
 class="npt"
 min="0"
@@ -210,10 +214,9 @@ oninput="calcularMF(this)"
 </td>
 
 
-
 <td>
 
-<input 
+<input
 type="text"
 class="mf"
 readonly
@@ -221,16 +224,11 @@ readonly
 
 </td>
 
-
-
 </tr>
 
 `;
 
-
-
 });
-
 
 
 }
