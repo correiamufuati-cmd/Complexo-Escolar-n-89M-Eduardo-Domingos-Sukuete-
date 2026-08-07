@@ -1,3 +1,5 @@
+alert("LOGIN ALUNO JS CARREGADO");
+
 import { db } from "../config/firebase.js";
 
 import {
