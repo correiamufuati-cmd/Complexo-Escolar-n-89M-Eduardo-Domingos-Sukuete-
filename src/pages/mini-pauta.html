@@ -6,39 +6,246 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mini-Pauta</title>
+<title>Mini-Pauta - SGE</title>
+
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+
+body{
+
+margin:0;
+background:#f1f5f9;
+
+}
+
+
+
+header{
+
+background:#1e3a8a;
+color:white;
+padding:20px;
+text-align:center;
+
+}
+
+
+
+.container{
+
+width:95%;
+max-width:1000px;
+margin:20px auto;
+
+}
+
+
+
+.card{
+
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 3px 10px rgba(0,0,0,.1);
+
+}
+
+
+
+#info{
+
+color:#1e3a8a;
+font-weight:bold;
+margin-bottom:15px;
+
+}
+
+
+
+
+table{
+
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+
+}
+
+
+
+thead{
+
+background:#1e3a8a;
+color:white;
+
+}
+
+
+
+th{
+
+padding:8px;
+
+}
+
+
+
+td{
+
+padding:6px;
+border-bottom:1px solid #ddd;
+text-align:center;
+
+}
+
+
+
+tr:hover{
+
+background:#e0f2fe;
+
+}
+
+
+
+/* colunas */
+
+
+.numero{
+
+width:35px;
+
+}
+
+
+
+.nome{
+
+width:50%;
+text-align:left;
+
+}
+
+
+
+.sexo{
+
+width:40px;
+
+}
+
+
+
+.nota{
+
+width:55px;
+
+}
+
+
+
+input{
+
+width:50px;
+padding:5px;
+border:1px solid #aaa;
+border-radius:5px;
+text-align:center;
+
+}
+
+
+
+input:focus{
+
+border-color:#1e3a8a;
+outline:none;
+
+}
+
+
+
+</style>
+
 
 </head>
 
+
 <body>
 
+
+<header>
 
 <h1>
 📋 Mini-Pauta
 </h1>
 
+</header>
 
-<h2 id="info">
+
+
+
+<div class="container">
+
+
+<div class="card">
+
+
+<div id="info">
+
 Carregando...
-</h2>
+
+</div>
 
 
-<table border="1" width="100%">
+
+<table>
+
 
 <thead>
 
 <tr>
 
-<th>Nº</th>
-<th>Nome</th>
-<th>Sexo</th>
-<th>MAC</th>
-<th>NPT</th>
-<th>MF</th>
+<th class="numero">
+Nº
+</th>
+
+
+<th class="nome">
+Nome
+</th>
+
+
+<th class="sexo">
+Sexo
+</th>
+
+
+<th class="nota">
+MAC
+</th>
+
+
+<th class="nota">
+NPT
+</th>
+
+
+<th class="nota">
+MF
+</th>
+
 
 </tr>
 
 </thead>
+
 
 
 <tbody id="listaAlunos">
@@ -46,13 +253,23 @@ Carregando...
 </tbody>
 
 
+
 </table>
 
 
 
-<script type="module" src="../services/mini-pauta.js"></script>
+</div>
+
+
+</div>
+
+
+
+
+<script type="module" src="../services/mini-pauta.js?v=1"></script>
 
 
 </body>
 
-</html>
+
+  </html>
