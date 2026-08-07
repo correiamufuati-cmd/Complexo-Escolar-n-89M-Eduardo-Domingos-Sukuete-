@@ -1,3 +1,5 @@
+alert("PAINEL PROFESSOR TESTE FUNCIONOU");
+
 import { db } from "./firebase.js";
 
 
@@ -222,6 +224,3 @@ window.location.href =
 
 
 });
-
-
-}
