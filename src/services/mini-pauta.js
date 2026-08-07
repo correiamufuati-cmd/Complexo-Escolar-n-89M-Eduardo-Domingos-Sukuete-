@@ -1,3 +1,5 @@
+alert("MINI-PAUTA.JS CARREGADO ✅");
+
 import { db } from "./firebase.js";
 
 import {
