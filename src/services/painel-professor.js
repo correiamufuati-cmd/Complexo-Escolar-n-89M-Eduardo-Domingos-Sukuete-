@@ -1,7 +1,3 @@
-alert("TESTE PAINEL PROFESSOR");
-
-console.log("JS DO PAINEL CARREGOU");
-
 import { db } from "./firebase.js";
 
 
