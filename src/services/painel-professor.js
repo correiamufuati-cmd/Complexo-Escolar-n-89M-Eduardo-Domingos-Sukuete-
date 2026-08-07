@@ -1,4 +1,5 @@
-alert("PAINEL PROFESSOR TESTE Dkd");
+alert("PAINEL PROFESSOR TESTE Did");
+
 
 import { db } from "./firebase.js";
 
@@ -21,6 +22,7 @@ if(!professor){
 }
 
 
+
 // ==========================
 // ELEMENTOS DA PÁGINA
 // ==========================
@@ -41,6 +43,8 @@ const selectTrimestre =
 document.getElementById("selectTrimestre");
 
 
+
+
 // ==========================
 // MOSTRAR NOME
 // ==========================
@@ -51,21 +55,23 @@ nomeProfessor.innerHTML =
 
 
 
+
 // ==========================
-// ATRIBUIÇÕES DO PROFESSOR
+// ATRIBUIÇÕES
 // ==========================
 
 const atribuicoes =
 professor.atribuicoes || [];
 
+
 alert(
 "Professor: " + professor.nome +
-"\nTotal de atribuições: " + atribuicoes.length +
-"\nDados: " + JSON.stringify(atribuicoes)
+"\nTotal de atribuições: " +
+atribuicoes.length +
+"\nDados: " +
+JSON.stringify(atribuicoes)
 );
 
-// TESTE (remover depois)
-// alert(JSON.stringify(atribuicoes));
 
 
 
@@ -75,72 +81,114 @@ alert(
 // ==========================
 
 selectTurma.innerHTML = `
+
 <option value="">
 Selecione a turma
 </option>
+
 `;
+
 
 const turmas = [];
 
+
 atribuicoes.forEach(item=>{
 
-    if(item.turmaNome && !turmas.includes(item.turmaNome)){
+
+    if(
+        item.turmaNome &&
+        !turmas.includes(item.turmaNome)
+    ){
+
 
         turmas.push(item.turmaNome);
 
+
+
         selectTurma.innerHTML += `
+
         <option value="${item.turmaNome}">
         ${item.turmaNome}
         </option>
+
         `;
+
     }
+
 
 });
 
 
 
+
+
 // ==========================
-// QUANDO ESCOLHER TURMA
+// CARREGAR DISCIPLINAS
 // ==========================
 
-selectTurma.addEventListener("change", ()=>{
+
+selectTurma.addEventListener(
+"change",
+()=>{
+
 
 const turmaSelecionada =
 selectTurma.value;
 
+
+
 selectDisciplina.innerHTML = `
+
 <option value="">
 Selecione a disciplina
 </option>
+
 `;
+
+
 
 const disciplinas = [];
 
+
+
 atribuicoes.forEach(item=>{
+
 
     if(
         item.turmaNome === turmaSelecionada &&
         !disciplinas.includes(item.disciplina)
     ){
 
+
         disciplinas.push(item.disciplina);
 
+
+
         selectDisciplina.innerHTML += `
+
         <option value="${item.disciplina}">
         ${item.disciplina}
         </option>
+
         `;
+
+
     }
 
-});
 
 });
+
+
+});
+
+
 
 
 
 // ==========================
 // ABRIR MINI-PAUTA
 // ==========================
+
 
 document
 .getElementById("abrirMiniPauta")
@@ -149,50 +197,86 @@ document
 ()=>{
 
 
-const turmaNome = selectTurma.value;
+const turmaNome =
+selectTurma.value;
 
-const disciplina = selectDisciplina.value;
+
+const disciplina =
+selectDisciplina.value;
+
 
 const trimestre =
 selectTrimestre.value;
 
+
+
+
 if(!turmaNome || !disciplina){
 
-alert("Selecione a turma e a disciplina.");
+
+alert(
+"Selecione a turma e a disciplina."
+);
+
 
 return;
 
+
 }
+
+
+
 
 if(!trimestre){
 
-alert("Selecione o trimestre.");
+
+alert(
+"Selecione o trimestre."
+);
+
 
 return;
 
+
 }
 
-localStorage.setItem("trimestre", trimestre);
 
-// encontrar turmaId
+
+
+// encontrar atribuição correta
+
 
 const atribuicao =
 atribuicoes.find(
-item => 
+item =>
+
 item.turmaNome === turmaNome &&
+
 item.disciplina === disciplina
+
 );
+
 
 
 
 if(!atribuicao){
 
-alert("Atribuição não encontrada.");
+
+alert(
+"Atribuição não encontrada."
+);
+
 
 return;
 
+
 }
 
+
+
+
+
+// guardar dados
 
 
 localStorage.setItem(
@@ -216,8 +300,18 @@ disciplina
 
 
 
+localStorage.setItem(
+"trimestre",
+trimestre
+);
+
+
+
+
+
 window.location.href =
 "mini-pauta.html";
+
 
 
 });
