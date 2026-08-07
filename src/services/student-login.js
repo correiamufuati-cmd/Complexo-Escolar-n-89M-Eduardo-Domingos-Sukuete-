@@ -1,7 +1,7 @@
 alert("LOGIN ALUNO JS df CARREGADO ✅");
 
 
-import { db } from "../config/firebase.js";
+import { db } from "./firebase.js";
 
 
 import {
