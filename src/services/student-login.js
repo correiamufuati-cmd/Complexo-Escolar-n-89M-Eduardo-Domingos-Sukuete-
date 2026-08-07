@@ -1,4 +1,4 @@
-alert("LOGIN ALUNO JS df CARREGADO ✅");
+alert("LOGIN ALUNO JS CARREGADO ✅");
 
 
 import { db } from "./firebase.js";
@@ -6,14 +6,8 @@ import { db } from "./firebase.js";
 
 import {
     collection,
-    query,
-    where,
     getDocs
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
-
-
-console.log("PASSOU DO IMPORT FIREBASE");
 
 
 
@@ -22,22 +16,13 @@ document.getElementById("loginAluno");
 
 
 
-console.log(
-"FORMULÁRIO:",
-form
-);
-
-
-
 if(!form){
 
-alert(
-"Erro: formulário de login não encontrado"
-);
+    alert("Formulário não encontrado");
 
-throw new Error(
-"Elemento loginAluno inexistente"
-);
+    throw new Error(
+        "loginAluno inexistente"
+    );
 
 }
 
@@ -50,14 +35,7 @@ form.addEventListener(
 async (e)=>{
 
 
-console.log(
-"BOTÃO ENTRAR FOI CLICADO"
-);
-
-
-
 e.preventDefault();
-
 
 
 
@@ -78,28 +56,17 @@ document
 
 
 
-console.log(
-"Dados:",
-codigoAluno,
-senha
-);
-
-
-
-
 
 if(!codigoAluno || !senha){
-
 
 alert(
 "Preencha todos os campos."
 );
 
-
 return;
 
-
 }
+
 
 
 
@@ -107,33 +74,42 @@ return;
 try{
 
 
-
 alert(
-"A procurar aluno..."
+"Procurando aluno..."
 );
 
 
 
 
-const alunosRef =
+// buscar turmas
+
+const turmasSnap =
+await getDocs(
+collection(db,"turmas")
+);
+
+
+
+
+
+let alunoEncontrado = null;
+
+
+
+
+
+for(const turma of turmasSnap.docs){
+
+
+
+const alunosSnap =
+await getDocs(
+
 collection(
 db,
+"turmas",
+turma.id,
 "alunos"
-);
-
-
-
-
-
-const busca =
-query(
-
-alunosRef,
-
-where(
-"codigoAluno",
-"==",
-codigoAluno
 )
 
 );
@@ -142,23 +118,69 @@ codigoAluno
 
 
 
-const resultado =
-await getDocs(busca);
+for(const aluno of alunosSnap.docs){
+
+
+
+const dados =
+aluno.data();
 
 
 
 
 
-console.log(
-"Resultado:",
-resultado.size
-);
+if(
+dados.codigoAluno === codigoAluno
+){
+
+
+alunoEncontrado = {
+
+
+id: aluno.id,
+
+
+turmaId: turma.id,
+
+
+turmaNome:
+turma.data().nome || "",
+
+
+...dados
+
+
+};
+
+
+
+break;
+
+
+}
+
+
+
+}
+
+
+
+
+if(alunoEncontrado){
+
+break;
+
+}
+
+
+}
 
 
 
 
 
-if(resultado.empty){
+
+if(!alunoEncontrado){
 
 
 alert(
@@ -175,31 +197,8 @@ return;
 
 
 
-
-
-const documento =
-resultado.docs[0];
-
-
-
-const dadosAluno =
-documento.data();
-
-
-
-
-
-console.log(
-"DADOS ALUNO:",
-dadosAluno
-);
-
-
-
-
-
 if(
-dadosAluno.senha !== senha
+alunoEncontrado.senha !== senha
 ){
 
 
@@ -218,74 +217,12 @@ return;
 
 
 
-const alunoLogado = {
-
-
-id:
-documento.id,
-
-
-nome:
-dadosAluno.nome || "",
-
-
-
-codigoAluno:
-dadosAluno.codigoAluno || "",
-
-
-
-turmaId:
-dadosAluno.turmaId || "",
-
-
-
-classe:
-dadosAluno.classe || "",
-
-
-
-ensino:
-dadosAluno.ensino || "",
-
-
-
-anoLetivo:
-dadosAluno.anoLetivo || "",
-
-
-
-sexo:
-dadosAluno.sexo || "",
-
-
-
-estado:
-dadosAluno.estado || ""
-
-
-};
-
-
-
-
-
-
 localStorage.setItem(
 
 "alunoLogado",
 
-JSON.stringify(alunoLogado)
+JSON.stringify(alunoEncontrado)
 
-);
-
-
-
-
-
-console.log(
-"ALUNO GUARDADO:",
-alunoLogado
 );
 
 
@@ -306,23 +243,19 @@ window.location.href =
 
 
 
+
 }
-
-
 
 catch(error){
 
 
-
 console.error(
-"ERRO LOGIN:",
 error
 );
 
 
-
 alert(
-"Erro ao ligar ao sistema."
+"Erro ao procurar aluno."
 );
 
 
