@@ -152,7 +152,7 @@ alunos.push(doc.data());
 
 alunos.sort((a,b)=>{
 
-return Number(a.numero) - Number(b.numero);
+return Number(a.numero || 0) - Number(b.numero || 0);
 
 });
 
