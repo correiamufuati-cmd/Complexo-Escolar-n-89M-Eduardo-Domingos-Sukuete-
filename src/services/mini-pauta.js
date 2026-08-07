@@ -2,15 +2,14 @@ import { db } from "./firebase.js";
 
 
 import {
-    collection,
-    getDocs
+
+collection,
+getDocs
+
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
 
-// ==========================
-// DADOS DA TURMA
-// ==========================
 
 const turmaId =
 localStorage.getItem("turmaId");
@@ -25,6 +24,7 @@ localStorage.getItem("disciplina");
 
 
 
+
 const info =
 document.getElementById("info");
 
@@ -34,7 +34,9 @@ document.getElementById("listaAlunos");
 
 
 
+
 info.innerHTML =
+
 `
 Turma: ${turmaNome}
 <br>
@@ -43,9 +45,56 @@ Disciplina: ${disciplina}
 
 
 
-// ==========================
-// BUSCAR ALUNOS
-// ==========================
+
+
+// =====================
+// CALCULAR MF
+// =====================
+
+
+window.calcularMF = function(input){
+
+
+const linha =
+input.closest("tr");
+
+
+
+const mac =
+Number(
+linha.querySelector(".mac").value
+) || 0;
+
+
+
+const npt =
+Number(
+linha.querySelector(".npt").value
+) || 0;
+
+
+
+const mf =
+linha.querySelector(".mf");
+
+
+
+mf.value =
+((mac+npt)/2).toFixed(1);
+
+
+
+};
+
+
+
+
+
+
+
+// =====================
+// CARREGAR ALUNOS
+// =====================
 
 
 async function carregarAlunos(){
@@ -54,7 +103,8 @@ async function carregarAlunos(){
 try{
 
 
-const alunosRef = collection(
+const alunosRef =
+collection(
 db,
 "turmas",
 turmaId,
@@ -63,19 +113,26 @@ turmaId,
 
 
 
-const dados =
+const resultado =
 await getDocs(alunosRef);
 
 
 
-if(dados.empty){
+
+if(resultado.empty){
+
 
 lista.innerHTML =
+
 `
 <tr>
+
 <td colspan="6">
-Nenhum aluno encontrado.
+
+Nenhum aluno encontrado
+
 </td>
+
 </tr>
 `;
 
@@ -86,48 +143,88 @@ return;
 
 
 
-dados.forEach(doc=>{
+resultado.forEach(doc=>{
 
 
-const aluno = doc.data();
+const aluno =
+doc.data();
 
 
 
 lista.innerHTML +=
+
 `
+
 <tr>
 
+
 <td>
+
 ${aluno.numero || ""}
+
 </td>
 
 
-<td>
+
+<td style="text-align:left">
+
 ${aluno.nome || ""}
+
 </td>
 
 
+
 <td>
+
 ${aluno.sexo || ""}
+
 </td>
+
+
 
 
 <td>
-<input type="number" class="mac">
+
+<input 
+type="number"
+class="mac"
+min="0"
+max="20"
+oninput="calcularMF(this)"
+>
+
 </td>
+
 
 
 <td>
-<input type="number" class="npt">
+
+<input 
+type="number"
+class="npt"
+min="0"
+max="20"
+oninput="calcularMF(this)"
+>
+
 </td>
+
 
 
 <td>
-<input type="number" class="mf" readonly>
+
+<input 
+type="text"
+class="mf"
+readonly
+>
+
 </td>
+
 
 
 </tr>
+
 `;
 
 
@@ -138,16 +235,21 @@ ${aluno.sexo || ""}
 
 }
 
-catch(erro){
+catch(e){
 
-console.error(erro);
 
-alert("Erro ao carregar alunos.");
+console.error(e);
+
+alert(
+"Erro ao carregar alunos"
+);
+
 
 }
 
 
 }
+
 
 
 
