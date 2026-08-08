@@ -1,4 +1,4 @@
-alerta("Seja Bem-vindo a Sua Área");
+alert("Seja Bem-vindo a Sua Área");
 
 import { db } from "./firebase.js";
 
