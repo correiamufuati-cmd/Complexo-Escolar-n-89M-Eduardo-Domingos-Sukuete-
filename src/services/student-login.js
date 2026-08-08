@@ -1,4 +1,5 @@
-alert("LOGIN ALUNO JS Dk CARREGADO ✅");
+alert("LOGIN ALUNO JS CARREGADO ✅");
+
 
 import { db } from "./firebase.js";
 
@@ -8,13 +9,19 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
+/* =====================================================
+   FORMULÁRIO
+===================================================== */
+
 const form =
-document.getElementById("loginAluno");
+    document.getElementById("loginAluno");
 
 
 if (!form) {
 
-    alert("Formulário de login não encontrado.");
+    alert(
+        "Formulário de login não encontrado."
+    );
 
     throw new Error(
         "loginAluno não encontrado."
@@ -23,6 +30,9 @@ if (!form) {
 }
 
 
+/* =====================================================
+   LOGIN
+===================================================== */
 
 form.addEventListener(
     "submit",
@@ -33,17 +43,16 @@ form.addEventListener(
 
         const codigoAluno =
             document
-            .getElementById("codigoAluno")
-            .value
-            .trim();
+                .getElementById("codigoAluno")
+                .value
+                .trim();
 
 
         const senha =
             document
-            .getElementById("senhaAluno")
-            .value
-            .trim();
-
+                .getElementById("senhaAluno")
+                .value
+                .trim();
 
 
         if (!codigoAluno || !senha) {
@@ -57,20 +66,29 @@ form.addEventListener(
         }
 
 
-
         try {
 
 
+            /* =========================================
+               BUSCAR TURMAS
+            ========================================= */
+
             const turmasSnapshot =
                 await getDocs(
-                    collection(db, "turmas")
+                    collection(
+                        db,
+                        "turmas"
+                    )
                 );
 
 
+            let alunoEncontrado =
+                null;
 
-            let alunoEncontrado = null;
 
-
+            /* =========================================
+               PERCORRER TURMAS
+            ========================================= */
 
             for (
                 const turmaDoc
@@ -82,6 +100,9 @@ form.addEventListener(
                     turmaDoc.data();
 
 
+                /* =====================================
+                   ALUNOS DA TURMA
+                ===================================== */
 
                 const alunosSnapshot =
                     await getDocs(
@@ -96,6 +117,9 @@ form.addEventListener(
                     );
 
 
+                /* =====================================
+                   PROCURAR ALUNO
+                ===================================== */
 
                 for (
                     const alunoDoc
@@ -107,12 +131,10 @@ form.addEventListener(
                         alunoDoc.data();
 
 
-
                     const codigoFirestore =
                         String(
                             dados.codigoAluno || ""
                         ).trim();
-
 
 
                     const senhaFirestore =
@@ -121,6 +143,9 @@ form.addEventListener(
                         ).trim();
 
 
+                    /* =================================
+                       COMPARAR LOGIN
+                    ================================= */
 
                     if (
                         codigoFirestore ===
@@ -136,44 +161,63 @@ form.addEventListener(
                             id:
                                 alunoDoc.id,
 
+
                             turmaId:
                                 turmaDoc.id,
+
 
                             nome:
                                 dados.nome || "",
 
+
                             codigoAluno:
                                 dados.codigoAluno || "",
 
+
+                            /*
+                             IMPORTANTE:
+                             número usado também
+                             no sistema de notas
+                            */
+
                             numero:
-                                dados.numero || "",
+                                String(
+                                    dados.numero || ""
+                                ).trim(),
+
 
                             turmaNome:
                                 dados.turmaNome ||
                                 turmaDados.nome ||
                                 "",
 
+
                             classe:
                                 dados.classe ||
                                 turmaDados.classe ||
                                 "",
 
+
                             sexo:
                                 dados.sexo || "",
+
 
                             estado:
                                 dados.estado ||
                                 "ativo",
+
 
                             anoLetivo:
                                 dados.anoLetivo ||
                                 turmaDados.anoLetivo ||
                                 "",
 
+
                             ensino:
                                 dados.ensino ||
                                 turmaDados.ensino ||
                                 "",
+
 
                             boletimUrl:
                                 dados.boletimUrl ||
@@ -189,7 +233,6 @@ form.addEventListener(
                 }
 
 
-
                 if (alunoEncontrado) {
 
                     break;
@@ -199,6 +242,9 @@ form.addEventListener(
             }
 
 
+            /* =========================================
+               LOGIN INVÁLIDO
+            ========================================= */
 
             if (!alunoEncontrado) {
 
@@ -211,13 +257,9 @@ form.addEventListener(
             }
 
 
-
-            /*
-            =================================
-            GUARDA A SESSÃO
-            =================================
-            */
-
+            /* =========================================
+               GUARDAR SESSÃO
+            ========================================= */
 
             localStorage.setItem(
 
@@ -230,13 +272,9 @@ form.addEventListener(
             );
 
 
-
-            /*
-            =================================
-            TESTE
-            =================================
-            */
-
+            /* =========================================
+               CONFIRMAÇÃO
+            ========================================= */
 
             alert(
 
@@ -248,23 +286,21 @@ form.addEventListener(
                 "\nCódigo: " +
                 alunoEncontrado.codigoAluno +
 
+                "\nNúmero: " +
+                alunoEncontrado.numero +
+
                 "\nTurma: " +
                 alunoEncontrado.turmaNome
 
             );
 
 
-
-            /*
-            =================================
-            ABRIR ÁREA DO ALUNO
-            =================================
-            */
-
+            /* =========================================
+               ABRIR ÁREA DO ALUNO
+            ========================================= */
 
             window.location.href =
                 "/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
-
 
 
         }
@@ -279,8 +315,10 @@ form.addEventListener(
 
 
             alert(
+
                 "Erro no login:\n\n" +
                 error.message
+
             );
 
         }
