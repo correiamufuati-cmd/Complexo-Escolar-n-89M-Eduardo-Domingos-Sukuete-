@@ -3,7 +3,7 @@
 // SGE - Sistema de Gestão Escolar
 // =====================================================
 
-alert("STUDENT-LOGIN.JS Df CARREGOU ✅");
+alert("STUDENT-LOGIN.JS CARREGOU ✅");
 
 
 import { db } from "./firebase.js";
@@ -46,10 +46,6 @@ form.addEventListener(
         event.preventDefault();
 
 
-        // ---------------------------------------------
-        // CAMPOS
-        // ---------------------------------------------
-
         const codigoAluno =
             document
                 .getElementById("codigoAluno")
@@ -64,9 +60,9 @@ form.addEventListener(
                 .trim();
 
 
-        // ---------------------------------------------
-        // VALIDAR
-        // ---------------------------------------------
+        // =============================================
+        // VALIDAR CAMPOS
+        // =============================================
 
         if (!codigoAluno || !senha) {
 
@@ -87,21 +83,21 @@ form.addEventListener(
 
 
             // =========================================
-            // BUSCAR TURMAS
+            // COLEÇÃO PRINCIPAL DE ALUNOS
             // =========================================
 
-            const turmasSnapshot =
+            const alunosSnapshot =
                 await getDocs(
                     collection(
                         db,
-                        "turmas"
+                        "alunos"
                     )
                 );
 
 
             console.log(
-                "Turmas encontradas:",
-                turmasSnapshot.size
+                "Alunos encontrados:",
+                alunosSnapshot.size
             );
 
 
@@ -109,166 +105,111 @@ form.addEventListener(
 
 
             // =========================================
-            // PERCORRER TURMAS
+            // PROCURAR ALUNO
             // =========================================
 
             for (
-                const turmaDoc
-                of turmasSnapshot.docs
+                const alunoDoc
+                of alunosSnapshot.docs
             ) {
 
 
-                const turmaDados =
-                    turmaDoc.data();
+                const dados =
+                    alunoDoc.data();
+
+
+                const codigoFirestore =
+                    String(
+                        dados.codigoAluno || ""
+                    ).trim();
+
+
+                const senhaFirestore =
+                    String(
+                        dados.senha || ""
+                    ).trim();
 
 
                 console.log(
-                    "Procurando na turma:",
-                    turmaDoc.id
+                    "Verificando:",
+                    dados.nome,
+                    "| Código:",
+                    codigoFirestore
                 );
 
 
                 // =====================================
-                // BUSCAR ALUNOS DA TURMA
+                // CONFIRMAR CÓDIGO + SENHA
                 // =====================================
 
-                const alunosSnapshot =
-                    await getDocs(
-
-                        collection(
-                            db,
-                            "turmas",
-                            turmaDoc.id,
-                            "alunos"
-                        )
-
-                    );
-
-
-                console.log(
-                    "Alunos encontrados:",
-                    alunosSnapshot.size
-                );
-
-
-                // =====================================
-                // PERCORRER ALUNOS
-                // =====================================
-
-                for (
-                    const alunoDoc
-                    of alunosSnapshot.docs
+                if (
+                    codigoFirestore === codigoAluno
+                    &&
+                    senhaFirestore === senha
                 ) {
 
 
-                    const dados =
-                        alunoDoc.data();
+                    alunoEncontrado = {
+
+                        // ID DO DOCUMENTO
+                        id:
+                            alunoDoc.id,
 
 
-                    const codigoFirestore =
-                        String(
-                            dados.codigoAluno || ""
-                        ).trim();
+                        // DADOS DO ALUNO
+                        nome:
+                            dados.nome || "",
 
 
-                    const senhaFirestore =
-                        String(
-                            dados.senhaAcesso || ""
-                        ).trim();
+                        codigoAluno:
+                            codigoFirestore,
 
 
-                    console.log(
-                        "Aluno:",
-                        dados.nome,
-                        "Código:",
-                        codigoFirestore
-                    );
+                        senha:
+                            senhaFirestore,
 
 
-                    // =================================
-                    // VERIFICAR LOGIN
-                    // =================================
-
-                    if (
-                        codigoFirestore ===
-                            codigoAluno
-                        &&
-                        senhaFirestore ===
-                            senha
-                    ) {
+                        sexo:
+                            dados.sexo || "",
 
 
-                        // =============================
-                        // ALUNO ENCONTRADO
-                        // =============================
-
-                        alunoEncontrado = {
-
-                            id:
-                                alunoDoc.id,
-
-                            turmaId:
-                                turmaDoc.id,
-
-                            nome:
-                                dados.nome || "",
-
-                            codigoAluno:
-                                String(
-                                    dados.codigoAluno || ""
-                                ).trim(),
-
-                            numero:
-                                String(
-                                    dados.numero || ""
-                                ).trim(),
-
-                            turmaNome:
-                                dados.turmaNome ||
-                                turmaDados.nome ||
-                                turmaDoc.id,
-
-                            classe:
-                                dados.classe ||
-                                turmaDados.classe ||
-                                "",
-
-                            sexo:
-                                dados.sexo || "",
-
-                            estado:
-                                dados.estado ||
-                                "ativo",
-
-                            anoLetivo:
-                                dados.anoLetivo ||
-                                turmaDados.anoLetivo ||
-                                "",
-
-                            ensino:
-                                dados.ensino ||
-                                turmaDados.ensino ||
-                                "",
-
-                            boletimUrl:
-                                dados.boletimUrl ||
-                                ""
-
-                        };
+                        estado:
+                            String(
+                                dados.estado || "ativo"
+                            ).trim(),
 
 
-                        break;
-
-                    }
-
-                }
+                        classe:
+                            dados.classe || "",
 
 
-                // =====================================
-                // PARAR SE ENCONTROU
-                // =====================================
+                        ensino:
+                            dados.ensino || "",
 
-                if (alunoEncontrado) {
+
+                        anoLetivo:
+                            dados.anoLetivo || "",
+
+
+                        // =================================
+                        // LIGAÇÃO COM A TURMA
+                        // =================================
+
+                        turmaId:
+                            dados.turmaId || "",
+
+
+                        // Guardamos também caso exista
+                        turmaNome:
+                            dados.turmaNome || "",
+
+
+                        // Número somente se existir
+                        numero:
+                            dados.numero || ""
+
+                    };
+
 
                     break;
 
@@ -278,7 +219,7 @@ form.addEventListener(
 
 
             // =========================================
-            // NÃO ENCONTROU
+            // ALUNO NÃO ENCONTRADO
             // =========================================
 
             if (!alunoEncontrado) {
@@ -308,7 +249,7 @@ form.addEventListener(
 
 
             console.log(
-                "ALUNO GUARDADO:",
+                "ALUNO LOGADO:",
                 alunoEncontrado
             );
 
@@ -319,7 +260,7 @@ form.addEventListener(
 
             alert(
 
-                "LOGIN OK ✅\n\n" +
+                "LOGIN REALIZADO ✅\n\n" +
 
                 "Nome: " +
                 alunoEncontrado.nome +
@@ -327,11 +268,8 @@ form.addEventListener(
                 "\nCódigo: " +
                 alunoEncontrado.codigoAluno +
 
-                "\nNúmero: " +
-                alunoEncontrado.numero +
-
-                "\nTurma: " +
-                alunoEncontrado.turmaNome
+                "\nTurma ID: " +
+                alunoEncontrado.turmaId
 
             );
 
@@ -343,20 +281,20 @@ form.addEventListener(
             window.location.href =
                 "/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/pages/student-area.html";
 
-
         }
+
 
         catch (error) {
 
             console.error(
-                "ERRO COMPLETO:",
+                "ERRO NO LOGIN:",
                 error
             );
 
 
             alert(
 
-                "ERRO NO LOGIN\n\n" +
+                "Erro ao fazer login:\n\n" +
                 error.message
 
             );
