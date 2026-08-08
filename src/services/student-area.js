@@ -1,42 +1,136 @@
 alert("ÁREA DO ALUNO JS CARREGADA ✅");
 
+const dados = localStorage.getItem("alunoLogado");
 
 
-const dados =
-localStorage.getItem("alunoLogado");
+if (!dados) {
 
+    window.location.href = "student-login.html";
 
-
-if(!dados){
-
-    alert(
-        "Sessão expirada. Faça login novamente."
-    );
-
-    window.location.href =
-        "student-login.html";
-
-    throw new Error(
-        "Aluno não encontrado no localStorage."
-    );
+    throw new Error("Aluno não está autenticado.");
 
 }
 
 
-
-let aluno;
-
+const aluno = JSON.parse(dados);
 
 
-try{
+/* =========================
+   MOSTRAR DADOS
+========================= */
 
-    aluno = JSON.parse(dados);
 
-}catch(error){
+document.getElementById("nomeAluno").textContent =
+    aluno.nome || "Aluno";
+
+
+document.getElementById("codigo").textContent =
+    "Código: " + (aluno.codigoAluno || "—");
+
+
+document.getElementById("turma").textContent =
+    "Turma: " + (aluno.turmaNome || "—");
+
+
+document.getElementById("estado").textContent =
+    "Estado: " + (aluno.estado || "ativo");
+
+
+
+/* =========================
+   NOTAS
+========================= */
+
+window.verNotas = function () {
 
     alert(
-        "Erro ao ler os dados do aluno."
+        "📊 NOTAS\n\n" +
+        "O módulo de notas será disponibilizado aqui."
     );
+
+};
+
+
+
+/* =========================
+   BOLETIM
+========================= */
+
+window.verBoletim = function () {
+
+    if (aluno.boletimUrl) {
+
+        window.open(
+            aluno.boletimUrl,
+            "_blank"
+        );
+
+    } else {
+
+        alert(
+            "📄 O boletim ainda não está disponível."
+        );
+
+    }
+
+};
+
+
+
+/* =========================
+   DADOS
+========================= */
+
+window.verDados = function () {
+
+    alert(
+
+        "👤 DADOS DO ALUNO\n\n" +
+
+        "Nome: " +
+        (aluno.nome || "—") +
+
+        "\n\nCódigo: " +
+        (aluno.codigoAluno || "—") +
+
+        "\n\nNúmero: " +
+        (aluno.numero || "—") +
+
+        "\n\nSexo: " +
+        (aluno.sexo || "—") +
+
+        "\n\nTurma: " +
+        (aluno.turmaNome || "—") +
+
+        "\n\nEstado: " +
+        (aluno.estado || "—")
+
+    );
+
+};
+
+
+
+/* =========================
+   ALTERAR SENHA
+========================= */
+
+window.alterarSenha = function () {
+
+    alert(
+        "🔐 Alterar senha\n\n" +
+        "Vamos implementar esta função depois."
+    );
+
+};
+
+
+
+/* =========================
+   SAIR
+========================= */
+
+window.sairAluno = function () {
 
     localStorage.removeItem(
         "alunoLogado"
@@ -45,63 +139,7 @@ try{
     window.location.href =
         "student-login.html";
 
-    throw error;
-
-}
-
-
-
-alert(
-    "Aluno carregado ✅\n\n" +
-    "Nome: " +
-    (aluno.nome || "") +
-    "\nCódigo: " +
-    (aluno.codigoAluno || "")
-);
-
-
-
-
-/* ==========================
-   DADOS DO ALUNO
-========================== */
-
-
-const nomeAluno =
-document.getElementById("nomeAluno");
-
-
-const codigo =
-document.getElementById("codigo");
-
-
-const turma =
-document.getElementById("turma");
-
-
-const estado =
-document.getElementById("estado");
-
-
-
-if(nomeAluno){
-
-    nomeAluno.textContent =
-        aluno.nome || "Aluno";
-
-}
-
-
-
-if(codigo){
-
-    codigo.textContent =
-        "Código: " +
-        (aluno.codigoAluno || "");
-
-}
-
-
+};
 
 if(turma){
 
