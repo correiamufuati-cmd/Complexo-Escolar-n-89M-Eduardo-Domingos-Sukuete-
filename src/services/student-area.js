@@ -1,3 +1,5 @@
+alert("TESTE 300 - NOVO STUDENT AREA JS");
+
 const aluno = JSON.parse(
     localStorage.getItem("alunoLogado")
 );
