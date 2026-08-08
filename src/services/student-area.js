@@ -1,4 +1,9 @@
-alert("Seja Bem-vindo");
+// =====================================================
+// ÁREA DO ALUNO - SGE
+// =====================================================
+
+alert("ÁREA DO ALUNO CARREGADA ✅");
+
 
 import { db } from "./firebase.js";
 
@@ -8,16 +13,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-/* =====================================================
-   ÁREA DO ALUNO
-===================================================== */
-
-alert("Seja Bem-vindo a Sua Área");
-
-
-/* =====================================================
-   RECUPERAR SESSÃO
-===================================================== */
+// =====================================================
+// SESSÃO
+// =====================================================
 
 const dados =
     localStorage.getItem("alunoLogado");
@@ -43,9 +41,15 @@ const aluno =
     JSON.parse(dados);
 
 
-/* =====================================================
-   MOSTRAR DADOS DO ALUNO
-===================================================== */
+console.log(
+    "ALUNO LOGADO:",
+    aluno
+);
+
+
+// =====================================================
+// DADOS PRINCIPAIS
+// =====================================================
 
 const nomeElemento =
     document.getElementById("nomeAluno");
@@ -81,7 +85,11 @@ if (turmaElemento) {
 
     turmaElemento.textContent =
         "Turma: " +
-        (aluno.turmaNome || "—");
+        (
+            aluno.turmaNome ||
+            aluno.turmaId ||
+            "—"
+        );
 
 }
 
@@ -95,19 +103,17 @@ if (estadoElemento) {
 }
 
 
-/* =====================================================
-   VER NOTAS
-===================================================== */
+// =====================================================
+// VER NOTAS
+// =====================================================
 
 window.verNotas = async function () {
 
-
     try {
 
-
-        /* =============================================
-           DADOS PARA LOCALIZAR O ALUNO
-        ============================================= */
+        // =============================================
+        // DADOS DO ALUNO
+        // =============================================
 
         const turmaId =
             String(
@@ -121,21 +127,10 @@ window.verNotas = async function () {
             ).trim();
 
 
-        const codigoAluno =
-            String(
-                aluno.codigoAluno || ""
-            ).trim();
-
-
         if (!turmaId) {
 
             alert(
-                "Erro: o aluno não possui turmaId."
-            );
-
-            console.log(
-                "Aluno:",
-                aluno
+                "O aluno não possui turmaId."
             );
 
             return;
@@ -143,10 +138,10 @@ window.verNotas = async function () {
         }
 
 
-        if (!numeroAluno && !codigoAluno) {
+        if (!numeroAluno) {
 
             alert(
-                "Erro: o aluno não possui número nem código."
+                "O aluno não possui número cadastrado."
             );
 
             return;
@@ -154,18 +149,32 @@ window.verNotas = async function () {
         }
 
 
-        /* =============================================
-           MENSAGEM DE CARREGAMENTO
-        ============================================= */
+        console.log(
+            "================================="
+        );
 
-        alert(
-            "A carregar as suas notas..."
+        console.log(
+            "PROCURANDO NOTAS"
+        );
+
+        console.log(
+            "Turma ID:",
+            turmaId
+        );
+
+        console.log(
+            "Número do aluno:",
+            numeroAluno
+        );
+
+        console.log(
+            "================================="
         );
 
 
-        /* =============================================
-           BUSCAR DOCUMENTOS DA COLEÇÃO NOTAS
-        ============================================= */
+        // =============================================
+        // BUSCAR DOCUMENTOS DE NOTAS
+        // =============================================
 
         const notasSnapshot =
             await getDocs(
@@ -177,29 +186,23 @@ window.verNotas = async function () {
 
 
         console.log(
-            "ID DA TURMA:",
-            turmaId
-        );
-
-
-        console.log(
-            "DOCUMENTOS DE NOTAS:",
+            "Documentos de notas:",
             notasSnapshot.docs.map(
                 doc => doc.id
             )
         );
 
 
-        /* =============================================
-           ARRAY FINAL DE NOTAS
-        ============================================= */
+        // =============================================
+        // ARRAY FINAL DE DISCIPLINAS
+        // =============================================
 
-        const minhasNotas = [];
+        const disciplinas = [];
 
 
-        /* =============================================
-           PERCORRER TODOS OS DOCUMENTOS DE NOTAS
-        ============================================= */
+        // =============================================
+        // PERCORRER DOCUMENTOS
+        // =============================================
 
         for (
             const notaDoc
@@ -213,18 +216,17 @@ window.verNotas = async function () {
                 ).trim();
 
 
-            /*
-            Exemplo:
-
-            9J72ODfrMBWnkOG3rkIo_Língua Portuguesa_1
-
-            Portanto verificamos se começa
-            pelo ID da turma.
-            */
+            // -----------------------------------------
+            // VERIFICAR SE PERTENCE À TURMA
+            // -----------------------------------------
 
             if (
-                !documentoId.startsWith(
-                    turmaId + "_"
+                !(
+                    documentoId === turmaId
+                    ||
+                    documentoId.startsWith(
+                        turmaId + "_"
+                    )
                 )
             ) {
 
@@ -233,133 +235,127 @@ window.verNotas = async function () {
             }
 
 
+            console.log(
+                "Documento de notas encontrado:",
+                documentoId
+            );
+
+
             const dadosNotas =
                 notaDoc.data();
 
-
-            /* =========================================
-               DESCOBRIR O NOME DA DISCIPLINA
-            ========================================= */
-
-            let disciplina =
-                documentoId.substring(
-                    turmaId.length + 1
-                );
-
-
-            /*
-            Se existir "_1", "_2", etc.,
-            retiramos apenas esse número final.
-            */
-
-            disciplina =
-                disciplina.replace(
-                    /_\d+$/,
-                    ""
-                );
-
-
-            /* =========================================
-               LISTA DE ALUNOS DO DOCUMENTO
-            ========================================= */
 
             const listaAlunos =
                 Array.isArray(
                     dadosNotas.alunos
                 )
-                ? dadosNotas.alunos
-                : [];
+                ?
+                dadosNotas.alunos
+                :
+                [];
 
 
-            /* =========================================
-               PROCURAR O ALUNO
-            ========================================= */
-
-            let alunoEncontrado =
-                null;
+            console.log(
+                "Quantidade de alunos:",
+                listaAlunos.length
+            );
 
 
-            /*
-            Primeiro pelo número
-            */
+            // =========================================
+            // PROCURAR O ALUNO PELO NÚMERO
+            // =========================================
 
-            if (numeroAluno) {
+            const registroAluno =
+                listaAlunos.find(
+                    item => {
 
-                alunoEncontrado =
-                    listaAlunos.find(
-                        item =>
+                        const numero =
                             String(
                                 item.numero || ""
-                            ).trim()
-                            ===
+                            ).trim();
+
+                        return (
+                            numero ===
                             numeroAluno
+                        );
+
+                    }
+                );
+
+
+            // =========================================
+            // ALUNO ENCONTRADO
+            // =========================================
+
+            if (registroAluno) {
+
+                console.log(
+                    "ALUNO ENCONTRADO NAS NOTAS:",
+                    registroAluno
+                );
+
+
+                // -------------------------------------
+                // NOME DA DISCIPLINA
+                // -------------------------------------
+
+                let disciplina =
+                    documentoId
+                        .substring(
+                            turmaId.length
+                        )
+                        .replace(
+                            /^_/,
+                            ""
+                        );
+
+
+                // -------------------------------------
+                // REMOVER _1, _2, ETC.
+                // -------------------------------------
+
+                disciplina =
+                    disciplina.replace(
+                        /_\d+$/,
+                        ""
                     );
 
-            }
 
+                // -------------------------------------
+                // GUARDAR NOTA
+                // -------------------------------------
 
-            /*
-            Se não encontrou pelo número,
-            tenta pelo código.
-            */
-
-            if (
-                !alunoEncontrado &&
-                codigoAluno
-            ) {
-
-                alunoEncontrado =
-                    listaAlunos.find(
-                        item =>
-                            String(
-                                item.codigoAluno || ""
-                            ).trim()
-                            ===
-                            codigoAluno
-                    );
-
-            }
-
-
-            /* =========================================
-               SE ENCONTROU, GUARDAR NOTA
-            ========================================= */
-
-            if (alunoEncontrado) {
-
-
-                minhasNotas.push({
+                disciplinas.push({
 
                     disciplina:
                         disciplina,
 
                     MAC:
-                        alunoEncontrado.MAC ?? "",
+                        registroAluno.MAC ?? "",
 
                     NPT:
-                        alunoEncontrado.NPT ?? "",
+                        registroAluno.NPT ?? "",
 
                     MF:
-                        alunoEncontrado.MF ?? "",
+                        registroAluno.MF ?? "",
 
                     classificacao:
-                        alunoEncontrado.classificacao || ""
+                        registroAluno.classificacao ||
+                        ""
 
                 });
 
-
             }
-
 
         }
 
 
-        /* =============================================
-           VERIFICAR SE ENCONTROU NOTAS
-        ============================================= */
+        // =============================================
+        // NENHUMA NOTA
+        // =============================================
 
         if (
-            minhasNotas.length === 0
+            disciplinas.length === 0
         ) {
 
             alert(
@@ -380,14 +376,14 @@ window.verNotas = async function () {
 
 
         console.log(
-            "NOTAS DO ALUNO:",
-            minhasNotas
+            "DISCIPLINAS:",
+            disciplinas
         );
 
 
-        /* =============================================
-           CRIAR JANELA
-        ============================================= */
+        // =================================================
+        // CRIAR JANELA
+        // =================================================
 
         let html = `
 
@@ -403,18 +399,14 @@ window.verNotas = async function () {
             "
         >
 
-
             <div
                 style="
                     width:95%;
-                    max-width:900px;
+                    max-width:1000px;
                     margin:auto;
                     padding:20px 0 40px;
                 "
             >
-
-
-                <!-- CABEÇALHO -->
 
                 <div
                     style="
@@ -423,7 +415,7 @@ window.verNotas = async function () {
                         padding:25px;
                         border-radius:15px;
                         text-align:center;
-                        box-shadow:0 4px 12px rgba(0,0,0,.15);
+                        box-shadow:0 3px 10px rgba(0,0,0,.15);
                     "
                 >
 
@@ -435,7 +427,6 @@ window.verNotas = async function () {
                         📊
                     </div>
 
-
                     <h2
                         style="
                             margin:5px 0;
@@ -444,27 +435,19 @@ window.verNotas = async function () {
                         Minhas Notas
                     </h2>
 
-
-                    <p
-                        style="
-                            margin:5px 0 0;
-                        "
-                    >
+                    <p>
                         ${aluno.nome || ""}
                     </p>
 
                 </div>
 
 
-                <!-- INFORMAÇÕES -->
-
                 <div
                     style="
                         background:white;
-                        padding:15px;
                         margin-top:15px;
+                        padding:18px;
                         border-radius:12px;
-                        box-shadow:0 3px 10px rgba(0,0,0,.08);
                     "
                 >
 
@@ -477,36 +460,39 @@ window.verNotas = async function () {
                     <br><br>
 
                     <strong>
+                        Número:
+                    </strong>
+
+                    ${numeroAluno}
+
+                    <br><br>
+
+                    <strong>
                         Turma:
                     </strong>
 
-                    ${aluno.turmaNome || "—"}
+                    ${aluno.turmaNome || turmaId}
 
                 </div>
 
 
-                <!-- TABELA -->
-
                 <div
                     style="
                         background:white;
-                        padding:15px;
                         margin-top:15px;
+                        padding:15px;
                         border-radius:12px;
-                        box-shadow:0 3px 10px rgba(0,0,0,.08);
                         overflow-x:auto;
                     "
                 >
 
-
                     <table
                         style="
                             width:100%;
-                            min-width:650px;
+                            min-width:700px;
                             border-collapse:collapse;
                         "
                     >
-
 
                         <thead>
 
@@ -519,45 +505,33 @@ window.verNotas = async function () {
 
                                 <th
                                     style="
-                                        padding:12px;
+                                        padding:13px;
                                         text-align:left;
                                     "
                                 >
                                     Disciplina
                                 </th>
 
-
                                 <th
-                                    style="
-                                        padding:12px;
-                                    "
+                                    style="padding:13px;"
                                 >
                                     MAC
                                 </th>
 
-
                                 <th
-                                    style="
-                                        padding:12px;
-                                    "
+                                    style="padding:13px;"
                                 >
                                     NPT
                                 </th>
 
-
                                 <th
-                                    style="
-                                        padding:12px;
-                                    "
+                                    style="padding:13px;"
                                 >
                                     MF
                                 </th>
 
-
                                 <th
-                                    style="
-                                        padding:12px;
-                                    "
+                                    style="padding:13px;"
                                 >
                                     Classificação
                                 </th>
@@ -571,79 +545,76 @@ window.verNotas = async function () {
         `;
 
 
-        /* =============================================
-           ADICIONAR DISCIPLINAS
-        ============================================= */
+        // =============================================
+        // LINHAS
+        // =============================================
 
-        minhasNotas.forEach(
-            nota => {
-
+        disciplinas.forEach(
+            item => {
 
                 html += `
 
-                <tr>
+                    <tr>
+
+                        <td
+                            style="
+                                padding:13px;
+                                border-bottom:1px solid #e2e8f0;
+                                font-weight:bold;
+                            "
+                        >
+                            ${item.disciplina}
+                        </td>
 
 
-                    <td
-                        style="
-                            padding:12px;
-                            border-bottom:1px solid #e2e8f0;
-                            font-weight:bold;
-                        "
-                    >
-                        ${nota.disciplina}
-                    </td>
+                        <td
+                            style="
+                                padding:13px;
+                                text-align:center;
+                                border-bottom:1px solid #e2e8f0;
+                            "
+                        >
+                            ${item.MAC}
+                        </td>
 
 
-                    <td
-                        style="
-                            padding:12px;
-                            text-align:center;
-                            border-bottom:1px solid #e2e8f0;
-                        "
-                    >
-                        ${nota.MAC}
-                    </td>
+                        <td
+                            style="
+                                padding:13px;
+                                text-align:center;
+                                border-bottom:1px solid #e2e8f0;
+                            "
+                        >
+                            ${item.NPT}
+                        </td>
 
 
-                    <td
-                        style="
-                            padding:12px;
-                            text-align:center;
-                            border-bottom:1px solid #e2e8f0;
-                        "
-                    >
-                        ${nota.NPT}
-                    </td>
+                        <td
+                            style="
+                                padding:13px;
+                                text-align:center;
+                                border-bottom:1px solid #e2e8f0;
+                                font-weight:bold;
+                            "
+                        >
+                            ${item.MF}
+                        </td>
 
 
-                    <td
-                        style="
-                            padding:12px;
-                            text-align:center;
-                            border-bottom:1px solid #e2e8f0;
-                            font-weight:bold;
-                        "
-                    >
-                        ${nota.MF}
-                    </td>
+                        <td
+                            style="
+                                padding:13px;
+                                text-align:center;
+                                border-bottom:1px solid #e2e8f0;
+                                font-weight:bold;
+                            "
+                        >
+                            ${item.classificacao}
+                        </td>
 
-
-                    <td
-                        style="
-                            padding:12px;
-                            text-align:center;
-                            border-bottom:1px solid #e2e8f0;
-                        "
-                    >
-                        ${nota.classificacao}
-                    </td>
-
-
-                </tr>
+                    </tr>
 
                 `;
-
 
             }
         );
@@ -658,8 +629,6 @@ window.verNotas = async function () {
                 </div>
 
 
-                <!-- VOLTAR -->
-
                 <button
                     id="fecharNotas"
 
@@ -672,14 +641,12 @@ window.verNotas = async function () {
                         border:none;
                         border-radius:8px;
                         font-size:16px;
-                        cursor:pointer;
                     "
                 >
 
                     ← Voltar
 
                 </button>
-
 
             </div>
 
@@ -694,10 +661,6 @@ window.verNotas = async function () {
         );
 
 
-        /* =============================================
-           BOTÃO VOLTAR
-        ============================================= */
-
         const fechar =
             document.getElementById(
                 "fecharNotas"
@@ -708,7 +671,6 @@ window.verNotas = async function () {
 
             fechar.onclick =
                 function () {
-
 
                     const janela =
                         document.getElementById(
@@ -722,16 +684,14 @@ window.verNotas = async function () {
 
                     }
 
-
                 };
 
         }
 
-
     }
 
-    catch (error) {
 
+    catch (error) {
 
         console.error(
             "ERRO AO CARREGAR NOTAS:",
@@ -740,37 +700,37 @@ window.verNotas = async function () {
 
 
         alert(
-            "Erro ao carregar as notas:\n\n" +
-            error.message
-        );
 
+            "Erro ao carregar notas:\n\n" +
+            error.message
+
+        );
 
     }
 
 };
 
 
-/* =====================================================
-   VER BOLETIM
-===================================================== */
+// =====================================================
+// BOLETIM
+// =====================================================
 
 window.verBoletim =
 function () {
 
     alert(
-        "📄 O boletim será apresentado aqui."
+        "📄 O módulo de boletim será ligado depois."
     );
 
 };
 
 
-/* =====================================================
-   VER DADOS
-===================================================== */
+// =====================================================
+// DADOS PESSOAIS
+// =====================================================
 
 window.verDados =
 function () {
-
 
     alert(
 
@@ -789,46 +749,46 @@ function () {
         (aluno.sexo || "—") +
 
         "\n\nTurma: " +
-        (aluno.turmaNome || "—") +
+        (
+            aluno.turmaNome ||
+            aluno.turmaId ||
+            "—"
+        ) +
 
         "\n\nEstado: " +
         (aluno.estado || "—")
 
     );
 
-
 };
 
 
-/* =====================================================
-   ALTERAR SENHA
-===================================================== */
+// =====================================================
+// ALTERAR SENHA
+// =====================================================
 
 window.alterarSenha =
 function () {
 
     alert(
-        "🔐 A alteração de senha será implementada aqui."
+        "🔐 Alteração de senha será adicionada depois."
     );
 
 };
 
 
-/* =====================================================
-   SAIR
-===================================================== */
+// =====================================================
+// SAIR
+// =====================================================
 
 window.sairAluno =
 function () {
 
-
-    const confirmar =
-        confirm(
-            "Deseja realmente sair da sua conta?"
-        );
-
-
-    if (!confirmar) {
+    if (
+        !confirm(
+            "Deseja realmente sair?"
+        )
+    ) {
 
         return;
 
