@@ -5,361 +5,362 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
 <title>Área do Aluno - SGE</title>
 
 
-
 <style>
 
+/* =====================================================
+   RESET
+===================================================== */
 
-*{
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
 
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+
+/* =====================================================
+   BODY
+===================================================== */
+
+body {
+    margin: 0;
+    background: #f1f5f9;
+}
+
+
+/* =====================================================
+   CABEÇALHO
+===================================================== */
+
+header {
+
+    background: #1e3a8a;
+
+    color: white;
+
+    padding: 20px;
+
+    text-align: center;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.2);
+}
+
+
+header h1 {
+
+    margin: 0;
+
+    font-size: 25px;
 
 }
 
 
+/* =====================================================
+   CONTAINER
+===================================================== */
 
-body{
+.container {
 
-margin:0;
+    width: 95%;
 
-background:#f1f5f9;
+    max-width: 450px;
 
-}
-
-
-
-/* CABEÇALHO */
-
-header{
-
-background:#1e3a8a;
-
-color:white;
-
-padding:20px;
-
-text-align:center;
-
-box-shadow:0 2px 8px rgba(0,0,0,.2);
+    margin: 40px auto;
 
 }
 
 
+/* =====================================================
+   CARTÃO
+===================================================== */
 
-header h1{
+.card {
 
-margin:0;
+    background: white;
 
-font-size:25px;
+    padding: 25px;
 
-}
+    border-radius: 15px;
 
-
-
-/* CONTAINER */
-
-.container{
-
-width:95%;
-
-max-width:450px;
-
-margin:40px auto;
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.12);
 
 }
 
 
+/* =====================================================
+   LOGO
+===================================================== */
 
-/* CARTÃO */
+.logo {
 
-.card{
+    text-align: center;
 
-background:white;
+    font-size: 50px;
 
-padding:25px;
-
-border-radius:15px;
-
-box-shadow:0 4px 12px rgba(0,0,0,.12);
-
-}
-
-
-
-.logo{
-
-text-align:center;
-
-font-size:50px;
-
-margin-bottom:10px;
+    margin-bottom: 10px;
 
 }
 
 
+/* =====================================================
+   TÍTULO
+===================================================== */
 
-h2{
+h2 {
 
-text-align:center;
+    text-align: center;
 
-color:#1e3a8a;
+    color: #1e3a8a;
 
-margin-bottom:20px;
-
-}
-
-
-
-/* CAMPOS */
-
-
-label{
-
-font-weight:bold;
-
-color:#334155;
-
-display:block;
-
-margin-top:15px;
+    margin-bottom: 20px;
 
 }
 
 
+/* =====================================================
+   LABELS
+===================================================== */
 
-input{
+label {
 
+    font-weight: bold;
 
-width:100%;
+    color: #334155;
 
-padding:12px;
+    display: block;
 
-margin-top:6px;
-
-border:1px solid #cbd5e1;
-
-border-radius:8px;
-
-font-size:15px;
-
+    margin-top: 15px;
 
 }
 
 
+/* =====================================================
+   INPUTS
+===================================================== */
 
-input:focus{
+input {
 
-outline:none;
+    width: 100%;
 
-border-color:#1e3a8a;
+    padding: 12px;
 
-}
+    margin-top: 6px;
 
+    border:
+        1px solid #cbd5e1;
 
+    border-radius: 8px;
 
-/* BOTÃO */
-
-
-button{
-
-
-width:100%;
-
-padding:13px;
-
-margin-top:25px;
-
-background:#1e3a8a;
-
-color:white;
-
-border:none;
-
-border-radius:8px;
-
-font-size:16px;
-
-cursor:pointer;
-
+    font-size: 15px;
 
 }
 
 
+input:focus {
 
-button:hover{
+    outline: none;
 
-opacity:.9;
-
-}
-
-
-
-/* RODAPÉ */
-
-
-.info{
-
-margin-top:20px;
-
-text-align:center;
-
-font-size:13px;
-
-color:#64748b;
+    border-color: #1e3a8a;
 
 }
 
 
+/* =====================================================
+   BOTÃO
+===================================================== */
+
+button {
+
+    width: 100%;
+
+    padding: 13px;
+
+    margin-top: 25px;
+
+    background: #1e3a8a;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+}
+
+
+button:hover {
+
+    opacity: .9;
+
+}
+
+
+/* =====================================================
+   INFORMAÇÃO
+===================================================== */
+
+.info {
+
+    margin-top: 20px;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    color: #64748b;
+
+}
 
 </style>
 
-
 </head>
-
 
 
 <body>
 
 
+<!-- ===================================================
+     CABEÇALHO
+=================================================== -->
 
 <header>
 
-
-<h1>
-🎓 Área do Aluno
-</h1>
-
+    <h1>
+        🎓 Área do Aluno
+    </h1>
 
 </header>
 
 
-
+<!-- ===================================================
+     CONTEÚDO
+=================================================== -->
 
 <div class="container">
 
 
-
-<div class="card">
-
+    <div class="card">
 
 
-<div class="logo">
-
-👨‍🎓
-
-</div>
+        <div class="logo">
+            👨‍🎓
+        </div>
 
 
-
-<h2>
-
-Entrar no Sistema
-
-</h2>
+        <h2>
+            Entrar no Sistema
+        </h2>
 
 
+        <!-- =========================================
+             FORMULÁRIO
+        ========================================== -->
+
+        <form id="loginAluno">
 
 
-<form id="loginAluno">
+            <label>
+                Código do Aluno
+            </label>
 
 
+            <input
 
-<label>
+                id="codigoAluno"
 
-Código do Aluno
+                type="text"
 
-</label>
+                placeholder="Digite o código do aluno"
 
+                autocomplete="off"
 
-<input
+                required
 
-id="codigoAluno"
-
-type="text"
-
-placeholder="Digite o código do aluno"
-
-autocomplete="off"
-
-required
-
->
+            >
 
 
+            <label>
+                Senha
+            </label>
 
 
-<label>
+            <input
 
-Senha
+                id="senhaAluno"
 
-</label>
+                type="password"
 
+                placeholder="Digite a senha"
 
+                required
 
-<input
-
-id="senhaAluno"
-
-type="password"
-
-placeholder="Digite a senha"
-
-required
-
->
+            >
 
 
+            <button type="submit">
+
+                🔐 Entrar
+
+            </button>
 
 
-<button type="submit">
-
-🔐 Entrar
-
-</button>
+        </form>
 
 
+        <!-- =========================================
+             INFORMAÇÃO
+        ========================================== -->
 
-</form>
+        <div class="info">
+
+            SGE - Sistema de Gestão Escolar
+
+            <br>
+
+            Acesso exclusivo aos alunos
+
+        </div>
 
 
-
-
-<div class="info">
-
-SGE - Sistema de Gestão Escolar
-
-<br>
-
-Acesso exclusivo aos alunos
+    </div>
 
 </div>
 
 
-
-</div>
-
-
-</div>
-
-
-
-
+<!-- ===================================================
+     TESTE HTML
+=================================================== -->
 
 <script>
-alert("HTML DO LOGIN CARREGOU");
+
+alert(
+    "HTML DO LOGIN CARREGOU ✅"
+);
+
 </script>
 
-<script type="module" src="/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/services/student-login.js?v=110"></script>
 
+<!-- ===================================================
+     JAVASCRIPT DO LOGIN
+=================================================== -->
+
+<script
+    type="module"
+    src="/Complexo-Escolar-n-89M-Eduardo-Domingos-Sukuete-/src/services/student-login.js?v=301">
+</script>
 
 
 </body>
-
 
     </html>
