@@ -4,7 +4,7 @@
 // Depois procura dentro de "turmas/{turmaId}/alunos"
 // =====================================================
 
-alert("STUDENT-LOGIN.JS sCARREGOU ✅");
+alert("STUDENT-LOGIN.JS sCgARREGOU ✅");
 
 
 import { db } from "./firebase.js";
