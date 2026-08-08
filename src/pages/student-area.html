@@ -1,30 +1,26 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Área do Aluno - SGE</title><style>
 
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Área do Aluno - SGE</title>
-
-
-<style>
+/* =========================
+   CONFIGURAÇÃO GERAL
+========================= */
 
 *{
     box-sizing:border-box;
     font-family:Arial,sans-serif;
 }
 
+
 body{
     margin:0;
     background:#f1f5f9;
+    color:#334155;
 }
 
 
-/* CABEÇALHO */
+
+/* =========================
+   CABEÇALHO
+========================= */
 
 header{
     background:#1e3a8a;
@@ -34,13 +30,17 @@ header{
     box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 
+
 header h1{
     margin:0;
     font-size:25px;
 }
 
 
-/* CONTAINER */
+
+/* =========================
+   CONTAINER
+========================= */
 
 .container{
     width:95%;
@@ -49,7 +49,10 @@ header h1{
 }
 
 
-/* CARTÃO PRINCIPAL */
+
+/* =========================
+   CARTÃO
+========================= */
 
 .card{
     background:white;
@@ -59,32 +62,46 @@ header h1{
 }
 
 
-/* PERFIL */
+
+/* =========================
+   PERFIL
+========================= */
 
 .perfil{
     text-align:center;
     margin-bottom:25px;
 }
 
+
 .logo{
     font-size:65px;
     margin-bottom:10px;
 }
 
+
 #nomeAluno{
     color:#1e3a8a;
-    margin:5px 0;
+    margin:5px 0 15px;
     font-size:22px;
 }
+
 
 .dados{
     color:#475569;
     font-size:14px;
-    line-height:1.8;
+    line-height:1.9;
 }
 
 
-/* MENU */
+.dados div{
+    margin:3px 0;
+}
+
+
+
+/* =========================
+   MENU
+========================= */
 
 .menu{
     display:grid;
@@ -95,22 +112,27 @@ header h1{
 
 
 .menu button{
-    padding:15px 10px;
+    padding:16px 10px;
     border:none;
     border-radius:10px;
     background:#1e3a8a;
     color:white;
     font-size:15px;
     cursor:pointer;
+    transition:.2s;
 }
 
 
 .menu button:hover{
     opacity:.9;
+    transform:translateY(-1px);
 }
 
 
-/* SAIR */
+
+/* =========================
+   BOTÃO SAIR
+========================= */
 
 .btn-sair{
     width:100%;
@@ -125,17 +147,52 @@ header h1{
 }
 
 
-/* RODAPÉ */
+.btn-sair:hover{
+    opacity:.9;
+}
+
+
+
+/* =========================
+   RODAPÉ
+========================= */
 
 .info{
     margin-top:25px;
     text-align:center;
     font-size:13px;
     color:#64748b;
+    line-height:1.6;
 }
 
 
+
+/* =========================
+   RESPONSIVO
+========================= */
+
 @media(max-width:450px){
+
+    .container{
+        width:92%;
+        margin:20px auto;
+    }
+
+
+    .card{
+        padding:20px;
+    }
+
+
+    header h1{
+        font-size:22px;
+    }
+
+
+    #nomeAluno{
+        font-size:19px;
+    }
+
 
     .menu{
         grid-template-columns:1fr;
@@ -143,53 +200,149 @@ header h1{
 
 }
 
-</style>
-
-</head>
-
-
-<body>
-
-
-<header>
-
-<h1>
-🎓 Área do Aluno
+</style></head><body><!-- =========================
+     CABEÇALHO
+========================= --><header><h1>
+    🎓 Área do Aluno
 </h1>
 
-</header>
+</header><!-- =========================
+     CONTEÚDO
+========================= --><div class="container"><div class="card">
+
+
+    <!-- PERFIL DO ALUNO -->
+
+    <div class="perfil">
+
+
+        <div class="logo">
+            👨‍🎓
+        </div>
+
+
+        <h2 id="nomeAluno">
+            Área do Aluno
+        </h2>
+
+
+        <div class="dados">
+
+
+            <div id="codigo">
+                Código: —
+            </div>
+
+
+            <div id="turma">
+                Turma: —
+            </div>
+
+
+            <div id="estado">
+                Estado: —
+            </div>
+
+
+        </div>
+
+    </div>
 
 
 
-<div class="container">
+    <!-- =========================
+         MENU DO ALUNO
+    ========================= -->
+
+    <div class="menu">
 
 
-<div class="card">
+        <button
+            type="button"
+            onclick="verNotas()">
+
+            📊
+            <br>
+            Ver Notas
+
+        </button>
 
 
-<div class="perfil">
+
+        <button
+            type="button"
+            onclick="verBoletim()">
+
+            📄
+            <br>
+            Ver Boletim
+
+        </button>
 
 
-<div class="logo">
-👨‍🎓
+
+        <button
+            type="button"
+            onclick="verDados()">
+
+            👤
+            <br>
+            Meus Dados
+
+        </button>
+
+
+
+        <button
+            type="button"
+            onclick="alterarSenha()">
+
+            🔐
+            <br>
+            Alterar Senha
+
+        </button>
+
+
+    </div>
+
+
+
+    <!-- =========================
+         SAIR
+    ========================= -->
+
+    <button
+        type="button"
+        class="btn-sair"
+        onclick="sairAluno()">
+
+        🚪 Sair da Conta
+
+    </button>
+
+
+
+    <!-- =========================
+         INFORMAÇÃO
+    ========================= -->
+
+    <div class="info">
+
+        SGE - Sistema de Gestão Escolar
+
+        <br>
+
+        Área exclusiva do aluno
+
+    </div>
+
+
 </div>
 
-
-<h2 id="nomeAluno">
-Carregando...
-</h2>
-
-
-<div class="dados">
-
-<div id="codigo">
-Código:
-</div>
-
-
-<div id="turma">
-Turma:
-</div>
-
-
-<div id="
+</div><!-- =========================
+     JAVASCRIPT
+========================= --><script
+    type="module"
+    src="../services/student-area.js?v=400">
+</script></body></html>
