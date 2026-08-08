@@ -1,123 +1,195 @@
-alert("1 - Área do aluno DF carregada ✅");
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Área do Aluno - SGE</title>
 
 
-const dados =
-localStorage.getItem("alunoLogado");
+<style>
 
+*{
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
 
-alert(
-"2 - Dados guardados:\n\n" + dados
-);
-
-
-
-const aluno = JSON.parse(dados);
-
-
-
-if (!aluno) {
-
-    alert(
-    "3 - Sessão vazia. Voltar ao login."
-    );
-
-    window.location.href =
-    "student-login.html";
-
-    throw new Error("Sem sessão");
-
+body{
+    margin:0;
+    background:#f1f5f9;
 }
 
 
+/* CABEÇALHO */
 
-alert(
-"4 - Aluno encontrado:\n\n" +
-"Nome: " + aluno.nome +
-"\nCódigo: " + aluno.codigoAluno +
-"\nTurma: " + aluno.turmaNome +
-"\nEstado: " + aluno.estado
-);
+header{
+    background:#1e3a8a;
+    color:white;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
 
-
-
-document.getElementById("nomeAluno").textContent =
-aluno.nome || "";
-
-document.getElementById("codigo").textContent =
-"Código: " + (aluno.codigoAluno || "");
-
-document.getElementById("turma").textContent =
-"Turma: " + (aluno.turmaNome || "");
-
-document.getElementById("estado").textContent =
-"Estado: " + (aluno.estado || "");
+header h1{
+    margin:0;
+    font-size:25px;
+}
 
 
+/* CONTAINER */
 
-alert("5 - Dados colocados na página ✅");
-
-
-
-
-window.verNotas = function () {
-
-    alert(
-        "Módulo de notas em desenvolvimento."
-    );
-
-};
+.container{
+    width:95%;
+    max-width:600px;
+    margin:30px auto;
+}
 
 
+/* CARTÃO PRINCIPAL */
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+
+
+/* PERFIL */
+
+.perfil{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.logo{
+    font-size:65px;
+    margin-bottom:10px;
+}
+
+#nomeAluno{
+    color:#1e3a8a;
+    margin:5px 0;
+    font-size:22px;
+}
+
+.dados{
+    color:#475569;
+    font-size:14px;
+    line-height:1.8;
+}
+
+
+/* MENU */
+
+.menu{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:25px;
+}
+
+
+.menu button{
+    padding:15px 10px;
+    border:none;
+    border-radius:10px;
+    background:#1e3a8a;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+}
+
+
+.menu button:hover{
+    opacity:.9;
+}
+
+
+/* SAIR */
+
+.btn-sair{
+    width:100%;
+    padding:13px;
+    margin-top:15px;
+    border:none;
+    border-radius:8px;
+    background:#dc2626;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+}
+
+
+/* RODAPÉ */
+
+.info{
+    margin-top:25px;
+    text-align:center;
+    font-size:13px;
+    color:#64748b;
+}
+
+
+@media(max-width:450px){
+
+    .menu{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>
+🎓 Área do Aluno
+</h1>
+
+</header>
 
 
 
-window.verBoletim = function () {
-
-    alert(
-        "Módulo de boletim em desenvolvimento."
-    );
-
-};
+<div class="container">
 
 
+<div class="card">
 
 
-
-window.verDados = function () {
-
-    alert(
-        "Nome: " + (aluno.nome || "") +
-        "\nSexo: " + (aluno.sexo || "") +
-        "\nCódigo: " + (aluno.codigoAluno || "") +
-        "\nTurma: " + (aluno.turmaNome || "")
-    );
-
-};
+<div class="perfil">
 
 
+<div class="logo">
+👨‍🎓
+</div>
 
 
-
-window.alterarSenha = function () {
-
-    alert(
-        "Função alterar senha em desenvolvimento."
-    );
-
-};
+<h2 id="nomeAluno">
+Carregando...
+</h2>
 
 
+<div class="dados">
+
+<div id="codigo">
+Código:
+</div>
 
 
-
-window.sairAluno = function () {
-
-    localStorage.removeItem(
-        "alunoLogado"
-    );
+<div id="turma">
+Turma:
+</div>
 
 
-    window.location.href =
-    "student-login.html";
-
-};
+<div id="
