@@ -1,9 +1,4 @@
-// =====================================================
-// ÁREA DO ALUNO - SGE
-// =====================================================
-
-alert("ÁREA DO ALUNO CARREGADA ✅");
-
+alert("ÁREA DO ALUNO DF CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -13,43 +8,28 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-// =====================================================
-// SESSÃO
-// =====================================================
+/* =====================================================
+   SESSÃO DO ALUNO
+===================================================== */
 
-const dados =
-    localStorage.getItem("alunoLogado");
-
+const dados = localStorage.getItem("alunoLogado");
 
 if (!dados) {
 
-    alert(
-        "Sessão expirada. Faça login novamente."
-    );
+    alert("Sessão expirada. Faça login novamente.");
 
-    window.location.href =
-        "student-login.html";
+    window.location.href = "student-login.html";
 
-    throw new Error(
-        "Aluno não autenticado."
-    );
+    throw new Error("Aluno não autenticado.");
 
 }
 
-
-const aluno =
-    JSON.parse(dados);
+const aluno = JSON.parse(dados);
 
 
-console.log(
-    "ALUNO LOGADO:",
-    aluno
-);
-
-
-// =====================================================
-// DADOS PRINCIPAIS
-// =====================================================
+/* =====================================================
+   DADOS PRINCIPAIS
+===================================================== */
 
 const nomeElemento =
     document.getElementById("nomeAluno");
@@ -65,168 +45,140 @@ const estadoElemento =
 
 
 if (nomeElemento) {
-
     nomeElemento.textContent =
         aluno.nome || "Aluno";
-
 }
-
 
 if (codigoElemento) {
-
     codigoElemento.textContent =
-        "Código: " +
-        (aluno.codigoAluno || "—");
-
+        "Código: " + (aluno.codigoAluno || "—");
 }
-
 
 if (turmaElemento) {
-
     turmaElemento.textContent =
-        "Turma: " +
-        (
-            aluno.turmaNome ||
-            aluno.turmaId ||
-            "—"
-        );
-
+        "Turma: " + (aluno.turmaNome || "—");
 }
-
 
 if (estadoElemento) {
-
     estadoElemento.textContent =
-        "Estado: " +
-        (aluno.estado || "ativo");
-
+        "Estado: " + (aluno.estado || "ativo");
 }
 
 
-// =====================================================
-// VER NOTAS
-// =====================================================
+/* =====================================================
+   VER NOTAS
+===================================================== */
 
 window.verNotas = async function () {
 
     try {
 
-        // =============================================
-        // DADOS DO ALUNO
-        // =============================================
-
         const turmaId =
-            String(
-                aluno.turmaId || ""
-            ).trim();
-
+            String(aluno.turmaId || "").trim();
 
         const numeroAluno =
-            String(
-                aluno.numero || ""
-            ).trim();
+            String(aluno.numero || "").trim();
+
+        const nomeAluno =
+            String(aluno.nome || "").trim();
 
 
         if (!turmaId) {
 
             alert(
-                "O aluno não possui turmaId."
+                "Erro: não foi encontrada a turma do aluno."
             );
 
-            return;
+            console.log("Aluno:", aluno);
 
+            return;
         }
 
 
-        if (!numeroAluno) {
+        if (!numeroAluno && !nomeAluno) {
 
             alert(
-                "O aluno não possui número cadastrado."
+                "Erro: não foi encontrado o número do aluno."
             );
 
-            return;
+            console.log("Aluno:", aluno);
 
+            return;
         }
 
 
-        console.log(
-            "================================="
-        );
-
-        console.log(
-            "PROCURANDO NOTAS"
-        );
-
-        console.log(
-            "Turma ID:",
-            turmaId
-        );
-
-        console.log(
-            "Número do aluno:",
-            numeroAluno
-        );
-
-        console.log(
-            "================================="
-        );
-
-
-        // =============================================
-        // BUSCAR DOCUMENTOS DE NOTAS
-        // =============================================
+        /* =================================================
+           CARREGAR TODOS OS DOCUMENTOS DE NOTAS
+        ================================================= */
 
         const notasSnapshot =
             await getDocs(
-                collection(
-                    db,
-                    "notas"
-                )
+                collection(db, "notas")
             );
 
 
-        console.log(
-            "Documentos de notas:",
-            notasSnapshot.docs.map(
-                doc => doc.id
-            )
-        );
+        /*
+        Estrutura final:
+
+        disciplinas = {
+
+            "Língua Portuguesa": {
+
+                "1": {...},
+
+                "2": {...},
+
+                "3": {...}
+
+            },
+
+            "Matemática": {
+
+                "1": {...},
+
+                "2": {...}
+
+            }
+
+        }
+        */
+
+        const disciplinas = {};
 
 
-        // =============================================
-        // ARRAY FINAL DE DISCIPLINAS
-        // =============================================
-
-        const disciplinas = [];
+        let encontrouDocumentoDaTurma = false;
 
 
-        // =============================================
-        // PERCORRER DOCUMENTOS
-        // =============================================
+        /* =================================================
+           PERCORRER DOCUMENTOS
+        ================================================= */
 
         for (
             const notaDoc
             of notasSnapshot.docs
         ) {
 
-
-            const documentoId =
-                String(
-                    notaDoc.id
-                ).trim();
+            const id =
+                String(notaDoc.id).trim();
 
 
-            // -----------------------------------------
-            // VERIFICAR SE PERTENCE À TURMA
-            // -----------------------------------------
+            const dadosNota =
+                notaDoc.data();
+
+
+            /*
+            O documento precisa pertencer à turma.
+
+            Exemplos:
+
+            turmaId_Língua Portuguesa_1
+            turmaId_Língua Portuguesa_2
+            turmaId_Língua Portuguesa_3
+            */
 
             if (
-                !(
-                    documentoId === turmaId
-                    ||
-                    documentoId.startsWith(
-                        turmaId + "_"
-                    )
+                !id.startsWith(
+                    turmaId + "_"
                 )
             ) {
 
@@ -235,139 +187,189 @@ window.verNotas = async function () {
             }
 
 
-            console.log(
-                "Documento de notas encontrado:",
-                documentoId
-            );
+            encontrouDocumentoDaTurma = true;
 
 
-            const dadosNotas =
-                notaDoc.data();
+            /* =================================================
+               DESCOBRIR O TRIMESTRE
+            ================================================= */
+
+            let trimestre = "";
 
 
-            const listaAlunos =
-                Array.isArray(
-                    dadosNotas.alunos
-                )
-                ?
-                dadosNotas.alunos
-                :
-                [];
+            if (id.endsWith("_1")) {
+
+                trimestre = "1";
+
+            }
+            else if (id.endsWith("_2")) {
+
+                trimestre = "2";
+
+            }
+            else if (id.endsWith("_3")) {
+
+                trimestre = "3";
+
+            }
+            else {
+
+                /*
+                Se o documento não terminar em
+                _1, _2 ou _3, ignorar.
+                */
+
+                continue;
+
+            }
 
 
-            console.log(
-                "Quantidade de alunos:",
-                listaAlunos.length
-            );
+            /* =================================================
+               DISCIPLINA
+            ================================================= */
+
+            let disciplina =
+                String(
+                    dadosNota.disciplina || ""
+                ).trim();
 
 
-            // =========================================
-            // PROCURAR O ALUNO PELO NÚMERO
-            // =========================================
+            /*
+            Se o campo disciplina não existir,
+            retirar turmaId e trimestre do ID.
+            */
 
-            const registroAluno =
-                listaAlunos.find(
-                    item => {
-
-                        const numero =
-                            String(
-                                item.numero || ""
-                            ).trim();
-
-                        return (
-                            numero ===
-                            numeroAluno
-                        );
-
-                    }
-                );
-
-
-            // =========================================
-            // ALUNO ENCONTRADO
-            // =========================================
-
-            if (registroAluno) {
-
-                console.log(
-                    "ALUNO ENCONTRADO NAS NOTAS:",
-                    registroAluno
-                );
-
-
-                // -------------------------------------
-                // NOME DA DISCIPLINA
-                // -------------------------------------
-
-                let disciplina =
-                    documentoId
-                        .substring(
-                            turmaId.length
-                        )
-                        .replace(
-                            /^_/,
-                            ""
-                        );
-
-
-                // -------------------------------------
-                // REMOVER _1, _2, ETC.
-                // -------------------------------------
+            if (!disciplina) {
 
                 disciplina =
-                    disciplina.replace(
-                        /_\d+$/,
+                    id
+                    .substring(
+                        (turmaId + "_").length
+                    )
+                    .replace(
+                        new RegExp(
+                            "_" + trimestre + "$"
+                        ),
                         ""
                     );
 
+            }
 
-                // -------------------------------------
-                // GUARDAR NOTA
-                // -------------------------------------
 
-                disciplinas.push({
+            if (!disciplina) {
 
-                    disciplina:
-                        disciplina,
-
-                    MAC:
-                        registroAluno.MAC ?? "",
-
-                    NPT:
-                        registroAluno.NPT ?? "",
-
-                    MF:
-                        registroAluno.MF ?? "",
-
-                    classificacao:
-                        registroAluno.classificacao ||
-                        ""
-
-                });
+                disciplina =
+                    "Disciplina";
 
             }
+
+
+            /* =================================================
+               LISTA DE ALUNOS
+            ================================================= */
+
+            const listaAlunos =
+                Array.isArray(
+                    dadosNota.alunos
+                )
+                ? dadosNota.alunos
+                : [];
+
+
+            /*
+            Procurar primeiro pelo número.
+            */
+
+            let alunoNotas = null;
+
+
+            if (numeroAluno) {
+
+                alunoNotas =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.numero || ""
+                            ).trim()
+                            ===
+                            numeroAluno
+                    );
+
+            }
+
+
+            /*
+            Se não encontrar pelo número,
+            procurar pelo nome.
+            */
+
+            if (!alunoNotas && nomeAluno) {
+
+                alunoNotas =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.nome || ""
+                            ).trim()
+                            .toLowerCase()
+                            ===
+                            nomeAluno
+                            .trim()
+                            .toLowerCase()
+                    );
+
+            }
+
+
+            if (!alunoNotas) {
+
+                continue;
+
+            }
+
+
+            /* =================================================
+               CRIAR DISCIPLINA
+            ================================================= */
+
+            if (!disciplinas[disciplina]) {
+
+                disciplinas[disciplina] = {};
+
+            }
+
+
+            /* =================================================
+               GUARDAR NOTAS DO TRIMESTRE
+            ================================================= */
+
+            disciplinas[disciplina][trimestre] = {
+
+                MAC:
+                    alunoNotas.MAC ?? "",
+
+                NPT:
+                    alunoNotas.NPT ?? "",
+
+                MF:
+                    alunoNotas.MF ?? "",
+
+                classificacao:
+                    alunoNotas.classificacao ?? ""
+
+            };
 
         }
 
 
-        // =============================================
-        // NENHUMA NOTA
-        // =============================================
+        /* =================================================
+           VERIFICAR SE EXISTEM NOTAS
+        ================================================= */
 
-        if (
-            disciplinas.length === 0
-        ) {
+        if (!encontrouDocumentoDaTurma) {
 
             alert(
-
-                "Ainda não existem notas para este aluno.\n\n" +
-
-                "Turma: " +
-                turmaId +
-
-                "\nNúmero: " +
-                numeroAluno
-
+                "Ainda não existem notas para esta turma."
             );
 
             return;
@@ -375,21 +377,31 @@ window.verNotas = async function () {
         }
 
 
-        console.log(
-            "DISCIPLINAS:",
-            disciplinas
-        );
+        const nomesDisciplinas =
+            Object.keys(disciplinas);
 
 
-        // =================================================
-        // CRIAR JANELA
-        // =================================================
+        if (
+            nomesDisciplinas.length === 0
+        ) {
+
+            alert(
+                "Ainda não existem notas para este aluno."
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           CRIAR JANELA
+        ================================================= */
 
         let html = `
 
         <div
             id="janelaNotas"
-
             style="
                 position:fixed;
                 inset:0;
@@ -402,17 +414,20 @@ window.verNotas = async function () {
             <div
                 style="
                     width:95%;
-                    max-width:1000px;
+                    max-width:950px;
                     margin:auto;
                     padding:20px 0 40px;
                 "
             >
 
+
+                <!-- CABEÇALHO -->
+
                 <div
                     style="
                         background:#1e3a8a;
                         color:white;
-                        padding:25px;
+                        padding:22px;
                         border-radius:15px;
                         text-align:center;
                         box-shadow:0 3px 10px rgba(0,0,0,.15);
@@ -421,7 +436,7 @@ window.verNotas = async function () {
 
                     <div
                         style="
-                            font-size:45px;
+                            font-size:40px;
                         "
                     >
                         📊
@@ -435,46 +450,36 @@ window.verNotas = async function () {
                         Minhas Notas
                     </h2>
 
-                    <p>
+                    <p
+                        style="
+                            margin:5px 0;
+                        "
+                    >
                         ${aluno.nome || ""}
+                    </p>
+
+                    <p
+                        style="
+                            margin:5px 0;
+                        "
+                    >
+                        Código:
+                        ${aluno.codigoAluno || "—"}
+                    </p>
+
+                    <p
+                        style="
+                            margin:5px 0;
+                        "
+                    >
+                        Turma:
+                        ${aluno.turmaNome || "—"}
                     </p>
 
                 </div>
 
 
-                <div
-                    style="
-                        background:white;
-                        margin-top:15px;
-                        padding:18px;
-                        border-radius:12px;
-                    "
-                >
-
-                    <strong>
-                        Código:
-                    </strong>
-
-                    ${aluno.codigoAluno || "—"}
-
-                    <br><br>
-
-                    <strong>
-                        Número:
-                    </strong>
-
-                    ${numeroAluno}
-
-                    <br><br>
-
-                    <strong>
-                        Turma:
-                    </strong>
-
-                    ${aluno.turmaNome || turmaId}
-
-                </div>
-
+                <!-- FILTRO -->
 
                 <div
                     style="
@@ -482,156 +487,70 @@ window.verNotas = async function () {
                         margin-top:15px;
                         padding:15px;
                         border-radius:12px;
-                        overflow-x:auto;
+                        box-shadow:0 3px 10px rgba(0,0,0,.08);
                     "
                 >
 
-                    <table
+                    <label
+                        style="
+                            display:block;
+                            font-weight:bold;
+                            margin-bottom:7px;
+                            color:#334155;
+                        "
+                    >
+                        Ver trimestre:
+                    </label>
+
+
+                    <select
+                        id="filtroTrimestre"
                         style="
                             width:100%;
-                            min-width:700px;
-                            border-collapse:collapse;
+                            padding:12px;
+                            border:1px solid #cbd5e1;
+                            border-radius:8px;
+                            font-size:16px;
                         "
                     >
 
-                        <thead>
+                        <option value="todos">
+                            Todos os trimestres
+                        </option>
 
-                            <tr
-                                style="
-                                    background:#1e3a8a;
-                                    color:white;
-                                "
-                            >
+                        <option value="1">
+                            1.º Trimestre
+                        </option>
 
-                                <th
-                                    style="
-                                        padding:13px;
-                                        text-align:left;
-                                    "
-                                >
-                                    Disciplina
-                                </th>
+                        <option value="2">
+                            2.º Trimestre
+                        </option>
 
-                                <th
-                                    style="padding:13px;"
-                                >
-                                    MAC
-                                </th>
+                        <option value="3">
+                            3.º Trimestre
+                        </option>
 
-                                <th
-                                    style="padding:13px;"
-                                >
-                                    NPT
-                                </th>
-
-                                <th
-                                    style="padding:13px;"
-                                >
-                                    MF
-                                </th>
-
-                                <th
-                                    style="padding:13px;"
-                                >
-                                    Classificação
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-        `;
-
-
-        // =============================================
-        // LINHAS
-        // =============================================
-
-        disciplinas.forEach(
-            item => {
-
-                html += `
-
-                    <tr>
-
-                        <td
-                            style="
-                                padding:13px;
-                                border-bottom:1px solid #e2e8f0;
-                                font-weight:bold;
-                            "
-                        >
-                            ${item.disciplina}
-                        </td>
-
-
-                        <td
-                            style="
-                                padding:13px;
-                                text-align:center;
-                                border-bottom:1px solid #e2e8f0;
-                            "
-                        >
-                            ${item.MAC}
-                        </td>
-
-
-                        <td
-                            style="
-                                padding:13px;
-                                text-align:center;
-                                border-bottom:1px solid #e2e8f0;
-                            "
-                        >
-                            ${item.NPT}
-                        </td>
-
-
-                        <td
-                            style="
-                                padding:13px;
-                                text-align:center;
-                                border-bottom:1px solid #e2e8f0;
-                                font-weight:bold;
-                            "
-                        >
-                            ${item.MF}
-                        </td>
-
-
-                        <td
-                            style="
-                                padding:13px;
-                                text-align:center;
-                                border-bottom:1px solid #e2e8f0;
-                                font-weight:bold;
-                            "
-                        >
-                            ${item.classificacao}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
-
-        html += `
-
-                        </tbody>
-
-                    </table>
+                    </select>
 
                 </div>
 
 
+                <!-- NOTAS -->
+
+                <div
+                    id="conteudoNotas"
+                    style="
+                        margin-top:15px;
+                    "
+                >
+
+                </div>
+
+
+                <!-- VOLTAR -->
+
                 <button
                     id="fecharNotas"
-
                     style="
                         width:100%;
                         padding:14px;
@@ -641,12 +560,14 @@ window.verNotas = async function () {
                         border:none;
                         border-radius:8px;
                         font-size:16px;
+                        cursor:pointer;
                     "
                 >
 
                     ← Voltar
 
                 </button>
+
 
             </div>
 
@@ -660,6 +581,298 @@ window.verNotas = async function () {
             html
         );
 
+
+        /* =================================================
+           RENDERIZAR NOTAS
+        ================================================= */
+
+        function renderizarNotas(filtro = "todos") {
+
+            const conteudo =
+                document.getElementById(
+                    "conteudoNotas"
+                );
+
+
+            if (!conteudo) {
+                return;
+            }
+
+
+            let resultado = "";
+
+
+            for (
+                const disciplina
+                of nomesDisciplinas
+            ) {
+
+                const notasDisciplina =
+                    disciplinas[disciplina];
+
+
+                /*
+                Verificar se a disciplina possui
+                o trimestre selecionado.
+                */
+
+                if (
+                    filtro !== "todos" &&
+                    !notasDisciplina[filtro]
+                ) {
+
+                    continue;
+
+                }
+
+
+                resultado += `
+
+                <div
+                    style="
+                        background:white;
+                        margin-bottom:18px;
+                        border-radius:14px;
+                        overflow:hidden;
+                        box-shadow:0 3px 10px rgba(0,0,0,.08);
+                    "
+                >
+
+                    <div
+                        style="
+                            background:#1e3a8a;
+                            color:white;
+                            padding:15px;
+                            font-size:18px;
+                            font-weight:bold;
+                        "
+                    >
+
+                        📚 ${disciplina}
+
+                    </div>
+
+                `;
+
+
+                const trimestres =
+                    filtro === "todos"
+                    ? ["1","2","3"]
+                    : [filtro];
+
+
+                for (
+                    const numeroTrimestre
+                    of trimestres
+                ) {
+
+                    const nota =
+                        notasDisciplina[
+                            numeroTrimestre
+                        ];
+
+
+                    if (!nota) {
+
+                        continue;
+
+                    }
+
+
+                    resultado += `
+
+                    <div
+                        style="
+                            padding:15px;
+                            border-bottom:1px solid #e2e8f0;
+                        "
+                    >
+
+                        <h3
+                            style="
+                                margin:0 0 12px;
+                                color:#1e3a8a;
+                            "
+                        >
+
+                            ${numeroTrimestre}.º Trimestre
+
+                        </h3>
+
+
+                        <div
+                            style="
+                                display:grid;
+                                grid-template-columns:
+                                repeat(4,1fr);
+                                gap:8px;
+                            "
+                        >
+
+
+                            <div
+                                style="
+                                    background:#f8fafc;
+                                    padding:10px;
+                                    text-align:center;
+                                    border-radius:8px;
+                                "
+                            >
+
+                                <strong>
+                                    MAC
+                                </strong>
+
+                                <br>
+
+                                ${nota.MAC}
+
+                            </div>
+
+
+                            <div
+                                style="
+                                    background:#f8fafc;
+                                    padding:10px;
+                                    text-align:center;
+                                    border-radius:8px;
+                                "
+                            >
+
+                                <strong>
+                                    NPT
+                                </strong>
+
+                                <br>
+
+                                ${nota.NPT}
+
+                            </div>
+
+
+                            <div
+                                style="
+                                    background:#f8fafc;
+                                    padding:10px;
+                                    text-align:center;
+                                    border-radius:8px;
+                                "
+                            >
+
+                                <strong>
+                                    MF
+                                </strong>
+
+                                <br>
+
+                                ${nota.MF}
+
+                            </div>
+
+
+                            <div
+                                style="
+                                    background:#f8fafc;
+                                    padding:10px;
+                                    text-align:center;
+                                    border-radius:8px;
+                                "
+                            >
+
+                                <strong>
+                                    Classificação
+                                </strong>
+
+                                <br>
+
+                                ${nota.classificacao}
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                    `;
+
+                }
+
+
+                resultado += `
+
+                </div>
+
+                `;
+
+            }
+
+
+            if (!resultado) {
+
+                resultado = `
+
+                <div
+                    style="
+                        background:white;
+                        padding:25px;
+                        text-align:center;
+                        border-radius:12px;
+                    "
+                >
+
+                    Ainda não existem notas
+                    para este trimestre.
+
+                </div>
+
+                `;
+
+            }
+
+
+            conteudo.innerHTML =
+                resultado;
+
+        }
+
+
+        /* =================================================
+           MOSTRAR TODOS
+        ================================================= */
+
+        renderizarNotas("todos");
+
+
+        /* =================================================
+           FILTRO
+        ================================================= */
+
+        const filtro =
+            document.getElementById(
+                "filtroTrimestre"
+            );
+
+
+        if (filtro) {
+
+            filtro.addEventListener(
+                "change",
+                function () {
+
+                    renderizarNotas(
+                        this.value
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           FECHAR
+        ================================================= */
 
         const fechar =
             document.getElementById(
@@ -677,7 +890,6 @@ window.verNotas = async function () {
                             "janelaNotas"
                         );
 
-
                     if (janela) {
 
                         janela.remove();
@@ -688,22 +900,19 @@ window.verNotas = async function () {
 
         }
 
-    }
 
+    }
 
     catch (error) {
 
         console.error(
-            "ERRO AO CARREGAR NOTAS:",
+            "Erro ao carregar notas:",
             error
         );
 
-
         alert(
-
             "Erro ao carregar notas:\n\n" +
             error.message
-
         );
 
     }
@@ -711,26 +920,25 @@ window.verNotas = async function () {
 };
 
 
-// =====================================================
-// BOLETIM
-// =====================================================
+/* =====================================================
+   VER BOLETIM
+===================================================== */
 
-window.verBoletim =
-function () {
+window.verBoletim = function () {
 
     alert(
-        "📄 O módulo de boletim será ligado depois."
+        "📄 BOLETIM\n\n" +
+        "O módulo de boletim será ligado depois."
     );
 
 };
 
 
-// =====================================================
-// DADOS PESSOAIS
-// =====================================================
+/* =====================================================
+   DADOS PESSOAIS
+===================================================== */
 
-window.verDados =
-function () {
+window.verDados = function () {
 
     alert(
 
@@ -749,11 +957,7 @@ function () {
         (aluno.sexo || "—") +
 
         "\n\nTurma: " +
-        (
-            aluno.turmaNome ||
-            aluno.turmaId ||
-            "—"
-        ) +
+        (aluno.turmaNome || "—") +
 
         "\n\nEstado: " +
         (aluno.estado || "—")
@@ -763,35 +967,34 @@ function () {
 };
 
 
-// =====================================================
-// ALTERAR SENHA
-// =====================================================
+/* =====================================================
+   ALTERAR SENHA
+===================================================== */
 
-window.alterarSenha =
-function () {
+window.alterarSenha = function () {
 
     alert(
-        "🔐 Alteração de senha será adicionada depois."
+        "🔐 Alterar senha\n\n" +
+        "Esta função será ligada ao Firestore."
     );
 
 };
 
 
-// =====================================================
-// SAIR
-// =====================================================
+/* =====================================================
+   SAIR
+===================================================== */
 
-window.sairAluno =
-function () {
+window.sairAluno = function () {
 
-    if (
-        !confirm(
-            "Deseja realmente sair?"
-        )
-    ) {
+    const confirmar =
+        confirm(
+            "Deseja realmente sair da sua conta?"
+        );
 
+
+    if (!confirmar) {
         return;
-
     }
 
 
