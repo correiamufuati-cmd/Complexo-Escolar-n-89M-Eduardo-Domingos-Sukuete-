@@ -1,0 +1,1184 @@
+<!DOCTYPE html><html lang="pt">
+<head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Pautas Gerais - SGE</title>
+
+<link
+    rel="stylesheet"
+    href="../styles/dashboard.css"
+>
+
+<style>
+
+    /* =====================================================
+       BASE
+    ===================================================== */
+
+    *{
+        box-sizing:border-box;
+    }
+
+    body{
+
+        margin:0;
+
+        background:#f1f5f9;
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        color:#1e293b;
+
+    }
+
+
+    /* =====================================================
+       ÁREA PRINCIPAL
+    ===================================================== */
+
+    .pautas-container{
+
+        padding:25px;
+
+        max-width:100%;
+
+    }
+
+
+    /* =====================================================
+       CABEÇALHO AZUL DO SISTEMA
+    ===================================================== */
+
+    .pautas-header{
+
+        background:
+            linear-gradient(
+                135deg,
+                #1e3a8a,
+                #2563eb
+            );
+
+        color:white;
+
+        padding:25px;
+
+        border-radius:18px;
+
+        margin-bottom:20px;
+
+        box-shadow:
+            0 5px 18px
+            rgba(0,0,0,.12);
+
+    }
+
+    .pautas-header h1{
+
+        margin:0 0 8px;
+
+        font-size:26px;
+
+    }
+
+    .pautas-header p{
+
+        margin:0;
+
+        opacity:.9;
+
+    }
+
+
+    /* =====================================================
+       CONTROLOS
+    ===================================================== */
+
+    .controles-pauta{
+
+        background:white;
+
+        padding:20px;
+
+        border-radius:16px;
+
+        margin-bottom:20px;
+
+        display:grid;
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(200px,1fr)
+            );
+
+        gap:18px;
+
+        box-shadow:
+            0 3px 12px
+            rgba(0,0,0,.07);
+
+    }
+
+
+    .campo{
+
+        display:flex;
+
+        flex-direction:column;
+
+        gap:7px;
+
+    }
+
+
+    .campo label{
+
+        font-weight:bold;
+
+        color:#1e3a8a;
+
+    }
+
+
+    .campo select{
+
+        width:100%;
+
+        padding:12px;
+
+        border:1px solid #cbd5e1;
+
+        border-radius:9px;
+
+        background:white;
+
+        font-size:15px;
+
+    }
+
+
+    /* =====================================================
+       CABEÇALHO OFICIAL DA PAUTA
+    ===================================================== */
+
+    .info-pauta{
+
+        background:white;
+
+        padding:25px;
+
+        border-radius:16px;
+
+        margin-bottom:20px;
+
+        box-shadow:
+            0 3px 12px
+            rgba(0,0,0,.07);
+
+        display:flex;
+
+        justify-content:space-between;
+
+        align-items:center;
+
+        gap:20px;
+
+    }
+
+
+    .cabecalho-escola{
+
+        flex:1;
+
+        text-align:center;
+
+    }
+
+
+    .cabecalho-escola h2{
+
+        margin:0 0 10px;
+
+        color:#1e3a8a;
+
+        font-size:21px;
+
+        text-transform:uppercase;
+
+    }
+
+
+    .cabecalho-escola h3{
+
+        margin:0 0 18px;
+
+        color:#111827;
+
+        font-size:20px;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =====================================================
+       DADOS DA PAUTA
+    ===================================================== */
+
+    .dados-pauta{
+
+        display:flex;
+
+        justify-content:center;
+
+        align-items:center;
+
+        flex-wrap:wrap;
+
+        gap:30px;
+
+        padding-top:12px;
+
+        border-top:1px solid #e2e8f0;
+
+    }
+
+
+    .dados-pauta span{
+
+        font-size:15px;
+
+    }
+
+
+    .dados-pauta strong{
+
+        color:#1e3a8a;
+
+    }
+
+
+    /* =====================================================
+       ESTADO DA PAUTA
+    ===================================================== */
+
+    .estado-pauta{
+
+        padding:8px 14px;
+
+        border-radius:20px;
+
+        background:#e0f2fe;
+
+        color:#0369a1;
+
+        font-weight:bold;
+
+        font-size:13px;
+
+        white-space:nowrap;
+
+    }
+
+
+    /* =====================================================
+       TABELA
+    ===================================================== */
+
+    .tabela-pauta-container{
+
+        background:white;
+
+        padding:15px;
+
+        border-radius:16px;
+
+        overflow-x:auto;
+
+        box-shadow:
+            0 3px 12px
+            rgba(0,0,0,.07);
+
+    }
+
+
+    /* =====================================================
+       TABELA PRINCIPAL
+    ===================================================== */
+
+    .tabela-pauta{
+
+        border-collapse:collapse;
+
+        min-width:1800px;
+
+        width:max-content;
+
+    }
+
+
+    /* =====================================================
+       CÉLULAS
+    ===================================================== */
+
+    .tabela-pauta th,
+    .tabela-pauta td{
+
+        border:1px solid #cbd5e1;
+
+        padding:8px;
+
+        text-align:center;
+
+        white-space:nowrap;
+
+    }
+
+
+    /* =====================================================
+       CABEÇALHO PRINCIPAL
+    ===================================================== */
+
+    .tabela-pauta thead tr:nth-child(1) th{
+
+        background:#1e3a8a;
+
+        color:white;
+
+        font-size:14px;
+
+    }
+
+
+    /* =====================================================
+       DISCIPLINA
+    ===================================================== */
+
+    .tabela-pauta .disciplina{
+
+        background:#2563eb;
+
+        color:white;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =====================================================
+       TRIMESTRES
+    ===================================================== */
+
+    .tabela-pauta .trimestre{
+
+        background:#dbeafe;
+
+        color:#1e3a8a;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =====================================================
+       SUBCOLUNAS
+    ===================================================== */
+
+    .tabela-pauta .subcoluna{
+
+        background:#eff6ff;
+
+        color:#1e3a8a;
+
+        font-size:12px;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =====================================================
+       ALUNO
+    ===================================================== */
+
+    .numero{
+
+        width:55px;
+
+        min-width:55px;
+
+        background:#f8fafc;
+
+        font-weight:bold;
+
+    }
+
+
+    .nome-aluno{
+
+        min-width:240px;
+
+        text-align:left !important;
+
+        background:#f8fafc;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =====================================================
+       CAMPOS DE NOTAS
+    ===================================================== */
+
+    .nota{
+
+        min-width:65px;
+
+        height:38px;
+
+        background:white;
+
+    }
+
+
+    /* =====================================================
+       MF
+    ===================================================== */
+
+    .mf{
+
+        background:#f0fdf4;
+
+        color:#166534;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =====================================================
+       RESULTADO FINAL
+    ===================================================== */
+
+    .resultado{
+
+        min-width:100px;
+
+        background:#fefce8;
+
+        color:#854d0e;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =====================================================
+       ESTADO VAZIO
+    ===================================================== */
+
+    .estado-vazio{
+
+        padding:45px !important;
+
+        color:#64748b;
+
+        font-size:15px;
+
+    }
+
+
+    /* =====================================================
+       LEGENDA
+    ===================================================== */
+
+    .legenda{
+
+        margin-top:18px;
+
+        background:white;
+
+        padding:15px;
+
+        border-radius:12px;
+
+        display:flex;
+
+        flex-wrap:wrap;
+
+        gap:18px;
+
+        box-shadow:
+            0 3px 10px
+            rgba(0,0,0,.05);
+
+        font-size:13px;
+
+    }
+
+
+    .legenda span{
+
+        display:flex;
+
+        align-items:center;
+
+        gap:6px;
+
+    }
+
+
+    .legenda strong{
+
+        color:#1e3a8a;
+
+    }
+
+
+    /* =====================================================
+       MOBILE
+    ===================================================== */
+
+    @media(max-width:700px){
+
+        .pautas-container{
+
+            padding:12px;
+
+        }
+
+
+        .pautas-header{
+
+            padding:20px;
+
+        }
+
+
+        .pautas-header h1{
+
+            font-size:22px;
+
+        }
+
+
+        .controles-pauta{
+
+            grid-template-columns:1fr;
+
+        }
+
+
+        .info-pauta{
+
+            flex-direction:column;
+
+            align-items:stretch;
+
+        }
+
+
+        .cabecalho-escola h2{
+
+            font-size:17px;
+
+        }
+
+
+        .cabecalho-escola h3{
+
+            font-size:18px;
+
+        }
+
+
+        .dados-pauta{
+
+            flex-direction:column;
+
+            gap:10px;
+
+        }
+
+
+        .estado-pauta{
+
+            align-self:center;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       IMPRESSÃO
+    ===================================================== */
+
+    @media print{
+
+        body{
+
+            background:white;
+
+        }
+
+
+        .pautas-container{
+
+            padding:0;
+
+        }
+
+
+        .pautas-header,
+        .controles-pauta,
+        .legenda{
+
+            display:none;
+
+        }
+
+
+        .info-pauta{
+
+            box-shadow:none;
+
+            border-radius:0;
+
+            margin-bottom:10px;
+
+            padding:10px;
+
+        }
+
+
+        .tabela-pauta-container{
+
+            box-shadow:none;
+
+            border-radius:0;
+
+            padding:0;
+
+            overflow:visible;
+
+        }
+
+
+        .tabela-pauta{
+
+            min-width:0;
+
+            width:100%;
+
+        }
+
+
+        .estado-pauta{
+
+            display:none;
+
+        }
+
+    }
+
+</style>
+
+</head><body><div class="pautas-container"><!-- =================================================
+     CABEÇALHO DO SISTEMA
+================================================== -->
+
+<div class="pautas-header">
+
+    <h1>
+        📊 Pautas Gerais
+    </h1>
+
+    <p>
+        Gestão e acompanhamento dos resultados escolares
+    </p>
+
+</div>
+
+
+
+<!-- =================================================
+     SELEÇÃO
+================================================== -->
+
+<div class="controles-pauta">
+
+
+    <div class="campo">
+
+        <label for="classeSelect">
+
+            Classe
+
+        </label>
+
+        <select id="classeSelect">
+
+            <option value="">
+
+                -- Selecione a classe --
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+
+    <div class="campo">
+
+        <label for="turmaSelect">
+
+            Turma
+
+        </label>
+
+        <select id="turmaSelect">
+
+            <option value="">
+
+                -- Selecione a turma --
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =================================================
+     CABEÇALHO OFICIAL DA PAUTA
+================================================== -->
+
+<div class="info-pauta">
+
+
+    <div class="cabecalho-escola">
+
+
+        <!-- NOME DA ESCOLA -->
+
+        <h2 id="nomeEscola">
+
+            COMPLEXO ESCOLAR Nº 89M
+            "EDUARDO DOMINGOS SUKUETE"
+
+        </h2>
+
+
+        <!-- TÍTULO -->
+
+        <h3>
+
+            PAUTA GERAL
+
+        </h3>
+
+
+        <!-- DADOS -->
+
+        <div class="dados-pauta">
+
+
+            <span>
+
+                <strong>
+                    Ano Lectivo:
+                </strong>
+
+                <span id="anoLectivo">
+                    2026
+                </span>
+
+            </span>
+
+
+            <span>
+
+                <strong>
+                    Classe:
+                </strong>
+
+                <span id="classePauta">
+                    —
+                </span>
+
+            </span>
+
+
+            <span>
+
+                <strong>
+                    Turma:
+                </strong>
+
+                <span id="turmaPauta">
+                    —
+                </span>
+
+            </span>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ESTADO -->
+
+    <div
+        id="estadoPauta"
+        class="estado-pauta"
+    >
+
+        Aguardando seleção
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =================================================
+     TABELA
+================================================== -->
+
+<div class="tabela-pauta-container">
+
+
+    <table class="tabela-pauta">
+
+
+        <thead>
+
+
+            <!-- =========================================
+                 LINHA 1
+            ========================================== -->
+
+            <tr>
+
+
+                <th
+                    rowspan="3"
+                    class="numero"
+                >
+                    Nº
+                </th>
+
+
+                <th
+                    rowspan="3"
+                    class="nome-aluno"
+                >
+                    Nome do Aluno
+                </th>
+
+
+                <!-- MATEMÁTICA -->
+
+                <th
+                    colspan="9"
+                    class="disciplina"
+                >
+                    Matemática
+                </th>
+
+
+                <!-- LÍNGUA PORTUGUESA -->
+
+                <th
+                    colspan="9"
+                    class="disciplina"
+                >
+                    Língua Portuguesa
+                </th>
+
+
+                <!-- RESULTADO -->
+
+                <th
+                    rowspan="3"
+                    class="resultado"
+                >
+                    Resultado
+                </th>
+
+
+            </tr>
+
+
+
+            <!-- =========================================
+                 LINHA 2
+            ========================================== -->
+
+            <tr>
+
+
+                <!-- MATEMÁTICA -->
+
+                <th
+                    colspan="3"
+                    class="trimestre"
+                >
+                    1.º Trimestre
+                </th>
+
+
+                <th
+                    colspan="3"
+                    class="trimestre"
+                >
+                    2.º Trimestre
+                </th>
+
+
+                <th
+                    colspan="3"
+                    class="trimestre"
+                >
+                    3.º Trimestre
+                </th>
+
+
+
+                <!-- PORTUGUÊS -->
+
+                <th
+                    colspan="3"
+                    class="trimestre"
+                >
+                    1.º Trimestre
+                </th>
+
+
+                <th
+                    colspan="3"
+                    class="trimestre"
+                >
+                    2.º Trimestre
+                </th>
+
+
+                <th
+                    colspan="3"
+                    class="trimestre"
+                >
+                    3.º Trimestre
+                </th>
+
+
+            </tr>
+
+
+
+            <!-- =========================================
+                 LINHA 3
+            ========================================== -->
+
+            <tr>
+
+
+                <!-- MATEMÁTICA -->
+
+                <th class="subcoluna">
+                    MAC
+                </th>
+
+                <th class="subcoluna">
+                    NPT
+                </th>
+
+                <th class="subcoluna">
+                    MF
+                </th>
+
+
+                <th class="subcoluna">
+                    MAC
+                </th>
+
+                <th class="subcoluna">
+                    NPT
+                </th>
+
+                <th class="subcoluna">
+                    MF
+                </th>
+
+
+                <th class="subcoluna">
+                    MAC
+                </th>
+
+                <th class="subcoluna">
+                    NPT
+                </th>
+
+                <th class="subcoluna">
+                    MF
+                </th>
+
+
+
+                <!-- PORTUGUÊS -->
+
+                <th class="subcoluna">
+                    MAC
+                </th>
+
+                <th class="subcoluna">
+                    NPT
+                </th>
+
+                <th class="subcoluna">
+                    MF
+                </th>
+
+
+                <th class="subcoluna">
+                    MAC
+                </th>
+
+                <th class="subcoluna">
+                    NPT
+                </th>
+
+                <th class="subcoluna">
+                    MF
+                </th>
+
+
+                <th class="subcoluna">
+                    MAC
+                </th>
+
+                <th class="subcoluna">
+                    NPT
+                </th>
+
+                <th class="subcoluna">
+                    MF
+                </th>
+
+
+            </tr>
+
+
+        </thead>
+
+
+
+        <!-- =================================================
+             ALUNOS
+        ================================================== -->
+
+        <tbody id="pautaLista">
+
+
+            <tr>
+
+
+                <td
+                    colspan="21"
+                    class="estado-vazio"
+                >
+
+                    📋
+
+                    Selecione uma classe e uma turma
+                    para carregar a pauta.
+
+
+                </td>
+
+
+            </tr>
+
+
+        </tbody>
+
+
+    </table>
+
+
+</div>
+
+
+
+<!-- =================================================
+     LEGENDA
+================================================== -->
+
+<div class="legenda">
+
+
+    <span>
+
+        <strong>MAC</strong>
+
+        Média de Avaliação Contínua
+
+    </span>
+
+
+    <span>
+
+        <strong>NPT</strong>
+
+        Nota da Prova Trimestral
+
+    </span>
+
+
+    <span>
+
+        <strong>MF</strong>
+
+        Média Final
+
+    </span>
+
+
+    <span>
+
+        <strong>—</strong>
+
+        Trimestre ainda não concluído
+
+    </span>
+
+
+</div>
+
+</div><!-- =================================================
+     JAVASCRIPT
+================================================== --><script
+    type="module"
+    src="../services/pautas.js?v=1"></script>
+
+</body>
+  
+  </html>
