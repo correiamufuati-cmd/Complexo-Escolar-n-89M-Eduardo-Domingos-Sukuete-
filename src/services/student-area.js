@@ -1,4 +1,4 @@
-alert("ÁREA DO ALUNO CARREGADA ✅");
+alert("ÁREA DO ALUNO df CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -523,3 +523,382 @@ async function carregarNotasAluno() {
     return resultado;
 
 }
+
+/* =====================================================
+   VER NOTAS
+===================================================== */
+
+window.verNotas = async function () {
+
+    try {
+
+        console.log("Abrindo notas do aluno...");
+
+
+        const notasAluno =
+            await carregarNotasAluno();
+
+
+        const disciplinas =
+            Object.keys(notasAluno);
+
+
+        if (disciplinas.length === 0) {
+
+            alert(
+                "Ainda não existem notas para este aluno."
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           CRIAR JANELA
+        ================================================= */
+
+        let html = `
+
+        <div
+            id="janelaNotas"
+            style="
+                position:fixed;
+                inset:0;
+                z-index:99999;
+                background:#f1f5f9;
+                overflow-y:auto;
+            "
+        >
+
+            <div
+                style="
+                    width:95%;
+                    max-width:900px;
+                    margin:auto;
+                    padding:20px 0 40px;
+                "
+            >
+
+
+                <div
+                    style="
+                        background:#1e3a8a;
+                        color:white;
+                        padding:22px;
+                        border-radius:16px;
+                        text-align:center;
+                        box-shadow:
+                            0 5px 15px
+                            rgba(0,0,0,.15);
+                    "
+                >
+
+                    <div
+                        style="
+                            font-size:40px;
+                        "
+                    >
+                        📊
+                    </div>
+
+                    <h2
+                        style="
+                            margin:5px 0;
+                        "
+                    >
+                        Minhas Notas
+                    </h2>
+
+                    <div>
+                        ${aluno.nome || "Aluno"}
+                    </div>
+
+                    <small>
+                        ${aluno.turmaNome || "—"}
+                    </small>
+
+                </div>
+
+        `;
+
+
+        /* =================================================
+           DISCIPLINAS
+        ================================================= */
+
+        disciplinas.forEach(
+            disciplina => {
+
+                html += `
+
+                <div
+                    style="
+                        background:white;
+                        margin-top:18px;
+                        padding:18px;
+                        border-radius:15px;
+                        box-shadow:
+                            0 3px 10px
+                            rgba(0,0,0,.08);
+                    "
+                >
+
+                    <h3
+                        style="
+                            margin:0 0 15px;
+                            color:#1e3a8a;
+                            border-bottom:
+                                2px solid #e2e8f0;
+                            padding-bottom:10px;
+                        "
+                    >
+
+                        📚 ${disciplina}
+
+                    </h3>
+
+                `;
+
+
+                const trimestres =
+                    Object.keys(
+                        notasAluno[disciplina]
+                    ).sort(
+                        (a,b) =>
+                            obterTrimestre(a)
+                            -
+                            obterTrimestre(b)
+                    );
+
+
+                trimestres.forEach(
+                    trimestre => {
+
+                        const nota =
+                            notasAluno
+                            [disciplina]
+                            [trimestre];
+
+
+                        html += `
+
+                        <div
+                            style="
+                                margin-bottom:15px;
+                                border:
+                                    1px solid #e2e8f0;
+                                border-radius:10px;
+                                overflow:hidden;
+                            "
+                        >
+
+                            <div
+                                style="
+                                    background:#e0f2fe;
+                                    color:#1e3a8a;
+                                    padding:12px;
+                                    font-weight:bold;
+                                "
+                            >
+
+                                📝
+                                ${formatarTrimestre(
+                                    trimestre
+                                )}
+
+                            </div>
+
+
+                            <div
+                                style="
+                                    display:grid;
+                                    grid-template-columns:
+                                    repeat(4,1fr);
+                                    gap:8px;
+                                    padding:15px;
+                                    text-align:center;
+                                "
+                            >
+
+
+                                <div>
+
+                                    <small>
+                                        MAC
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${
+                                            nota.MAC || "—"
+                                        }
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        NPT
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${
+                                            nota.NPT || "—"
+                                        }
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        MF
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${
+                                            nota.MF || "—"
+                                        }
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        Classificação
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            margin-top:4px;
+                                        "
+                                    >
+                                        ${
+                                            nota.classificacao
+                                            || "—"
+                                        }
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                        `;
+
+                    }
+                );
+
+
+                html += `
+
+                </div>
+
+                `;
+
+            }
+        );
+
+
+        /* =================================================
+           BOTÃO VOLTAR
+        ================================================= */
+
+        html += `
+
+                <button
+                    id="fecharNotas"
+                    style="
+                        width:100%;
+                        padding:15px;
+                        margin-top:20px;
+                        background:#dc2626;
+                        color:white;
+                        border:none;
+                        border-radius:10px;
+                        font-size:16px;
+                        font-weight:bold;
+                        cursor:pointer;
+                    "
+                >
+
+                    ← Voltar
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+        `;
+
+
+        document.body.insertAdjacentHTML(
+            "beforeend",
+            html
+        );
+
+
+        document
+            .getElementById(
+                "fecharNotas"
+            )
+            .onclick = function () {
+
+                const janela =
+                    document.getElementById(
+                        "janelaNotas"
+                    );
+
+
+                if (janela) {
+
+                    janela.remove();
+
+                }
+
+            };
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Erro ao carregar notas:",
+            error
+        );
+
+
+        alert(
+            "Erro ao carregar notas:\n\n" +
+            error.message
+        );
+
+    }
+
+};
