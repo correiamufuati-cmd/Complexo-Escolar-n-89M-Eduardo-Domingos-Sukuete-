@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Área Financeira - SIGEA</title>
+
+<link
+    rel="stylesheet"
+    href="../styles/dashboard.css"
+>
+
+<style>
+
+body{
+    background:#f1f5f9;
+}
+
+
+/* ==============================
+   CONTEÚDO
+============================== */
+
+.financeiro-container{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:25px;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,.06);
+
+}
+
+
+/* ==============================
+   CABEÇALHO
+============================== */
+
+.financeiro-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:20px;
+
+    flex-wrap:wrap;
+
+}
+
+
+.financeiro-header h2{
+
+    margin:0;
+
+    color:#1e3a8a;
+
+}
+
+
+.financeiro-header p{
+
+    margin:5px 0 0;
+
+    color:#64748b;
+
+}
+
+
+/* ==============================
+   CONTROLOS
+============================== */
+
+.controles{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(200px,1fr)
+        );
+
+    gap:15px;
+
+    margin-bottom:25px;
+
+}
+
+
+.controle{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+
+.controle label{
+
+    font-weight:bold;
+
+    color:#334155;
+
+}
+
+
+.controle select{
+
+    padding:11px;
+
+    border:1px solid #cbd5e1;
+
+    border-radius:9px;
+
+    background:white;
+
+    font-size:14px;
+
+}
+
+
+/* ==============================
+   TABELA
+============================== */
+
+.tabela-container{
+
+    width:100%;
+
+    overflow-x:auto;
+
+}
+
+
+table{
+
+    width:100%;
+
+    min-width:900px;
+
+    border-collapse:collapse;
+
+}
+
+
+thead tr:first-child{
+
+    background:#1e3a8a;
+
+    color:white;
+
+}
+
+
+thead tr:nth-child(2){
+
+    background:#334155;
+
+    color:white;
+
+}
+
+
+th{
+
+    padding:11px 8px;
+
+    text-align:center;
+
+    border:1px solid
+        rgba(255,255,255,.2);
+
+}
+
+
+td{
+
+    padding:9px 8px;
+
+    border:1px solid #cbd5e1;
+
+    text-align:center;
+
+}
+
+
+td.nome{
+
+    text-align:left;
+
+    font-weight:500;
+
+}
+
+
+/* ==============================
+   BOTÕES DE PAGAMENTO
+============================== */
+
+.pagamento{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:5px;
+
+}
+
+
+.btn-pagamento{
+
+    width:38px;
+
+    height:34px;
+
+    border:1px solid #cbd5e1;
+
+    border-radius:7px;
+
+    background:white;
+
+    cursor:pointer;
+
+    font-size:17px;
+
+}
+
+
+.btn-pagamento:hover{
+
+    background:#f1f5f9;
+
+}
+
+
+.btn-pagamento.ativo{
+
+    background:#dcfce7;
+
+    border-color:#22c55e;
+
+}
+
+
+/* ==============================
+   COMUNICADO
+============================== */
+
+.comunicado{
+
+    width:100%;
+
+    min-width:180px;
+
+    padding:8px;
+
+    border:1px solid #cbd5e1;
+
+    border-radius:7px;
+
+    resize:vertical;
+
+    font-family:inherit;
+
+}
+
+
+/* ==============================
+   ESTADOS
+============================== */
+
+.estado{
+
+    margin-bottom:15px;
+
+    padding:12px;
+
+    border-radius:9px;
+
+    background:#eff6ff;
+
+    color:#1e40af;
+
+}
+
+
+.sem-alunos{
+
+    text-align:center;
+
+    padding:30px;
+
+    color:#64748b;
+
+}
+
+
+/* ==============================
+   RESPONSIVO
+============================== */
+
+@media(max-width:700px){
+
+    .main{
+
+        padding:15px;
+
+    }
+
+
+    .financeiro-container{
+
+        padding:15px;
+
+    }
+
+
+    .controles{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================
+     MENU
+===================================== -->
+
+<div class="sidebar">
+
+
+    <h2 id="schoolName">
+
+        🏫 SIGEA
+
+    </h2>
+
+
+    <a href="dashboard-gestor.html">
+
+        📊
+
+        <span>
+            Visão Geral
+        </span>
+
+    </a>
+
+
+    <a href="students.html">
+
+        👨‍🎓
+
+        <span>
+            Alunos
+        </span>
+
+    </a>
+
+
+    <a href="teachers.html">
+
+        👨‍🏫
+
+        <span>
+            Professores
+        </span>
+
+    </a>
+
+
+    <a href="classes.html">
+
+        🏫
+
+        <span>
+            Turmas
+        </span>
+
+    </a>
+
+
+    <a href="disciplinas.html">
+
+        📚
+
+        <span>
+            Disciplinas
+        </span>
+
+    </a>
+
+
+    <a href="grades.html">
+
+        📝
+
+        <span>
+            Notas
+        </span>
+
+    </a>
+
+
+    <a href="boletins.html">
+
+        📄
+
+        <span>
+            Boletins
+        </span>
+
+    </a>
+
+
+    <a href="financeiro.html">
+
+        💰
+
+        <span>
+            Área Financeira
+        </span>
+
+    </a>
+
+
+    <a href="#">
+
+        ⚙️
+
+        <span>
+            Definições
+        </span>
+
+    </a>
+
+
+    <button id="logoutBtn">
+
+        🚪 Sair
+
+    </button>
+
+
+</div>
+
+
+<!-- =====================================
+     CONTEÚDO
+===================================== -->
+
+<div class="main">
+
+
+    <div class="financeiro-container">
+
+
+        <div class="financeiro-header">
+
+            <div>
+
+                <h2>
+                    💰 Área Financeira
+                </h2>
+
+                <p>
+                    Gestão das propinas e liberação dos boletins
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================
+             CONTROLOS
+        ================================== -->
+
+        <div class="controles">
+
+
+            <div class="controle">
+
+                <label for="selectEnsino">
+                    Ensino
+                </label>
+
+                <select id="selectEnsino">
+
+                    <option value="">
+                        Selecione o ensino
+                    </option>
+
+                    <option value="ensinoPrimario">
+                        Ensino Primário
+                    </option>
+
+                    <option value="primeiroCiclo">
+                        Primeiro Ciclo
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <div class="controle">
+
+                <label for="selectTurma">
+                    Turma
+                </label>
+
+                <select id="selectTurma">
+
+                    <option value="">
+                        Selecione a turma
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+        <div
+            id="estado"
+            class="estado"
+        >
+
+            Selecione uma turma para visualizar os alunos.
+
+        </div>
+
+
+        <!-- =================================
+             TABELA
+        ================================== -->
+
+        <div class="tabela-container">
+
+            <table>
+
+
+                <thead>
+
+
+                    <tr>
+
+                        <th rowspan="2">
+                            Nº
+                        </th>
+
+                        <th rowspan="2">
+                            Nome
+                        </th>
+
+                        <th rowspan="2">
+                            Sexo
+                        </th>
+
+                        <th rowspan="2">
+                            Idade
+                        </th>
+
+                        <th colspan="2">
+                            1.º Trimestre
+                        </th>
+
+                        <th colspan="2">
+                            2.º Trimestre
+                        </th>
+
+                        <th colspan="2">
+                            3.º Trimestre
+                        </th>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <th>
+                            Propina
+                        </th>
+
+                        <th>
+                            Comunicado
+                        </th>
+
+
+                        <th>
+                            Propina
+                        </th>
+
+                        <th>
+                            Comunicado
+                        </th>
+
+
+                        <th>
+                            Propina
+                        </th>
+
+                        <th>
+                            Comunicado
+                        </th>
+
+                    </tr>
+
+
+                </thead>
+
+
+                <tbody id="listaFinanceira">
+
+                    <tr>
+
+                        <td
+                            colspan="10"
+                            class="sem-alunos"
+                        >
+
+                            Nenhuma turma selecionada.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<script
+    type="module"
+    src="../services/financeiro.js?v=1"
+></script>
+
+
+</body>
+
+  </html>
