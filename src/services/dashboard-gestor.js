@@ -1,247 +1,419 @@
 import { app } from "./firebase.js";
 
-
 import {
 getAuth,
 onAuthStateChanged,
 signOut
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-
 import {
 getFirestore,
 collection,
-getDocs
+getDocs,
+doc,
+getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+const auth =
+getAuth(app);
 
+const db =
+getFirestore(app);
 
-const auth = getAuth(app);
-
-const db = getFirestore(app);
-
-
-
-
+// =====================================================
+// ELEMENTOS
+// =====================================================
 
 const escolaNome =
 document.getElementById("schoolName");
 
-
 const userInfo =
 document.getElementById("userInfo");
-
-
 
 const totalAlunos =
 document.getElementById("totalStudents");
 
-
 const totalProfessores =
 document.getElementById("totalTeachers");
-
 
 const totalTurmas =
 document.getElementById("totalClasses");
 
-
 const totalDisciplinas =
 document.getElementById("totalSubjects");
 
+// =====================================================
+// AUTENTICAÇÃO
+// =====================================================
+
+onAuthStateChanged(
+auth,
+async (user) => {
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
 
 
+    userInfo.textContent =
+        user.email;
 
 
-onAuthStateChanged(auth, async(user)=>{
+    await carregarEscola();
 
 
-if(!user){
-
-
-window.location.href="login.html";
-
-return;
-
+    await carregarTotais();
 
 }
 
-
-
-userInfo.textContent =
-user.email;
-
-
-
-await carregarEscola();
-
-
-await carregarTotais();
-
-
-
-});
-
-
-
-
-
-
-
-async function carregarEscola(){
-
-
-try{
-
-
-const dados =
-await getDocs(
-collection(db,"escolas")
 );
 
+// =====================================================
+// ESCOLA
+// =====================================================
+
+async function carregarEscola() {
+
+try {
+
+    const dados =
+        await getDocs(
+            collection(
+                db,
+                "escolas"
+            )
+        );
 
 
-if(!dados.empty){
+    if (!dados.empty) {
+
+        const escola =
+            dados.docs[0].data();
 
 
-const escola =
-dados.docs[0].data();
+        escolaNome.textContent =
+            escola.nome ||
+            "SIGEA";
+
+    }
+    else {
+
+        escolaNome.textContent =
+            "SIGEA";
+
+    }
+
+}
+
+catch (error) {
+
+    console.error(
+        "Erro ao carregar escola:",
+        error
+    );
+
+    escolaNome.textContent =
+        "SIGEA";
+
+}
+
+}
+
+// =====================================================
+// CARREGAR TOTAIS
+// =====================================================
+
+async function carregarTotais() {
+
+try {
 
 
+    // =============================================
+    // TURMAS
+    // =============================================
 
-escolaNome.textContent =
-escola.nome;
+    const turmasSnapshot =
+        await getDocs(
+            collection(
+                db,
+                "turmas"
+            )
+        );
 
+
+    totalTurmas.textContent =
+        turmasSnapshot.size;
+
+
+    // =============================================
+    // PROFESSORES
+    // =============================================
+
+    const professoresSnapshot =
+        await getDocs(
+            collection(
+                db,
+                "professores"
+            )
+        );
+
+
+    totalProfessores.textContent =
+        professoresSnapshot.size;
+
+
+    // =============================================
+    // ALUNOS
+    // =============================================
+
+    let totalAlunosEncontrados = 0;
+
+
+    /*
+     * Os alunos estão dentro de:
+     *
+     * turmas
+     *   └── turmaId
+     *        └── alunos
+     *
+     */
+
+
+    for (
+        const turmaDoc
+        of turmasSnapshot.docs
+    ) {
+
+        const alunosRef =
+            collection(
+                db,
+                "turmas",
+                turmaDoc.id,
+                "alunos"
+            );
+
+
+        const alunosSnapshot =
+            await getDocs(
+                alunosRef
+            );
+
+
+        totalAlunosEncontrados +=
+            alunosSnapshot.size;
+
+    }
+
+
+    totalAlunos.textContent =
+        totalAlunosEncontrados;
+
+
+    // =============================================
+    // DISCIPLINAS
+    // =============================================
+
+    const disciplinasRef =
+        doc(
+            db,
+            "config",
+            "disciplinas"
+        );
+
+
+    const disciplinasSnapshot =
+        await getDoc(
+            disciplinasRef
+        );
+
+
+    let totalDisciplinasEncontradas =
+        0;
+
+
+    if (
+        disciplinasSnapshot.exists()
+    ) {
+
+        const dados =
+            disciplinasSnapshot.data();
+
+
+        /*
+         * Estrutura:
+         *
+         * config
+         *   disciplinas
+         *      ensinoPrimario
+         *          1classe
+         *              disciplinas: [...]
+         *
+         *      primeiroCiclo
+         *          7classe
+         *              disciplinas: [...]
+         *
+         */
+
+
+        const ensinos = [
+
+            "ensinoPrimario",
+
+            "primeiroCiclo"
+
+        ];
+
+
+        ensinos.forEach(
+            ensino => {
+
+                const classes =
+                    dados[ensino];
+
+
+                if (
+                    !classes ||
+                    typeof classes !==
+                    "object"
+                ) {
+
+                    return;
+
+                }
+
+
+                Object.keys(
+                    classes
+                ).forEach(
+                    classe => {
+
+                        const dadosClasse =
+                            classes[classe];
+
+
+                        if (
+                            dadosClasse &&
+                            Array.isArray(
+                                dadosClasse
+                                    .disciplinas
+                            )
+                        ) {
+
+                            totalDisciplinasEncontradas +=
+                                dadosClasse
+                                    .disciplinas
+                                    .length;
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    totalDisciplinas.textContent =
+        totalDisciplinasEncontradas;
+
+
+    // =============================================
+    // CONSOLE PARA CONFERÊNCIA
+    // =============================================
+
+    console.log(
+        "===== TOTAIS SIGEA ====="
+    );
+
+
+    console.log(
+        "Alunos:",
+        totalAlunosEncontrados
+    );
+
+
+    console.log(
+        "Professores:",
+        professoresSnapshot.size
+    );
+
+
+    console.log(
+        "Turmas:",
+        turmasSnapshot.size
+    );
+
+
+    console.log(
+        "Disciplinas:",
+        totalDisciplinasEncontradas
+    );
 
 
 }
 
+catch (error) {
+
+    console.error(
+        "Erro ao carregar totais:",
+        error
+    );
 
 
-}catch(error){
+    totalAlunos.textContent =
+        "—";
 
 
-console.log(error);
+    totalProfessores.textContent =
+        "—";
 
 
-}
+    totalTurmas.textContent =
+        "—";
 
 
-}
-
-
-
-
-
-
-
-
-
-async function carregarTotais(){
-
-
-try{
-
-
-
-const alunos =
-await getDocs(
-collection(db,"alunos")
-);
-
-
-
-const professores =
-await getDocs(
-collection(db,"professores")
-);
-
-
-
-const turmas =
-await getDocs(
-collection(db,"turmas")
-);
-
-
-
-
-
-totalAlunos.textContent =
-alunos.size;
-
-
-
-totalProfessores.textContent =
-professores.size;
-
-
-
-totalTurmas.textContent =
-turmas.size;
-
-
-
-
-
-let disciplinas = 0;
-
-
-
-turmas.forEach(doc=>{
-
-
-const dados =
-doc.data();
-
-
-
-if(dados.disciplinas){
-
-
-disciplinas +=
-dados.disciplinas.length;
-
+    totalDisciplinas.textContent =
+        "—";
 
 }
 
-
-
-});
-
-
-
-totalDisciplinas.textContent =
-disciplinas;
-
-
-
-}catch(error){
-
-
-console.log(error);
-
-
 }
 
-
-}
-
-
-
-
-
-
-
+// =====================================================
+// SAIR
+// =====================================================
 
 document
 .getElementById("logoutBtn")
-.addEventListener("click",async()=>{
+.addEventListener(
+"click",
+async () => {
+
+        try {
+
+            await signOut(auth);
 
 
-await signOut(auth);
+            window.location.href =
+                "login.html";
 
+        }
 
-window.location.href="login.html";
+        catch (error) {
 
+            console.error(
+                "Erro ao sair:",
+                error
+            );
 
-});
+        }
+
+    }
+);
