@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Definições - SGE</title>
+
+<link
+    rel="stylesheet"
+    href="../styles/dashboard.css"
+>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#f1f5f9;
+    font-family:Arial,sans-serif;
+    color:#1e293b;
+}
+
+.main{
+    padding:25px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.cabecalho{
+    background:linear-gradient(
+        135deg,
+        #1e3a8a,
+        #2563eb
+    );
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    margin-bottom:20px;
+}
+
+.cabecalho h1{
+    margin:0 0 8px;
+}
+
+.section{
+    background:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,0,0,.07);
+}
+
+.section h2{
+    margin-top:0;
+    color:#1e3a8a;
+}
+
+.form-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(200px,1fr)
+        );
+
+    gap:15px;
+}
+
+.campo{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.campo label{
+    font-weight:bold;
+}
+
+input,
+select{
+    width:100%;
+
+    padding:11px;
+
+    border:
+        1px solid
+        #cbd5e1;
+
+    border-radius:8px;
+
+    font-size:15px;
+}
+
+button{
+    border:0;
+
+    padding:10px 16px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+}
+
+.btn-principal{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-perigo{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.btn-editar{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.acoes{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:15px;
+}
+
+.lista{
+    margin-top:20px;
+}
+
+.item{
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:12px;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius:9px;
+
+    margin-bottom:8px;
+}
+
+.item-info{
+    flex:1;
+}
+
+.item-info strong{
+    display:block;
+}
+
+.disciplinas{
+    margin-top:10px;
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:7px;
+}
+
+.disciplina{
+    background:#eff6ff;
+
+    color:#1d4ed8;
+
+    padding:6px 10px;
+
+    border-radius:20px;
+
+    font-size:13px;
+}
+
+.mensagem{
+    display:none;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    margin-bottom:15px;
+
+    font-weight:bold;
+}
+
+.sucesso{
+    display:block;
+    background:#dcfce7;
+    color:#166534;
+}
+
+.erro{
+    display:block;
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+@media(max-width:700px){
+
+    .main{
+        padding:12px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .item{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="main">
+
+
+<!-- CABEÇALHO -->
+
+<div class="cabecalho">
+
+    <h1>
+        ⚙️ Definições
+    </h1>
+
+    <p>
+        Configuração geral do Sistema de Gestão Escolar
+    </p>
+
+</div>
+
+
+<div
+    id="mensagem"
+    class="mensagem"
+></div>
+
+
+<!-- =================================================
+     DADOS DA ESCOLA
+================================================= -->
+
+<div class="section">
+
+    <h2>
+        🏫 Dados da Escola
+    </h2>
+
+    <div class="form-grid">
+
+        <div class="campo">
+
+            <label>
+                Nome da escola
+            </label>
+
+            <input
+                id="nomeEscola"
+                type="text"
+                placeholder="Nome da escola"
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                Ano letivo
+            </label>
+
+            <input
+                id="anoLetivo"
+                type="text"
+                placeholder="Ex.: 2026"
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                Província
+            </label>
+
+            <input
+                id="provincia"
+                type="text"
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                Município
+            </label>
+
+            <input
+                id="municipio"
+                type="text"
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                Telefone
+            </label>
+
+            <input
+                id="telefone"
+                type="text"
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                E-mail
+            </label>
+
+            <input
+                id="email"
+                type="email"
+            >
+
+        </div>
+
+    </div>
+
+
+    <div class="acoes">
+
+        <button
+            class="btn-principal"
+            id="guardarEscola"
+        >
+
+            💾 Guardar dados
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =================================================
+     CLASSES
+================================================= -->
+
+<div class="section">
+
+    <h2>
+        📚 Classes e Ciclos
+    </h2>
+
+
+    <div class="form-grid">
+
+        <div class="campo">
+
+            <label>
+                Ciclo
+            </label>
+
+            <select id="ciclo">
+
+                <option value="">
+                    Selecionar ciclo
+                </option>
+
+                <option value="ensinoPrimario">
+                    Ensino Primário
+                </option>
+
+                <option value="primeiroCiclo">
+                    1.º Ciclo
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                Classe
+            </label>
+
+            <input
+                id="classe"
+                type="text"
+                placeholder="Ex.: 1.ª classe"
+            >
+
+        </div>
+
+    </div>
+
+
+    <div class="acoes">
+
+        <button
+            class="btn-principal"
+            id="guardarClasse"
+        >
+
+            ➕ Adicionar classe
+
+        </button>
+
+    </div>
+
+
+    <div
+        id="listaClasses"
+        class="lista"
+    ></div>
+
+</div>
+
+
+
+<!-- =================================================
+     DISCIPLINAS
+================================================= -->
+
+<div class="section">
+
+    <h2>
+        📖 Disciplinas por Classe
+    </h2>
+
+
+    <div class="form-grid">
+
+        <div class="campo">
+
+            <label>
+                Classe
+            </label>
+
+            <select id="classeDisciplina">
+
+                <option value="">
+                    Selecionar classe
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                Disciplina
+            </label>
+
+            <input
+                id="disciplina"
+                type="text"
+                placeholder="Nome da disciplina"
+            >
+
+        </div>
+
+    </div>
+
+
+    <div class="acoes">
+
+        <button
+            class="btn-principal"
+            id="guardarDisciplina"
+        >
+
+            ➕ Adicionar disciplina
+
+        </button>
+
+    </div>
+
+
+    <div
+        id="listaDisciplinas"
+        class="lista"
+    ></div>
+
+</div>
+
+
+</div>
+
+
+<script
+    type="module"
+    src="./definicoes.js?v=1"></script>
+
+</body>
+
+  </html>
