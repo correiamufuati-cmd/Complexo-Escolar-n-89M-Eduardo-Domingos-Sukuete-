@@ -912,71 +912,96 @@ window.verBoletim = async function () {
 
     try {
 
-        console.log("Abrindo boletim...");
-
-
-        /* ================================================
-           CARREGAR PAGAMENTOS DO ALUNO
+        /* =================================================
+           IDENTIFICAÇÃO DO ALUNO
         ================================================= */
 
-        const financeiroSnapshot =
-            await getDocs(
-                collection(
-                    db,
-                    "financeiro"
-                )
+        const turmaId =
+            String(aluno.turmaId || "").trim();
+
+        const numeroAluno =
+            String(aluno.numero || "").trim();
+
+        const nomeAluno =
+            String(aluno.nome || "").trim();
+
+
+        /*
+        ID usado pela área financeira.
+
+        Normalmente será o ID do documento
+        do aluno dentro da turma.
+        */
+
+        const alunoId =
+            String(
+                aluno.alunoId ||
+                aluno.id ||
+                alunoIdInterno ||
+                ""
+            ).trim();
+
+
+        console.log(
+            "Aluno para boletim:",
+            aluno
+        );
+
+
+        if (!turmaId) {
+
+            alert(
+                "Não foi possível identificar a turma do aluno."
             );
 
+            return;
 
-        let pagamentoAluno = null;
-
-
-        for (
-            const documento
-            of financeiroSnapshot.docs
-        ) {
-
-            const dadosFinanceiro =
-                documento.data();
+        }
 
 
-            const mesmoAluno =
-                String(
-                    dadosFinanceiro.alunoId || ""
-                ).trim()
-                ===
-                String(
-                    aluno.id || ""
-                ).trim();
+        /* =================================================
+           BUSCAR PAGAMENTOS
+        ================================================= */
+
+        let pagamentoAluno = {};
 
 
-            const mesmoNumero =
-                String(
-                    dadosFinanceiro.numero || ""
-                ).trim()
-                ===
-                String(
-                    numeroAluno || ""
-                ).trim();
+        if (alunoId) {
+
+            const financeiroRef =
+                doc(
+                    db,
+                    "financeiro",
+                    alunoId
+                );
+
+
+            const financeiroSnapshot =
+                await getDoc(
+                    financeiroRef
+                );
 
 
             if (
-                mesmoAluno ||
-                mesmoNumero
+                financeiroSnapshot.exists()
             ) {
 
                 pagamentoAluno =
-                    dadosFinanceiro;
-
-                break;
+                    financeiroSnapshot.data();
 
             }
 
         }
 
 
-        /* ================================================
-           PAGAMENTOS
+        console.log(
+            "Pagamento do aluno:",
+            pagamentoAluno
+        );
+
+
+        /* =================================================
+           PAGAMENTOS POR TRIMESTRE
         ================================================= */
 
         const pagamentos = {
@@ -999,17 +1024,150 @@ window.verBoletim = async function () {
         );
 
 
-        /* ================================================
+        /* =================================================
            BUSCAR NOTAS
         ================================================= */
 
-        const notasAluno =
-            await carregarNotasAluno();
+        const notasSnapshot =
+            await getDocs(
+                collection(db, "notas")
+            );
+
+
+        const boletim = {};
+
+
+        for (
+            const notaDoc
+            of notasSnapshot.docs
+        ) {
+
+            const dadosNota =
+                notaDoc.data();
+
+
+            /* Somente notas da turma */
+
+            if (
+                String(
+                    dadosNota.turmaId || ""
+                ).trim()
+                !== turmaId
+            ) {
+
+                continue;
+
+            }
+
+
+            const disciplina =
+                String(
+                    dadosNota.disciplina || ""
+                ).trim();
+
+
+            const trimestre =
+                String(
+                    dadosNota.trimestre || ""
+                ).trim();
+
+
+            if (
+                !disciplina ||
+                !trimestre
+            ) {
+
+                continue;
+
+            }
+
+
+            const listaAlunos =
+                Array.isArray(
+                    dadosNota.alunos
+                )
+                ? dadosNota.alunos
+                : [];
+
+
+            let registro = null;
+
+
+            /* =================================================
+               PROCURAR PELO NÚMERO
+            ================================================= */
+
+            if (numeroAluno) {
+
+                registro =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.numero || ""
+                            ).trim()
+                            === numeroAluno
+                    );
+
+            }
+
+
+            /* =================================================
+               SE NÃO ENCONTRAR, PROCURAR PELO NOME
+            ================================================= */
+
+            if (
+                !registro &&
+                nomeAluno
+            ) {
+
+                registro =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.nome || ""
+                            ).trim()
+                            === nomeAluno
+                    );
+
+            }
+
+
+            if (!registro) {
+
+                continue;
+
+            }
+
+
+            if (!boletim[disciplina]) {
+
+                boletim[disciplina] = {};
+
+            }
+
+
+            boletim[disciplina][trimestre] = {
+
+                MAC:
+                    registro.MAC ?? "",
+
+                NPT:
+                    registro.NPT ?? "",
+
+                MF:
+                    registro.MF ?? "",
+
+                classificacao:
+                    registro.classificacao || ""
+
+            };
+
+        }
 
 
         const disciplinas =
             Object.keys(
-                notasAluno
+                boletim
             );
 
 
@@ -1018,7 +1176,7 @@ window.verBoletim = async function () {
         ) {
 
             alert(
-                "Ainda não existem notas para gerar o boletim."
+                "Ainda não existem notas para este aluno."
             );
 
             return;
@@ -1026,8 +1184,156 @@ window.verBoletim = async function () {
         }
 
 
-        /* ================================================
-           JANELA
+        /* =================================================
+           CONVERTER TRIMESTRE
+        ================================================= */
+
+        function obterTrimestre(valor) {
+
+            const v =
+                String(valor)
+                .trim()
+                .toLowerCase();
+
+
+            if (
+                v === "1" ||
+                v === "1º" ||
+                v === "1°" ||
+                v.includes("1º trimestre") ||
+                v.includes("1° trimestre") ||
+                v.includes("1 trimestre")
+            ) {
+
+                return 1;
+
+            }
+
+
+            if (
+                v === "2" ||
+                v === "2º" ||
+                v === "2°" ||
+                v.includes("2º trimestre") ||
+                v.includes("2° trimestre") ||
+                v.includes("2 trimestre")
+            ) {
+
+                return 2;
+
+            }
+
+
+            if (
+                v === "3" ||
+                v === "3º" ||
+                v === "3°" ||
+                v.includes("3º trimestre") ||
+                v.includes("3° trimestre") ||
+                v.includes("3 trimestre")
+            ) {
+
+                return 3;
+
+            }
+
+
+            return 99;
+
+        }
+
+
+        /* =================================================
+           FORMATAR NÚMERO
+        ================================================= */
+
+        function numeroMF(valor) {
+
+            if (
+                valor === "" ||
+                valor === null ||
+                valor === undefined
+            ) {
+
+                return null;
+
+            }
+
+
+            const numero =
+                Number(valor);
+
+
+            return Number.isFinite(numero)
+                ? numero
+                : null;
+
+        }
+
+
+        /* =================================================
+           MÉDIA ANUAL
+        ================================================= */
+
+        function calcularMediaAnual(notas) {
+
+            const valores = [];
+
+
+            Object.values(notas)
+            .forEach(
+                nota => {
+
+                    const mf =
+                        numeroMF(
+                            nota.MF
+                        );
+
+
+                    if (
+                        mf !== null
+                    ) {
+
+                        valores.push(
+                            mf
+                        );
+
+                    }
+
+                }
+            );
+
+
+            if (
+                valores.length === 0
+            ) {
+
+                return "";
+
+            }
+
+
+            const soma =
+                valores.reduce(
+                    (
+                        total,
+                        valor
+                    ) =>
+                        total + valor,
+                    0
+                );
+
+
+            return (
+                soma /
+                valores.length
+            ).toFixed(1);
+
+        }
+
+
+        /* =================================================
+           CONSTRUIR BOLETIM
         ================================================= */
 
         let html = `
@@ -1056,13 +1362,20 @@ window.verBoletim = async function () {
                     style="
                         background:#1e3a8a;
                         color:white;
-                        padding:22px;
+                        padding:25px;
                         border-radius:16px;
                         text-align:center;
+                        box-shadow:
+                            0 4px 15px
+                            rgba(0,0,0,.15);
                     "
                 >
 
-                    <div style="font-size:40px;">
+                    <div
+                        style="
+                            font-size:42px;
+                        "
+                    >
                         📄
                     </div>
 
@@ -1071,11 +1384,11 @@ window.verBoletim = async function () {
                     </h2>
 
                     <div>
-                        ${aluno.nome || "Aluno"}
+                        ${aluno.nome || ""}
                     </div>
 
                     <small>
-                        ${aluno.turmaNome || "—"}
+                        ${aluno.turmaNome || ""}
                     </small>
 
                 </div>
@@ -1083,90 +1396,36 @@ window.verBoletim = async function () {
         `;
 
 
-        /* ================================================
-           CADA TRIMESTRE
+        /* =================================================
+           MOSTRAR CADA TRIMESTRE
         ================================================= */
 
-        [1,2,3].forEach(
-            numeroTrimestre => {
-
-                const pago =
-                    pagamentos[
-                        numeroTrimestre
-                    ];
+        for (
+            let numeroTrimestre = 1;
+            numeroTrimestre <= 3;
+            numeroTrimestre++
+        ) {
 
 
-                const nomeTrimestre =
-                    numeroTrimestre === 1
-                    ? "1.º Trimestre"
-                    : numeroTrimestre === 2
+            const pago =
+                pagamentos[
+                    numeroTrimestre
+                ] === true;
+
+
+            const nomeTrimestre =
+                numeroTrimestre === 1
+                ? "1.º Trimestre"
+                : numeroTrimestre === 2
                     ? "2.º Trimestre"
                     : "3.º Trimestre";
 
 
-                /* ------------------------------------------
-                   BOLETIM BLOQUEADO
-                ------------------------------------------ */
+            /* =================================================
+               TRIMESTRE NÃO PAGO
+            ================================================= */
 
-                if (!pago) {
-
-                    html += `
-
-                    <div
-                        style="
-                            background:white;
-                            margin-top:20px;
-                            padding:25px;
-                            border-radius:15px;
-                            text-align:center;
-                            border:1px solid #fecaca;
-                        "
-                    >
-
-                        <div
-                            style="
-                                font-size:45px;
-                            "
-                        >
-                            🔒
-                        </div>
-
-                        <h3
-                            style="
-                                color:#b91c1c;
-                            "
-                        >
-                            ${nomeTrimestre}
-                        </h3>
-
-                        <p
-                            style="
-                                color:#64748b;
-                            "
-                        >
-                            Boletim pendente.
-                        </p>
-
-                        <strong
-                            style="
-                                color:#b91c1c;
-                            "
-                        >
-                            Consulte o administrador.
-                        </strong>
-
-                    </div>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                /* ------------------------------------------
-                   BOLETIM LIBERADO
-                ------------------------------------------ */
+            if (!pago) {
 
                 html += `
 
@@ -1174,152 +1433,231 @@ window.verBoletim = async function () {
                     style="
                         background:white;
                         margin-top:20px;
-                        padding:18px;
-                        border-radius:15px;
-                        box-shadow:
-                            0 3px 10px
-                            rgba(0,0,0,.08);
+                        padding:22px;
+                        border-radius:14px;
+                        border:1px solid #fecaca;
+                        text-align:center;
                     "
                 >
 
                     <div
                         style="
+                            font-size:35px;
+                        "
+                    >
+                        🔒
+                    </div>
+
+                    <h3
+                        style="
+                            color:#b91c1c;
+                            margin:8px 0;
+                        "
+                    >
+
+                        ${nomeTrimestre}
+
+                    </h3>
+
+                    <p
+                        style="
+                            color:#64748b;
+                        "
+                    >
+
+                        Boletim pendente.
+
+                        <br>
+
+                        Consulte o administrador
+                        para regularizar a propina.
+
+                    </p>
+
+                </div>
+
+                `;
+
+                continue;
+
+            }
+
+
+            /* =================================================
+               TRIMESTRE PAGO
+            ================================================= */
+
+            html += `
+
+            <div
+                style="
+                    background:white;
+                    margin-top:20px;
+                    padding:18px;
+                    border-radius:14px;
+                    box-shadow:
+                        0 3px 12px
+                        rgba(0,0,0,.08);
+                "
+            >
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        margin-bottom:15px;
+                    "
+                >
+
+                    <h3
+                        style="
+                            margin:0;
+                            color:#1e3a8a;
+                        "
+                    >
+
+                        📘 ${nomeTrimestre}
+
+                    </h3>
+
+
+                    <span
+                        style="
                             background:#dcfce7;
                             color:#166534;
-                            padding:12px;
-                            border-radius:10px;
-                            margin-bottom:15px;
+                            padding:6px 12px;
+                            border-radius:20px;
+                            font-size:13px;
                             font-weight:bold;
                         "
                     >
 
-                        ✅ ${nomeTrimestre}
-                        — BOLETIM LIBERADO
+                        ✅ Liberado
 
-                    </div>
+                    </span>
+
+                </div>
 
 
-                    <div
+                <div
+                    style="
+                        overflow-x:auto;
+                    "
+                >
+
+                    <table
                         style="
-                            overflow-x:auto;
+                            width:100%;
+                            border-collapse:collapse;
+                            min-width:700px;
                         "
                     >
 
-                        <table
-                            style="
-                                width:100%;
-                                border-collapse:collapse;
-                                min-width:750px;
-                            "
-                        >
+                        <thead>
 
-                            <thead>
+                            <tr
+                                style="
+                                    background:#e0f2fe;
+                                    color:#1e3a8a;
+                                "
+                            >
 
-                                <tr
+                                <th
                                     style="
-                                        background:#e0f2fe;
-                                        color:#1e3a8a;
+                                        padding:10px;
+                                        border:1px solid #cbd5e1;
+                                        text-align:left;
                                     "
                                 >
+                                    Disciplina
+                                </th>
 
-                                    <th
-                                        style="
-                                            padding:10px;
-                                            border:1px solid #cbd5e1;
-                                        "
-                                    >
-                                        Disciplina
-                                    </th>
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:1px solid #cbd5e1;
+                                    "
+                                >
+                                    MAC
+                                </th>
 
-                                    <th
-                                        style="
-                                            padding:10px;
-                                            border:1px solid #cbd5e1;
-                                        "
-                                    >
-                                        MAC
-                                    </th>
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:1px solid #cbd5e1;
+                                    "
+                                >
+                                    NPT
+                                </th>
 
-                                    <th
-                                        style="
-                                            padding:10px;
-                                            border:1px solid #cbd5e1;
-                                        "
-                                    >
-                                        NPT
-                                    </th>
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:1px solid #cbd5e1;
+                                    "
+                                >
+                                    MF
+                                </th>
 
-                                    <th
-                                        style="
-                                            padding:10px;
-                                            border:1px solid #cbd5e1;
-                                        "
-                                    >
-                                        MF
-                                    </th>
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:1px solid #cbd5e1;
+                                    "
+                                >
+                                    Classificação
+                                </th>
 
-                                    <th
-                                        style="
-                                            padding:10px;
-                                            border:1px solid #cbd5e1;
-                                        "
-                                    >
-                                        Classificação
-                                    </th>
+                            </tr>
 
-                                </tr>
+                        </thead>
 
-                            </thead>
+                        <tbody>
 
-                            <tbody>
-
-                `;
+        `;
 
 
-                /* ------------------------------------------
-                   DISCIPLINAS
-                ------------------------------------------ */
+            /* =================================================
+               DISCIPLINAS DO TRIMESTRE
+            ================================================= */
 
-                disciplinas.forEach(
-                    disciplina => {
+            disciplinas.forEach(
+                disciplina => {
 
-                        const notas =
-                            notasAluno[
-                                disciplina
-                            ];
-
-
-                        let trimestreEncontrado =
-                            null;
+                    const notas =
+                        boletim[
+                            disciplina
+                        ];
 
 
-                        Object.keys(notas)
-                            .forEach(
-                                chave => {
-
-                                    if (
-                                        obterTrimestre(
-                                            chave
-                                        )
-                                        ===
-                                        numeroTrimestre
-                                    ) {
-
-                                        trimestreEncontrado =
-                                            notas[
-                                                chave
-                                            ];
-
-                                    }
-
-                                }
-                            );
+                    let notaTrimestre = null;
 
 
-                        const nota =
-                            trimestreEncontrado
-                            || {};
+                    Object.keys(notas)
+                    .forEach(
+                        chave => {
 
+                            if (
+                                obterTrimestre(
+                                    chave
+                                )
+                                ===
+                                numeroTrimestre
+                            ) {
+
+                                notaTrimestre =
+                                    notas[chave];
+
+                            }
+
+                        }
+                    );
+
+
+                    if (
+                        !notaTrimestre
+                    ) {
 
                         html += `
 
@@ -1329,81 +1667,182 @@ window.verBoletim = async function () {
                                 style="
                                     padding:10px;
                                     border:1px solid #cbd5e1;
-                                    font-weight:bold;
                                 "
                             >
                                 ${disciplina}
                             </td>
 
                             <td
+                                colspan="4"
                                 style="
                                     padding:10px;
                                     border:1px solid #cbd5e1;
                                     text-align:center;
+                                    color:#94a3b8;
                                 "
                             >
-                                ${nota.MAC || "—"}
-                            </td>
-
-                            <td
-                                style="
-                                    padding:10px;
-                                    border:1px solid #cbd5e1;
-                                    text-align:center;
-                                "
-                            >
-                                ${nota.NPT || "—"}
-                            </td>
-
-                            <td
-                                style="
-                                    padding:10px;
-                                    border:1px solid #cbd5e1;
-                                    text-align:center;
-                                    font-weight:bold;
-                                "
-                            >
-                                ${nota.MF || "—"}
-                            </td>
-
-                            <td
-                                style="
-                                    padding:10px;
-                                    border:1px solid #cbd5e1;
-                                    text-align:center;
-                                "
-                            >
-                                ${
-                                    nota.classificacao
-                                    || "—"
-                                }
+                                Sem notas
                             </td>
 
                         </tr>
 
                         `;
 
+                        return;
+
                     }
-                );
 
 
-                html += `
+                    html += `
 
-                            </tbody>
+                    <tr>
 
-                        </table>
+                        <td
+                            style="
+                                padding:10px;
+                                border:1px solid #cbd5e1;
+                                font-weight:bold;
+                            "
+                        >
 
-                    </div>
+                            ${disciplina}
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:1px solid #cbd5e1;
+                                text-align:center;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.MAC
+                                ?? "—"
+                            }
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:1px solid #cbd5e1;
+                                text-align:center;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.NPT
+                                ?? "—"
+                            }
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:1px solid #cbd5e1;
+                                text-align:center;
+                                font-weight:bold;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.MF
+                                ?? "—"
+                            }
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:1px solid #cbd5e1;
+                                text-align:center;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.classificacao
+                                || "—"
+                            }
+
+                        </td>
+
+                    </tr>
+
+                    `;
+
+                }
+            );
+
+
+            html += `
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
-                `;
+            </div>
 
-            }
-        );
+            `;
+
+        }
 
 
-        /* ================================================
+        /* =================================================
+           COMUNICADO
+        ================================================= */
+
+        const comunicado =
+            pagamentoAluno?.comunicado
+            || "";
+
+
+        if (comunicado) {
+
+            html += `
+
+            <div
+                style="
+                    background:#fff7ed;
+                    border:1px solid #fed7aa;
+                    margin-top:20px;
+                    padding:18px;
+                    border-radius:14px;
+                "
+            >
+
+                <strong>
+                    📢 Comunicado da Administração
+                </strong>
+
+                <p
+                    style="
+                        margin-bottom:0;
+                        color:#475569;
+                    "
+                >
+
+                    ${comunicado}
+
+                </p>
+
+            </div>
+
+            `;
+
+        }
+
+
+        /* =================================================
            BOTÃO VOLTAR
         ================================================= */
 
@@ -1429,6 +1868,7 @@ window.verBoletim = async function () {
 
                 </button>
 
+
             </div>
 
         </div>
@@ -1443,37 +1883,37 @@ window.verBoletim = async function () {
 
 
         document
-            .getElementById(
-                "fecharBoletim"
-            )
-            .onclick = function () {
+        .getElementById(
+            "fecharBoletim"
+        )
+        .onclick = function () {
 
-                const janela =
-                    document.getElementById(
-                        "janelaBoletim"
-                    );
+            const janela =
+                document.getElementById(
+                    "janelaBoletim"
+                );
 
 
-                if (janela) {
+            if (janela) {
 
-                    janela.remove();
+                janela.remove();
 
-                }
+            }
 
-            };
+        };
 
 
     }
     catch (error) {
 
         console.error(
-            "Erro ao abrir boletim:",
+            "Erro ao gerar boletim:",
             error
         );
 
 
         alert(
-            "Erro ao abrir boletim:\n\n" +
+            "Erro ao gerar boletim:\n\n" +
             error.message
         );
 
