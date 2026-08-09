@@ -1,194 +1,199 @@
-<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8">
 
-«»
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-<title>Dashboard Gestor - SIGEA</title><link
+<title>Dashboard Gestor - SIGEA</title>
+
+<link
     rel="stylesheet"
     href="../styles/dashboard.css"
-><style>
+>
 
-/* =========================================
-   MENU LATERAL
-========================================= */
+<style>
 
-.sidebar a{
+    /* =========================================
+       MENU LATERAL
+    ========================================= */
 
-    display:flex;
+    .sidebar a{
 
-    align-items:center;
+        display:flex;
 
-    gap:10px;
+        align-items:center;
 
-    text-decoration:none;
+        gap:10px;
 
-}
+        text-decoration:none;
 
+    }
 
-/* menu ativo */
 
-.sidebar a[href="dashboard-gestor.html"]{
+    .sidebar a.menu-ativo{
 
-    font-weight:bold;
+        font-weight:bold;
 
-}
+    }
 
 
-/* =========================================
-   ÁREA PRINCIPAL
-========================================= */
+    /* =========================================
+       ÁREA PRINCIPAL
+    ========================================= */
 
-.main{
+    .main{
 
-    min-height:100vh;
+        min-height:100vh;
 
-}
+    }
 
 
-/* =========================================
-   CABEÇALHO
-========================================= */
+    /* =========================================
+       CABEÇALHO
+    ========================================= */
 
-header{
+    header{
 
-    margin-bottom:25px;
+        margin-bottom:25px;
 
-}
+    }
 
 
-header h1{
+    header h1{
 
-    margin-bottom:5px;
+        margin-bottom:5px;
 
-}
+    }
 
 
-/* =========================================
-   CARTÕES
-========================================= */
-
-.cards{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(180px,1fr)
-        );
-
-    gap:18px;
-
-}
-
-
-.card{
-
-    border-radius:14px;
-
-    transition:
-        transform .2s,
-        box-shadow .2s;
-
-}
-
-
-.card:hover{
-
-    transform:translateY(-3px);
-
-    box-shadow:
-        0 8px 20px
-        rgba(0,0,0,.10);
-
-}
-
-
-.card p{
-
-    font-size:28px;
-
-    font-weight:bold;
-
-}
-
-
-/* =========================================
-   ATIVIDADE
-========================================= */
-
-.section{
-
-    margin-top:25px;
-
-}
-
-
-.section h2{
-
-    margin-bottom:15px;
-
-}
-
-
-#activity{
-
-    background:white;
-
-    padding:20px;
-
-    border-radius:14px;
-
-    box-shadow:
-        0 3px 10px
-        rgba(0,0,0,.06);
-
-    color:#64748b;
-
-}
-
-
-/* =========================================
-   BOTÃO SAIR
-========================================= */
-
-#logoutBtn{
-
-    margin-top:20px;
-
-    cursor:pointer;
-
-}
-
-
-/* =========================================
-   MOBILE
-========================================= */
-
-@media(max-width:700px){
+    /* =========================================
+       CARTÕES
+    ========================================= */
 
     .cards{
+
+        display:grid;
 
         grid-template-columns:
-            repeat(2,1fr);
+            repeat(
+                auto-fit,
+                minmax(180px,1fr)
+            );
+
+        gap:18px;
 
     }
 
-}
 
+    .card{
 
-@media(max-width:450px){
+        border-radius:14px;
 
-    .cards{
-
-        grid-template-columns:1fr;
+        transition:
+            transform .2s,
+            box-shadow .2s;
 
     }
 
-}
 
-</style></head><body><!-- =========================================
+    .card:hover{
+
+        transform:translateY(-3px);
+
+        box-shadow:
+            0 8px 20px
+            rgba(0,0,0,.10);
+
+    }
+
+
+    .card p{
+
+        font-size:28px;
+
+        font-weight:bold;
+
+    }
+
+
+    /* =========================================
+       ATIVIDADE
+    ========================================= */
+
+    .section{
+
+        margin-top:25px;
+
+    }
+
+
+    .section h2{
+
+        margin-bottom:15px;
+
+    }
+
+
+    #activity{
+
+        background:white;
+
+        padding:20px;
+
+        border-radius:14px;
+
+        box-shadow:
+            0 3px 10px
+            rgba(0,0,0,.06);
+
+        color:#64748b;
+
+    }
+
+
+    /* =========================================
+       BOTÃO SAIR
+    ========================================= */
+
+    #logoutBtn{
+
+        margin-top:20px;
+
+        cursor:pointer;
+
+    }
+
+
+    /* =========================================
+       MOBILE
+    ========================================= */
+
+    @media(max-width:700px){
+
+        .cards{
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+        }
+
+    }
+
+
+    @media(max-width:450px){
+
+        .cards{
+
+            grid-template-columns:1fr;
+
+        }
+
+    }
+
+</style>
+
+</head><body><!-- =========================================
      MENU LATERAL
 ========================================= --><div class="sidebar"><h2 id="schoolName">
 
@@ -197,7 +202,12 @@ header h1{
 </h2>
 
 
-<a href="dashboard-gestor.html">
+<!-- VISÃO GERAL -->
+
+<a
+    href="dashboard-gestor.html"
+    class="menu-ativo"
+>
 
     📊
 
@@ -207,6 +217,8 @@ header h1{
 
 </a>
 
+
+<!-- ALUNOS -->
 
 <a href="students.html">
 
@@ -219,6 +231,8 @@ header h1{
 </a>
 
 
+<!-- PROFESSORES -->
+
 <a href="teachers.html">
 
     👨‍🏫
@@ -229,6 +243,8 @@ header h1{
 
 </a>
 
+
+<!-- TURMAS -->
 
 <a href="classes.html">
 
@@ -241,6 +257,8 @@ header h1{
 </a>
 
 
+<!-- DISCIPLINAS -->
+
 <a href="disciplinas.html">
 
     📚
@@ -251,6 +269,8 @@ header h1{
 
 </a>
 
+
+<!-- NOTAS -->
 
 <a href="grades.html">
 
@@ -263,6 +283,21 @@ header h1{
 </a>
 
 
+<!-- FINANCEIRO -->
+
+<a href="financeiro.html">
+
+    💰
+
+    <span>
+        Financeiro
+    </span>
+
+</a>
+
+
+<!-- BOLETINS -->
+
 <a href="#">
 
     📄
@@ -273,6 +308,60 @@ header h1{
 
 </a>
 
+
+<!-- PAUTAS -->
+
+<a href="#">
+
+    📑
+
+    <span>
+        Pautas
+    </span>
+
+</a>
+
+
+<!-- RELATÓRIOS -->
+
+<a href="#">
+
+    📈
+
+    <span>
+        Relatórios
+    </span>
+
+</a>
+
+
+<!-- CALENDÁRIO -->
+
+<a href="#">
+
+    📅
+
+    <span>
+        Calendário
+    </span>
+
+</a>
+
+
+<!-- DOCUMENTOS -->
+
+<a href="#">
+
+    📁
+
+    <span>
+        Documentos
+    </span>
+
+</a>
+
+
+<!-- DEFINIÇÕES -->
 
 <a href="#">
 
@@ -285,6 +374,7 @@ header h1{
 </a>
 
 
+<!-- SAIR -->
 
 <button id="logoutBtn">
 
@@ -322,56 +412,80 @@ header h1{
 <div class="cards">
 
 
+    <!-- ALUNOS -->
+
     <div class="card">
 
         <h3>
+
             👨‍🎓 Alunos
+
         </h3>
 
         <p id="totalStudents">
+
             0
+
         </p>
 
     </div>
 
 
 
+    <!-- PROFESSORES -->
+
     <div class="card">
 
         <h3>
+
             👨‍🏫 Professores
+
         </h3>
 
         <p id="totalTeachers">
+
             0
+
         </p>
 
     </div>
 
 
 
+    <!-- TURMAS -->
+
     <div class="card">
 
         <h3>
+
             🏫 Turmas
+
         </h3>
 
         <p id="totalClasses">
+
             0
+
         </p>
 
     </div>
 
 
 
+    <!-- DISCIPLINAS -->
+
     <div class="card">
 
         <h3>
+
             📚 Disciplinas
+
         </h3>
 
         <p id="totalSubjects">
+
             0
+
         </p>
 
     </div>
@@ -382,7 +496,7 @@ header h1{
 
 
 <!-- =====================================
-     ATIVIDADE
+     ATIVIDADE RECENTE
 ====================================== -->
 
 <div class="section">
@@ -404,7 +518,9 @@ header h1{
 
 </div>
 
-</div><script
+</div><!-- =========================================
+     JAVASCRIPT DO DASHBOARD
+========================================= --><script
     type="module"
     src="../services/dashboard-gestor.js?v=1"></script>
 
