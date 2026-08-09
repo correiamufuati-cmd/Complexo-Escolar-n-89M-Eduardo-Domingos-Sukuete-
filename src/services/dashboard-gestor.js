@@ -417,3 +417,278 @@ async () => {
 
     }
 );
+
+// =====================================================
+// ATIVIDADES RECENTES
+// =====================================================
+
+import {
+    collection,
+    query,
+    orderBy,
+    limit,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+
+// =====================================================
+// ELEMENTO
+// =====================================================
+
+const activity =
+    document.getElementById("activity");
+
+
+// =====================================================
+// CARREGAR ATIVIDADES
+// =====================================================
+
+async function carregarAtividadesRecentes() {
+
+    if (!activity) return;
+
+    try {
+
+        const referencia =
+            collection(db, "atividades");
+
+        const consulta =
+            query(
+                referencia,
+                orderBy("data", "desc"),
+                limit(10)
+            );
+
+        const resultado =
+            await getDocs(consulta);
+
+
+        // =============================================
+        // NENHUMA ATIVIDADE
+        // =============================================
+
+        if (resultado.empty) {
+
+            activity.innerHTML = `
+                <div style="
+                    padding:15px;
+                    text-align:center;
+                    color:#64748b;
+                ">
+                    Nenhuma atividade ainda.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        // =============================================
+        // LIMPAR
+        // =============================================
+
+        activity.innerHTML = "";
+
+
+        // =============================================
+        // MOSTRAR
+        // =============================================
+
+        resultado.forEach(documento => {
+
+            const dados =
+                documento.data();
+
+
+            const item =
+                document.createElement("div");
+
+
+            item.style.padding =
+                "12px 0";
+
+            item.style.borderBottom =
+                "1px solid #e2e8f0";
+
+
+            const icone =
+                obterIconeAtividade(
+                    dados.tipo
+                );
+
+
+            const descricao =
+                dados.descricao ||
+                "Atividade realizada";
+
+
+            const utilizador =
+                dados.utilizador ||
+                "Sistema";
+
+
+            const data =
+                formatarDataAtividade(
+                    dados.data
+                );
+
+
+            item.innerHTML = `
+
+                <div style="
+                    display:flex;
+                    gap:12px;
+                    align-items:flex-start;
+                ">
+
+                    <div style="
+                        font-size:22px;
+                    ">
+                        ${icone}
+                    </div>
+
+                    <div style="
+                        flex:1;
+                    ">
+
+                        <div style="
+                            font-weight:bold;
+                            color:#1e293b;
+                        ">
+                            ${descricao}
+                        </div>
+
+                        <div style="
+                            font-size:13px;
+                            color:#64748b;
+                            margin-top:4px;
+                        ">
+                            👤 ${utilizador}
+                            ${data ? " • " + data : ""}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            activity.appendChild(item);
+
+        });
+
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao carregar atividades:",
+            erro
+        );
+
+
+        activity.innerHTML = `
+
+            <div style="
+                padding:15px;
+                color:#b91c1c;
+            ">
+
+                ⚠️ Não foi possível
+                carregar as atividades.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// =====================================================
+// ÍCONE DA ATIVIDADE
+// =====================================================
+
+function obterIconeAtividade(tipo) {
+
+    switch (tipo) {
+
+        case "aluno":
+            return "👨‍🎓";
+
+        case "professor":
+            return "👨‍🏫";
+
+        case "turma":
+            return "🏫";
+
+        case "disciplina":
+            return "📚";
+
+        case "nota":
+            return "📝";
+
+        case "financeiro":
+            return "💰";
+
+        case "pauta":
+            return "📑";
+
+        case "configuracao":
+            return "⚙️";
+
+        case "sistema":
+            return "🔧";
+
+        default:
+            return "📌";
+    }
+
+}
+
+
+// =====================================================
+// FORMATAR DATA
+// =====================================================
+
+function formatarDataAtividade(timestamp) {
+
+    if (!timestamp) {
+        return "";
+    }
+
+
+    try {
+
+        const data =
+            timestamp.toDate();
+
+
+        return data.toLocaleString(
+            "pt-PT",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+    }
+    catch {
+
+        return "";
+
+    }
+
+}
+
+
+// =====================================================
+// INICIAR
+// =====================================================
+
+carregarAtividadesRecentes();
