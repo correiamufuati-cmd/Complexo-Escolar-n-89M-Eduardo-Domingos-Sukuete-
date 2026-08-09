@@ -5,10 +5,10 @@ import { db } from "./firebase.js";
 import {
     collection,
     getDocs,
+    getDoc,
     doc,
-    getDoc
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
 
 /* =====================================================
    SESSÃO DO ALUNO
