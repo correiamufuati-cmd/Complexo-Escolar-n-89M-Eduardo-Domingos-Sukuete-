@@ -4,7 +4,9 @@ import { db } from "./firebase.js";
 
 import {
     collection,
-    getDocs
+    getDocs,
+    doc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
@@ -932,14 +934,8 @@ window.verBoletim = async function () {
         Normalmente será o ID do documento
         do aluno dentro da turma.
         */
-
-        const alunoId =
-            String(
-                aluno.alunoId ||
-                aluno.id ||
-                alunoIdInterno ||
-                ""
-            ).trim();
+        
+const alunoId = String(aluno.id || "").trim();
 
 
         console.log(
