@@ -1,733 +1,603 @@
+alert("ÁREA FINANCEIRA CARREGADA ✅");
+
 import { app } from "./firebase.js";
 
 import {
-getAuth,
-onAuthStateChanged,
-signOut
-} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-
-import {
-getFirestore,
-collection,
-getDocs,
-doc,
-getDoc,
-setDoc,
-serverTimestamp
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+    setDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-const auth = getAuth(app);
+
 const db = getFirestore(app);
 
-// =====================================================
-// ELEMENTOS
-// =====================================================
 
-const selectEnsino =
-document.getElementById("selectEnsino");
+/* =====================================================
+   ELEMENTOS
+===================================================== */
 
-const selectTurma =
-document.getElementById("selectTurma");
+const turmaSelect =
+    document.getElementById("turmaSelect");
 
-const listaFinanceira =
-document.getElementById("listaFinanceira");
-
-const estado =
-document.getElementById("estado");
-
-const logoutBtn =
-document.getElementById("logoutBtn");
-
-// =====================================================
-// DADOS
-// =====================================================
-
-let turmas = [];
-
-let alunos = [];
-
-// =====================================================
-// TRIMESTRES
-// =====================================================
-
-const trimestres = [
-"1trimestre",
-"2trimestre",
-"3trimestre"
-];
-
-// =====================================================
-// PROFESSOR / ADMINISTRADOR AUTENTICADO
-// =====================================================
-
-onAuthStateChanged(
-auth,
-async (user) => {
-
-    if (!user) {
-
-        window.location.href =
-            "login.html";
-
-        return;
-
-    }
+const lista =
+    document.getElementById("financeiroLista");
 
 
-    await carregarTurmas();
-
-}
-
-);
-
-// =====================================================
-// CARREGAR TURMAS
-// =====================================================
+/* =====================================================
+   CARREGAR TURMAS
+===================================================== */
 
 async function carregarTurmas() {
 
-try {
+    try {
 
-    selectTurma.innerHTML = `
-        <option value="">
-            Selecione a turma
-        </option>
-    `;
-
-
-    turmas = [];
-
-
-    const resultado =
-        await getDocs(
-            collection(
-                db,
-                "turmas"
-            )
-        );
-
-
-    resultado.forEach(
-        item => {
-
-            const turma = {
-
-                id: item.id,
-
-                ...item.data()
-
-            };
-
-
-            turmas.push(turma);
-
-        }
-    );
-
-
-    filtrarTurmas();
-
-
-}
-
-catch (error) {
-
-    console.error(
-        "Erro ao carregar turmas:",
-        error
-    );
-
-
-    estado.textContent =
-        "Erro ao carregar turmas.";
-
-}
-
-}
-
-// =====================================================
-// FILTRAR TURMAS POR ENSINO
-// =====================================================
-
-function filtrarTurmas() {
-
-const ensino =
-    selectEnsino.value;
-
-
-selectTurma.innerHTML = `
-    <option value="">
-        Selecione a turma
-    </option>
-`;
-
-
-if (!ensino) {
-
-    listaFinanceira.innerHTML = `
-        <tr>
-            <td
-                colspan="10"
-                class="sem-alunos"
-            >
-                Selecione o ensino e a turma.
-            </td>
-        </tr>
-    `;
-
-    return;
-
-}
-
-
-const filtradas =
-    turmas.filter(
-        turma =>
-            turma.ensino === ensino
-    );
-
-
-if (filtradas.length === 0) {
-
-    selectTurma.innerHTML = `
-        <option value="">
-            Nenhuma turma encontrada
-        </option>
-    `;
-
-    return;
-
-}
-
-
-filtradas.forEach(
-    turma => {
-
-        const option =
-            document.createElement(
-                "option"
+        const snapshot =
+            await getDocs(
+                collection(db, "turmas")
             );
 
 
-        option.value =
-            turma.id;
+        turmaSelect.innerHTML = `
+
+            <option value="">
+                -- Selecione uma turma --
+            </option>
+
+        `;
 
 
-        option.textContent =
-            `${turma.nome || ""} - ${turma.classe || ""}`;
+        snapshot.forEach(
+            documento => {
+
+                const turma =
+                    documento.data();
 
 
-        selectTurma.appendChild(
-            option
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    documento.id;
+
+
+                option.textContent =
+                    `${turma.nome || "Turma"} - ${
+                        turma.classe || ""
+                    }`;
+
+
+                turmaSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erro ao carregar turmas:",
+            error
+        );
+
+
+        alert(
+            "Erro ao carregar turmas:\n\n" +
+            error.message
         );
 
     }
-);
 
 }
 
-// =====================================================
-// ALTERAR ENSINO
-// =====================================================
 
-selectEnsino.addEventListener(
-"change",
-() => {
+/* =====================================================
+   CARREGAR ALUNOS DA TURMA
+===================================================== */
 
-    filtrarTurmas();
-
-}
-
-);
-
-// =====================================================
-// ALTERAR TURMA
-// =====================================================
-
-selectTurma.addEventListener(
-"change",
-async () => {
-
-    const turmaId =
-        selectTurma.value;
-
+async function carregarAlunos(
+    turmaId
+) {
 
     if (!turmaId) {
 
-        listaFinanceira.innerHTML = `
-            <tr>
-                <td
-                    colspan="10"
-                    class="sem-alunos"
-                >
-                    Selecione uma turma.
-                </td>
-            </tr>
-        `;
+        lista.innerHTML = `
 
-        estado.textContent =
-            "Selecione uma turma para visualizar os alunos.";
+            <tr>
+
+                <td colspan="7">
+
+                    Selecione uma turma.
+
+                </td>
+
+            </tr>
+
+        `;
 
         return;
 
     }
 
 
-    await carregarAlunos(
-        turmaId
-    );
+    try {
 
-}
+        lista.innerHTML = `
 
-);
+            <tr>
 
-// =====================================================
-// CARREGAR ALUNOS
-// =====================================================
+                <td colspan="7">
 
-async function carregarAlunos(
-turmaId
-) {
+                    A carregar alunos...
 
-try {
+                </td>
 
-    estado.textContent =
-        "A carregar alunos...";
+            </tr>
+
+        `;
 
 
-    listaFinanceira.innerHTML = `
-        <tr>
-            <td
-                colspan="10"
-                class="sem-alunos"
-            >
-                A carregar...
-            </td>
-        </tr>
-    `;
+        /*
+        A estrutura atual do sistema usa
+        a subcoleção "alunos" dentro da turma.
+        */
 
 
-    alunos = [];
+        const alunosRef =
+            collection(
+                db,
+                "turmas",
+                turmaId,
+                "alunos"
+            );
 
 
-    const alunosRef =
-        collection(
-            db,
-            "turmas",
-            turmaId,
-            "alunos"
-        );
+        const snapshot =
+            await getDocs(
+                alunosRef
+            );
 
 
-    const resultado =
-        await getDocs(
-            alunosRef
-        );
+        lista.innerHTML = "";
 
 
-    resultado.forEach(
-        item => {
+        if (snapshot.empty) {
 
-            alunos.push({
+            lista.innerHTML = `
 
-                id: item.id,
+                <tr>
 
-                ...item.data()
+                    <td colspan="7">
 
-            });
+                        Nenhum aluno encontrado
+                        nesta turma.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
 
         }
-    );
 
 
-    alunos.sort(
-        (a, b) =>
-            Number(a.numero || 0) -
-            Number(b.numero || 0)
-    );
+        let numero = 1;
 
 
-    if (alunos.length === 0) {
+        for (
+            const documento
+            of snapshot.docs
+        ) {
 
-        estado.textContent =
-            "Esta turma não possui alunos.";
+            const aluno =
+                documento.data();
 
-        listaFinanceira.innerHTML = `
+
+            await criarLinhaAluno(
+                documento.id,
+                aluno,
+                numero
+            );
+
+
+            numero++;
+
+        }
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erro ao carregar alunos:",
+            error
+        );
+
+
+        lista.innerHTML = `
+
             <tr>
-                <td
-                    colspan="10"
-                    class="sem-alunos"
-                >
-                    Nenhum aluno encontrado.
-                </td>
-            </tr>
-        `;
 
-        return;
+                <td colspan="7">
+
+                    Erro ao carregar alunos:
+
+                    ${error.message}
+
+                </td>
+
+            </tr>
+
+        `;
 
     }
 
-
-    estado.textContent =
-        `${alunos.length} aluno(s) encontrado(s).`;
-
-
-    await montarTabela(
-        turmaId
-    );
-
-
 }
 
-catch (error) {
 
-    console.error(
-        "Erro ao carregar alunos:",
-        error
-    );
+/* =====================================================
+   CRIAR LINHA
+===================================================== */
 
-
-    estado.textContent =
-        "Erro ao carregar alunos.";
-
-
-    listaFinanceira.innerHTML = `
-        <tr>
-            <td
-                colspan="10"
-                class="sem-alunos"
-            >
-                ${error.message}
-            </td>
-        </tr>
-    `;
-
-}
-
-}
-
-// =====================================================
-// MONTAR TABELA
-// =====================================================
-
-async function montarTabela(
-turmaId
+async function criarLinhaAluno(
+    alunoId,
+    aluno,
+    numero
 ) {
 
-listaFinanceira.innerHTML = "";
-
-
-for (
-    const aluno of alunos
-) {
 
     const financeiro =
-        await carregarFinanceiro(
-            turmaId,
-            aluno.id
+        await obterFinanceiro(
+            alunoId,
+            aluno
         );
 
 
     const tr =
-        document.createElement(
-            "tr"
-        );
+        document.createElement("tr");
 
 
     tr.innerHTML = `
 
         <td>
-            ${aluno.numero || "—"}
+
+            ${
+                aluno.numero
+                ||
+                numero
+            }
+
         </td>
+
 
         <td class="nome">
-            ${aluno.nome || "—"}
+
+            ${
+                aluno.nome
+                ||
+                "Aluno sem nome"
+            }
+
         </td>
+
 
         <td>
-            ${aluno.sexo || "—"}
+
+            ${
+                aluno.idade
+                ||
+                "—"
+            }
+
         </td>
+
 
         <td>
-            ${calcularIdade(aluno)}
+
+            ${botaoPagamento(
+                alunoId,
+                aluno,
+                1,
+                financeiro
+            )}
+
         </td>
 
 
-        ${criarCelulaTrimestre(
-            turmaId,
-            aluno,
-            financeiro,
-            "1trimestre"
-        )}
+        <td>
 
-        ${criarCelulaTrimestre(
-            turmaId,
-            aluno,
-            financeiro,
-            "2trimestre"
-        )}
+            ${botaoPagamento(
+                alunoId,
+                aluno,
+                2,
+                financeiro
+            )}
 
-        ${criarCelulaTrimestre(
-            turmaId,
-            aluno,
-            financeiro,
-            "3trimestre"
-        )}
+        </td>
+
+
+        <td>
+
+            ${botaoPagamento(
+                alunoId,
+                aluno,
+                3,
+                financeiro
+            )}
+
+        </td>
+
+
+        <td>
+
+            <input
+                class="comunicado"
+                id="comunicado-${alunoId}"
+                value="${
+                    financeiro.comunicado
+                    || ""
+                }"
+                placeholder="Comunicado..."
+            >
+
+            <button
+                class="pagamento-btn"
+                onclick="
+                    salvarComunicado(
+                        '${alunoId}'
+                    )
+                "
+            >
+                💾
+            </button>
+
+        </td>
 
     `;
 
 
-    listaFinanceira.appendChild(
-        tr
-    );
-
-}
-
-}
-
-// =====================================================
-// CARREGAR DADOS FINANCEIROS
-// =====================================================
-
-async function carregarFinanceiro(
-turmaId,
-alunoId
-) {
-
-const referencia =
-    doc(
-        db,
-        "turmas",
-        turmaId,
-        "alunos",
-        alunoId,
-        "financeiro",
-        "estado"
-    );
-
-
-const resultado =
-    await getDoc(
-        referencia
-    );
-
-
-if (
-    resultado.exists()
-) {
-
-    return resultado.data();
+    lista.appendChild(tr);
 
 }
 
 
-return {
+/* =====================================================
+   BUSCAR FINANCEIRO
+===================================================== */
 
-    "1trimestre": {
-
-        pago: false,
-
-        comunicado: ""
-
-    },
-
-    "2trimestre": {
-
-        pago: false,
-
-        comunicado: ""
-
-    },
-
-    "3trimestre": {
-
-        pago: false,
-
-        comunicado: ""
-
-    }
-
-};
-
-}
-
-// =====================================================
-// CRIAR CÉLULAS DOS TRIMESTRES
-// =====================================================
-
-function criarCelulaTrimestre(
-turmaId,
-aluno,
-financeiro,
-trimestre
-) {
-
-const dados =
-    financeiro[trimestre] || {
-
-        pago: false,
-
-        comunicado: ""
-
-    };
-
-
-const estadoPagamento =
-    dados.pago === true;
-
-
-return `
-
-    <td>
-
-        <div class="pagamento">
-
-            <button
-                class="btn-pagamento ${
-                    estadoPagamento
-                        ? "ativo"
-                        : ""
-                }"
-                title="Marcar como pago"
-                onclick="
-                    alterarPagamento(
-                        '${turmaId}',
-                        '${aluno.id}',
-                        '${trimestre}',
-                        true
-                    )
-                "
-            >
-                ✅
-            </button>
-
-
-            <button
-                class="btn-pagamento ${
-                    !estadoPagamento
-                        ? "ativo"
-                        : ""
-                }"
-                title="Marcar como não pago"
-                onclick="
-                    alterarPagamento(
-                        '${turmaId}',
-                        '${aluno.id}',
-                        '${trimestre}',
-                        false
-                    )
-                "
-            >
-                ❌
-            </button>
-
-        </div>
-
-    </td>
-
-
-    <td>
-
-        <textarea
-            class="comunicado"
-            placeholder="Comunicado..."
-            onchange="
-                alterarComunicado(
-                    '${turmaId}',
-                    '${aluno.id}',
-                    '${trimestre}',
-                    this.value
-                )
-            "
-        >${dados.comunicado || ""}</textarea>
-
-    </td>
-
-`;
-
-}
-
-// =====================================================
-// ALTERAR PAGAMENTO
-// =====================================================
-
-window.alterarPagamento =
-async function (
-turmaId,
-alunoId,
-trimestre,
-pago
+async function obterFinanceiro(
+    alunoId,
+    aluno
 ) {
 
     try {
 
-        const referencia =
+        const ref =
             doc(
                 db,
-                "turmas",
-                turmaId,
-                "alunos",
-                alunoId,
                 "financeiro",
-                "estado"
+                alunoId
             );
 
 
-        const atual =
-            await getDoc(
-                referencia
-            );
-
-
-        let dados =
-            atual.exists()
-                ? atual.data()
-                : {};
-
-
-        if (!dados[trimestre]) {
-
-            dados[trimestre] = {};
-
-        }
-
-
-        dados[trimestre].pago =
-            pago;
+        const resultado =
+            await getDoc(ref);
 
 
         if (
-            typeof dados[trimestre]
-                .comunicado !==
-            "string"
+            resultado.exists()
         ) {
 
-            dados[trimestre].comunicado =
-                "";
+            return resultado.data();
 
         }
 
 
-        dados.atualizadoEm =
-            serverTimestamp();
+        return {
+
+            alunoId:
+                alunoId,
+
+            numero:
+                aluno.numero
+                || "",
+
+            nome:
+                aluno.nome
+                || "",
+
+            "1trimestre": {
+
+                pago:false
+
+            },
+
+            "2trimestre": {
+
+                pago:false
+
+            },
+
+            "3trimestre": {
+
+                pago:false
+
+            },
+
+            comunicado:""
+
+        };
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erro financeiro:",
+            error
+        );
+
+
+        return {};
+
+    }
+
+}
+
+
+/* =====================================================
+   BOTÃO PAGAMENTO
+===================================================== */
+
+function botaoPagamento(
+    alunoId,
+    aluno,
+    trimestre,
+    financeiro
+) {
+
+
+    const chave =
+        `${trimestre}trimestre`;
+
+
+    const pago =
+        financeiro?.[
+            chave
+        ]?.pago === true;
+
+
+    if (pago) {
+
+        return `
+
+            <button
+                class="
+                    pagamento-btn
+                    pago
+                "
+                onclick="
+                    alterarPagamento(
+                        '${alunoId}',
+                        ${trimestre}
+                    )
+                "
+            >
+
+                ✅ Pago
+
+            </button>
+
+        `;
+
+    }
+
+
+    return `
+
+        <button
+            class="
+                pagamento-btn
+                nao-pago
+            "
+            onclick="
+                alterarPagamento(
+                    '${alunoId}',
+                    ${trimestre}
+                )
+            "
+        >
+
+            ❌ Não pago
+
+        </button>
+
+    `;
+
+}
+
+
+/* =====================================================
+   ALTERAR PAGAMENTO
+===================================================== */
+
+window.alterarPagamento =
+async function (
+    alunoId,
+    trimestre
+) {
+
+
+    try {
+
+        const ref =
+            doc(
+                db,
+                "financeiro",
+                alunoId
+            );
+
+
+        const resultado =
+            await getDoc(ref);
+
+
+        let dados =
+            resultado.exists()
+            ? resultado.data()
+            : {};
+
+
+        const chave =
+            `${trimestre}trimestre`;
+
+
+        const estadoAtual =
+            dados?.[
+                chave
+            ]?.pago === true;
+
+
+        dados[chave] = {
+
+            pago:
+                !estadoAtual,
+
+            atualizadoEm:
+                new Date()
+
+        };
 
 
         await setDoc(
-            referencia,
+            ref,
             dados,
             {
-                merge: true
+                merge:true
             }
         );
 
 
-        await montarTabela(
-            turmaId
+        /*
+        Recarregar a turma
+        */
+
+        await carregarAlunos(
+            turmaSelect.value
         );
 
 
     }
-
     catch (error) {
 
         console.error(
@@ -737,88 +607,72 @@ pago
 
 
         alert(
-            "Não foi possível atualizar o pagamento."
+            "Erro ao alterar pagamento:\n\n" +
+            error.message
         );
 
     }
 
 };
 
-// =====================================================
-// ALTERAR COMUNICADO
-// =====================================================
 
-window.alterarComunicado =
+/* =====================================================
+   COMUNICADO
+===================================================== */
+
+window.salvarComunicado =
 async function (
-turmaId,
-alunoId,
-trimestre,
-comunicado
+    alunoId
 ) {
+
 
     try {
 
-        const referencia =
+        const campo =
+            document.getElementById(
+                `comunicado-${alunoId}`
+            );
+
+
+        if (!campo) {
+
+            return;
+
+        }
+
+
+        const comunicado =
+            campo.value.trim();
+
+
+        const ref =
             doc(
                 db,
-                "turmas",
-                turmaId,
-                "alunos",
-                alunoId,
                 "financeiro",
-                "estado"
+                alunoId
             );
-
-
-        const atual =
-            await getDoc(
-                referencia
-            );
-
-
-        let dados =
-            atual.exists()
-                ? atual.data()
-                : {};
-
-
-        if (!dados[trimestre]) {
-
-            dados[trimestre] = {};
-
-        }
-
-
-        dados[trimestre].comunicado =
-            comunicado;
-
-
-        if (
-            typeof dados[trimestre]
-                .pago !==
-            "boolean"
-        ) {
-
-            dados[trimestre].pago =
-                false;
-
-        }
-
-
-        dados.atualizadoEm =
-            serverTimestamp();
 
 
         await setDoc(
-            referencia,
-            dados,
+            ref,
             {
-                merge: true
+
+                comunicado:
+                    comunicado
+
+            },
+            {
+                merge:true
             }
         );
 
-    }
 
+        alert(
+            "Comunicado guardado ✅"
+        );
+
+
+    }
     catch (error) {
 
         console.error(
@@ -828,176 +682,33 @@ comunicado
 
 
         alert(
-            "Não foi possível guardar o comunicado."
+            "Erro ao guardar comunicado:\n\n" +
+            error.message
         );
 
     }
 
 };
 
-// =====================================================
-// CALCULAR IDADE
-// =====================================================
 
-function calcularIdade(
-aluno
-) {
+/* =====================================================
+   EVENTO TURMA
+===================================================== */
 
-if (
-    aluno.idade !== undefined &&
-    aluno.idade !== null &&
-    aluno.idade !== ""
-) {
+turmaSelect.addEventListener(
+    "change",
+    function () {
 
-    return aluno.idade;
-
-}
-
-
-if (
-    aluno.dataNascimento
-) {
-
-    const nascimento =
-        converterData(
-            aluno.dataNascimento
+        carregarAlunos(
+            this.value
         );
 
-
-    if (
-        nascimento
-    ) {
-
-        const hoje =
-            new Date();
-
-
-        let idade =
-            hoje.getFullYear() -
-            nascimento.getFullYear();
-
-
-        const mes =
-            hoje.getMonth() -
-            nascimento.getMonth();
-
-
-        if (
-            mes < 0 ||
-            (
-                mes === 0 &&
-                hoje.getDate() <
-                nascimento.getDate()
-            )
-        ) {
-
-            idade--;
-
-        }
-
-
-        return idade;
-
     }
-
-}
-
-
-return "—";
-
-}
-
-// =====================================================
-// CONVERTER DATA
-// =====================================================
-
-function converterData(
-valor
-) {
-
-if (
-    valor instanceof Date
-) {
-
-    return valor;
-
-}
-
-
-if (
-    typeof valor ===
-    "string"
-) {
-
-    let data;
-
-
-    if (
-        /^\d{2}\/\d{2}\/\d{4}$/
-            .test(valor)
-    ) {
-
-        const partes =
-            valor.split("/");
-
-
-        data =
-            new Date(
-                Number(partes[2]),
-                Number(partes[1]) - 1,
-                Number(partes[0])
-            );
-
-    }
-    else {
-
-        data =
-            new Date(valor);
-
-    }
-
-
-    if (
-        !isNaN(
-            data.getTime()
-        )
-    ) {
-
-        return data;
-
-    }
-
-}
-
-
-if (
-    valor &&
-    typeof valor.toDate ===
-    "function"
-) {
-
-    return valor.toDate();
-
-}
-
-
-return null;
-
-}
-
-// =====================================================
-// SAIR
-// =====================================================
-
-logoutBtn.addEventListener(
-"click",
-async () => {
-
-    await signOut(auth);
-
-    window.location.href =
-        "login.html";
-
-}
-
 );
+
+
+/* =====================================================
+   INICIAR
+===================================================== */
+
+carregarTurmas();
