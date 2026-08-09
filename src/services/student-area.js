@@ -1,4 +1,4 @@
-alert("ÁREA DO ALUNO df CARREGADA ✅");
+alert("ÁREA DO ALUNO CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
