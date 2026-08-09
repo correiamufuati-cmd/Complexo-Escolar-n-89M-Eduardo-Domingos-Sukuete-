@@ -667,126 +667,187 @@ const comunicado =
 
                         html += `
 
-                        <div
-                            style="
-                                margin-bottom:15px;
-                                border:1px solid #e2e8f0;
-                                border-radius:10px;
-                                overflow:hidden;
-                            "
-                        >
+<div
+    style="
+        margin-bottom:15px;
+        border:1px solid #e2e8f0;
+        border-radius:10px;
+        overflow:hidden;
+        background:white;
+    "
+>
 
-                            <div
-                                style="
-                                    background:#e0f2fe;
-                                    color:#1e3a8a;
-                                    padding:12px;
-                                    font-weight:bold;
-                                "
-                            >
+    <div
+        style="
+            background:#e0f2fe;
+            color:#1e3a8a;
+            padding:12px;
+            font-weight:bold;
+        "
+    >
 
-                                📝 ${formatarTrimestre(trimestre)}
+        📝 ${formatarTrimestre(trimestre)}
 
-                            </div>
-
-
-                            <div
-                                style="
-                                    display:grid;
-                                    grid-template-columns:
-                                    repeat(4,1fr);
-                                    gap:8px;
-                                    padding:12px;
-                                    text-align:center;
-                                "
-                            >
-
-                                <div>
-
-                                    <small>MAC</small>
-
-                                    <strong
-                                        style="
-                                            display:block;
-                                            font-size:20px;
-                                        "
-                                    >
-                                        ${nota.MAC}
-                                    </strong>
-
-                                </div>
+    </div>
 
 
-                                <div>
+    ${
+        pago
 
-                                    <small>NPT</small>
+        ?
 
-                                    <strong
-                                        style="
-                                            display:block;
-                                            font-size:20px;
-                                        "
-                                    >
-                                        ${nota.NPT}
-                                    </strong>
+        `
+        <div
+            style="
+                display:grid;
+                grid-template-columns:repeat(4,1fr);
+                gap:8px;
+                padding:12px;
+                text-align:center;
+            "
+        >
 
-                                </div>
+            <div>
 
+                <small>MAC</small>
 
-                                <div>
+                <strong
+                    style="
+                        display:block;
+                        font-size:20px;
+                    "
+                >
+                    ${nota.MAC || "—"}
+                </strong>
 
-                                    <small>MF</small>
-
-                                    <strong
-                                        style="
-                                            display:block;
-                                            font-size:20px;
-                                        "
-                                    >
-                                        ${nota.MF}
-                                    </strong>
-
-                                </div>
-
-
-                                <div>
-
-                                    <small>
-                                        Classificação
-                                    </small>
-
-                                    <strong
-                                        style="
-                                            display:block;
-                                            margin-top:4px;
-                                        "
-                                    >
-                                        ${nota.classificacao || "—"}
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        `;
-
-                    }
-                );
+            </div>
 
 
-                /*
-                Se a disciplina só tiver um trimestre,
-                mostrar aviso dos restantes
-                */
+            <div>
 
-                html += `
+                <small>NPT</small>
 
+                <strong
+                    style="
+                        display:block;
+                        font-size:20px;
+                    "
+                >
+                    ${nota.NPT || "—"}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <small>MF</small>
+
+                <strong
+                    style="
+                        display:block;
+                        font-size:20px;
+                    "
+                >
+                    ${nota.MF || "—"}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <small>
+                    Classificação
+                </small>
+
+                <strong
+                    style="
+                        display:block;
+                        margin-top:4px;
+                    "
+                >
+                    ${nota.classificacao || "—"}
+                </strong>
+
+            </div>
+
+        </div>
+        `
+
+        :
+
+        `
+        <div
+            style="
+                padding:25px 15px;
+                text-align:center;
+                background:#fff7ed;
+            "
+        >
+
+            <div
+                style="
+                    font-size:38px;
+                    margin-bottom:8px;
+                "
+            >
+                🔒
+            </div>
+
+
+            <strong
+                style="
+                    display:block;
+                    color:#c2410c;
+                    font-size:17px;
+                "
+            >
+                Boletim pendente
+            </strong>
+
+
+            <p
+                style="
+                    margin:8px 0;
+                    color:#64748b;
+                "
+            >
+                Consulte o administrador.
+            </p>
+
+
+            ${
+                comunicado
+                ?
+                `
+                <div
+                    style="
+                        margin-top:12px;
+                        padding:10px;
+                        background:white;
+                        border-radius:8px;
+                        color:#475569;
+                        font-size:13px;
+                        border:1px solid #fed7aa;
+                    "
+                >
+                    📢 ${comunicado}
                 </div>
+                `
+                :
+                ""
+            }
 
-                `;
+        </div>
+        `
 
+    }
+
+</div>
+
+`;
+                        
             }
         );
 
