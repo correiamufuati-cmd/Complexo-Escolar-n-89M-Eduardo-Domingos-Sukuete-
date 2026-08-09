@@ -1,29 +1,28 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
 
-<head>
+«»
 
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>Área Financeira - SIGEA</title>
-
-<link
+<title>Área Financeira - SIGEA</title><link
     rel="stylesheet"
     href="../styles/dashboard.css"
->
+><style>
 
-<style>
+/* =====================================================
+   CONTAINER
+===================================================== */
 
 .financeiro-container{
 
     padding:25px;
 
 }
+
+
+/* =====================================================
+   CABEÇALHO
+===================================================== */
 
 .financeiro-header{
 
@@ -47,11 +46,158 @@
 
 }
 
+.financeiro-header-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+}
+
 .financeiro-header h1{
 
     margin:0 0 8px;
 
 }
+
+.financeiro-header p{
+
+    margin:0;
+
+}
+
+
+/* =====================================================
+   BOTÃO ALTERAR SENHA
+===================================================== */
+
+#alterarSenhaBtn{
+
+    background:white;
+
+    color:#1e3a8a;
+
+    border:none;
+
+    padding:11px 16px;
+
+    border-radius:9px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+}
+
+#alterarSenhaBtn:hover{
+
+    opacity:.9;
+
+}
+
+
+/* =====================================================
+   PAINEL ALTERAR SENHA
+===================================================== */
+
+#painelSenha{
+
+    display:none;
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:16px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,0,0,.07);
+
+}
+
+#painelSenha h2{
+
+    margin-top:0;
+
+    color:#1e3a8a;
+
+}
+
+#painelSenha input{
+
+    width:100%;
+
+    box-sizing:border-box;
+
+    padding:12px;
+
+    margin-bottom:12px;
+
+    border:1px solid #cbd5e1;
+
+    border-radius:9px;
+
+}
+
+.botoes-senha{
+
+    display:flex;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+
+}
+
+#guardarSenhaBtn{
+
+    background:#2563eb;
+
+    color:white;
+
+    border:none;
+
+    padding:11px 18px;
+
+    border-radius:9px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+#cancelarSenhaBtn{
+
+    background:#e2e8f0;
+
+    color:#334155;
+
+    border:none;
+
+    padding:11px 18px;
+
+    border-radius:9px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+
+/* =====================================================
+   CONTROLES
+===================================================== */
 
 .controles{
 
@@ -92,6 +238,11 @@
     margin-bottom:15px;
 
 }
+
+
+/* =====================================================
+   TABELA
+===================================================== */
 
 .tabela-container{
 
@@ -149,6 +300,11 @@ td.nome{
 
 }
 
+
+/* =====================================================
+   PAGAMENTOS
+===================================================== */
+
 .pagamento-btn{
 
     border:none;
@@ -179,6 +335,11 @@ td.nome{
 
 }
 
+
+/* =====================================================
+   COMUNICADO
+===================================================== */
+
 .comunicado{
 
     width:180px;
@@ -191,100 +352,172 @@ td.nome{
 
 }
 
-</style>
+</style></head><body><div class="financeiro-container"><!-- =================================================
+     CABEÇALHO
+================================================== -->
 
-</head>
+<div class="financeiro-header">
 
+    <div class="financeiro-header-top">
 
-<body>
+        <div>
 
+            <h1>
+                💰 Área Financeira
+            </h1>
 
-<div class="financeiro-container">
+            <p>
+                Gestão de propinas e liberação dos boletins
+            </p>
 
-
-    <div class="financeiro-header">
-
-        <h1>
-            💰 Área Financeira
-        </h1>
-
-        <p>
-            Gestão de propinas e liberação dos boletins
-        </p>
-
-    </div>
+        </div>
 
 
-    <div class="controles">
+        <button
+            type="button"
+            id="alterarSenhaBtn"
+        >
 
-        <label>
-            Selecionar Turma
-        </label>
+            🔑 Alterar senha
 
-        <select id="turmaSelect">
-
-            <option value="">
-                -- Selecione uma turma --
-            </option>
-
-        </select>
+        </button>
 
     </div>
-
-
-    <div class="tabela-container">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Nº</th>
-
-                    <th>Aluno</th>
-
-                    <th>Idade</th>
-
-                    <th>1.º Trimestre</th>
-
-                    <th>2.º Trimestre</th>
-
-                    <th>3.º Trimestre</th>
-
-                    <th>Comunicado</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="financeiroLista">
-
-                <tr>
-
-                    <td colspan="7">
-
-                        Selecione uma turma.
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
 
 </div>
 
 
-<script
-    type="module"
-    src="../services/financeiro.js?v=10"></script>
+<!-- =================================================
+     PAINEL ALTERAR SENHA
+================================================== -->
 
+<div id="painelSenha">
+
+    <h2>
+        🔐 Alterar senha financeira
+    </h2>
+
+    <input
+        type="password"
+        id="senhaAtual"
+        placeholder="Senha atual"
+        autocomplete="current-password"
+    >
+
+    <input
+        type="password"
+        id="novaSenha"
+        placeholder="Nova senha"
+        autocomplete="new-password"
+    >
+
+    <input
+        type="password"
+        id="confirmarSenha"
+        placeholder="Confirmar nova senha"
+        autocomplete="new-password"
+    >
+
+    <div class="botoes-senha">
+
+        <button
+            type="button"
+            id="guardarSenhaBtn"
+        >
+
+            💾 Guardar nova senha
+
+        </button>
+
+
+        <button
+            type="button"
+            id="cancelarSenhaBtn"
+        >
+
+            Cancelar
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+     CONTROLES
+================================================== -->
+
+<div class="controles">
+
+    <label>
+        Selecionar Turma
+    </label>
+
+    <select id="turmaSelect">
+
+        <option value="">
+            -- Selecione uma turma --
+        </option>
+
+    </select>
+
+</div>
+
+
+<!-- =================================================
+     TABELA
+================================================== -->
+
+<div class="tabela-container">
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Nº</th>
+
+                <th>Aluno</th>
+
+                <th>Idade</th>
+
+                <th>1.º Trimestre</th>
+
+                <th>2.º Trimestre</th>
+
+                <th>3.º Trimestre</th>
+
+                <th>Comunicado</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody id="financeiroLista">
+
+            <tr>
+
+                <td colspan="7">
+
+                    Selecione uma turma.
+
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</div><script
+    type="module"
+    src="../services/financeiro.js?v=11"></script>
 
 </body>
 
-        </html>
+</html>
