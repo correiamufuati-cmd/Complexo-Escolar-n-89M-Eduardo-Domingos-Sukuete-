@@ -684,15 +684,756 @@ function formatarTrimestre(valor) {
    VER BOLETIM
 ===================================================== */
 
-window.verBoletim = function () {
+window.verBoletim = async function () {
 
-    alert(
-        "📄 BOLETIM\n\n" +
-        "O módulo de boletim será ligado depois."
-    );
+    try {
+
+        const turmaId =
+            String(aluno.turmaId || "").trim();
+
+        const numeroAluno =
+            String(aluno.numero || "").trim();
+
+        const nomeAluno =
+            String(aluno.nome || "").trim();
+
+
+        if (!turmaId) {
+
+            alert(
+                "Não foi possível identificar a turma do aluno."
+            );
+
+            return;
+        }
+
+
+        /* ==========================================
+           BUSCAR NOTAS
+        ========================================== */
+
+        const notasSnapshot =
+            await getDocs(
+                collection(db, "notas")
+            );
+
+
+        const boletim = {};
+
+
+        for (
+            const notaDoc
+            of notasSnapshot.docs
+        ) {
+
+            const dadosNota =
+                notaDoc.data();
+
+
+            /* Somente notas desta turma */
+
+            if (
+                String(
+                    dadosNota.turmaId || ""
+                ).trim()
+                !== turmaId
+            ) {
+
+                continue;
+
+            }
+
+
+            const disciplina =
+                String(
+                    dadosNota.disciplina || ""
+                ).trim();
+
+
+            const trimestre =
+                String(
+                    dadosNota.trimestre || ""
+                ).trim();
+
+
+            if (!disciplina || !trimestre) {
+
+                continue;
+
+            }
+
+
+            const listaAlunos =
+                Array.isArray(
+                    dadosNota.alunos
+                )
+                ? dadosNota.alunos
+                : [];
+
+
+            let registro = null;
+
+
+            /* Procurar pelo número */
+
+            if (numeroAluno) {
+
+                registro =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.numero || ""
+                            ).trim()
+                            ===
+                            numeroAluno
+                    );
+
+            }
+
+
+            /* Se não encontrar, procurar pelo nome */
+
+            if (!registro && nomeAluno) {
+
+                registro =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.nome || ""
+                            ).trim()
+                            ===
+                            nomeAluno
+                    );
+
+            }
+
+
+            if (!registro) {
+
+                continue;
+
+            }
+
+
+            if (!boletim[disciplina]) {
+
+                boletim[disciplina] = {};
+
+            }
+
+
+            boletim[disciplina][trimestre] = {
+
+                MAC:
+                    registro.MAC ?? "",
+
+                NPT:
+                    registro.NPT ?? "",
+
+                MF:
+                    registro.MF ?? "",
+
+                classificacao:
+                    registro.classificacao || ""
+
+            };
+
+        }
+
+
+        const disciplinas =
+            Object.keys(boletim);
+
+
+        if (disciplinas.length === 0) {
+
+            alert(
+                "Ainda não existem notas suficientes para gerar o boletim."
+            );
+
+            return;
+
+        }
+
+
+        /* ==========================================
+           FUNÇÃO TRIMESTRE
+        ========================================== */
+
+        function obterTrimestre(numero) {
+
+            const valor =
+                String(numero)
+                .trim()
+                .toLowerCase();
+
+
+            if (
+                valor === "1" ||
+                valor === "1º" ||
+                valor === "1°" ||
+                valor.includes("1º trimestre") ||
+                valor.includes("1° trimestre")
+            ) {
+
+                return 1;
+
+            }
+
+
+            if (
+                valor === "2" ||
+                valor === "2º" ||
+                valor === "2°" ||
+                valor.includes("2º trimestre") ||
+                valor.includes("2° trimestre")
+            ) {
+
+                return 2;
+
+            }
+
+
+            if (
+                valor === "3" ||
+                valor === "3º" ||
+                valor === "3°" ||
+                valor.includes("3º trimestre") ||
+                valor.includes("3° trimestre")
+            ) {
+
+                return 3;
+
+            }
+
+
+            return 99;
+
+        }
+
+
+        /* ==========================================
+           CALCULAR MÉDIA ANUAL
+        ========================================== */
+
+        function numeroMF(valor) {
+
+            if (
+                valor === "" ||
+                valor === null ||
+                valor === undefined
+            ) {
+
+                return null;
+
+            }
+
+
+            const numero =
+                Number(valor);
+
+
+            return Number.isFinite(numero)
+                ? numero
+                : null;
+
+        }
+
+
+        function calcularMediaAnual(notas) {
+
+            const valores = [];
+
+
+            Object.values(notas)
+            .forEach(nota => {
+
+                const mf =
+                    numeroMF(nota.MF);
+
+
+                if (mf !== null) {
+
+                    valores.push(mf);
+
+                }
+
+            });
+
+
+            if (valores.length === 0) {
+
+                return "";
+
+            }
+
+
+            const soma =
+                valores.reduce(
+                    (total, valor) =>
+                        total + valor,
+                    0
+                );
+
+
+            return (
+                soma / valores.length
+            ).toFixed(1);
+
+        }
+
+
+        /* ==========================================
+           JANELA DO BOLETIM
+        ========================================== */
+
+        let html = `
+
+        <div
+            id="janelaBoletim"
+
+            style="
+                position:fixed;
+                inset:0;
+                z-index:99999;
+                background:#f1f5f9;
+                overflow-y:auto;
+            "
+        >
+
+            <div
+                style="
+                    width:96%;
+                    max-width:1000px;
+                    margin:auto;
+                    padding:20px 0 40px;
+                "
+            >
+
+
+                <!-- CABEÇALHO -->
+
+                <div
+                    style="
+                        background:#1e3a8a;
+                        color:white;
+                        padding:25px 15px;
+                        border-radius:15px;
+                        text-align:center;
+                        box-shadow:0 3px 10px rgba(0,0,0,.15);
+                    "
+                >
+
+                    <div
+                        style="
+                            font-size:42px;
+                        "
+                    >
+                        📄
+                    </div>
+
+
+                    <h2
+                        style="
+                            margin:5px 0;
+                        "
+                    >
+                        BOLETIM ESCOLAR
+                    </h2>
+
+
+                    <div
+                        style="
+                            font-size:16px;
+                        "
+                    >
+                        ${aluno.nome || "—"}
+                    </div>
+
+                </div>
+
+
+                <!-- DADOS DO ALUNO -->
+
+                <div
+                    style="
+                        background:white;
+                        margin-top:15px;
+                        padding:18px;
+                        border-radius:12px;
+                        box-shadow:0 3px 10px rgba(0,0,0,.08);
+                        line-height:1.8;
+                    "
+                >
+
+                    <strong>Nome:</strong>
+                    ${aluno.nome || "—"}
+
+                    <br>
+
+                    <strong>Código:</strong>
+                    ${aluno.codigoAluno || "—"}
+
+                    <br>
+
+                    <strong>Número:</strong>
+                    ${aluno.numero || "—"}
+
+                    <br>
+
+                    <strong>Classe:</strong>
+                    ${aluno.classe || "—"}
+
+                    <br>
+
+                    <strong>Turma:</strong>
+                    ${aluno.turmaNome || "—"}
+
+                    <br>
+
+                    <strong>Ano Letivo:</strong>
+                    ${aluno.anoLetivo || "—"}
+
+                </div>
+
+
+                <!-- TABELA -->
+
+                <div
+                    style="
+                        background:white;
+                        margin-top:15px;
+                        padding:10px;
+                        border-radius:12px;
+                        box-shadow:0 3px 10px rgba(0,0,0,.08);
+                        overflow-x:auto;
+                    "
+                >
+
+                    <table
+                        style="
+                            width:100%;
+                            min-width:850px;
+                            border-collapse:collapse;
+                            font-size:14px;
+                        "
+                    >
+
+                        <thead>
+
+                            <tr
+                                style="
+                                    background:#1e3a8a;
+                                    color:white;
+                                "
+                            >
+
+                                <th
+                                    rowspan="2"
+                                    style="padding:10px;"
+                                >
+                                    Disciplina
+                                </th>
+
+                                <th colspan="3">
+                                    1.º Trimestre
+                                </th>
+
+                                <th colspan="3">
+                                    2.º Trimestre
+                                </th>
+
+                                <th colspan="3">
+                                    3.º Trimestre
+                                </th>
+
+                                <th
+                                    rowspan="2"
+                                    style="padding:10px;"
+                                >
+                                    Média
+                                </th>
+
+                            </tr>
+
+
+                            <tr
+                                style="
+                                    background:#334155;
+                                    color:white;
+                                "
+                            >
+
+                                <th>MAC</th>
+                                <th>NPT</th>
+                                <th>MF</th>
+
+                                <th>MAC</th>
+                                <th>NPT</th>
+                                <th>MF</th>
+
+                                <th>MAC</th>
+                                <th>NPT</th>
+                                <th>MF</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+        `;
+
+
+        /* ==========================================
+           LINHAS DAS DISCIPLINAS
+        ========================================== */
+
+        disciplinas.forEach(
+            disciplina => {
+
+                const notas =
+                    boletim[disciplina];
+
+
+                const trimestres = {
+
+                    1: null,
+                    2: null,
+                    3: null
+
+                };
+
+
+                Object.keys(notas)
+                .forEach(chave => {
+
+                    const numero =
+                        obterTrimestre(chave);
+
+
+                    if (
+                        numero >= 1 &&
+                        numero <= 3
+                    ) {
+
+                        trimestres[numero] =
+                            notas[chave];
+
+                    }
+
+                });
+
+
+                const t1 =
+                    trimestres[1] || {};
+
+                const t2 =
+                    trimestres[2] || {};
+
+                const t3 =
+                    trimestres[3] || {};
+
+
+                const media =
+                    calcularMediaAnual(
+                        notas
+                    );
+
+
+                html += `
+
+                <tr>
+
+                    <td
+                        style="
+                            padding:10px;
+                            border:1px solid #cbd5e1;
+                            font-weight:bold;
+                            text-align:left;
+                        "
+                    >
+                        ${disciplina}
+                    </td>
+
+
+                    <td style="border:1px solid #cbd5e1;">
+                        ${t1.MAC ?? "—"}
+                    </td>
+
+                    <td style="border:1px solid #cbd5e1;">
+                        ${t1.NPT ?? "—"}
+                    </td>
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            font-weight:bold;
+                        "
+                    >
+                        ${t1.MF ?? "—"}
+                    </td>
+
+
+                    <td style="border:1px solid #cbd5e1;">
+                        ${t2.MAC ?? "—"}
+                    </td>
+
+                    <td style="border:1px solid #cbd5e1;">
+                        ${t2.NPT ?? "—"}
+                    </td>
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            font-weight:bold;
+                        "
+                    >
+                        ${t2.MF ?? "—"}
+                    </td>
+
+
+                    <td style="border:1px solid #cbd5e1;">
+                        ${t3.MAC ?? "—"}
+                    </td>
+
+                    <td style="border:1px solid #cbd5e1;">
+                        ${t3.NPT ?? "—"}
+                    </td>
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            font-weight:bold;
+                        "
+                    >
+                        ${t3.MF ?? "—"}
+                    </td>
+
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            font-weight:bold;
+                        "
+                    >
+                        ${media || "—"}
+                    </td>
+
+                </tr>
+
+                `;
+
+            }
+        );
+
+
+        html += `
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- OBSERVAÇÃO -->
+
+                <div
+                    style="
+                        background:white;
+                        margin-top:15px;
+                        padding:15px;
+                        border-radius:12px;
+                        color:#475569;
+                        font-size:13px;
+                    "
+                >
+
+                    <strong>Nota:</strong>
+
+                    A média apresentada corresponde à média das
+                    MF dos trimestres que possuem notas.
+
+                </div>
+
+
+                <!-- BOTÃO -->
+
+                <button
+                    id="fecharBoletim"
+
+                    style="
+                        width:100%;
+                        padding:15px;
+                        margin-top:20px;
+                        background:#dc2626;
+                        color:white;
+                        border:none;
+                        border-radius:10px;
+                        font-size:16px;
+                        font-weight:bold;
+                        cursor:pointer;
+                    "
+                >
+
+                    ← Voltar
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+        `;
+
+
+        document.body.insertAdjacentHTML(
+            "beforeend",
+            html
+        );
+
+
+        document
+        .getElementById(
+            "fecharBoletim"
+        )
+        .onclick = function () {
+
+            const janela =
+                document.getElementById(
+                    "janelaBoletim"
+                );
+
+
+            if (janela) {
+
+                janela.remove();
+
+            }
+
+        };
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Erro ao gerar boletim:",
+            error
+        );
+
+
+        alert(
+            "Erro ao gerar boletim:\n\n" +
+            error.message
+        );
+
+    }
 
 };
-
 
 /* =====================================================
    DADOS PESSOAIS
