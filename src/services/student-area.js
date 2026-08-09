@@ -6,189 +6,40 @@ import {
     collection,
     getDocs,
     doc,
-    getDoc,
-    updateDoc
+    getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
 
 /* =====================================================
    SESSÃO DO ALUNO
 ===================================================== */
 
-const dados = localStorage.getItem("alunoLogado");
+const dados =
+    localStorage.getItem("alunoLogado");
+
 
 if (!dados) {
 
-    alert("Sessão expirada. Faça login novamente.");
+    alert(
+        "Sessão expirada. Faça login novamente."
+    );
 
-    window.location.href = "student-login.html";
+    window.location.href =
+        "student-login.html";
 
-    throw new Error("Aluno não autenticado.");
-
-}
-
-const aluno = JSON.parse(dados);
-
-/* =====================================================
-   FINANCEIRO DO ALUNO
-===================================================== */
-
-async function carregarEstadoFinanceiro() {
-
-    try {
-
-        const turmaId =
-            String(aluno.turmaId || "").trim();
-
-        const alunoId =
-            String(
-                aluno.alunoId ||
-                aluno.id ||
-                aluno.numero ||
-                ""
-            ).trim();
-
-
-        if (!turmaId || !alunoId) {
-
-            console.warn(
-                "Não foi possível identificar turma/aluno para o financeiro."
-            );
-
-            return {};
-
-        }
-
-
-        const referencia =
-            doc(
-                db,
-                "turmas",
-                turmaId,
-                "alunos",
-                alunoId,
-                "financeiro",
-                "estado"
-            );
-
-
-        const resultado =
-            await getDoc(referencia);
-
-
-        if (!resultado.exists()) {
-
-            return {};
-
-        }
-
-
-        return resultado.data();
-
-
-    } catch (error) {
-
-        console.error(
-            "Erro ao carregar financeiro:",
-            error
-        );
-
-        return {};
-
-    }
+    throw new Error(
+        "Aluno não autenticado."
+    );
 
 }
+
+
+const aluno =
+    JSON.parse(dados);
 
 
 /* =====================================================
-   VERIFICAR PAGAMENTO DO TRIMESTRE
-===================================================== */
-
-function trimestreNumerico(valor) {
-
-    const v =
-        String(valor)
-        .trim()
-        .toLowerCase();
-
-
-    if (
-        v === "1" ||
-        v === "1º" ||
-        v === "1°" ||
-        v.includes("1º trimestre") ||
-        v.includes("1° trimestre")
-    ) {
-
-        return 1;
-
-    }
-
-
-    if (
-        v === "2" ||
-        v === "2º" ||
-        v === "2°" ||
-        v.includes("2º trimestre") ||
-        v.includes("2° trimestre")
-    ) {
-
-        return 2;
-
-    }
-
-
-    if (
-        v === "3" ||
-        v === "3º" ||
-        v === "3°" ||
-        v.includes("3º trimestre") ||
-        v.includes("3° trimestre")
-    ) {
-
-        return 3;
-
-    }
-
-
-    return 0;
-
-}
-
-
-function chaveFinanceiro(trimestre) {
-
-    const numero =
-        trimestreNumerico(trimestre);
-
-
-    if (numero === 1) {
-
-        return "1trimestre";
-
-    }
-
-
-    if (numero === 2) {
-
-        return "2trimestre";
-
-    }
-
-
-    if (numero === 3) {
-
-        return "3trimestre";
-
-    }
-
-
-    return "";
-
-}
-
-
-/* =====================================================
-   DADOS PRINCIPAIS
+   ELEMENTOS PRINCIPAIS
 ===================================================== */
 
 const nomeElemento =
@@ -205,23 +56,446 @@ const estadoElemento =
 
 
 if (nomeElemento) {
+
     nomeElemento.textContent =
         aluno.nome || "Aluno";
+
 }
+
 
 if (codigoElemento) {
+
     codigoElemento.textContent =
-        "Código: " + (aluno.codigoAluno || "—");
+        "Código: " +
+        (aluno.codigoAluno || "—");
+
 }
+
 
 if (turmaElemento) {
+
     turmaElemento.textContent =
-        "Turma: " + (aluno.turmaNome || "—");
+        "Turma: " +
+        (aluno.turmaNome || "—");
+
 }
 
+
 if (estadoElemento) {
+
     estadoElemento.textContent =
-        "Estado: " + (aluno.estado || "ativo");
+        "Estado: " +
+        (aluno.estado || "ativo");
+
+}
+
+
+/* =====================================================
+   OBTER ID DO ALUNO
+===================================================== */
+
+function obterAlunoId() {
+
+    return String(
+        aluno.alunoId ||
+        aluno.id ||
+        aluno.numero ||
+        aluno.codigoAluno ||
+        ""
+    ).trim();
+
+}
+
+
+/* =====================================================
+   CARREGAR ESTADO FINANCEIRO
+===================================================== */
+
+async function carregarFinanceiro() {
+
+    const turmaId =
+        String(
+            aluno.turmaId || ""
+        ).trim();
+
+    const alunoId =
+        obterAlunoId();
+
+
+    if (!turmaId || !alunoId) {
+
+        console.warn(
+            "Não foi possível identificar turma/aluno para o financeiro.",
+            aluno
+        );
+
+        return {};
+
+    }
+
+
+    try {
+
+        const financeiroRef =
+            doc(
+                db,
+                "turmas",
+                turmaId,
+                "alunos",
+                alunoId,
+                "financeiro",
+                "estado"
+            );
+
+
+        const financeiroDoc =
+            await getDoc(
+                financeiroRef
+            );
+
+
+        if (
+            !financeiroDoc.exists()
+        ) {
+
+            console.warn(
+                "Documento financeiro não encontrado."
+            );
+
+            return {};
+
+        }
+
+
+        return financeiroDoc.data() || {};
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Erro ao carregar financeiro:",
+            error
+        );
+
+        return {};
+
+    }
+
+}
+
+
+/* =====================================================
+   VERIFICAR PAGAMENTO
+===================================================== */
+
+function trimestrePago(
+    financeiro,
+    numero
+) {
+
+    const chave =
+        numero === 1
+            ? "1trimestre"
+            : numero === 2
+                ? "2trimestre"
+                : numero === 3
+                    ? "3trimestre"
+                    : "";
+
+
+    if (!chave) {
+
+        return false;
+
+    }
+
+
+    return (
+        financeiro?.[chave]?.pago === true
+    );
+
+}
+
+
+/* =====================================================
+   COMUNICADO
+===================================================== */
+
+function comunicadoTrimestre(
+    financeiro,
+    numero
+) {
+
+    const chave =
+        numero === 1
+            ? "1trimestre"
+            : numero === 2
+                ? "2trimestre"
+                : numero === 3
+                    ? "3trimestre"
+                    : "";
+
+
+    if (!chave) {
+
+        return "";
+
+    }
+
+
+    return (
+        financeiro?.[chave]?.comunicado ||
+        ""
+    );
+
+}
+
+
+/* =====================================================
+   FORMATAR TRIMESTRE
+===================================================== */
+
+function formatarTrimestre(
+    valor
+) {
+
+    const v =
+        String(valor)
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        v === "1" ||
+        v === "1º" ||
+        v === "1°" ||
+        v.includes("1º trimestre") ||
+        v.includes("1° trimestre") ||
+        v.includes("1 trimestre")
+    ) {
+
+        return "1.º Trimestre";
+
+    }
+
+
+    if (
+        v === "2" ||
+        v === "2º" ||
+        v === "2°" ||
+        v.includes("2º trimestre") ||
+        v.includes("2° trimestre") ||
+        v.includes("2 trimestre")
+    ) {
+
+        return "2.º Trimestre";
+
+    }
+
+
+    if (
+        v === "3" ||
+        v === "3º" ||
+        v === "3°" ||
+        v.includes("3º trimestre") ||
+        v.includes("3° trimestre") ||
+        v.includes("3 trimestre")
+    ) {
+
+        return "3.º Trimestre";
+
+    }
+
+
+    return valor;
+
+}
+
+
+/* =====================================================
+   OBTER NÚMERO DO TRIMESTRE
+===================================================== */
+
+function obterTrimestre(
+    valor
+) {
+
+    const v =
+        String(valor)
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        v === "1" ||
+        v === "1º" ||
+        v === "1°" ||
+        v.includes("1º trimestre") ||
+        v.includes("1° trimestre") ||
+        v.includes("1 trimestre")
+    ) {
+
+        return 1;
+
+    }
+
+
+    if (
+        v === "2" ||
+        v === "2º" ||
+        v === "2°" ||
+        v.includes("2º trimestre") ||
+        v.includes("2° trimestre") ||
+        v.includes("2 trimestre")
+    ) {
+
+        return 2;
+
+    }
+
+
+    if (
+        v === "3" ||
+        v === "3º" ||
+        v === "3°" ||
+        v.includes("3º trimestre") ||
+        v.includes("3° trimestre") ||
+        v.includes("3 trimestre")
+    ) {
+
+        return 3;
+
+    }
+
+
+    return 99;
+
+}
+
+
+/* =====================================================
+   NÚMERO MF
+===================================================== */
+
+function numeroMF(
+    valor
+) {
+
+    if (
+        valor === "" ||
+        valor === null ||
+        valor === undefined
+    ) {
+
+        return null;
+
+    }
+
+
+    const numero =
+        Number(valor);
+
+
+    return Number.isFinite(numero)
+        ? numero
+        : null;
+
+}
+
+
+/* =====================================================
+   MÉDIA ANUAL
+===================================================== */
+
+function calcularMediaAnual(
+    notas,
+    financeiro
+) {
+
+    const valores = [];
+
+
+    Object.entries(
+        notas
+    ).forEach(
+        ([chave, nota]) => {
+
+            const trimestre =
+                obterTrimestre(
+                    chave
+                );
+
+
+            /*
+             Só entra na média o trimestre
+             que está pago.
+            */
+
+            if (
+                trimestre < 1 ||
+                trimestre > 3
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !trimestrePago(
+                    financeiro,
+                    trimestre
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            const mf =
+                numeroMF(
+                    nota.MF
+                );
+
+
+            if (
+                mf !== null
+            ) {
+
+                valores.push(mf);
+
+            }
+
+        }
+    );
+
+
+    if (
+        valores.length === 0
+    ) {
+
+        return "";
+
+    }
+
+
+    const soma =
+        valores.reduce(
+            (
+                total,
+                valor
+            ) =>
+                total + valor,
+            0
+        );
+
+
+    return (
+        soma / valores.length
+    ).toFixed(1);
+
 }
 
 
@@ -229,18 +503,25 @@ if (estadoElemento) {
    VER NOTAS
 ===================================================== */
 
-window.verNotas = async function () {
+window.verNotas =
+async function () {
 
     try {
 
         const turmaId =
-            String(aluno.turmaId || "").trim();
+            String(
+                aluno.turmaId || ""
+            ).trim();
 
         const numeroAluno =
-            String(aluno.numero || "").trim();
+            String(
+                aluno.numero || ""
+            ).trim();
 
         const nomeAluno =
-            String(aluno.nome || "").trim();
+            String(
+                aluno.nome || ""
+            ).trim();
 
 
         if (!turmaId) {
@@ -249,34 +530,42 @@ window.verNotas = async function () {
                 "Erro: a sessão do aluno não possui o ID da turma."
             );
 
-            console.log("Aluno:", aluno);
+            console.log(
+                "Aluno:",
+                aluno
+            );
 
             return;
+
         }
 
 
-        /* ==========================================
-           CARREGAR TODOS OS DOCUMENTOS DE NOTAS
-        ========================================== */
+        /*
+        ==========================================
+        FINANCEIRO
+        ==========================================
+        */
+
+        const financeiro =
+            await carregarFinanceiro();
+
+
+        /*
+        ==========================================
+        NOTAS
+        ==========================================
+        */
 
         const notasSnapshot =
             await getDocs(
-                collection(db, "notas")
+                collection(
+                    db,
+                    "notas"
+                )
             );
 
 
         const notasAluno = {};
-
-
-        /*
-        Estrutura:
-
-        notasAluno[
-            disciplina
-        ][
-            trimestre
-        ]
-        */
 
 
         for (
@@ -288,10 +577,6 @@ window.verNotas = async function () {
                 notaDoc.data();
 
 
-            /*
-            Só interessa a turma do aluno
-            */
-
             if (
                 String(
                     dadosNota.turmaId || ""
@@ -300,6 +585,7 @@ window.verNotas = async function () {
             ) {
 
                 continue;
+
             }
 
 
@@ -315,9 +601,13 @@ window.verNotas = async function () {
                 ).trim();
 
 
-            if (!disciplina || !trimestre) {
+            if (
+                !disciplina ||
+                !trimestre
+            ) {
 
                 continue;
+
             }
 
 
@@ -325,24 +615,21 @@ window.verNotas = async function () {
                 Array.isArray(
                     dadosNota.alunos
                 )
-                ? dadosNota.alunos
-                : [];
+                    ? dadosNota.alunos
+                    : [];
+
+
+            let registroAluno =
+                null;
 
 
             /*
-            ======================================
-            PROCURAR O ALUNO
-            ======================================
+            Procurar primeiro pelo número
             */
 
-            let registroAluno = null;
-
-
-            /*
-            PRIMEIRO PELO NÚMERO
-            */
-
-            if (numeroAluno) {
+            if (
+                numeroAluno
+            ) {
 
                 registroAluno =
                     listaAlunos.find(
@@ -350,18 +637,20 @@ window.verNotas = async function () {
                             String(
                                 item.numero || ""
                             ).trim()
-                            ===
-                            numeroAluno
+                            === numeroAluno
                     );
 
             }
 
 
             /*
-            SE NÃO ACHOU, PROCURAR PELO NOME
+            Procurar pelo nome
             */
 
-            if (!registroAluno && nomeAluno) {
+            if (
+                !registroAluno &&
+                nomeAluno
+            ) {
 
                 registroAluno =
                     listaAlunos.find(
@@ -369,62 +658,60 @@ window.verNotas = async function () {
                             String(
                                 item.nome || ""
                             ).trim()
-                            ===
-                            nomeAluno
+                            === nomeAluno
                     );
 
             }
 
 
-            /*
-            SE O ALUNO FOI ENCONTRADO
-            */
+            if (
+                !registroAluno
+            ) {
 
-            if (registroAluno) {
-
-                if (!notasAluno[disciplina]) {
-
-                    notasAluno[disciplina] = {};
-
-                }
-
-
-                notasAluno[disciplina][trimestre] = {
-
-                    MAC:
-                        registroAluno.MAC ?? "",
-
-                    NPT:
-                        registroAluno.NPT ?? "",
-
-                    MF:
-                        registroAluno.MF ?? "",
-
-                    classificacao:
-                        registroAluno.classificacao || ""
-
-                };
+                continue;
 
             }
+
+
+            if (
+                !notasAluno[disciplina]
+            ) {
+
+                notasAluno[disciplina] =
+                    {};
+
+            }
+
+
+            notasAluno[disciplina][trimestre] = {
+
+                MAC:
+                    registroAluno.MAC ?? "",
+
+                NPT:
+                    registroAluno.NPT ?? "",
+
+                MF:
+                    registroAluno.MF ?? "",
+
+                classificacao:
+                    registroAluno.classificacao ||
+                    ""
+
+            };
 
         }
 
 
-        console.log(
-            "Notas encontradas:",
-            notasAluno
-        );
-
-
-        /* ==========================================
-           VERIFICAR SE EXISTEM NOTAS
-        ========================================== */
-
         const disciplinas =
-            Object.keys(notasAluno);
+            Object.keys(
+                notasAluno
+            );
 
 
-        if (disciplinas.length === 0) {
+        if (
+            disciplinas.length === 0
+        ) {
 
             alert(
                 "Ainda não existem notas para este aluno."
@@ -435,107 +722,11 @@ window.verNotas = async function () {
         }
 
 
-        /* ==========================================
-   CARREGAR ESTADO FINANCEIRO
-========================================== */
-
-let financeiroAluno = {};
-
-try {
-
-    const turmaIdFinanceiro =
-        String(aluno.turmaId || "").trim();
-
-    const alunoIdFinanceiro =
-        String(
-            aluno.alunoId ||
-            aluno.id ||
-            aluno.numero ||
-            ""
-        ).trim();
-
-
-    if (
-        turmaIdFinanceiro &&
-        alunoIdFinanceiro
-    ) {
-
-        const financeiroRef =
-            doc(
-                db,
-                "turmas",
-                turmaIdFinanceiro,
-                "alunos",
-                alunoIdFinanceiro,
-                "financeiro",
-                "estado"
-            );
-
-
-        const financeiroDoc =
-            await getDoc(
-                financeiroRef
-            );
-
-
-        if (
-            financeiroDoc.exists()
-        ) {
-
-            financeiroAluno =
-                financeiroDoc.data();
-
-        }
-
-    }
-
-}
-catch (erroFinanceiro) {
-
-    console.warn(
-        "Não foi possível carregar o estado financeiro:",
-        erroFinanceiro
-    );
-
-            }
-
-        
-        /* ==========================================
-           ORDEM DOS TRIMESTRES
-        ========================================== */
-
-        function ordenarTrimestre(a, b) {
-
-            const ordem = {
-
-                "1": 1,
-                "1º": 1,
-                "1º Trimestre": 1,
-                "1° Trimestre": 1,
-                "2": 2,
-                "2º": 2,
-                "2º Trimestre": 2,
-                "2° Trimestre": 2,
-                "3": 3,
-                "3º": 3,
-                "3º Trimestre": 3,
-                "3° Trimestre": 3
-
-            };
-
-
-            return (
-                (ordem[a] || 99)
-                -
-                (ordem[b] || 99)
-            );
-
-        }
-
-
-        /* ==========================================
-           CRIAR JANELA
-        ========================================== */
+        /*
+        ==========================================
+        JANELA
+        ==========================================
+        */
 
         let html = `
 
@@ -559,8 +750,6 @@ catch (erroFinanceiro) {
                 "
             >
 
-                <!-- CABEÇALHO -->
-
                 <div
                     style="
                         background:#1e3a8a;
@@ -572,11 +761,15 @@ catch (erroFinanceiro) {
                     "
                 >
 
-                    <div style="font-size:42px;">
+                    <div
+                        style="font-size:42px;"
+                    >
                         📊
                     </div>
 
-                    <h2 style="margin:5px 0;">
+                    <h2
+                        style="margin:5px 0;"
+                    >
                         Minhas Notas
                     </h2>
 
@@ -593,9 +786,11 @@ catch (erroFinanceiro) {
         `;
 
 
-        /* ==========================================
-           DISCIPLINAS
-        ========================================== */
+        /*
+        ==========================================
+        DISCIPLINAS
+        ==========================================
+        */
 
         disciplinas.forEach(
             disciplina => {
@@ -631,230 +826,264 @@ catch (erroFinanceiro) {
                 const trimestres =
                     Object.keys(
                         notasAluno[disciplina]
-                    ).sort(
-                        ordenarTrimestre
+                    )
+                    .sort(
+                        (a,b) =>
+                            obterTrimestre(a)
+                            -
+                            obterTrimestre(b)
                     );
 
 
                 trimestres.forEach(
                     trimestre => {
 
+                        const numero =
+                            obterTrimestre(
+                                trimestre
+                            );
+
+
                         const nota =
                             notasAluno
                             [disciplina]
                             [trimestre];
 
-                        const numeroTrimestre =
-    trimestreNumerico(trimestre);
 
-const chavePagamento =
-    numeroTrimestre === 1
-        ? "1trimestre"
-        : numeroTrimestre === 2
-            ? "2trimestre"
-            : numeroTrimestre === 3
-                ? "3trimestre"
-                : "";
+                        const pago =
+                            trimestrePago(
+                                financeiro,
+                                numero
+                            );
 
-const dadosPagamento =
-    financeiroAluno[chavePagamento] || {};
 
-const pago =
-    dadosPagamento.pago === true;
+                        const comunicado =
+                            comunicadoTrimestre(
+                                financeiro,
+                                numero
+                            );
 
-const comunicado =
-    dadosPagamento.comunicado || "";
 
                         html += `
 
-<div
-    style="
-        margin-bottom:15px;
-        border:1px solid #e2e8f0;
-        border-radius:10px;
-        overflow:hidden;
-        background:white;
-    "
->
+                        <div
+                            style="
+                                margin-bottom:15px;
+                                border:1px solid #e2e8f0;
+                                border-radius:10px;
+                                overflow:hidden;
+                                background:white;
+                            "
+                        >
 
-    <div
-        style="
-            background:#e0f2fe;
-            color:#1e3a8a;
-            padding:12px;
-            font-weight:bold;
-        "
-    >
+                            <div
+                                style="
+                                    background:#e0f2fe;
+                                    color:#1e3a8a;
+                                    padding:12px;
+                                    font-weight:bold;
+                                "
+                            >
 
-        📝 ${formatarTrimestre(trimestre)}
+                                📝
+                                ${formatarTrimestre(trimestre)}
 
-    </div>
+                            </div>
 
-
-    ${
-        pago
-
-        ?
-
-        `
-        <div
-            style="
-                display:grid;
-                grid-template-columns:repeat(4,1fr);
-                gap:8px;
-                padding:12px;
-                text-align:center;
-            "
-        >
-
-            <div>
-
-                <small>MAC</small>
-
-                <strong
-                    style="
-                        display:block;
-                        font-size:20px;
-                    "
-                >
-                    ${nota.MAC || "—"}
-                </strong>
-
-            </div>
+                        `;
 
 
-            <div>
+                        if (
+                            pago
+                        ) {
 
-                <small>NPT</small>
+                            html += `
 
-                <strong
-                    style="
-                        display:block;
-                        font-size:20px;
-                    "
-                >
-                    ${nota.NPT || "—"}
-                </strong>
+                            <div
+                                style="
+                                    display:grid;
+                                    grid-template-columns:
+                                    repeat(4,1fr);
+                                    gap:8px;
+                                    padding:12px;
+                                    text-align:center;
+                                "
+                            >
 
-            </div>
+                                <div>
 
+                                    <small>
+                                        MAC
+                                    </small>
 
-            <div>
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${nota.MAC || "—"}
+                                    </strong>
 
-                <small>MF</small>
-
-                <strong
-                    style="
-                        display:block;
-                        font-size:20px;
-                    "
-                >
-                    ${nota.MF || "—"}
-                </strong>
-
-            </div>
-
-
-            <div>
-
-                <small>
-                    Classificação
-                </small>
-
-                <strong
-                    style="
-                        display:block;
-                        margin-top:4px;
-                    "
-                >
-                    ${nota.classificacao || "—"}
-                </strong>
-
-            </div>
-
-        </div>
-        `
-
-        :
-
-        `
-        <div
-            style="
-                padding:25px 15px;
-                text-align:center;
-                background:#fff7ed;
-            "
-        >
-
-            <div
-                style="
-                    font-size:38px;
-                    margin-bottom:8px;
-                "
-            >
-                🔒
-            </div>
+                                </div>
 
 
-            <strong
-                style="
-                    display:block;
-                    color:#c2410c;
-                    font-size:17px;
-                "
-            >
-                Boletim pendente
-            </strong>
+                                <div>
+
+                                    <small>
+                                        NPT
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${nota.NPT || "—"}
+                                    </strong>
+
+                                </div>
 
 
-            <p
-                style="
-                    margin:8px 0;
-                    color:#64748b;
-                "
-            >
-                Consulte o administrador.
-            </p>
+                                <div>
+
+                                    <small>
+                                        MF
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${nota.MF || "—"}
+                                    </strong>
+
+                                </div>
 
 
-            ${
-                comunicado
-                ?
-                `
-                <div
-                    style="
-                        margin-top:12px;
-                        padding:10px;
-                        background:white;
-                        border-radius:8px;
-                        color:#475569;
-                        font-size:13px;
-                        border:1px solid #fed7aa;
-                    "
-                >
-                    📢 ${comunicado}
+                                <div>
+
+                                    <small>
+                                        Classificação
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            margin-top:4px;
+                                        "
+                                    >
+                                        ${
+                                            nota.classificacao ||
+                                            "—"
+                                        }
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                            `;
+
+                        }
+
+                        else {
+
+                            html += `
+
+                            <div
+                                style="
+                                    padding:25px 15px;
+                                    text-align:center;
+              
+background:#fff7ed;
+                                "
+                            >
+
+                                <div
+                                    style="
+                                        font-size:38px;
+                                    "
+                                >
+                                    🔒
+                                </div>
+
+
+                                <strong
+                                    style="
+                                        display:block;
+                                        color:#c2410c;
+                                        font-size:17px;
+                                    "
+                                >
+                                    Boletim pendente
+                                </strong>
+
+
+                                <p
+                                    style="
+                                        margin:8px 0;
+                                        color:#64748b;
+                                    "
+                                >
+                                    Consulte o administrador.
+                                </p>
+
+
+                                ${
+                                    comunicado
+                                    ?
+                                    `
+                                    <div
+                                        style="
+                                            margin-top:12px;
+                                            padding:10px;
+                                            background:white;
+                                            border-radius:8px;
+                                            color:#475569;
+                                            font-size:13px;
+                                            border:1px solid #fed7aa;
+                                        "
+                                    >
+
+                                        📢
+                                        ${comunicado}
+
+                                    </div>
+                                    `
+                                    :
+                                    ""
+                                }
+
+                            </div>
+
+                            `;
+
+                        }
+
+
+                        html += `
+
+                        </div>
+
+                        `;
+
+                    }
+                );
+
+
+                html += `
+
                 </div>
-                `
-                :
-                ""
-            }
 
-        </div>
-        `
+                `;
 
-    }
-
-</div>
-
-`;
-                        
             }
         );
 
-
-        /* ==========================================
-           BOTÃO VOLTAR
-        ========================================== */
 
         html += `
 
@@ -873,11 +1102,8 @@ const comunicado =
                         cursor:pointer;
                     "
                 >
-
                     ← Voltar
-
                 </button>
-
 
             </div>
 
@@ -893,22 +1119,24 @@ const comunicado =
 
 
         document
-        .getElementById("fecharNotas")
-        .onclick = function () {
+            .getElementById(
+                "fecharNotas"
+            )
+            .onclick = function () {
 
-            const janela =
-                document.getElementById(
-                    "janelaNotas"
-                );
+                const janela =
+                    document.getElementById(
+                        "janelaNotas"
+                    );
 
 
-            if (janela) {
+                if (janela) {
 
-                janela.remove();
+                    janela.remove();
 
-            }
+                }
 
-        };
+            };
 
 
     }
@@ -931,123 +1159,29 @@ const comunicado =
 };
 
 
-/* ==========================================
-   FORMATAR TRIMESTRE
-========================================== */
-
-function trimestreNumerico(valor) {
-
-    const v =
-        String(valor)
-        .trim()
-        .toLowerCase();
-
-
-    if (
-        v === "1" ||
-        v === "1º" ||
-        v === "1°" ||
-        v.includes("1º trimestre") ||
-        v.includes("1° trimestre")
-    ) {
-        return 1;
-    }
-
-
-    if (
-        v === "2" ||
-        v === "2º" ||
-        v === "2°" ||
-        v.includes("2º trimestre") ||
-        v.includes("2° trimestre")
-    ) {
-        return 2;
-    }
-
-
-    if (
-        v === "3" ||
-        v === "3º" ||
-        v === "3°" ||
-        v.includes("3º trimestre") ||
-        v.includes("3° trimestre")
-    ) {
-        return 3;
-    }
-
-
-    return 0;
-
-                   }
-
-
-function formatarTrimestre(valor) {
-
-    const v =
-        String(valor)
-        .trim()
-        .toLowerCase();
-
-
-    if (
-        v === "1" ||
-        v === "1º" ||
-        v === "1°" ||
-        v.includes("1º trimestre") ||
-        v.includes("1° trimestre")
-    ) {
-
-        return "1.º Trimestre";
-
-    }
-
-
-    if (
-        v === "2" ||
-        v === "2º" ||
-        v === "2°" ||
-        v.includes("2º trimestre") ||
-        v.includes("2° trimestre")
-    ) {
-
-        return "2.º Trimestre";
-
-    }
-
-
-    if (
-        v === "3" ||
-        v === "3º" ||
-        v === "3°" ||
-        v.includes("3º trimestre") ||
-        v.includes("3° trimestre")
-    ) {
-
-        return "3.º Trimestre";
-
-    }
-
-
-    return valor;
-
-}
-
 /* =====================================================
    VER BOLETIM
 ===================================================== */
 
-window.verBoletim = async function () {
+window.verBoletim =
+async function () {
 
     try {
 
         const turmaId =
-            String(aluno.turmaId || "").trim();
+            String(
+                aluno.turmaId || ""
+            ).trim();
 
         const numeroAluno =
-            String(aluno.numero || "").trim();
+            String(
+                aluno.numero || ""
+            ).trim();
 
         const nomeAluno =
-            String(aluno.nome || "").trim();
+            String(
+                aluno.nome || ""
+            ).trim();
 
 
         if (!turmaId) {
@@ -1057,80 +1191,38 @@ window.verBoletim = async function () {
             );
 
             return;
+
         }
 
 
-        /* ==========================================
-           BUSCAR NOTAS
-        ========================================== */
+        /*
+
+        ==========================================
+        FINANCEIRO
+        ==========================================
+        */
+
+        const financeiro =
+            await carregarFinanceiro();
+
+
+        /*
+        ==========================================
+        NOTAS
+        ==========================================
+        */
 
         const notasSnapshot =
             await getDocs(
-                collection(db, "notas")
+                collection(
+                    db,
+                    "notas"
+                )
             );
 
 
         const boletim = {};
 
-        /* ==========================================
-   CARREGAR ESTADO FINANCEIRO
-========================================== */
-
-let financeiroBoletim = {};
-
-try {
-
-    const turmaIdFinanceiro =
-        String(aluno.turmaId || "").trim();
-
-    const alunoIdFinanceiro =
-        String(
-            aluno.alunoId ||
-            aluno.id ||
-            aluno.numero ||
-            ""
-        ).trim();
-
-
-    if (
-        turmaIdFinanceiro &&
-        alunoIdFinanceiro
-    ) {
-
-        const financeiroRef =
-            doc(
-                db,
-                "turmas",
-                turmaIdFinanceiro,
-                "alunos",
-                alunoIdFinanceiro,
-                "financeiro",
-                "estado"
-            );
-
-
-        const financeiroDoc =
-            await getDoc(financeiroRef);
-
-
-        if (financeiroDoc.exists()) {
-
-            financeiroBoletim =
-                financeiroDoc.data();
-
-        }
-
-    }
-
-}
-catch (erroFinanceiro) {
-
-    console.warn(
-        "Erro ao carregar financeiro do boletim:",
-        erroFinanceiro
-    );
-
-}
 
         for (
             const notaDoc
@@ -1140,8 +1232,6 @@ catch (erroFinanceiro) {
             const dadosNota =
                 notaDoc.data();
 
-
-            /* Somente notas desta turma */
 
             if (
                 String(
@@ -1167,7 +1257,10 @@ catch (erroFinanceiro) {
                 ).trim();
 
 
-            if (!disciplina || !trimestre) {
+            if (
+                !disciplina ||
+                !trimestre
+            ) {
 
                 continue;
 
@@ -1178,16 +1271,17 @@ catch (erroFinanceiro) {
                 Array.isArray(
                     dadosNota.alunos
                 )
-                ? dadosNota.alunos
-                : [];
+                    ? dadosNota.alunos
+                    : [];
 
 
-            let registro = null;
+            let registro =
+                null;
 
 
-            /* Procurar pelo número */
-
-            if (numeroAluno) {
+            if (
+                numeroAluno
+            ) {
 
                 registro =
                     listaAlunos.find(
@@ -1195,16 +1289,16 @@ catch (erroFinanceiro) {
                             String(
                                 item.numero || ""
                             ).trim()
-                            ===
-                            numeroAluno
+                            === numeroAluno
                     );
 
             }
 
 
-            /* Se não encontrar, procurar pelo nome */
-
-            if (!registro && nomeAluno) {
+            if (
+                !registro &&
+                nomeAluno
+            ) {
 
                 registro =
                     listaAlunos.find(
@@ -1212,23 +1306,27 @@ catch (erroFinanceiro) {
                             String(
                                 item.nome || ""
                             ).trim()
-                            ===
-                            nomeAluno
+                            === nomeAluno
                     );
 
             }
 
 
-            if (!registro) {
+            if (
+                !registro
+            ) {
 
                 continue;
 
             }
 
 
-            if (!boletim[disciplina]) {
+            if (
+                !boletim[disciplina]
+            ) {
 
-                boletim[disciplina] = {};
+                boletim[disciplina] =
+                    {};
 
             }
 
@@ -1245,7 +1343,8 @@ catch (erroFinanceiro) {
                     registro.MF ?? "",
 
                 classificacao:
-                    registro.classificacao || ""
+                    registro.classificacao ||
+                    ""
 
             };
 
@@ -1253,10 +1352,14 @@ catch (erroFinanceiro) {
 
 
         const disciplinas =
-            Object.keys(boletim);
+            Object.keys(
+                boletim
+            );
 
 
-        if (disciplinas.length === 0) {
+        if (
+            disciplinas.length === 0
+        ) {
 
             alert(
                 "Ainda não existem notas suficientes para gerar o boletim."
@@ -1267,142 +1370,17 @@ catch (erroFinanceiro) {
         }
 
 
-        /* ==========================================
-           FUNÇÃO TRIMESTRE
-        ========================================== */
+        /*
 
-        function obterTrimestre(numero) {
-
-            const valor =
-                String(numero)
-                .trim()
-                .toLowerCase();
-
-
-            if (
-                valor === "1" ||
-                valor === "1º" ||
-                valor === "1°" ||
-                valor.includes("1º trimestre") ||
-                valor.includes("1° trimestre")
-            ) {
-
-                return 1;
-
-            }
-
-
-            if (
-                valor === "2" ||
-                valor === "2º" ||
-                valor === "2°" ||
-                valor.includes("2º trimestre") ||
-                valor.includes("2° trimestre")
-            ) {
-
-                return 2;
-
-            }
-
-
-            if (
-                valor === "3" ||
-                valor === "3º" ||
-                valor === "3°" ||
-                valor.includes("3º trimestre") ||
-                valor.includes("3° trimestre")
-            ) {
-
-                return 3;
-
-            }
-
-
-            return 99;
-
-        }
-
-
-        /* ==========================================
-           CALCULAR MÉDIA ANUAL
-        ========================================== */
-
-        function numeroMF(valor) {
-
-            if (
-                valor === "" ||
-                valor === null ||
-                valor === undefined
-            ) {
-
-                return null;
-
-            }
-
-
-            const numero =
-                Number(valor);
-
-
-            return Number.isFinite(numero)
-                ? numero
-                : null;
-
-        }
-
-
-        function calcularMediaAnual(notas) {
-
-            const valores = [];
-
-
-            Object.values(notas)
-            .forEach(nota => {
-
-                const mf =
-                    numeroMF(nota.MF);
-
-
-                if (mf !== null) {
-
-                    valores.push(mf);
-
-                }
-
-            });
-
-
-            if (valores.length === 0) {
-
-                return "";
-
-            }
-
-
-            const soma =
-                valores.reduce(
-                    (total, valor) =>
-                        total + valor,
-                    0
-                );
-
-
-            return (
-                soma / valores.length
-            ).toFixed(1);
-
-        }
-
-
-        /* ==========================================
-           JANELA DO BOLETIM
-        ========================================== */
+       ==========================================
+        TABELA DO BOLETIM
+        ==========================================
+        */
 
         let html = `
 
         <div
             id="janelaBoletim"
-
             style="
                 position:fixed;
                 inset:0;
@@ -1415,100 +1393,42 @@ catch (erroFinanceiro) {
             <div
                 style="
                     width:96%;
-                    max-width:1000px;
+                    max-width:1100px;
                     margin:auto;
                     padding:20px 0 40px;
                 "
             >
 
-
-                <!-- CABEÇALHO -->
-
                 <div
                     style="
                         background:#1e3a8a;
                         color:white;
-                        padding:25px 15px;
+                        padding:22px;
                         border-radius:15px;
                         text-align:center;
-                        box-shadow:0 3px 10px rgba(0,0,0,.15);
                     "
                 >
 
                     <div
-                        style="
-                            font-size:42px;
-                        "
+                        style="font-size:38px;"
                     >
                         📄
                     </div>
 
-
-                    <h2
-                        style="
-                            margin:5px 0;
-                        "
-                    >
-                        BOLETIM ESCOLAR
+                    <h2>
+                        Boletim Escolar
                     </h2>
 
-
-                    <div
-                        style="
-                            font-size:16px;
-                        "
-                    >
-                        ${aluno.nome || "—"}
+                    <div>
+                        ${aluno.nome || ""}
                     </div>
 
-                </div>
-
-
-                <!-- DADOS DO ALUNO -->
-
-                <div
-                    style="
-                        background:white;
-                        margin-top:15px;
-                        padding:18px;
-                        border-radius:12px;
-                        box-shadow:0 3px 10px rgba(0,0,0,.08);
-                        line-height:1.8;
-                    "
-                >
-
-                    <strong>Nome:</strong>
-                    ${aluno.nome || "—"}
-
-                    <br>
-
-                    <strong>Código:</strong>
-                    ${aluno.codigoAluno || "—"}
-
-                    <br>
-
-                    <strong>Número:</strong>
-                    ${aluno.numero || "—"}
-
-                    <br>
-
-                    <strong>Classe:</strong>
-                    ${aluno.classe || "—"}
-
-                    <br>
-
-                    <strong>Turma:</strong>
-                    ${aluno.turmaNome || "—"}
-
-                    <br>
-
-                    <strong>Ano Letivo:</strong>
-                    ${aluno.anoLetivo || "—"}
+                    <small>
+                        ${aluno.turmaNome || ""}
+                    </small>
 
                 </div>
 
-
-                <!-- TABELA -->
 
                 <div
                     style="
@@ -1516,8 +1436,8 @@ catch (erroFinanceiro) {
                         margin-top:15px;
                         padding:10px;
                         border-radius:12px;
-                        box-shadow:0 3px 10px rgba(0,0,0,.08);
                         overflow-x:auto;
+                        box-shadow:0 3px 10px rgba(0,0,0,.08);
                     "
                 >
 
@@ -1558,13 +1478,6 @@ catch (erroFinanceiro) {
                                     3.º Trimestre
                                 </th>
 
-                                <th
-                                    rowspan="2"
-                                    style="padding:10px;"
-                                >
-                                    Média
-                                </th>
-
                             </tr>
 
 
@@ -1593,12 +1506,9 @@ catch (erroFinanceiro) {
 
 
                         <tbody>
+
         `;
 
-
-        /* ==========================================
-           LINHAS DAS DISCIPLINAS
-        ========================================== */
 
         disciplinas.forEach(
             disciplina => {
@@ -1607,33 +1517,32 @@ catch (erroFinanceiro) {
                     boletim[disciplina];
 
 
-                const trimestres = {
-
-                    1: null,
-                    2: null,
-                    3: null
-
-                };
+                const trimestres = {};
 
 
-                Object.keys(notas)
-                .forEach(chave => {
+                Object.keys(
+                    notas
+                ).forEach(
+                    chave => {
 
-                    const numero =
-                        obterTrimestre(chave);
+                        const numero =
+                            obterTrimestre(
+                                chave
+                            );
 
 
-                    if (
-                        numero >= 1 &&
-                        numero <= 3
-                    ) {
+                        if (
+                            numero >= 1 &&
+                            numero <= 3
+                        ) {
 
-                        trimestres[numero] =
-                            notas[chave];
+                            trimestres[numero] =
+                                notas[chave];
+
+                        }
 
                     }
-
-                });
+                );
 
 
                 const t1 =
@@ -1645,29 +1554,26 @@ catch (erroFinanceiro) {
                 const t3 =
                     trimestres[3] || {};
 
+
                 const pagoT1 =
-    financeiroBoletim["1trimestre"]?.pago === true;
-
-const pagoT2 =
-    financeiroBoletim["2trimestre"]?.pago === true;
-
-const pagoT3 =
-    financeiroBoletim["3trimestre"]?.pago === true;
-
-                const media =
-                    calcularMediaAnual(
-                        notas
+                    trimestrePago(
+                        financeiro,
+                        1
                     );
 
-const mostrarT1 =
-    pagoT1 ? t1 : {};
+                const pagoT2 =
+                    trimestrePago(
+                        financeiro,
+                        2
+                    );
 
-const mostrarT2 =
-    pagoT2 ? t2 : {};
+                const pagoT3 =
+                    trimestrePago(
+                        financeiro,
+                        3
+                    );
 
-const mostrarT3 =
-    pagoT3 ? t3 : {};
-                
+
                 html += `
 
                 <tr>
@@ -1683,102 +1589,134 @@ const mostrarT3 =
                         ${disciplina}
                     </td>
 
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${pagoT1 ? (t1.MAC ?? "—") : "🔒"}
-</td>
 
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${pagoT1 ? (t1.NPT ?? "—") : "🔒"}
-</td>
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-        font-weight:bold;
-    "
->
-    ${pagoT1 ? (t1.MF ?? "—") : "🔒"}
-</td>
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                        "
+                    >
+                        ${
+                            pagoT1
+                            ? (t1.MAC ?? "—")
+                            : "🔒"
+                        }
+                    </td>
 
 
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${pagoT2 ? (t2.MAC ?? "—") : "🔒"}
-</td>
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${pagoT2 ? (t2.NPT ?? "—") : "🔒"}
-</td>
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-        font-weight:bold;
-    "
->
-    ${pagoT2 ? (t2.MF ?? "—") : "🔒"}
-</td>
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                        "
+                    >
+                        ${
+                            pagoT1
+                            ? (t1.NPT ?? "—")
+                            : "🔒"
+                        }
+                    </td>
 
 
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${pagoT3 ? (t3.MAC ?? "—") : "🔒"}
-</td>
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${pagoT3 ? (t3.NPT ?? "—") : "🔒"}
-</td>
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-        font-weight:bold;
-    "
->
-    ${pagoT3 ? (t3.MF ?? "—") : "🔒"}
-</td>
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                            font-weight:bold;
+                        "
+                    >
+                        ${
+                            pagoT1
+                            ? (t1.MF ?? "—")
+                            : "🔒"
+                        }
+                    </td>
 
 
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-        font-weight:bold;
-    "
->
-    ${media || "—"}
-</td>
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                        "
+                    >
+                        ${
+                            pagoT2
+                            ? (t2.MAC ?? "—")
+                            : "🔒"
+                        }
+                    </td>
+
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                        "
+                    >
+                        ${
+                            pagoT2
+                            ? (t2.NPT ?? "—")
+                            : "🔒"
+                        }
+                    </td>
+
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                            font-weight:bold;
+                        "
+                    >
+                        ${
+                            pagoT2
+                            ? (t2.MF ?? "—")
+                            : "🔒"
+                        }
+                    </td>
+
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                        "
+                    >
+                        ${
+        pagoT3
+                            ? (t3.MAC ?? "—")
+                            : "🔒"
+                        }
+                    </td>
+
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                        "
+                    >
+                        ${
+                            pagoT3
+                            ? (t3.NPT ?? "—")
+                            : "🔒"
+                        }
+                    </td>
+
+
+                    <td
+                        style="
+                            border:1px solid #cbd5e1;
+                            text-align:center;
+                            font-weight:bold;
+                        "
+                    >
+                        ${
+                            pagoT3
+                            ? (t3.MF ?? "—")
+                            : "🔒"
+                        }
+                    </td>
 
                 </tr>
 
@@ -1797,8 +1735,6 @@ const mostrarT3 =
                 </div>
 
 
-                <!-- OBSERVAÇÃO -->
-
                 <div
                     style="
                         background:white;
@@ -1810,19 +1746,19 @@ const mostrarT3 =
                     "
                 >
 
-                    <strong>Nota:</strong>
+                    <strong>
+                        Informação:
+                    </strong>
 
-                    A média apresentada corresponde à média das
-                    MF dos trimestres que possuem notas.
+                    O boletim é liberado
+                    trimestralmente após a confirmação
+                    do pagamento.
 
                 </div>
 
 
-                <!-- BOTÃO -->
-
                 <button
                     id="fecharBoletim"
-
                     style="
                         width:100%;
                         padding:15px;
@@ -1856,24 +1792,24 @@ const mostrarT3 =
 
 
         document
-        .getElementById(
-            "fecharBoletim"
-        )
-        .onclick = function () {
+            .getElementById(
+                "fecharBoletim"
+            )
+            .onclick = function () {
 
-            const janela =
-                document.getElementById(
-                    "janelaBoletim"
-                );
+                const janela =
+                    document.getElementById(
+                        "janelaBoletim"
+                    );
 
 
-            if (janela) {
+                if (janela) {
 
-                janela.remove();
+                    janela.remove();
 
-            }
+                }
 
-        };
+            };
 
 
     }
@@ -1892,494 +1828,5 @@ const mostrarT3 =
         );
 
     }
-
-};
-
-/* =====================================================
-   DADOS PESSOAIS
-===================================================== */
-
-window.verDados = function () {
-
-    const antigo =
-        document.getElementById("janelaDadosAluno");
-
-    if (antigo) {
-        antigo.remove();
-    }
-
-
-    const html = `
-
-    <div
-        id="janelaDadosAluno"
-        style="
-            position:fixed;
-            inset:0;
-            z-index:99999;
-            background:#f1f5f9;
-            overflow-y:auto;
-        "
-    >
-
-        <div
-            style="
-                width:92%;
-                max-width:650px;
-                margin:0 auto;
-                padding:20px 0 40px;
-            "
-        >
-
-            <!-- CABEÇALHO -->
-
-            <div
-                style="
-                    background:#1e3a8a;
-                    color:white;
-                    padding:25px 20px;
-                    border-radius:16px;
-                    text-align:center;
-                    box-shadow:0 3px 10px rgba(0,0,0,.15);
-                "
-            >
-
-                <div
-                    style="
-                        font-size:45px;
-                        margin-bottom:8px;
-                    "
-                >
-                    👤
-                </div>
-
-                <h2 style="margin:0;">
-                    Dados Pessoais
-                </h2>
-
-                <p style="margin:8px 0 0;">
-                    ${aluno.nome || "Aluno"}
-                </p>
-
-            </div>
-
-
-            <!-- DADOS -->
-
-            <div
-                style="
-                    background:white;
-                    margin-top:15px;
-                    border-radius:14px;
-                    box-shadow:0 3px 10px rgba(0,0,0,.08);
-                    overflow:hidden;
-                "
-            >
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Nome</strong>
-                    <br>
-                    ${aluno.nome || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Código do aluno</strong>
-                    <br>
-                    ${aluno.codigoAluno || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Número</strong>
-                    <br>
-                    ${aluno.numero || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Sexo</strong>
-                    <br>
-                    ${aluno.sexo || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Classe</strong>
-                    <br>
-                    ${aluno.classe || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Turma</strong>
-                    <br>
-                    ${aluno.turmaNome || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Ano letivo</strong>
-                    <br>
-                    ${aluno.anoLetivo || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                    border-bottom:1px solid #e2e8f0;
-                ">
-                    <strong>Ensino</strong>
-                    <br>
-                    ${aluno.ensino || "—"}
-                </div>
-
-
-                <div style="
-                    padding:16px;
-                ">
-                    <strong>Estado</strong>
-                    <br>
-                    ${aluno.estado || "—"}
-                </div>
-
-            </div>
-
-
-            <!-- VOLTAR -->
-
-            <button
-                id="fecharDadosAluno"
-                style="
-                    width:100%;
-                    padding:15px;
-                    margin-top:15px;
-                    background:#dc2626;
-                    color:white;
-                    border:none;
-                    border-radius:10px;
-                    font-size:16px;
-                    cursor:pointer;
-                "
-            >
-                ← Voltar
-            </button>
-
-        </div>
-
-    </div>
-
-    `;
-
-
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        html
-    );
-
-
-    const fechar =
-        document.getElementById(
-            "fecharDadosAluno"
-        );
-
-
-    if (fechar) {
-
-        fechar.onclick = function () {
-
-            const janela =
-                document.getElementById(
-                    "janelaDadosAluno"
-                );
-
-            if (janela) {
-                janela.remove();
-            }
-
-        };
-
-    }
-
-};
-
-
-/* =====================================================
-   ALTERAR SENHA
-===================================================== */
-
-window.alterarSenha = async function () {
-
-    const senhaAtual = prompt(
-        "🔐 ALTERAR SENHA\n\nDigite a senha atual:"
-    );
-
-    if (senhaAtual === null) return;
-
-    if (!senhaAtual.trim()) {
-        alert("Digite a senha atual.");
-        return;
-    }
-
-
-    const novaSenha = prompt(
-        "Digite a nova senha:"
-    );
-
-    if (novaSenha === null) return;
-
-    if (novaSenha.trim().length < 4) {
-
-        alert(
-            "A nova senha deve ter pelo menos 4 caracteres."
-        );
-
-        return;
-    }
-
-
-    const confirmar = prompt(
-        "Digite novamente a nova senha:"
-    );
-
-    if (confirmar === null) return;
-
-
-    if (novaSenha !== confirmar) {
-
-        alert(
-            "❌ As novas senhas não coincidem."
-        );
-
-        return;
-    }
-
-
-    try {
-
-        /* =====================================
-           LOCALIZAR TURMA
-        ===================================== */
-
-        const turmaId =
-            String(aluno.turmaId || "").trim();
-
-
-        const codigoAluno =
-            String(aluno.codigoAluno || "").trim();
-
-
-        if (!turmaId || !codigoAluno) {
-
-            alert(
-                "Não foi possível identificar o aluno."
-            );
-
-            return;
-        }
-
-
-        /* =====================================
-           BUSCAR ALUNOS DA TURMA
-        ===================================== */
-
-        const alunosRef =
-            collection(
-                db,
-                "turmas",
-                turmaId,
-                "alunos"
-            );
-
-
-        const snapshot =
-            await getDocs(alunosRef);
-
-
-        let alunoEncontrado = null;
-
-
-        snapshot.forEach(alunoDoc => {
-
-            const dados =
-                alunoDoc.data();
-
-
-            const codigo =
-                String(
-                    dados.codigoAluno || ""
-                ).trim();
-
-
-            if (codigo === codigoAluno) {
-
-                alunoEncontrado = {
-
-                    id: alunoDoc.id,
-
-                    dados: dados
-
-                };
-
-            }
-
-        });
-
-
-        if (!alunoEncontrado) {
-
-            alert(
-                "❌ Aluno não encontrado na turma."
-            );
-
-            return;
-        }
-
-
-        /* =====================================
-           VERIFICAR SENHA ATUAL
-        ===================================== */
-
-        const senhaFirebase =
-            String(
-                alunoEncontrado.dados.senha ||
-                alunoEncontrado.dados.senhaAcesso ||
-                ""
-            ).trim();
-
-
-        if (
-            senhaAtual.trim() !==
-            senhaFirebase
-        ) {
-
-            alert(
-                "❌ A senha atual está incorreta."
-            );
-
-            return;
-        }
-
-
-        /* =====================================
-           ATUALIZAR SENHA
-        ===================================== */
-
-        const alunoRef =
-            doc(
-                db,
-                "turmas",
-                turmaId,
-                "alunos",
-                alunoEncontrado.id
-            );
-
-
-        await updateDoc(
-
-            alunoRef,
-
-            {
-
-                senha:
-                    novaSenha.trim(),
-
-                senhaAcesso:
-                    novaSenha.trim()
-
-            }
-
-        );
-
-
-        /* =====================================
-           ATUALIZAR SESSÃO
-        ===================================== */
-
-        aluno.senha =
-            novaSenha.trim();
-
-        aluno.senhaAcesso =
-            novaSenha.trim();
-
-
-        localStorage.setItem(
-
-            "alunoLogado",
-
-            JSON.stringify(aluno)
-
-        );
-
-
-        alert(
-            "✅ SENHA ALTERADA COM SUCESSO!\n\n" +
-            "A nova senha já está ativa."
-        );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Erro ao alterar senha:",
-            error
-        );
-
-
-        alert(
-            "❌ Não foi possível alterar a senha.\n\n" +
-            error.message
-        );
-
-    }
-
-};
-/* =====================================================
-   SAIR
-===================================================== */
-
-window.sairAluno = function () {
-
-    const confirmar =
-        confirm(
-            "Deseja realmente sair da sua conta?"
-        );
-
-
-    if (!confirmar) {
-        return;
-    }
-
-
-    localStorage.removeItem(
-        "alunoLogado"
-    );
-
-
-    window.location.href =
-        "student-login.html";
 
 };
