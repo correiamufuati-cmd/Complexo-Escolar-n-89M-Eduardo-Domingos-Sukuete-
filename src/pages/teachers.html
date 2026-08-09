@@ -1,194 +1,681 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
 
-<head>
+«»
 
-<meta charset="UTF-8">
+<title>Gestão de Professores - SGE</title><link
+    rel="stylesheet"
+    href="../styles/dashboard.css"
+><style>
 
-<title>Gestão de Professores</title>
+/* =====================================================
+   CORES
+===================================================== */
 
-<link rel="stylesheet" href="../styles/dashboard.css">
+:root{
 
-</head>
+    --azul:#1e3a8a;
+    --azul2:#2563eb;
+    --azul-bebe:#eff8ff;
+    --azul-claro:#e0f2fe;
 
+    --branco:#ffffff;
 
-<body>
+    --fundo:#f1f5f9;
 
+    --texto:#1e293b;
 
-<div class="main">
+    --cinza:#64748b;
 
+    --borda:#dbe4ee;
 
-<h1>Gestão de Professores</h1>
-
-
-
-<div class="section">
-
-
-<h2>Cadastrar Professor</h2>
-
-
-
-<label>Nome</label>
-
-<input 
-type="text"
-id="nomeProfessor"
-placeholder="Nome do professor">
+}
 
 
+/* =====================================================
+   BASE
+===================================================== */
 
-<label>Email</label>
+*{
 
-<input 
-type="email"
-id="emailProfessor"
-placeholder="Email">
+    box-sizing:border-box;
 
+}
 
 
+body{
+
+    margin:0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff,
+            #eef6ff
+        );
+
+    color:var(--texto);
+
+}
 
 
-<label>Nível de Ensino</label>
+/* =====================================================
+   CONTEÚDO
+===================================================== */
+
+.main{
+
+    min-height:100vh;
+
+    padding:25px 35px;
+
+}
+
+
+/* =====================================================
+   CABEÇALHO
+===================================================== */
+
+.page-header{
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--azul),
+            var(--azul2)
+        );
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    margin-bottom:25px;
+
+    box-shadow:
+        0 7px 22px
+        rgba(30,58,138,.16);
+
+}
+
+
+.page-header h1{
+
+    margin:0 0 7px;
+
+    color:white;
+
+    font-size:28px;
+
+}
+
+
+.page-header p{
+
+    margin:0;
+
+    color:#dbeafe;
+
+}
+
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.professor-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(300px,400px)
+        minmax(0,1fr);
+
+    gap:22px;
+
+    align-items:start;
+
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.section{
+
+    background:white;
+
+    padding:24px;
+
+    border-radius:17px;
+
+    border:1px solid
+        rgba(219,228,238,.8);
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,.06);
+
+}
+
+
+.section h2{
+
+    margin:0 0 20px;
+
+    color:var(--azul);
+
+    font-size:21px;
+
+}
+
+
+.section h3{
+
+    margin:
+        22px 0 10px;
+
+    color:#334155;
+
+    font-size:16px;
+
+}
+
+
+/* =====================================================
+   FORMULÁRIO
+===================================================== */
+
+label{
+
+    display:block;
+
+    margin:
+        15px 0 7px;
+
+    font-weight:bold;
+
+    color:#334155;
+
+}
+
+
+input,
+select{
+
+    width:100%;
+
+    padding:12px 13px;
+
+    border:
+        1px solid
+        var(--borda);
+
+    border-radius:10px;
+
+    background:white;
+
+    color:#334155;
+
+    font-size:15px;
+
+    outline:none;
+
+}
+
+
+input:focus,
+select:focus{
+
+    border-color:
+        var(--azul2);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.10);
+
+}
+
+
+/* =====================================================
+   ÁREAS DINÂMICAS
+===================================================== */
+
+#listaTurmas,
+#listaAtribuicoes{
+
+    background:
+        var(--azul-bebe);
+
+    border:
+        1px solid
+        #dbeafe;
+
+    border-radius:11px;
+
+    padding:13px;
+
+    min-height:45px;
+
+    color:var(--cinza);
+
+}
+
+
+/* =====================================================
+   BOTÃO GUARDAR
+===================================================== */
+
+#guardarProfessor{
+
+    width:100%;
+
+    margin-top:25px;
+
+    padding:13px;
+
+    border:none;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--azul),
+            var(--azul2)
+        );
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+
+#guardarProfessor:hover{
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 7px 16px
+        rgba(37,99,235,.22);
+
+}
+
+
+/* =====================================================
+   TABELA
+===================================================== */
+
+.table-container{
+
+    width:100%;
+
+    overflow-x:auto;
+
+    border-radius:12px;
+
+}
+
+
+table{
+
+    width:100%;
+
+    min-width:850px;
+
+    border-collapse:collapse;
+
+    background:white;
+
+}
+
+
+thead th{
+
+    background:
+        var(--azul-claro);
+
+    color:var(--azul);
+
+    padding:13px 10px;
+
+    border:
+        1px solid
+        var(--borda);
+
+    text-align:left;
+
+    font-size:14px;
+
+}
+
+
+tbody td{
+
+    padding:11px 10px;
+
+    border:
+        1px solid
+        var(--borda);
+
+    font-size:14px;
+
+    vertical-align:middle;
+
+}
+
+
+tbody tr:nth-child(even){
+
+    background:#f8fafc;
+
+}
+
+
+tbody tr:hover{
+
+    background:
+        var(--azul-bebe);
+
+}
+
+
+/* =====================================================
+   COLUNAS
+===================================================== */
+
+tbody td:first-child{
+
+    font-weight:bold;
+
+    color:var(--azul);
+
+}
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media(max-width:950px){
+
+    .professor-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+@media(max-width:700px){
+
+    .main{
+
+        padding:
+            15px 12px 30px;
+
+    }
+
+
+    .page-header{
+
+        padding:20px;
+
+        border-radius:15px;
+
+    }
+
+
+    .page-header h1{
+
+        font-size:23px;
+
+    }
+
+
+    .section{
+
+        padding:18px;
+
+        border-radius:14px;
+
+    }
+
+
+    .section h2{
+
+        font-size:19px;
+
+    }
+
+}
+
+
+/* =====================================================
+   PEQUENOS ECRÃS
+===================================================== */
+
+@media(max-width:400px){
+
+    .main{
+
+        padding:
+            10px 8px;
+
+    }
+
+
+    .section{
+
+        padding:15px;
+
+    }
+
+}
+
+</style></head><body><div class="main"><!-- =================================================
+     CABEÇALHO
+================================================= --><header class="page-header"><h1>
+    👨‍🏫 Gestão de Professores
+</h1>
+
+<p>
+    Cadastre professores e atribua turmas e disciplinas.
+</p>
+
+</header><!-- =================================================
+     ÁREA PRINCIPAL
+================================================= --><div class="professor-grid"><!-- =================================================
+     CADASTRO
+================================================= --><section class="section"><h2>
+    ➕ Cadastrar Professor
+</h2>
+
+
+<!-- NOME -->
+
+<label for="nomeProfessor">
+
+    Nome do Professor
+
+</label>
+
+<input
+    type="text"
+    id="nomeProfessor"
+    placeholder="Nome completo do professor"
+>
+
+
+<!-- EMAIL -->
+
+<label for="emailProfessor">
+
+    Email
+
+</label>
+
+<input
+    type="email"
+    id="emailProfessor"
+    placeholder="Email do professor"
+>
+
+
+<!-- NÍVEL -->
+
+<label for="nivelEnsino">
+
+    Nível de Ensino
+
+</label>
 
 <select id="nivelEnsino">
 
-<option value="">
-Selecionar nível
-</option>
+    <option value="">
 
+        Selecionar nível
 
-<option value="ensinoPrimario">
-Ensino Primário
-</option>
+    </option>
 
+    <option value="ensinoPrimario">
 
-<option value="primeiroCiclo">
-Primeiro Ciclo
-</option>
+        Ensino Primário
 
+    </option>
+
+    <option value="primeiroCiclo">
+
+        Primeiro Ciclo
+
+    </option>
 
 </select>
 
 
+<!-- TURMAS -->
 
+<h3>
 
+    🏫 Turmas
 
-<h3>Turmas</h3>
+</h3>
 
 
 <div id="listaTurmas">
 
-Selecione o nível
+    Selecione o nível de ensino.
 
 </div>
 
 
+<!-- DISCIPLINAS -->
 
+<h3>
 
+    📚 Disciplinas por turma
 
-
-<h3>Disciplinas por turma</h3>
+</h3>
 
 
 <div id="listaAtribuicoes">
 
-Selecione as turmas
+    Selecione as turmas.
 
 </div>
 
 
+<!-- GUARDAR -->
 
+<button
+    id="guardarProfessor"
+    type="button"
+>
 
-
-
-
-<button id="guardarProfessor">
-
-Guardar Professor
+    💾 Guardar Professor
 
 </button>
 
+</section><!-- =================================================
+     LISTA DE PROFESSORES
+================================================= --><section class="section"><h2>
+
+    👨‍🏫 Professores Cadastrados
+
+</h2>
 
 
-
-</div>
-
+<div class="table-container">
 
 
+    <table>
 
 
+        <thead>
+
+            <tr>
+
+                <th>
+                    Código
+                </th>
+
+                <th>
+                    Nome
+                </th>
+
+                <th>
+                    Email
+                </th>
+
+                <th>
+                    Ensino
+                </th>
+
+                <th>
+                    Atribuições
+                </th>
+
+                <th>
+                    Senha
+                </th>
+
+                <th>
+                    Ações
+                </th>
+
+            </tr>
+
+        </thead>
 
 
+        <tbody id="tabelaProfessores">
+
+        </tbody>
 
 
-<div class="section">
-
-
-<h2>Lista de Professores</h2>
-
-
-<table>
-
-
-<thead>
-
-<tr>
-
-<th>Código</th>
-
-<th>Nome</th>
-
-<th>Email</th>
-
-<th>Ensino</th>
-
-<th>Atribuições</th>
-
-<th>Senha</th>
-
-<th>Ações</th>
-
-
-</tr>
-
-
-</thead>
-
-
-
-<tbody id="tabelaProfessores">
-
-
-</tbody>
-
-
-
-</table>
-
-
-
-</div>
-
-
-
-
+    </table>
 
 
 </div>
 
-
-
-
-
-<script 
-type="module"
-src="../services/teachers.js">
-
-</script>
-
-
+</section></div></div><!-- =================================================
+     JAVASCRIPT EXISTENTE
+================================================= --><script
+    type="module"
+    src="../services/teachers.js"></script>
 
 </body>
 
-  </html>
+</html>
