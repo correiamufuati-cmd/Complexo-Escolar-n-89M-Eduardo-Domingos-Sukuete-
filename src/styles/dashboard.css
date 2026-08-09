@@ -1,113 +1,508 @@
-body {
-  margin: 0;
-  font-family: Arial;
-  display: flex;
-  background: #f4f6f9;
+/* =========================================
+SIGEA — DASHBOARD DO GESTOR
+========================================= */
+
+*{
+box-sizing:border-box;
 }
 
-/* SIDEBAR */
-.sidebar {
-  width: 250px;
-  height: 100vh;
-  background: #1f2937;
-  color: white;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+html,
+body{
+
+margin:0;
+
+padding:0;
+
+width:100%;
+
+min-height:100%;
+
+font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+background:#f1f5f9;
+
+color:#1e293b;
+
 }
 
-.sidebar a {
-  color: white;
-  text-decoration: none;
-  margin: 10px 0;
-  padding: 8px;
-  border-radius: 5px;
+/* =========================================
+MENU LATERAL
+========================================= */
+
+.sidebar{
+
+position:fixed;
+
+left:0;
+
+top:0;
+
+width:250px;
+
+height:100vh;
+
+padding:20px 14px;
+
+background:
+    linear-gradient(
+        180deg,
+        #0f2f75 0%,
+        #163f91 100%
+    );
+
+color:white;
+
+overflow-y:auto;
+
+z-index:1000;
+
+box-shadow:
+    4px 0 15px
+    rgba(0,0,0,.12);
+
 }
 
-.sidebar a:hover {
-  background: #374151;
+/* =========================================
+LOGOTIPO / NOME
+========================================= */
+
+.sidebar h2{
+
+margin:0 6px 25px;
+
+padding:15px 10px;
+
+font-size:20px;
+
+font-weight:bold;
+
+color:white;
+
+border-bottom:
+    1px solid
+    rgba(255,255,255,.15);
+
 }
 
-.sidebar button {
-  margin-top: auto;
-  padding: 10px;
-  background: red;
-  color: white;
-  border: none;
-  cursor: pointer;
+/* =========================================
+LINKS
+========================================= */
+
+.sidebar a{
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+width:100%;
+
+padding:12px 14px;
+
+margin:5px 0;
+
+border-radius:9px;
+
+color:#e2e8f0;
+
+text-decoration:none;
+
+font-size:14px;
+
+transition:
+    background .2s,
+    color .2s,
+    transform .2s;
+
 }
 
-/* MAIN */
-.main {
-  flex: 1;
-  padding: 20px;
+.sidebar a:hover{
+
+background:
+    rgba(255,255,255,.12);
+
+color:white;
+
+transform:translateX(2px);
+
 }
 
-/* CARDS */
-.cards {
-  display: flex;
-  gap: 20px;
+/* MENU ATIVO */
+
+.sidebar a[href="dashboard-gestor.html"]{
+
+background:#60a5fa;
+
+color:#0f172a;
+
+font-weight:bold;
+
+box-shadow:
+    0 3px 8px
+    rgba(0,0,0,.15);
+
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  flex: 1;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+/* =========================================
+BOTÃO SAIR
+========================================= */
+
+#logoutBtn{
+
+width:100%;
+
+margin-top:25px;
+
+padding:12px;
+
+border:1px solid
+    rgba(255,255,255,.2);
+
+border-radius:9px;
+
+background:
+    rgba(255,255,255,.08);
+
+color:white;
+
+font-size:14px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:
+    background .2s;
+
 }
 
-.section {
-  margin-top: 30px;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
+#logoutBtn:hover{
+
+background:
+    rgba(220,38,38,.85);
+
 }
 
-/* =========================
-   TABELA DE ALUNOS
-========================= */
+/* =========================================
+CONTEÚDO PRINCIPAL
+========================================= */
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:white;
+.main{
+
+margin-left:250px;
+
+width:calc(100% - 250px);
+
+min-height:100vh;
+
+padding:30px;
+
+}
+
+/* =========================================
+CABEÇALHO
+========================================= */
+
+header{
+
+background:white;
+
+padding:22px 25px;
+
+border-radius:15px;
+
+margin-bottom:22px;
+
+box-shadow:
+    0 3px 12px
+    rgba(0,0,0,.06);
+
+}
+
+header h1{
+
+margin:0 0 5px;
+
+font-size:26px;
+
+color:#1e3a8a;
+
+}
+
+header p{
+
+margin:0;
+
+color:#64748b;
+
+font-size:14px;
+
+}
+
+/* =========================================
+CARTÕES
+========================================= */
+
+.cards{
+
+display:grid;
+
+grid-template-columns:
+    repeat(
+        4,
+        minmax(0,1fr)
+    );
+
+gap:18px;
+
+}
+
+.card{
+
+background:white;
+
+padding:22px;
+
+min-height:135px;
+
+border-radius:15px;
+
+border:
+    1px solid
+    #e2e8f0;
+
+box-shadow:
+    0 3px 12px
+    rgba(0,0,0,.05);
+
+transition:
+    transform .2s,
+    box-shadow .2s;
+
+}
+
+.card:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+    0 8px 20px
+    rgba(0,0,0,.09);
+
+}
+
+.card h3{
+
+margin:0;
+
+color:#475569;
+
+font-size:15px;
+
+}
+
+.card p{
+
+margin:18px 0 0;
+
+font-size:30px;
+
+font-weight:bold;
+
+color:#1e3a8a;
+
+}
+
+/* =========================================
+SECÇÃO
+========================================= */
+
+.section{
+
+margin-top:25px;
+
+}
+
+.section h2{
+
+margin:0 0 12px;
+
+color:#1e3a8a;
+
+font-size:19px;
+
+}
+
+/* =========================================
+ATIVIDADE
+========================================= */
+
+#activity{
+
+background:white;
+
+padding:22px;
+
+min-height:80px;
+
+border-radius:15px;
+
+border:
+    1px solid
+    #e2e8f0;
+
+box-shadow:
+    0 3px 10px
+    rgba(0,0,0,.05);
+
+color:#64748b;
+
+}
+
+/* =========================================
+SCROLLBAR
+========================================= */
+
+.sidebar::-webkit-scrollbar{
+
+width:5px;
+
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+
+background:
+    rgba(255,255,255,.25);
+
+border-radius:10px;
+
+}
+
+/* =========================================
+TABLET
+========================================= */
+
+@media(max-width:1000px){
+
+.cards{
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+}
+
+}
+
+/* =========================================
+TELEMÓVEL
+========================================= */
+
+@media(max-width:700px){
+
+.sidebar{
+
+    position:relative;
+
+    width:100%;
+
+    height:auto;
+
+    padding:12px;
+
 }
 
 
-th{
-  background:#1f2937;
-  color:white;
-  padding:8px;
-  text-align:left;
+.sidebar h2{
+
+    margin-bottom:10px;
+
 }
 
 
-td{
-  padding:5px 8px;
-  border-bottom:1px solid #ddd;
-  white-space:nowrap;
-  height:28px;
+.sidebar a{
+
+    display:inline-flex;
+
+    width:auto;
+
+    margin:3px;
+
+    padding:9px 10px;
+
 }
 
 
-/* coluna do nome maior */
-td:nth-child(3){
-  min-width:180px;
+#logoutBtn{
+
+    margin-top:12px;
+
 }
 
 
-/* evita nomes partidos em várias linhas */
-td{
-  max-width:220px;
-  overflow:hidden;
-  text-overflow:ellipsis;
+.main{
+
+    margin-left:0;
+
+    width:100%;
+
+    padding:15px;
+
 }
 
 
-/* botões pequenos */
-td button{
-  padding:3px 6px;
-  font-size:12px;
-  margin:2px;
+.cards{
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:12px;
+
+}
+
+
+.card{
+
+    padding:16px;
+
+}
+
+
+.card p{
+
+    font-size:24px;
+
+}
+
+}
+
+/* =========================================
+TELEMÓVEL PEQUENO
+========================================= */
+
+@media(max-width:450px){
+
+.cards{
+
+    grid-template-columns:1fr;
+
+}
+
+
+header{
+
+    padding:18px;
+
+}
+
+
+header h1{
+
+    font-size:22px;
+
+}
+
   }
