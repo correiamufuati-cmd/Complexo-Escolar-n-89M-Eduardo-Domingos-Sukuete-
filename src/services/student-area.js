@@ -1,4 +1,4 @@
-alert("ÁREA DO ALUNO Dp CARREGADA ✅");
+alert("ÁREA DO ALUNO DF CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -6,10 +6,8 @@ import {
     collection,
     getDocs,
     doc,
-    getDoc,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
 
 /* =====================================================
    SESSÃO DO ALUNO
@@ -1511,12 +1509,10 @@ window.verDados = function () {
 window.alterarSenha = async function () {
 
     const senhaAtual = prompt(
-        "🔐 ALTERAR SENHA\n\nDigite a sua senha atual:"
+        "🔐 ALTERAR SENHA\n\nDigite a senha atual:"
     );
 
-    if (senhaAtual === null) {
-        return;
-    }
+    if (senhaAtual === null) return;
 
     if (!senhaAtual.trim()) {
         alert("Digite a senha atual.");
@@ -1528,9 +1524,7 @@ window.alterarSenha = async function () {
         "Digite a nova senha:"
     );
 
-    if (novaSenha === null) {
-        return;
-    }
+    if (novaSenha === null) return;
 
     if (novaSenha.trim().length < 4) {
 
@@ -1542,19 +1536,17 @@ window.alterarSenha = async function () {
     }
 
 
-    const confirmarSenha = prompt(
+    const confirmar = prompt(
         "Digite novamente a nova senha:"
     );
 
-    if (confirmarSenha === null) {
-        return;
-    }
+    if (confirmar === null) return;
 
 
-    if (novaSenha !== confirmarSenha) {
+    if (novaSenha !== confirmar) {
 
         alert(
-            "As novas senhas não coincidem."
+            "❌ As novas senhas não coincidem."
         );
 
         return;
@@ -1563,71 +1555,96 @@ window.alterarSenha = async function () {
 
     try {
 
-        const alunoId =
-            aluno.id;
+        /* =====================================
+           LOCALIZAR TURMA
+        ===================================== */
 
         const turmaId =
-            aluno.turmaId;
+            String(aluno.turmaId || "").trim();
 
 
-        if (!alunoId || !turmaId) {
+        const codigoAluno =
+            String(aluno.codigoAluno || "").trim();
+
+
+        if (!turmaId || !codigoAluno) {
 
             alert(
                 "Não foi possível identificar o aluno."
             );
 
-            console.log(
-                "Dados do aluno:",
-                aluno
-            );
-
             return;
         }
 
 
-        /* ==========================================
-           LOCALIZAR ALUNO NO FIRESTORE
-        ========================================== */
+        /* =====================================
+           BUSCAR ALUNOS DA TURMA
+        ===================================== */
 
-        const alunoRef =
-            doc(
+        const alunosRef =
+            collection(
                 db,
                 "turmas",
                 turmaId,
-                "alunos",
-                alunoId
+                "alunos"
             );
 
 
-        const alunoSnap =
-            await getDoc(alunoRef);
+        const snapshot =
+            await getDocs(alunosRef);
 
 
-        if (!alunoSnap.exists()) {
+        let alunoEncontrado = null;
+
+
+        snapshot.forEach(alunoDoc => {
+
+            const dados =
+                alunoDoc.data();
+
+
+            const codigo =
+                String(
+                    dados.codigoAluno || ""
+                ).trim();
+
+
+            if (codigo === codigoAluno) {
+
+                alunoEncontrado = {
+
+                    id: alunoDoc.id,
+
+                    dados: dados
+
+                };
+
+            }
+
+        });
+
+
+        if (!alunoEncontrado) {
 
             alert(
-                "Aluno não encontrado no Firebase."
+                "❌ Aluno não encontrado na turma."
             );
 
             return;
         }
 
 
-        const dadosFirebase =
-            alunoSnap.data();
-
+        /* =====================================
+           VERIFICAR SENHA ATUAL
+        ===================================== */
 
         const senhaFirebase =
             String(
-                dadosFirebase.senha ||
-                dadosFirebase.senhaAcesso ||
+                alunoEncontrado.dados.senha ||
+                alunoEncontrado.dados.senhaAcesso ||
                 ""
             ).trim();
 
-
-        /* ==========================================
-           VERIFICAR SENHA ATUAL
-        ========================================== */
 
         if (
             senhaAtual.trim() !==
@@ -1642,9 +1659,19 @@ window.alterarSenha = async function () {
         }
 
 
-        /* ==========================================
-           GUARDAR NOVA SENHA
-        ========================================== */
+        /* =====================================
+           ATUALIZAR SENHA
+        ===================================== */
+
+        const alunoRef =
+            doc(
+                db,
+                "turmas",
+                turmaId,
+                "alunos",
+                alunoEncontrado.id
+            );
+
 
         await updateDoc(
 
@@ -1663,9 +1690,9 @@ window.alterarSenha = async function () {
         );
 
 
-        /* ==========================================
+        /* =====================================
            ATUALIZAR SESSÃO
-        ========================================== */
+        ===================================== */
 
         aluno.senha =
             novaSenha.trim();
@@ -1684,8 +1711,8 @@ window.alterarSenha = async function () {
 
 
         alert(
-            "✅ Senha alterada com sucesso!\n\n" +
-            "A sua nova senha já está ativa."
+            "✅ SENHA ALTERADA COM SUCESSO!\n\n" +
+            "A nova senha já está ativa."
         );
 
 
@@ -1700,15 +1727,13 @@ window.alterarSenha = async function () {
 
 
         alert(
-            "❌ Erro ao alterar senha:\n\n" +
+            "❌ Não foi possível alterar a senha.\n\n" +
             error.message
         );
 
     }
 
 };
-
-
 /* =====================================================
    SAIR
 ===================================================== */
