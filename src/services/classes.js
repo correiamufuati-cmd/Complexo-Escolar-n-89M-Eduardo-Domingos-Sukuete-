@@ -1,4 +1,4 @@
-alert("VERSÃO NOVA DL CLASSES.JS");
+alert("CLASSES.JS COMPLETO CARREGADO ✅");
 
 import { app } from "./firebase.js";
 
@@ -9,6 +9,7 @@ import {
     getDocs,
     getDoc,
     doc,
+    deleteDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
@@ -16,25 +17,67 @@ import {
 const db = getFirestore(app);
 
 
-// ===============================
-// ELEMENTOS DA PÁGINA
-// ===============================
+// =====================================================
+// ELEMENTOS
+// =====================================================
 
-const btnCriar = document.getElementById("saveClass");
+const btnCriar =
+    document.getElementById("saveClass");
 
-const listaTurmas = document.getElementById("classList");
+const listaTurmas =
+    document.getElementById("classList");
 
-const nomeInput = document.getElementById("className");
+const nomeInput =
+    document.getElementById("className");
 
-const classeInput = document.getElementById("classe");
+const classeInput =
+    document.getElementById("classe");
 
-const ensinoInput = document.getElementById("ensino");
+const ensinoInput =
+    document.getElementById("ensino");
 
-const anoInput = document.getElementById("anoLetivo");
+const anoInput =
+    document.getElementById("anoLetivo");
+
+
+// =====================================================
+// VERIFICAR ELEMENTOS
+// =====================================================
+
+if (!btnCriar) {
+
+    alert(
+        "Erro: botão saveClass não encontrado."
+    );
+
+    throw new Error(
+        "saveClass não encontrado."
+    );
+
+}
+
+
+if (!listaTurmas) {
+
+    alert(
+        "Erro: classList não encontrado."
+    );
+
+    throw new Error(
+        "classList não encontrado."
+    );
+
+}
+
+
+// =====================================================
+// CLASSES POR ENSINO
+// =====================================================
 
 const classesPorEnsino = {
 
     ensinoPrimario: [
+
         "1classe",
         "2classe",
         "3classe",
@@ -44,73 +87,103 @@ const classesPorEnsino = {
         "1etapa",
         "2etapa",
         "3etapa"
+
     ],
 
+
     primeiroCiclo: [
+
         "7classe",
         "8classe",
         "9classe",
         "Eja1",
         "Eja2"
+
     ]
 
 };
 
 
-function atualizarClasses(){
-
-    const ensino = ensinoInput.value;
-
-    classeInput.innerHTML = "";
-
-    classesPorEnsino[ensino].forEach(classe=>{
-
-        const option = document.createElement("option");
-
-        option.value = classe;
-
-        option.textContent = classe;
-
-        classeInput.appendChild(option);
-
-    });
-
-}
-
-
+// =====================================================
 // ID DA ESCOLA
-// depois será substituído pelo ID vindo do login
+// =====================================================
 
 const escolaId = "SIGEA";
 
 
+// =====================================================
+// ATUALIZAR CLASSES
+// =====================================================
+
+function atualizarClasses() {
+
+    const ensino =
+        ensinoInput.value;
 
 
-// ===============================
+    classeInput.innerHTML = "";
+
+
+    const classes =
+        classesPorEnsino[ensino] || [];
+
+
+    classes.forEach(
+        classe => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                classe;
+
+
+            option.textContent =
+                classe;
+
+
+            classeInput.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+// =====================================================
 // BUSCAR DISCIPLINAS
-// ===============================
+// =====================================================
+
+async function buscarDisciplinas(
+    ensino,
+    classe
+) {
+
+    try {
+
+        const referencia =
+            doc(
+                db,
+                "config",
+                "disciplinas"
+            );
 
 
-async function buscarDisciplinas(ensino, classe){
-
-    try{
-
-
-        const ref = doc(
-            db,
-            "config",
-            "disciplinas"
-        );
+        const resultado =
+            await getDoc(
+                referencia
+            );
 
 
-        const resultado = await getDoc(ref);
-
-
-
-        if(!resultado.exists()){
+        if (!resultado.exists()) {
 
             console.log(
-                "Documento disciplinas não existe"
+                "Documento config/disciplinas não existe."
             );
 
             return [];
@@ -118,111 +191,74 @@ async function buscarDisciplinas(ensino, classe){
         }
 
 
-
-        const dados = resultado.data();
-
-        alert(
-"Campos principais do documento:\n\n" +
-Object.keys(dados).join("\n")
-);
-
-        alert(
-"Ensino recebido pelo código: " + ensino
-);
-
-        alert(
-"Classes dentro de ensinoPrimario:\n\n" +
-Object.keys(dados.ensinoPrimario).join("\n")
-);
-        
-        alert(
-"EnsinoPrimario completo:\n\n" +
-JSON.stringify(dados["ensinoPrimario"], null, 2)
-);
-        
-alert(
-JSON.stringify(dados, null, 2)
-);
-
-        console.log(
-            "Config disciplinas:",
-            dados
-        );
-
-alert(
-Object.keys(dados["ensinoPrimario"])
-.map(x => "[" + x + "]")
-.join("\n")
-);const mapaEnsino = dados?.[ensino];
+        const dados =
+            resultado.data();
 
 
-if(!mapaEnsino){
-
-    alert(
-        "Ensino não encontrado: " + ensino
-    );
-
-    return [];
-
-}
+        const mapaEnsino =
+            dados?.[ensino];
 
 
-// procurar a classe ignorando espaços
+        if (!mapaEnsino) {
 
-const chaveClasse = Object.keys(mapaEnsino)
-.find(
-    chave => chave.trim() === classe.trim()
-);
+            alert(
+                "O ensino não foi encontrado na configuração:\n\n" +
+                ensino
+            );
 
-alert(
-"Todas as classes no Firebase:\n\n" +
-Object.keys(mapaEnsino)
-.map(x => "[" + x + "]")
-.join("\n")
-);
+            return [];
 
-if(!chaveClasse){
-
-    alert(
-        "Classe não encontrada: " + classe
-    );
-
-    return [];
-
-}
+        }
 
 
+        const chaveClasse =
+            Object.keys(mapaEnsino)
+            .find(
+                chave =>
+                    chave.trim() ===
+                    classe.trim()
+            );
 
-const lista = 
-mapaEnsino[chaveClasse]["disciplinas"];
+
+        if (!chaveClasse) {
+
+            alert(
+                "A classe não foi encontrada na configuração:\n\n" +
+                classe
+            );
+
+            return [];
+
+        }
 
 
-alert(
-"Quantidade de disciplinas: " + lista.length
-);
-
-
-return lista;
-
+        const lista =
+            mapaEnsino[
+                chaveClasse
+            ]?.disciplinas || [];
 
 
         console.log(
-            "Disciplina não encontrada:",
-            ensino,
-            classe
+            "Disciplinas encontradas:",
+            lista
         );
 
 
-        return [];
+        return lista;
 
+    }
 
+    catch (error) {
 
-    }catch(error){
-
-
-        console.log(
-            "Erro disciplinas:",
+        console.error(
+            "Erro ao buscar disciplinas:",
             error
+        );
+
+
+        alert(
+            "Erro ao buscar disciplinas:\n\n" +
+            error.message
         );
 
 
@@ -233,278 +269,869 @@ return lista;
 }
 
 
+// =====================================================
+// FORMATAR ENSINO
+// =====================================================
+
+function nomeEnsino(
+    ensino
+) {
+
+    if (
+        ensino ===
+        "ensinoPrimario"
+    ) {
+
+        return "Ensino Primário";
+
+    }
 
 
+    if (
+        ensino ===
+        "primeiroCiclo"
+    ) {
+
+        return "Primeiro Ciclo";
+
+    }
 
 
+    return ensino || "—";
 
-// ===============================
-// LISTAR TURMAS
-// ===============================
-
-async function carregarTurmas(){
+}
 
 
-    try{
+// =====================================================
+// APAGAR TURMA
+// =====================================================
+
+async function apagarTurma(
+    turmaId
+) {
+
+    try {
+
+        const confirmar =
+            confirm(
+
+                "⚠️ ATENÇÃO!\n\n" +
+
+                "Deseja realmente apagar esta turma?\n\n" +
+
+                "Todos os alunos desta turma também serão apagados.\n\n" +
+
+                "Esta ação não pode ser desfeita."
+
+            );
 
 
-        listaTurmas.innerHTML =
-        "A carregar turmas...";
-
-
-
-        const resultado =
-        await getDocs(
-            collection(db,"turmas")
-        );
-
-
-
-        listaTurmas.innerHTML = "";
-
-
-
-        if(resultado.empty){
-
-
-            listaTurmas.innerHTML =
-            "Nenhuma turma criada";
-
+        if (!confirmar) {
 
             return;
 
         }
 
 
+        // =================================================
+        // BUSCAR ALUNOS
+        // =================================================
+
+        const alunosReferencia =
+            collection(
+                db,
+                "turmas",
+                turmaId,
+                "alunos"
+            );
 
 
-
-        resultado.forEach((item)=>{
-
-
-            const turma =
-            item.data();
+        const alunosSnapshot =
+            await getDocs(
+                alunosReferencia
+            );
 
 
+        // =================================================
+        // APAGAR ALUNOS
+        // =================================================
 
-            listaTurmas.innerHTML += `
+        for (
+            const aluno
+            of alunosSnapshot.docs
+        ) {
 
+            await deleteDoc(
 
-            <div class="turma-card">
+                doc(
+                    db,
+                    "turmas",
+                    turmaId,
+                    "alunos",
+                    aluno.id
+                )
 
+            );
 
-                <strong>
-                    ${turma.nome || ""}
-                </strong>
-
-
-                <br>
-
-                Classe:
-                ${turma.classe || ""}
-
-
-                <br>
-
-                Ensino:
-                ${turma.ensino || ""}
-
-
-                <br>
-
-                Ano:
-                ${turma.anoLetivo || ""}
+        }
 
 
-                <br>
+        // =================================================
+        // APAGAR TURMA
+        // =================================================
 
-                Disciplinas:
-                ${
-                    turma.disciplinas
-                    ?
-                    turma.disciplinas.length
-                    :
-                    0
-                }
+        await deleteDoc(
 
+            doc(
+                db,
+                "turmas",
+                turmaId
+            )
 
-            </div>
-
-
-            `;
+        );
 
 
-        });
+        alert(
+            "✅ Turma apagada com sucesso!"
+        );
 
 
-
-    }catch(error){
-
-
-        listaTurmas.innerHTML =
-        "Erro ao carregar: "
-        + error.message;
-
+        await carregarTurmas();
 
     }
 
+    catch (error) {
+
+        console.error(
+            "Erro ao apagar turma:",
+            error
+        );
+
+
+        alert(
+            "❌ Erro ao apagar turma:\n\n" +
+            error.message
+        );
+
+    }
 
 }
 
 
+// =====================================================
+// VER TURMA
+// =====================================================
+
+async function verTurma(
+    turmaId
+) {
+
+    try {
+
+        const referencia =
+            doc(
+                db,
+                "turmas",
+                turmaId
+            );
 
 
+        const resultado =
+            await getDoc(
+                referencia
+            );
 
 
+        if (!resultado.exists()) {
 
-// ===============================
-// CRIAR TURMA
-// ===============================
+            alert(
+                "Turma não encontrada."
+            );
 
-btnCriar.addEventListener(
-"click",
-async()=>{
+            return;
 
-
-    const nome =
-    nomeInput.value.trim();
+        }
 
 
-    const classe =
-    classeInput.value.trim();
+        const turma =
+            resultado.data();
 
 
-    const ensino =
-    ensinoInput.value.trim();
+        const disciplinas =
+            Array.isArray(
+                turma.disciplinas
+            )
+            ?
+            turma.disciplinas
+            :
+            [];
 
-    
-    const ano =
-    anoInput.value.trim();
-
-alert(
-"Ensino = " + ensino +
-"\nClasse = " + classe
-);
-
-
-    if(
-        nome === "" ||
-        classe === "" ||
-        ensino === "" ||
-        ano === ""
-    ){
 
         alert(
-            "Preencha todos os campos"
-        );
 
-        return;
+            "🏫 DADOS DA TURMA\n\n" +
+
+            "Turma: " +
+            (turma.nome || "—") +
+
+            "\n\nClasse: " +
+            (turma.classe || "—") +
+
+            "\n\nEnsino: " +
+            nomeEnsino(
+                turma.ensino
+            ) +
+
+            "\n\nAno Letivo: " +
+            (turma.anoLetivo || "—") +
+
+            "\n\nNúmero de disciplinas: " +
+            disciplinas.length +
+
+            "\n\nDisciplinas:\n" +
+            (
+                disciplinas.length
+                ?
+                disciplinas.join(
+                    "\n"
+                )
+                :
+                "Nenhuma"
+            )
+
+        );
 
     }
 
+    catch (error) {
 
-
-    try{
-
-
-        // buscar disciplinas
-
-        const disciplinas =
-        await buscarDisciplinas(
-            ensino,
-            classe
+        console.error(
+            error
         );
-
 
 
         alert(
-            "Disciplinas encontradas: "
-            +
-            disciplinas.length
-        );
-
-
-
-
-        const novaTurma =
-        {
-
-            nome:nome,
-
-            classe:classe,
-
-            ensino:ensino,
-
-            anoLetivo:ano,
-
-            escolaId:escolaId,
-
-            disciplinas:disciplinas,
-
-            criadoEm:
-            serverTimestamp()
-
-        };
-
-
-
-
-
-        await addDoc(
-            collection(db,"turmas"),
-            novaTurma
-        );
-
-
-
-
-        alert(
-            "Turma criada com sucesso"
-        );
-
-
-
-        nomeInput.value = "";
-
-        classeInput.value = "";
-
-        anoInput.value = "";
-
-
-
-        carregarTurmas();
-
-
-
-    }catch(error){
-
-
-        alert(
-            "Erro ao criar turma: "
-            +
+            "Erro ao visualizar turma:\n\n" +
             error.message
         );
 
+    }
+
+}
+
+
+// =====================================================
+// LISTAR TURMAS EM TABELA
+// =====================================================
+
+async function carregarTurmas() {
+
+    try {
+
+        listaTurmas.innerHTML = `
+
+            <div
+                style="
+                    padding:20px;
+                    text-align:center;
+                "
+            >
+                ⏳ A carregar turmas...
+            </div>
+
+        `;
+
+
+        const resultado =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas"
+                )
+            );
+
+
+        // =================================================
+        // NENHUMA TURMA
+        // =================================================
+
+        if (resultado.empty) {
+
+            listaTurmas.innerHTML = `
+
+                <div
+                    style="
+                        background:white;
+                        padding:25px;
+                        text-align:center;
+                        border-radius:12px;
+                        box-shadow:
+                        0 3px 10px
+                        rgba(0,0,0,.08);
+                    "
+                >
+
+                    🏫
+
+                    <br><br>
+
+                    Nenhuma turma criada.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        // =================================================
+        // CONSTRUIR TABELA
+        // =================================================
+
+        let html = `
+
+        <div
+            style="
+                width:100%;
+                overflow-x:auto;
+                background:white;
+                border-radius:12px;
+                box-shadow:
+                    0 3px 10px
+                    rgba(0,0,0,.08);
+            "
+        >
+
+            <table
+                style="
+                    width:100%;
+                    min-width:850px;
+                    border-collapse:collapse;
+                    font-size:14px;
+                "
+            >
+
+                <thead>
+
+                    <tr
+                        style="
+                            background:#1e3a8a;
+                            color:white;
+                        "
+                    >
+
+                        <th
+                            style="
+                                padding:13px;
+                                text-align:left;
+                            "
+                        >
+                            Turma
+                        </th>
+
+
+                        <th
+                            style="
+                                padding:13px;
+                            "
+                        >
+                            Classe
+                        </th>
+
+
+                        <th
+                            style="
+                                padding:13px;
+                            "
+                        >
+                            Ensino
+                        </th>
+
+
+                        <th
+                            style="
+                                padding:13px;
+                            "
+                        >
+                            Ano Letivo
+                        </th>
+
+
+                        <th
+                            style="
+                                padding:13px;
+                            "
+                        >
+                            Disciplinas
+                        </th>
+
+
+                        <th
+                            style="
+                                padding:13px;
+                            "
+                        >
+                            Ações
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+        `;
+
+
+        // =================================================
+        // LINHAS
+        // =================================================
+
+        resultado.forEach(
+            item => {
+
+                const turma =
+                    item.data();
+
+
+                const turmaId =
+                    item.id;
+
+
+                const disciplinas =
+                    Array.isArray(
+                        turma.disciplinas
+                    )
+                    ?
+                    turma.disciplinas.length
+                    :
+                    0;
+
+
+                html += `
+
+                    <tr
+                        style="
+                            border-bottom:
+                            1px solid #e2e8f0;
+                        "
+                    >
+
+                        <td
+                            style="
+                                padding:12px;
+                                font-weight:bold;
+                            "
+                        >
+
+                            ${turma.nome || "—"}
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:12px;
+                                text-align:center;
+                            "
+                        >
+
+                            ${turma.classe || "—"}
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:12px;
+                                text-align:center;
+                            "
+                        >
+
+                            ${nomeEnsino(
+                                turma.ensino
+                            )}
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:12px;
+                                text-align:center;
+                            "
+                        >
+
+                            ${turma.anoLetivo || "—"}
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:12px;
+                                text-align:center;
+                            "
+                        >
+
+                            ${disciplinas}
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:12px;
+                                text-align:center;
+                                white-space:nowrap;
+                            "
+                        >
+
+                            <button
+                                class="btnVerTurma"
+                                data-id="${turmaId}"
+                                title="Ver turma"
+                                style="
+                                    background:#2563eb;
+                                    color:white;
+                                    border:none;
+                                    padding:8px 11px;
+                                    border-radius:7px;
+                                    cursor:pointer;
+                                    margin-right:5px;
+                                "
+                            >
+                                👁️
+                            </button>
+
+
+                            <button
+                                class="btnApagarTurma"
+                                data-id="${turmaId}"
+                                title="Apagar turma"
+                                style="
+                                    background:#dc2626;
+                                    color:white;
+                                    border:none;
+                                    padding:8px 11px;
+                                    border-radius:7px;
+                                    cursor:pointer;
+                                "
+                            >
+                                🗑️
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        `;
+
+
+        listaTurmas.innerHTML =
+            html;
+
+
+        // =================================================
+        // BOTÕES VER
+        // =================================================
+
+        document
+            .querySelectorAll(
+                ".btnVerTurma"
+            )
+            .forEach(
+                botao => {
+
+                    botao.addEventListener(
+                        "click",
+                        function () {
+
+                            const turmaId =
+                                this.dataset.id;
+
+
+                            verTurma(
+                                turmaId
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+        // =================================================
+        // BOTÕES APAGAR
+        // =================================================
+
+        document
+            .querySelectorAll(
+                ".btnApagarTurma"
+            )
+            .forEach(
+                botao => {
+
+                    botao.addEventListener(
+                        "click",
+                        function () {
+
+                            const turmaId =
+                                this.dataset.id;
+
+
+                            apagarTurma(
+                                turmaId
+                            );
+
+                        }
+                    );
+
+                }
+            );
 
     }
 
+    catch (error) {
+
+        console.error(
+            "Erro ao carregar turmas:",
+            error
+        );
 
 
-});
+        listaTurmas.innerHTML = `
 
+            <div
+                style="
+                    color:#dc2626;
+                    background:#fee2e2;
+                    padding:15px;
+                    border-radius:10px;
+                "
+            >
+
+                ❌ Erro ao carregar turmas:
+
+                <br><br>
+
+                ${error.message}
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// =====================================================
+// CRIAR TURMA
+// =====================================================
+
+btnCriar.addEventListener(
+    "click",
+    async function () {
+
+        const nome =
+            nomeInput.value.trim();
+
+
+        const classe =
+            classeInput.value.trim();
+
+
+        const ensino =
+            ensinoInput.value.trim();
+
+
+        const ano =
+            anoInput.value.trim();
+
+
+        // =================================================
+        // VALIDAR
+        // =================================================
+
+        if (
+            nome === "" ||
+            classe === "" ||
+            ensino === "" ||
+            ano === ""
+        ) {
+
+            alert(
+                "⚠️ Preencha todos os campos."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            // =================================================
+            // DESATIVAR BOTÃO
+            // =================================================
+
+            btnCriar.disabled =
+                true;
+
+
+            btnCriar.textContent =
+                "A criar...";
+
+
+            // =================================================
+            // BUSCAR DISCIPLINAS
+            // =================================================
+
+            const disciplinas =
+                await buscarDisciplinas(
+                    ensino,
+                    classe
+                );
+
+
+            // =================================================
+            // DADOS DA TURMA
+            // =================================================
+
+            const novaTurma = {
+
+                nome:
+                    nome,
+
+                classe:
+                    classe,
+
+                ensino:
+                    ensino,
+
+                anoLetivo:
+                    ano,
+
+                escolaId:
+                    escolaId,
+
+                disciplinas:
+                    disciplinas,
+
+                criadoEm:
+                    serverTimestamp()
+
+            };
+
+
+            // =================================================
+            // GUARDAR
+            // =================================================
+
+            await addDoc(
+
+                collection(
+                    db,
+                    "turmas"
+                ),
+
+                novaTurma
+
+            );
+
+
+            alert(
+                "✅ Turma criada com sucesso!"
+            );
+
+
+            // =================================================
+            // LIMPAR
+            // =================================================
+
+            nomeInput.value =
+                "";
+
+            anoInput.value =
+                "";
+
+
+            // =================================================
+            // ATUALIZAR LISTA
+            // =================================================
+
+            await carregarTurmas();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Erro ao criar turma:",
+                error
+            );
+
+
+            alert(
+                "❌ Erro ao criar turma:\n\n" +
+                error.message
+            );
+
+        }
+
+        finally {
+
+            btnCriar.disabled =
+                false;
+
+
+            btnCriar.textContent =
+                "Criar Turma";
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// ALTERAR ENSINO
+// =====================================================
 
 ensinoInput.addEventListener(
     "change",
     atualizarClasses
 );
 
+
+// =====================================================
+// INICIALIZAR CLASSES
+// =====================================================
+
 atualizarClasses();
 
 
-
-
-// ===============================
-// INICIAR
-// ===============================
+// =====================================================
+// CARREGAR TURMAS
+// =====================================================
 
 carregarTurmas();
