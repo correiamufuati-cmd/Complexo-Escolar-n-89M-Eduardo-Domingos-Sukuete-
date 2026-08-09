@@ -947,50 +947,35 @@ const pago =
     ]?.pago === true;
 
 
-if (pago) {
-
-    return `
-
-        <button
-            type="button"
-            class="
-                pagamento-btn
-                pago
-            "
-            onclick="
-                alterarPagamento(
-                    '${alunoId}',
-                    ${trimestre}
-                )
-            "
-        >
-
-            ✅ Pago
-
-        </button>
-
-    `;
-
-}
-
-
 return `
 
     <button
+
         type="button"
+
         class="
             pagamento-btn
-            nao-pago
+            ${pago ? "pago" : "nao-pago"}
         "
+
+        data-aluno="${alunoId}"
+
+        data-trimestre="${trimestre}"
+
         onclick="
             alterarPagamento(
                 '${alunoId}',
                 ${trimestre}
             )
         "
+
     >
 
-        ❌ Não pago
+        ${
+            pago
+                ? "✅ Pago"
+                : "❌ Não pago"
+        }
 
     </button>
 
@@ -1035,8 +1020,8 @@ try {
 
     let dados =
         resultado.exists()
-        ? resultado.data()
-        : {};
+            ? resultado.data()
+            : {};
 
 
     const chave =
@@ -1049,10 +1034,20 @@ try {
         ]?.pago === true;
 
 
+    const novoEstado =
+        !estadoAtual;
+
+
+    /*
+    =============================================
+    GUARDAR NO FIRESTORE
+    =============================================
+    */
+
     dados[chave] = {
 
         pago:
-            !estadoAtual,
+            novoEstado,
 
         atualizadoEm:
             new Date()
@@ -1073,19 +1068,55 @@ try {
     );
 
 
-    console.log(
-        `Pagamento ${trimestre}º trimestre atualizado:`,
-        !estadoAtual
-    );
-
-
     /*
-    Recarregar mantendo
-    a mesma turma.
+    =============================================
+    ATUALIZAR SOMENTE O BOTÃO
+    =============================================
     */
 
-    await carregarAlunos(
-        turmaSelect.value
+    const botao =
+        document.querySelector(
+            `[data-aluno="${alunoId}"][data-trimestre="${trimestre}"]`
+        );
+
+
+    if (botao) {
+
+        botao.classList.remove(
+            "pago",
+            "nao-pago"
+        );
+
+
+        if (novoEstado) {
+
+            botao.classList.add(
+                "pago"
+            );
+
+
+            botao.innerHTML =
+                "✅ Pago";
+
+        }
+        else {
+
+            botao.classList.add(
+                "nao-pago"
+            );
+
+
+            botao.innerHTML =
+                "❌ Não pago";
+
+        }
+
+    }
+
+
+    console.log(
+        `Pagamento ${trimestre}º trimestre atualizado:`,
+        novoEstado
     );
 
 }
