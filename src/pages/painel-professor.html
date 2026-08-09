@@ -1,221 +1,1303 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
 
-<head>
+«»
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Professor - SGE</title><style>
 
-<title>Painel do Professor - SGE</title>
-
-
-<style>
+/* =====================================================
+   RESET
+===================================================== */
 
 *{
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+
+    box-sizing:border-box;
+
+    margin:0;
+
+    padding:0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
 }
 
+
+/* =====================================================
+   CORES
+===================================================== */
+
+:root{
+
+    --azul:#1e3a8a;
+
+    --azul2:#2563eb;
+
+    --azul-claro:#e0f2fe;
+
+    --azul-bebe:#eff8ff;
+
+    --branco:#ffffff;
+
+    --cinza:#64748b;
+
+    --fundo:#f1f5f9;
+
+    --borda:#dbe4ee;
+
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
 
 body{
 
-margin:0;
-background:#f1f5f9;
+    min-height:100vh;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff,
+            #eef6ff
+        );
+
+    color:#1e293b;
 
 }
 
 
-header{
+/* =====================================================
+   LAYOUT
+===================================================== */
 
-background:#1e3a8a;
-color:white;
-padding:25px;
-text-align:center;
+.layout{
 
-}
+    display:flex;
 
-
-
-.container{
-
-max-width:600px;
-margin:30px auto;
-padding:20px;
+    min-height:100vh;
 
 }
 
 
+/* =====================================================
+   MENU LATERAL
+===================================================== */
+
+.sidebar{
+
+    width:250px;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--azul),
+            #172554
+        );
+
+    color:white;
+
+    padding:25px 16px;
+
+    position:fixed;
+
+    top:0;
+
+    bottom:0;
+
+    left:0;
+
+    z-index:100;
+
+}
+
+
+.logo{
+
+    text-align:center;
+
+    padding:10px 5px 30px;
+
+}
+
+
+.logo .icone{
+
+    font-size:42px;
+
+    display:block;
+
+    margin-bottom:8px;
+
+}
+
+
+.logo h2{
+
+    color:white;
+
+    font-size:22px;
+
+}
+
+
+.logo p{
+
+    color:#bfdbfe;
+
+    font-size:13px;
+
+    margin-top:5px;
+
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.menu{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+
+.menu-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:13px 14px;
+
+    border-radius:10px;
+
+    color:#dbeafe;
+
+    text-decoration:none;
+
+    transition:.2s;
+
+}
+
+
+.menu-item:hover{
+
+    background:
+        rgba(255,255,255,.12);
+
+    color:white;
+
+}
+
+
+.menu-item.ativo{
+
+    background:white;
+
+    color:var(--azul);
+
+    font-weight:bold;
+
+}
+
+
+/* =====================================================
+   CONTEÚDO
+===================================================== */
+
+.main{
+
+    margin-left:250px;
+
+    width:calc(100% - 250px);
+
+    min-height:100vh;
+
+    padding:25px 35px;
+
+}
+
+
+/* =====================================================
+   CABEÇALHO
+===================================================== */
+
+.topbar{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:25px;
+
+}
+
+
+.topbar h1{
+
+    color:var(--azul);
+
+    font-size:28px;
+
+}
+
+
+.topbar p{
+
+    color:var(--cinza);
+
+    margin-top:5px;
+
+}
+
+
+.professor-status{
+
+    background:white;
+
+    padding:10px 15px;
+
+    border-radius:12px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,0,0,.06);
+
+    color:#166534;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+}
+
+
+/* =====================================================
+   CARTÃO DE BOAS-VINDAS
+===================================================== */
+
+.welcome{
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--azul),
+            var(--azul2)
+        );
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    margin-bottom:25px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(30,58,138,.18);
+
+}
+
+
+.welcome h2{
+
+    color:white;
+
+    font-size:24px;
+
+    margin-bottom:8px;
+
+}
+
+
+.welcome p{
+
+    color:#dbeafe;
+
+    line-height:1.5;
+
+}
+
+
+/* =====================================================
+   ÁREA DE TRABALHO
+===================================================== */
+
+.workspace{
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        280px;
+
+    gap:20px;
+
+}
+
+
+/* =====================================================
+   CARD PRINCIPAL
+===================================================== */
 
 .card{
 
-background:white;
-padding:25px;
-border-radius:12px;
-box-shadow:0 3px 10px rgba(0,0,0,.1);
-margin-bottom:20px;
+    background:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,.06);
+
+    border:1px solid
+        rgba(219,228,238,.7);
 
 }
 
 
+.card-title{
 
-h2{
+    display:flex;
 
-color:#1e3a8a;
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:8px;
 
 }
 
+
+.card-title span{
+
+    font-size:25px;
+
+}
+
+
+.card h2{
+
+    color:var(--azul);
+
+    font-size:21px;
+
+}
+
+
+.card-description{
+
+    color:var(--cinza);
+
+    font-size:14px;
+
+    margin-bottom:22px;
+
+}
+
+
+/* =====================================================
+   FORMULÁRIO
+===================================================== */
+
+.form-group{
+
+    margin-bottom:18px;
+
+}
 
 
 label{
 
-font-weight:bold;
-display:block;
-margin-top:15px;
+    display:block;
+
+    font-weight:bold;
+
+    color:#334155;
+
+    margin-bottom:7px;
 
 }
-
-
-
-select,button{
-
-width:100%;
-padding:12px;
-margin-top:8px;
-border-radius:8px;
-font-size:16px;
-
-}
-
 
 
 select{
 
-border:1px solid #ccc;
+    width:100%;
+
+    padding:13px 14px;
+
+    border:
+
+        1px solid
+        var(--borda);
+
+    border-radius:10px;
+
+    background:white;
+
+    color:#334155;
+
+    font-size:15px;
+
+    outline:none;
+
+    transition:.2s;
 
 }
 
 
+select:focus{
 
-button{
+    border-color:
+        var(--azul2);
 
-background:#1e3a8a;
-color:white;
-border:none;
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.10);
 
 }
 
 
+/* =====================================================
+   BOTÃO MINI-PAUTA
+===================================================== */
 
-</style>
+#abrirMiniPauta{
 
-</head>
+    width:100%;
 
+    padding:14px;
 
+    border:none;
 
-<body>
+    border-radius:11px;
 
+    background:
+        linear-gradient(
+            135deg,
+            var(--azul),
+            var(--azul2)
+        );
 
-<header>
+    color:white;
 
-<h1>SGE</h1>
+    font-size:16px;
 
-<p style="color:white">
-Painel do Professor
-</p>
+    font-weight:bold;
 
-</header>
+    cursor:pointer;
 
+    margin-top:5px;
 
+    box-shadow:
+        0 5px 12px
+        rgba(37,99,235,.20);
 
-<div class="container">
+    transition:.2s;
 
-
-
-<div class="card">
-
-
-<h2 id="nomeProfessor">
-
-Carregando...
-
-</h2>
-
-
-<p>
-Selecione a turma e disciplina para trabalhar.
-</p>
-
+}
 
 
-<label>
-Turma
-</label>
+#abrirMiniPauta:hover{
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 18px
+        rgba(37,99,235,.25);
+
+}
 
 
-<select id="selectTurma">
+#abrirMiniPauta:active{
 
-<option>
-Selecione a turma
-</option>
+    transform:
+        translateY(0);
 
-</select>
-
+}
 
 
-<label>
-Disciplina
-</label>
+/* =====================================================
+   ATALHOS
+===================================================== */
+
+.shortcuts{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
 
 
-<select id="selectDisciplina">
+.shortcut{
 
-<option>
-Selecione a disciplina
-</option>
+    background:
+        var(--azul-bebe);
 
-</select>
+    border:1px solid
+        #dbeafe;
 
-<label>Trimestre</label>
+    border-radius:12px;
 
-<select id="selectTrimestre">
+    padding:15px;
 
-<option value="">
-Selecione o trimestre
-</option>
+    display:flex;
 
-<option value="1">
-1º Trimestre
-</option>
+    align-items:center;
 
-<option value="2">
-2º Trimestre
-</option>
+    gap:12px;
 
-<option value="3">
-3º Trimestre
-</option>
+}
 
-  </select>
 
-<button id="abrirMiniPauta">
+.shortcut-icon{
 
-📋 Abrir Mini-Pauta
+    width:42px;
 
-</button>
+    height:42px;
 
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:10px;
+
+    background:white;
+
+    font-size:21px;
+
+}
+
+
+.shortcut strong{
+
+    display:block;
+
+    color:var(--azul);
+
+    margin-bottom:3px;
+
+}
+
+
+.shortcut small{
+
+    color:var(--cinza);
+
+}
+
+
+/* =====================================================
+   RODAPÉ
+===================================================== */
+
+.footer{
+
+    text-align:center;
+
+    color:#94a3b8;
+
+    font-size:13px;
+
+    margin-top:25px;
+
+}
+
+
+/* =====================================================
+   MENU MOBILE
+===================================================== */
+
+.mobile-menu{
+
+    display:none;
+
+}
+
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media(max-width:900px){
+
+    .workspace{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+@media(max-width:700px){
+
+    .sidebar{
+
+        display:none;
+
+    }
+
+
+    .main{
+
+        margin-left:0;
+
+        width:100%;
+
+        padding:
+            18px 15px 90px;
+
+    }
+
+
+    .topbar{
+
+        align-items:flex-start;
+
+    }
+
+
+    .topbar h1{
+
+        font-size:23px;
+
+    }
+
+
+    .professor-status{
+
+        display:none;
+
+    }
+
+
+    .welcome{
+
+        padding:20px;
+
+        border-radius:15px;
+
+    }
+
+
+    .welcome h2{
+
+        font-size:21px;
+
+    }
+
+
+    .card{
+
+        padding:20px;
+
+        border-radius:15px;
+
+    }
+
+
+    .mobile-menu{
+
+        display:flex;
+
+        position:fixed;
+
+        bottom:0;
+
+        left:0;
+
+        right:0;
+
+        height:68px;
+
+        background:white;
+
+        border-top:
+            1px solid
+            var(--borda);
+
+        z-index:200;
+
+        justify-content:
+            space-around;
+
+        align-items:center;
+
+        box-shadow:
+            0 -3px 15px
+            rgba(0,0,0,.08);
+
+    }
+
+
+    .mobile-menu a{
+
+        text-decoration:none;
+
+        color:#64748b;
+
+        display:flex;
+
+        flex-direction:column;
+
+        align-items:center;
+
+        gap:3px;
+
+        font-size:11px;
+
+    }
+
+
+    .mobile-menu a span{
+
+        font-size:21px;
+
+    }
+
+
+    .mobile-menu a.ativo{
+
+        color:var(--azul);
+
+        font-weight:bold;
+
+    }
+
+}
+
+
+@media(max-width:400px){
+
+    .main{
+
+        padding-left:10px;
+
+        padding-right:10px;
+
+    }
+
+
+    .welcome h2{
+
+        font-size:19px;
+
+    }
+
+
+    .card{
+
+        padding:16px;
+
+    }
+
+}
+
+</style></head><body><div class="layout"><!-- =================================================
+     MENU LATERAL
+================================================= --><aside class="sidebar"><div class="logo">
+
+    <span class="icone">
+        👨‍🏫
+    </span>
+
+    <h2>
+        SGE
+    </h2>
+
+    <p>
+        Área do Professor
+    </p>
+
+</div>
+
+
+<nav class="menu">
+
+
+    <a
+        href="painel-professor.html"
+        class="menu-item ativo"
+    >
+
+        <span>📊</span>
+
+        <span>
+            Visão Geral
+        </span>
+
+    </a>
+
+
+    <a
+        href="#"
+        class="menu-item"
+    >
+
+        <span>🏫</span>
+
+        <span>
+            Minhas Turmas
+        </span>
+
+    </a>
+
+
+    <a
+        href="#"
+        class="menu-item"
+    >
+
+        <span>📝</span>
+
+        <span>
+            Mini-Pautas
+        </span>
+
+    </a>
+
+
+    <a
+        href="#"
+        class="menu-item"
+    >
+
+        <span>📚</span>
+
+        <span>
+            Disciplinas
+        </span>
+
+    </a>
+
+
+    <a
+        href="#"
+        class="menu-item"
+    >
+
+        <span>📋</span>
+
+        <span>
+            Notas
+        </span>
+
+    </a>
+
+
+    <a
+        href="#"
+        class="menu-item"
+    >
+
+        <span>📄</span>
+
+        <span>
+            Pautas
+        </span>
+
+    </a>
+
+
+    <a
+        href="#"
+        class="menu-item"
+    >
+
+        <span>👤</span>
+
+        <span>
+            Meu Perfil
+        </span>
+
+    </a>
+
+
+</nav>
+
+</aside><!-- =================================================
+     CONTEÚDO PRINCIPAL
+================================================= --><main class="main"><div class="topbar">
+
+    <div>
+
+        <h1>
+            Painel do Professor
+        </h1>
+
+        <p>
+            Gestão das suas turmas e avaliações
+        </p>
+
+    </div>
+
+
+    <div class="professor-status">
+
+        🟢 Professor ativo
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+     BOAS-VINDAS
+================================================= -->
+
+<section class="welcome">
+
+    <h2>
+
+        Olá,
+        <span id="nomeProfessor">
+            Professor
+        </span>
+        👋
+
+    </h2>
+
+    <p>
+
+        Selecione uma turma, disciplina e
+        trimestre para começar a trabalhar
+        na sua mini-pauta.
+
+    </p>
+
+</section>
+
+
+<!-- =================================================
+     ÁREA DE TRABALHO
+================================================= -->
+
+<div class="workspace">
+
+
+    <!-- =============================================
+         SELEÇÃO
+    ============================================== -->
+
+    <section class="card">
+
+
+        <div class="card-title">
+
+            <span>
+                📋
+            </span>
+
+            <h2>
+                Iniciar trabalho
+            </h2>
+
+        </div>
+
+
+        <p class="card-description">
+
+            Escolha os dados da avaliação que
+            pretende abrir.
+
+        </p>
+
+
+        <!-- TURMA -->
+
+        <div class="form-group">
+
+            <label for="selectTurma">
+
+                🏫 Turma
+
+            </label>
+
+
+            <select id="selectTurma">
+
+                <option value="">
+
+                    Selecione a turma
+
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- DISCIPLINA -->
+
+        <div class="form-group">
+
+            <label for="selectDisciplina">
+
+                📚 Disciplina
+
+            </label>
+
+
+            <select id="selectDisciplina">
+
+                <option value="">
+
+                    Selecione a disciplina
+
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- TRIMESTRE -->
+
+        <div class="form-group">
+
+            <label for="selectTrimestre">
+
+                📅 Trimestre
+
+            </label>
+
+
+            <select id="selectTrimestre">
+
+                <option value="">
+
+                    Selecione o trimestre
+
+                </option>
+
+
+                <option value="1">
+
+                    1º Trimestre
+
+                </option>
+
+
+                <option value="2">
+
+                    2º Trimestre
+
+                </option>
+
+
+                <option value="3">
+
+                    3º Trimestre
+
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- BOTÃO -->
+
+        <button
+            id="abrirMiniPauta"
+            type="button"
+        >
+
+            📋 Abrir Mini-Pauta
+
+        </button>
+
+
+    </section>
+
+
+    <!-- =============================================
+         ATALHOS
+    ============================================== -->
+
+    <aside class="card">
+
+
+        <div class="card-title">
+
+            <span>
+                ⚡
+            </span>
+
+            <h2>
+                Atalhos
+            </h2>
+
+        </div>
+
+
+        <p class="card-description">
+
+            Acesso rápido
+
+        </p>
+
+
+        <div class="shortcuts">
+
+
+            <div class="shortcut">
+
+                <div class="shortcut-icon">
+                    📝
+                </div>
+
+                <div>
+
+                    <strong>
+                        Mini-Pautas
+                    </strong>
+
+                    <small>
+                        Lançar avaliações
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="shortcut">
+
+                <div class="shortcut-icon">
+                    🏫
+                </div>
+
+                <div>
+
+                    <strong>
+                        Turmas
+                    </strong>
+
+                    <small>
+                        Consultar turmas
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="shortcut">
+
+                <div class="shortcut-icon">
+                    📚
+                </div>
+
+                <div>
+
+                    <strong>
+                        Disciplinas
+                    </strong>
+
+                    <small>
+                        Ver disciplinas
+                    </small>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </aside>
 
 
 </div>
 
 
+<div class="footer">
+
+    SGE — Sistema de Gestão Escolar
 
 </div>
 
+</main></div><!-- =================================================
+     MENU MOBILE
+================================================= --><nav class="mobile-menu"><a
+    href="painel-professor.html"
+    class="ativo"
+>
+
+    <span>📊</span>
+
+    Início
+
+</a>
 
 
-<script type="module" src="../services/painel-professor.js?v=301"></script>
+<a href="#">
+
+    <span>🏫</span>
+
+    Turmas
+
+</a>
 
 
-</body>
+<a href="#">
+
+    <span>📝</span>
+
+    Mini-Pautas
+
+</a>
+
+
+<a href="#">
+
+    <span>📄</span>
+
+    Pautas
+
+</a>
+
+
+<a href="#">
+
+    <span>👤</span>
+
+    Perfil
+
+</a>
+
+</nav><script
+    type="module"
+    src="../services/painel-professor.js?v=333"></script>
+
+    </body>
 
 </html>
