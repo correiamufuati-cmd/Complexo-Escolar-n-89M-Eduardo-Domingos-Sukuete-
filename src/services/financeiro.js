@@ -212,81 +212,217 @@ async function carregarAlunos(
                 })
             );
 
+/* =====================================================
+   CARREGAR ALUNOS DA TURMA
+===================================================== */
+
+async function carregarAlunos(turmaId) {
+
+    if (!turmaId) {
+
+        lista.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    Selecione uma turma.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    try {
+
+        lista.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    A carregar alunos...
+                </td>
+            </tr>
+        `;
+
 
         /* =================================================
-           ORDENAR PELO NÚMERO
+           BUSCAR ALUNOS DA TURMA
         ================================================= */
 
-        alunos.sort(
-            (a, b) => {
-
-                const numeroA =
-                    parseInt(
-                        a.dados.numero,
-                        10
-                    );
-
-                const numeroB =
-                    parseInt(
-                        b.dados.numero,
-                        10
-                    );
+        const alunosRef =
+            collection(
+                db,
+                "turmas",
+                turmaId,
+                "alunos"
+            );
 
 
-                /*
-                Se os dois não tiverem número,
-                ordenar pelo nome.
-                */
-
-                if (
-                    Number.isNaN(numeroA) &&
-                    Number.isNaN(numeroB)
-                ) {
-
-                    return String(
-                        a.dados.nome || ""
-                    ).localeCompare(
-                        String(
-                            b.dados.nome || ""
-                        ),
-                        "pt"
-                    );
-
-                }
+        const snapshot =
+            await getDocs(alunosRef);
 
 
-                /*
-                Aluno sem número vai para o fim.
-                */
-
-                if (
-                    Number.isNaN(numeroA)
-                ) {
-
-                    return 1;
-
-                }
+        lista.innerHTML = "";
 
 
-                if (
-                    Number.isNaN(numeroB)
-                ) {
+        if (snapshot.empty) {
 
-                    return -1;
+            lista.innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        Nenhum aluno encontrado
+                        nesta turma.
+                    </td>
+                </tr>
+            `;
 
-                }
+            return;
+        }
 
 
-                /*
-                Ordem crescente:
-                1, 2, 3, 4...
-                */
+        /* =================================================
+           TRANSFORMAR DOCUMENTOS EM ARRAY
+        ================================================= */
 
-                return numeroA - numeroB;
+        const alunos =
+            snapshot.docs.map(documento => ({
+
+                id:
+                    documento.id,
+
+                dados:
+                    documento.data()
+
+            }));
+
+
+        /* =================================================
+           ORDENAR PELO NÚMERO DO ALUNO
+        ================================================= */
+
+        alunos.sort((a, b) => {
+
+            const numeroA =
+                parseInt(
+                    a.dados.numero,
+                    10
+                );
+
+            const numeroB =
+                parseInt(
+                    b.dados.numero,
+                    10
+                );
+
+
+            /*
+            Se ambos não tiverem número,
+            ordenar pelo nome.
+            */
+
+            if (
+                Number.isNaN(numeroA) &&
+                Number.isNaN(numeroB)
+            ) {
+
+                return String(
+                    a.dados.nome || ""
+                ).localeCompare(
+                    String(
+                        b.dados.nome || ""
+                    ),
+                    "pt"
+                );
 
             }
+
+
+            /*
+            Aluno sem número fica no fim.
+            */
+
+            if (
+                Number.isNaN(numeroA)
+            ) {
+
+                return 1;
+
+            }
+
+
+            if (
+                Number.isNaN(numeroB)
+            ) {
+
+                return -1;
+
+            }
+
+
+            /*
+            Ordem:
+
+            1
+            2
+            3
+            4
+            5
+            ...
+            */
+
+            return numeroA - numeroB;
+
+        });
+
+
+        /* =================================================
+           CRIAR LINHAS NA ORDEM CORRETA
+        ================================================= */
+
+        let numeroSequencial = 1;
+
+
+        for (
+            const alunoItem
+            of alunos
+        ) {
+
+            await criarLinhaAluno(
+
+                alunoItem.id,
+
+                alunoItem.dados,
+
+                numeroSequencial
+
+            );
+
+
+            numeroSequencial++;
+
+        }
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erro ao carregar alunos:",
+            error
         );
 
+
+        lista.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    Erro ao carregar alunos:
+                    ${error.message}
+                </td>
+            </tr>
+        `;
+
+    }
+
+        }
+        
 
         /* =================================================
            CRIAR LINHAS
