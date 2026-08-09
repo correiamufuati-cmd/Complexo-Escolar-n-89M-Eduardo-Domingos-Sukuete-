@@ -1,10 +1,13 @@
-alert("ÁREA DO ALUNO Dk CARREGADA ✅");
+alert("ÁREA DO ALUNO Dp CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
 import {
     collection,
-    getDocs
+    getDocs,
+    doc,
+    getDoc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
