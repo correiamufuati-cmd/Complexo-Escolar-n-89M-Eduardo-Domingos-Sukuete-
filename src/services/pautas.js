@@ -1804,3 +1804,608 @@ calcularMediaFinal,
 determinarResultado
 };
 alert( "PAUTAS.JS CARREGADO ✅" );
+
+/* ============================================================
+EXPORTAÇÃO DA PAUTA
+============================================================ */
+
+/*
+
+* Bibliotecas externas:
+* 
+* SheetJS → Excel
+* jsPDF + AutoTable → PDF
+  */
+
+/* ============================================================
+EXPORTAR EXCEL
+============================================================ */
+
+document
+.getElementById("exportarExcel")
+?.addEventListener(
+"click",
+exportarExcel
+);
+
+async function exportarExcel(){
+
+if(!turmaSelecionada){
+
+    alert(
+        "Selecione primeiro uma classe e uma turma."
+    );
+
+    return;
+
+}
+
+
+if(
+    alunos.length === 0
+){
+
+    alert(
+        "Não existem alunos para exportar."
+    );
+
+    return;
+
+}
+
+
+try{
+
+    /*
+     * Carregar SheetJS somente quando
+     * for necessário.
+     */
+
+    if(
+        !window.XLSX
+    ){
+
+        await carregarScript(
+            "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
+        );
+
+    }
+
+
+    const tabela =
+        document.querySelector(
+            ".tabela-pauta"
+        );
+
+
+    const workbook =
+        XLSX.utils.table_to_book(
+            tabela,
+            {
+                sheet:
+                    "Pauta Geral"
+            }
+        );
+
+
+    const classe =
+        classeSelect.value ||
+        "Classe";
+
+
+    const turma =
+        obterNomeTurma(
+            turmaSelecionada
+        ) ||
+        "Turma";
+
+
+    const nomeArquivo =
+        `Pauta Geral - ${classe} - ${turma}.xlsx`;
+
+
+    XLSX.writeFile(
+        workbook,
+        nomeArquivo
+    );
+
+
+}
+catch(error){
+
+    console.error(
+        "Erro ao exportar Excel:",
+        error
+    );
+
+
+    alert(
+        "Não foi possível exportar para Excel."
+    );
+
+}
+
+}
+
+/* ============================================================
+EXPORTAR PDF
+============================================================ */
+
+document
+.getElementById("exportarPDF")
+?.addEventListener(
+"click",
+exportarPDF
+);
+
+async function exportarPDF(){
+
+if(!turmaSelecionada){
+
+    alert(
+        "Selecione primeiro uma classe e uma turma."
+    );
+
+    return;
+
+}
+
+
+if(
+    alunos.length === 0
+){
+
+    alert(
+        "Não existem alunos para exportar."
+    );
+
+    return;
+
+}
+
+
+try{
+
+    /*
+     * Carregar jsPDF
+     */
+
+    if(
+        !window.jspdf
+    ){
+
+        await carregarScript(
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+        );
+
+    }
+
+
+    /*
+     * Carregar AutoTable
+     */
+
+    if(
+        !window.jspdfAutoTable &&
+        !window.autoTable
+    ){
+
+        await carregarScript(
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"
+        );
+
+    }
+
+
+    const {
+        jsPDF
+    } =
+        window.jspdf;
+
+
+    /*
+     * Paisagem A3 para comportar
+     * muitas disciplinas.
+     */
+
+    const pdf =
+        new jsPDF({
+            orientation:
+                "landscape",
+            unit:
+                "mm",
+            format:
+                "a3"
+        });
+
+
+    const classe =
+        classeSelect.value ||
+        "";
+
+
+    const turma =
+        obterNomeTurma(
+            turmaSelecionada
+        ) ||
+        "";
+
+
+    /*
+     * Cabeçalho do documento
+     */
+
+    pdf.setFontSize(16);
+
+    pdf.text(
+        "PAUTA GERAL",
+        20,
+        15
+    );
+
+
+    pdf.setFontSize(10);
+
+    pdf.text(
+        `Classe: ${classe}    Turma: ${turma}`,
+        20,
+        22
+    );
+
+
+    /*
+     * Converter tabela HTML
+     * mantendo os cabeçalhos.
+     */
+
+    const tabela =
+        document.querySelector(
+            ".tabela-pauta"
+        );
+
+
+    pdf.autoTable({
+
+        html: tabela,
+
+        startY: 28,
+
+        theme: "grid",
+
+        styles: {
+
+            fontSize: 6,
+
+            cellPadding: 1.5,
+
+            overflow:
+                "linebreak",
+
+            halign:
+                "center"
+
+        },
+
+        headStyles: {
+
+            halign:
+                "center"
+
+        },
+
+        columnStyles: {
+
+            1: {
+                cellWidth:
+                    45,
+                halign:
+                    "left"
+            }
+
+        },
+
+        didParseCell:
+            function(data){
+
+                if(
+                    data.section ===
+                    "body"
+                ){
+
+                    if(
+                        String(
+                            data.cell.text
+                        )
+                        .includes(
+                            "REPROVADO"
+                        )
+                    ){
+
+                        data.cell.styles.fontStyle =
+                            "bold";
+
+                    }
+
+                }
+
+            }
+
+    });
+
+
+    const nomeArquivo =
+        `Pauta Geral - ${classe} - ${turma}.pdf`;
+
+
+    pdf.save(
+        nomeArquivo
+    );
+
+
+}
+catch(error){
+
+    console.error(
+        "Erro ao exportar PDF:",
+        error
+    );
+
+
+    alert(
+        "Não foi possível exportar para PDF."
+    );
+
+}
+
+}
+
+/* ============================================================
+IMPRIMIR
+============================================================ */
+
+document
+.getElementById("imprimirPauta")
+?.addEventListener(
+"click",
+imprimirPauta
+);
+
+function imprimirPauta(){
+
+if(!turmaSelecionada){
+
+    alert(
+        "Selecione primeiro uma classe e uma turma."
+    );
+
+    return;
+
+}
+
+
+if(
+    alunos.length === 0
+){
+
+    alert(
+        "Não existem alunos para imprimir."
+    );
+
+    return;
+
+}
+
+
+const tabela =
+    document.querySelector(
+        ".tabela-pauta-container"
+    );
+
+
+const classe =
+    classeSelect.value ||
+    "";
+
+
+const turma =
+    obterNomeTurma(
+        turmaSelecionada
+    ) ||
+    "";
+
+
+const janela =
+    window.open(
+        "",
+        "_blank"
+    );
+
+
+if(!janela){
+
+    alert(
+        "O navegador bloqueou a janela de impressão."
+    );
+
+    return;
+
+}
+
+
+janela.document.write(`
+
+    <!DOCTYPE html>
+
+    <html lang="pt">
+
+    <head>
+
+        <meta charset="UTF-8">
+
+        <title>
+            Pauta Geral - ${classe} - ${turma}
+        </title>
+
+        <style>
+
+            @page{
+
+                size:A3 landscape;
+
+                margin:8mm;
+
+            }
+
+            body{
+
+                font-family:
+                    Arial,
+                    sans-serif;
+
+                margin:0;
+
+            }
+
+            h1{
+
+                text-align:center;
+
+                font-size:18px;
+
+                margin:0 0 5px;
+
+            }
+
+            .info{
+
+                text-align:center;
+
+                font-size:11px;
+
+                margin-bottom:8px;
+
+            }
+
+            table{
+
+                border-collapse:collapse;
+
+                width:100%;
+
+                font-size:6px;
+
+            }
+
+            th,
+            td{
+
+                border:1px solid #000;
+
+                padding:2px;
+
+                text-align:center;
+
+                white-space:nowrap;
+
+            }
+
+            th{
+
+                font-weight:bold;
+
+            }
+
+            td:nth-child(2){
+
+                text-align:left;
+
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <h1>
+            PAUTA GERAL
+        </h1>
+
+        <div class="info">
+
+            Classe:
+            ${escaparHTML(classe)}
+
+            &nbsp;&nbsp;&nbsp;
+
+            Turma:
+            ${escaparHTML(turma)}
+
+        </div>
+
+        ${tabela.innerHTML}
+
+    </body>
+
+    </html>
+
+`);
+
+
+janela.document.close();
+
+
+janela.focus();
+
+
+setTimeout(
+    () => {
+
+        janela.print();
+
+    },
+    500
+);
+
+}
+
+/* ============================================================
+CARREGAR SCRIPT EXTERNO
+============================================================ */
+
+function carregarScript(
+src
+){
+
+return new Promise(
+    (
+        resolve,
+        reject
+    ) => {
+
+        const script =
+            document.createElement(
+                "script"
+            );
+
+
+        script.src =
+            src;
+
+
+        script.onload =
+            resolve;
+
+
+        script.onerror =
+            reject;
+
+
+        document.head.appendChild(
+            script
+        );
+
+    }
+);
+
+    }
