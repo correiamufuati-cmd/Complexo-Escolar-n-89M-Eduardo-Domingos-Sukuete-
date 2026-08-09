@@ -1,0 +1,650 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+«»
+
+<title>Gestão de Disciplinas - SIGEA</title><style>
+
+*{
+    box-sizing:border-box;
+}
+
+
+body{
+
+    margin:0;
+
+    padding:20px;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:#f1f5f9;
+
+    color:#1e293b;
+
+}
+
+
+.container{
+
+    width:100%;
+
+    max-width:1100px;
+
+    margin:auto;
+
+}
+
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.page-header{
+
+    background:
+        linear-gradient(
+            135deg,
+            #1e3a8a,
+            #2563eb
+        );
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,.12);
+
+}
+
+
+.page-header h2{
+
+    margin:0 0 7px;
+
+    font-size:24px;
+
+}
+
+
+.page-header p{
+
+    margin:0;
+
+    opacity:.9;
+
+    font-size:14px;
+
+}
+
+
+/* =========================================
+   CARTÃO
+========================================= */
+
+.form-card{
+
+    background:white;
+
+    padding:22px;
+
+    border-radius:16px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,0,0,.07);
+
+    margin-bottom:25px;
+
+}
+
+
+.form-title{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:#1e3a8a;
+
+    margin-bottom:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+
+/* =========================================
+   FORMULÁRIO
+========================================= */
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap:16px;
+
+}
+
+
+.form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.form-group label{
+
+    font-size:13px;
+
+    font-weight:bold;
+
+    color:#475569;
+
+    margin-bottom:7px;
+
+}
+
+
+.form-group input,
+.form-group select{
+
+    width:100%;
+
+    padding:12px 13px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius:9px;
+
+    background:#f8fafc;
+
+    font-size:14px;
+
+    outline:none;
+
+}
+
+
+.form-group input:focus,
+.form-group select:focus{
+
+    border-color:#2563eb;
+
+    background:white;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.10);
+
+}
+
+
+/* =========================================
+   BOTÃO
+========================================= */
+
+.button-area{
+
+    margin-top:20px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+}
+
+
+#btnAdicionar{
+
+    border:none;
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:13px 25px;
+
+    border-radius:9px;
+
+    font-size:15px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+}
+
+
+#btnAdicionar:hover{
+
+    background:#1d4ed8;
+
+}
+
+
+/* =========================================
+   LISTA
+========================================= */
+
+.list-header{
+
+    background:white;
+
+    padding:18px 20px;
+
+    border-radius:14px;
+
+    margin-bottom:12px;
+
+    box-shadow:
+        0 3px 10px
+        rgba(0,0,0,.06);
+
+}
+
+
+.list-header h3{
+
+    margin:0;
+
+    color:#1e3a8a;
+
+    font-size:18px;
+
+}
+
+
+.list-header p{
+
+    margin:5px 0 0;
+
+    color:#64748b;
+
+    font-size:13px;
+
+}
+
+
+/* =========================================
+   TABELA
+========================================= */
+
+.table-container{
+
+    background:white;
+
+    border-radius:14px;
+
+    overflow-x:auto;
+
+    box-shadow:
+        0 3px 10px
+        rgba(0,0,0,.06);
+
+}
+
+
+table{
+
+    width:100%;
+
+    min-width:650px;
+
+    border-collapse:collapse;
+
+}
+
+
+thead{
+
+    background:#1e3a8a;
+
+    color:white;
+
+}
+
+
+th{
+
+    padding:13px;
+
+    text-align:left;
+
+    font-size:14px;
+
+}
+
+
+td{
+
+    padding:12px;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+    font-size:14px;
+
+}
+
+
+tbody tr:hover{
+
+    background:#f8fafc;
+
+}
+
+
+/* =========================================
+   BOTÕES DA TABELA
+========================================= */
+
+.btn-editar{
+
+    background:#f59e0b;
+
+    color:white;
+
+    border:none;
+
+    padding:7px 10px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+
+}
+
+
+.btn-apagar{
+
+    background:#dc2626;
+
+    color:white;
+
+    border:none;
+
+    padding:7px 10px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:700px){
+
+    body{
+
+        padding:12px;
+
+    }
+
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .button-area{
+
+        justify-content:stretch;
+
+    }
+
+
+    #btnAdicionar{
+
+        width:100%;
+
+    }
+
+}
+
+</style></head><body><div class="container"><!-- =====================================
+     CABEÇALHO
+====================================== -->
+
+<div class="page-header">
+
+    <h2>
+        📚 Gestão de Disciplinas
+    </h2>
+
+    <p>
+        Configure as disciplinas de cada classe e nível de ensino.
+    </p>
+
+</div>
+
+
+
+<!-- =====================================
+     FORMULÁRIO
+====================================== -->
+
+<div class="form-card">
+
+
+    <div class="form-title">
+
+        ➕ Adicionar Disciplina
+
+    </div>
+
+
+
+    <div class="form-grid">
+
+
+        <!-- ENSINO -->
+
+        <div class="form-group">
+
+            <label for="ensino">
+
+                Ensino
+
+            </label>
+
+
+            <select id="ensino">
+
+                <option value="ensinoPrimario">
+
+                    Ensino Primário
+
+                </option>
+
+
+                <option value="primeiroCiclo">
+
+                    Primeiro Ciclo
+
+                </option>
+
+            </select>
+
+        </div>
+
+
+
+        <!-- CLASSE -->
+
+        <div class="form-group">
+
+            <label for="classe">
+
+                Classe
+
+            </label>
+
+
+            <select id="classe">
+
+            </select>
+
+        </div>
+
+
+
+        <!-- DISCIPLINA -->
+
+        <div class="form-group">
+
+            <label for="disciplina">
+
+                Nome da Disciplina
+
+            </label>
+
+
+            <input
+
+                id="disciplina"
+
+                type="text"
+
+                placeholder="Ex: Língua Portuguesa"
+
+            >
+
+        </div>
+
+
+    </div>
+
+
+
+    <div class="button-area">
+
+        <button id="btnAdicionar">
+
+            ➕ Adicionar Disciplina
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     LISTA
+====================================== -->
+
+<div class="list-header">
+
+    <h3>
+
+        📋 Disciplinas Cadastradas
+
+    </h3>
+
+
+    <p>
+
+        Disciplinas organizadas por ensino e classe.
+
+    </p>
+
+</div>
+
+
+
+<div class="table-container">
+
+
+    <table>
+
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Ensino
+                </th>
+
+                <th>
+                    Classe
+                </th>
+
+                <th>
+                    Disciplina
+                </th>
+
+                <th>
+                    Ações
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody id="listaDisciplinas">
+
+            <tr>
+
+                <td colspan="4"
+                    style="
+                        text-align:center;
+                        padding:25px;
+                    "
+                >
+
+                    A carregar disciplinas...
+
+                </td>
+
+            </tr>
+
+        </tbody>
+
+
+    </table>
+
+
+</div>
+
+</div><script
+    type="module"
+    src="../services/disciplinas.js?v=1"></script>
+
+</body>
+
+</html>
