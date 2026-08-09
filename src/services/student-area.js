@@ -1,4 +1,4 @@
-alert("ÁREA DO ALUNO Dg CARREGADA ✅");
+alert("ÁREA DO ALUNO Dk CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -1505,12 +1505,203 @@ window.verDados = function () {
    ALTERAR SENHA
 ===================================================== */
 
-window.alterarSenha = function () {
+window.alterarSenha = async function () {
 
-    alert(
-        "🔐 Alterar senha\n\n" +
-        "Esta função será ligada ao Firestore."
+    const senhaAtual = prompt(
+        "🔐 ALTERAR SENHA\n\nDigite a sua senha atual:"
     );
+
+    if (senhaAtual === null) {
+        return;
+    }
+
+    if (!senhaAtual.trim()) {
+        alert("Digite a senha atual.");
+        return;
+    }
+
+
+    const novaSenha = prompt(
+        "Digite a nova senha:"
+    );
+
+    if (novaSenha === null) {
+        return;
+    }
+
+    if (novaSenha.trim().length < 4) {
+
+        alert(
+            "A nova senha deve ter pelo menos 4 caracteres."
+        );
+
+        return;
+    }
+
+
+    const confirmarSenha = prompt(
+        "Digite novamente a nova senha:"
+    );
+
+    if (confirmarSenha === null) {
+        return;
+    }
+
+
+    if (novaSenha !== confirmarSenha) {
+
+        alert(
+            "As novas senhas não coincidem."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const alunoId =
+            aluno.id;
+
+        const turmaId =
+            aluno.turmaId;
+
+
+        if (!alunoId || !turmaId) {
+
+            alert(
+                "Não foi possível identificar o aluno."
+            );
+
+            console.log(
+                "Dados do aluno:",
+                aluno
+            );
+
+            return;
+        }
+
+
+        /* ==========================================
+           LOCALIZAR ALUNO NO FIRESTORE
+        ========================================== */
+
+        const alunoRef =
+            doc(
+                db,
+                "turmas",
+                turmaId,
+                "alunos",
+                alunoId
+            );
+
+
+        const alunoSnap =
+            await getDoc(alunoRef);
+
+
+        if (!alunoSnap.exists()) {
+
+            alert(
+                "Aluno não encontrado no Firebase."
+            );
+
+            return;
+        }
+
+
+        const dadosFirebase =
+            alunoSnap.data();
+
+
+        const senhaFirebase =
+            String(
+                dadosFirebase.senha ||
+                dadosFirebase.senhaAcesso ||
+                ""
+            ).trim();
+
+
+        /* ==========================================
+           VERIFICAR SENHA ATUAL
+        ========================================== */
+
+        if (
+            senhaAtual.trim() !==
+            senhaFirebase
+        ) {
+
+            alert(
+                "❌ A senha atual está incorreta."
+            );
+
+            return;
+        }
+
+
+        /* ==========================================
+           GUARDAR NOVA SENHA
+        ========================================== */
+
+        await updateDoc(
+
+            alunoRef,
+
+            {
+
+                senha:
+                    novaSenha.trim(),
+
+                senhaAcesso:
+                    novaSenha.trim()
+
+            }
+
+        );
+
+
+        /* ==========================================
+           ATUALIZAR SESSÃO
+        ========================================== */
+
+        aluno.senha =
+            novaSenha.trim();
+
+        aluno.senhaAcesso =
+            novaSenha.trim();
+
+
+        localStorage.setItem(
+
+            "alunoLogado",
+
+            JSON.stringify(aluno)
+
+        );
+
+
+        alert(
+            "✅ Senha alterada com sucesso!\n\n" +
+            "A sua nova senha já está ativa."
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Erro ao alterar senha:",
+            error
+        );
+
+
+        alert(
+            "❌ Erro ao alterar senha:\n\n" +
+            error.message
+        );
+
+    }
 
 };
 
