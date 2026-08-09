@@ -1,4 +1,4 @@
-alert("ÁREA DO ALUNO DgF CARREGADA ✅");
+alert("ÁREA DO ALUNO Dg CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -1256,69 +1256,102 @@ window.verBoletim = async function () {
                         ${disciplina}
                     </td>
 
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${t1.MAC ?? "—"}
+</td>
 
-                    <td style="border:1px solid #cbd5e1;">
-                        ${t1.MAC ?? "—"}
-                    </td>
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${t1.NPT ?? "—"}
+</td>
 
-                    <td style="border:1px solid #cbd5e1;">
-                        ${t1.NPT ?? "—"}
-                    </td>
-
-                    <td
-                        style="
-                            border:1px solid #cbd5e1;
-                            font-weight:bold;
-                        "
-                    >
-                        ${t1.MF ?? "—"}
-                    </td>
-
-
-                    <td style="border:1px solid #cbd5e1;">
-                        ${t2.MAC ?? "—"}
-                    </td>
-
-                    <td style="border:1px solid #cbd5e1;">
-                        ${t2.NPT ?? "—"}
-                    </td>
-
-                    <td
-                        style="
-                            border:1px solid #cbd5e1;
-                            font-weight:bold;
-                        "
-                    >
-                        ${t2.MF ?? "—"}
-                    </td>
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+        font-weight:bold;
+    "
+>
+    ${t1.MF ?? "—"}
+</td>
 
 
-                    <td style="border:1px solid #cbd5e1;">
-                        ${t3.MAC ?? "—"}
-                    </td>
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${t2.MAC ?? "—"}
+</td>
 
-                    <td style="border:1px solid #cbd5e1;">
-                        ${t3.NPT ?? "—"}
-                    </td>
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${t2.NPT ?? "—"}
+</td>
 
-                    <td
-                        style="
-                            border:1px solid #cbd5e1;
-                            font-weight:bold;
-                        "
-                    >
-                        ${t3.MF ?? "—"}
-                    </td>
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+        font-weight:bold;
+    "
+>
+    ${t2.MF ?? "—"}
+</td>
 
 
-                    <td
-                        style="
-                            border:1px solid #cbd5e1;
-                            font-weight:bold;
-                        "
-                    >
-                        ${media || "—"}
-                    </td>
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${t3.MAC ?? "—"}
+</td>
+
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${t3.NPT ?? "—"}
+</td>
+
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+        font-weight:bold;
+    "
+>
+    ${t3.MF ?? "—"}
+</td>
+
+
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+        font-weight:bold;
+    "
+>
+    ${media || "—"}
+</td>
 
                 </tr>
 
