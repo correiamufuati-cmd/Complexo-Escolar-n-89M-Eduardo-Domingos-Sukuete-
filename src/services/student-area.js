@@ -1,4 +1,4 @@
-alert("ÁREA DO ALUNO d CARREGADA ✅");
+alert("ÁREA DO ALUNO CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -982,19 +982,13 @@ window.verBoletim = async function () {
         const pagamentos = {
 
             1:
-                pagamentoAluno
-                ?.1trimestre
-                ?.pago === true,
+                pagamentoAluno?.["1trimestre"]?.pago === true,
 
             2:
-                pagamentoAluno
-                ?.2trimestre
-                ?.pago === true,
+                pagamentoAluno?.["2trimestre"]?.pago === true,
 
             3:
-                pagamentoAluno
-                ?.3trimestre
-                ?.pago === true
+                pagamentoAluno?.["3trimestre"]?.pago === true
 
         };
 
