@@ -86,7 +86,7 @@ window.verNotas = async function () {
         if (!turmaId) {
 
             alert(
-                "Erro: não foi encontrada a turma do aluno."
+                "Erro: a sessão do aluno não possui o ID da turma."
             );
 
             console.log("Aluno:", aluno);
@@ -95,21 +95,9 @@ window.verNotas = async function () {
         }
 
 
-        if (!numeroAluno && !nomeAluno) {
-
-            alert(
-                "Erro: não foi encontrado o número do aluno."
-            );
-
-            console.log("Aluno:", aluno);
-
-            return;
-        }
-
-
-        /* =================================================
+        /* ==========================================
            CARREGAR TODOS OS DOCUMENTOS DE NOTAS
-        ================================================= */
+        ========================================== */
 
         const notasSnapshot =
             await getDocs(
@@ -117,156 +105,61 @@ window.verNotas = async function () {
             );
 
 
+        const notasAluno = {};
+
+
         /*
-        Estrutura final:
+        Estrutura:
 
-        disciplinas = {
-
-            "Língua Portuguesa": {
-
-                "1": {...},
-
-                "2": {...},
-
-                "3": {...}
-
-            },
-
-            "Matemática": {
-
-                "1": {...},
-
-                "2": {...}
-
-            }
-
-        }
+        notasAluno[
+            disciplina
+        ][
+            trimestre
+        ]
         */
 
-        const disciplinas = {};
-
-
-        let encontrouDocumentoDaTurma = false;
-
-
-        /* =================================================
-           PERCORRER DOCUMENTOS
-        ================================================= */
 
         for (
             const notaDoc
             of notasSnapshot.docs
         ) {
 
-            const id =
-                String(notaDoc.id).trim();
-
-
             const dadosNota =
                 notaDoc.data();
 
 
             /*
-            O documento precisa pertencer à turma.
-
-            Exemplos:
-
-            turmaId_Língua Portuguesa_1
-            turmaId_Língua Portuguesa_2
-            turmaId_Língua Portuguesa_3
+            Só interessa a turma do aluno
             */
 
             if (
-                !id.startsWith(
-                    turmaId + "_"
-                )
+                String(
+                    dadosNota.turmaId || ""
+                ).trim()
+                !== turmaId
             ) {
 
                 continue;
-
             }
 
 
-            encontrouDocumentoDaTurma = true;
-
-
-            /* =================================================
-               DESCOBRIR O TRIMESTRE
-            ================================================= */
-
-            let trimestre = "";
-
-
-            if (id.endsWith("_1")) {
-
-                trimestre = "1";
-
-            }
-            else if (id.endsWith("_2")) {
-
-                trimestre = "2";
-
-            }
-            else if (id.endsWith("_3")) {
-
-                trimestre = "3";
-
-            }
-            else {
-
-                /*
-                Se o documento não terminar em
-                _1, _2 ou _3, ignorar.
-                */
-
-                continue;
-
-            }
-
-
-            /* =================================================
-               DISCIPLINA
-            ================================================= */
-
-            let disciplina =
+            const disciplina =
                 String(
                     dadosNota.disciplina || ""
                 ).trim();
 
 
-            /*
-            Se o campo disciplina não existir,
-            retirar turmaId e trimestre do ID.
-            */
+            const trimestre =
+                String(
+                    dadosNota.trimestre || ""
+                ).trim();
 
-            if (!disciplina) {
 
-                disciplina =
-                    id
-                    .substring(
-                        (turmaId + "_").length
-                    )
-                    .replace(
-                        new RegExp(
-                            "_" + trimestre + "$"
-                        ),
-                        ""
-                    );
+            if (!disciplina || !trimestre) {
 
+                continue;
             }
 
-
-            if (!disciplina) {
-
-                disciplina =
-                    "Disciplina";
-
-            }
-
-
-            /* =================================================
-               LISTA DE ALUNOS
-            ================================================= */
 
             const listaAlunos =
                 Array.isArray(
@@ -277,15 +170,21 @@ window.verNotas = async function () {
 
 
             /*
-            Procurar primeiro pelo número.
+            ======================================
+            PROCURAR O ALUNO
+            ======================================
             */
 
-            let alunoNotas = null;
+            let registroAluno = null;
 
+
+            /*
+            PRIMEIRO PELO NÚMERO
+            */
 
             if (numeroAluno) {
 
-                alunoNotas =
+                registroAluno =
                     listaAlunos.find(
                         item =>
                             String(
@@ -299,91 +198,73 @@ window.verNotas = async function () {
 
 
             /*
-            Se não encontrar pelo número,
-            procurar pelo nome.
+            SE NÃO ACHOU, PROCURAR PELO NOME
             */
 
-            if (!alunoNotas && nomeAluno) {
+            if (!registroAluno && nomeAluno) {
 
-                alunoNotas =
+                registroAluno =
                     listaAlunos.find(
                         item =>
                             String(
                                 item.nome || ""
                             ).trim()
-                            .toLowerCase()
                             ===
                             nomeAluno
-                            .trim()
-                            .toLowerCase()
                     );
 
             }
 
 
-            if (!alunoNotas) {
+            /*
+            SE O ALUNO FOI ENCONTRADO
+            */
 
-                continue;
+            if (registroAluno) {
+
+                if (!notasAluno[disciplina]) {
+
+                    notasAluno[disciplina] = {};
+
+                }
+
+
+                notasAluno[disciplina][trimestre] = {
+
+                    MAC:
+                        registroAluno.MAC ?? "",
+
+                    NPT:
+                        registroAluno.NPT ?? "",
+
+                    MF:
+                        registroAluno.MF ?? "",
+
+                    classificacao:
+                        registroAluno.classificacao || ""
+
+                };
 
             }
-
-
-            /* =================================================
-               CRIAR DISCIPLINA
-            ================================================= */
-
-            if (!disciplinas[disciplina]) {
-
-                disciplinas[disciplina] = {};
-
-            }
-
-
-            /* =================================================
-               GUARDAR NOTAS DO TRIMESTRE
-            ================================================= */
-
-            disciplinas[disciplina][trimestre] = {
-
-                MAC:
-                    alunoNotas.MAC ?? "",
-
-                NPT:
-                    alunoNotas.NPT ?? "",
-
-                MF:
-                    alunoNotas.MF ?? "",
-
-                classificacao:
-                    alunoNotas.classificacao ?? ""
-
-            };
 
         }
 
 
-        /* =================================================
+        console.log(
+            "Notas encontradas:",
+            notasAluno
+        );
+
+
+        /* ==========================================
            VERIFICAR SE EXISTEM NOTAS
-        ================================================= */
+        ========================================== */
 
-        if (!encontrouDocumentoDaTurma) {
-
-            alert(
-                "Ainda não existem notas para esta turma."
-            );
-
-            return;
-
-        }
+        const disciplinas =
+            Object.keys(notasAluno);
 
 
-        const nomesDisciplinas =
-            Object.keys(disciplinas);
-
-
-        if (
-            nomesDisciplinas.length === 0
-        ) {
+        if (disciplinas.length === 0) {
 
             alert(
                 "Ainda não existem notas para este aluno."
@@ -394,9 +275,42 @@ window.verNotas = async function () {
         }
 
 
-        /* =================================================
+        /* ==========================================
+           ORDEM DOS TRIMESTRES
+        ========================================== */
+
+        function ordenarTrimestre(a, b) {
+
+            const ordem = {
+
+                "1": 1,
+                "1º": 1,
+                "1º Trimestre": 1,
+                "1° Trimestre": 1,
+                "2": 2,
+                "2º": 2,
+                "2º Trimestre": 2,
+                "2° Trimestre": 2,
+                "3": 3,
+                "3º": 3,
+                "3º Trimestre": 3,
+                "3° Trimestre": 3
+
+            };
+
+
+            return (
+                (ordem[a] || 99)
+                -
+                (ordem[b] || 99)
+            );
+
+        }
+
+
+        /* ==========================================
            CRIAR JANELA
-        ================================================= */
+        ========================================== */
 
         let html = `
 
@@ -414,12 +328,11 @@ window.verNotas = async function () {
             <div
                 style="
                     width:95%;
-                    max-width:950px;
+                    max-width:900px;
                     margin:auto;
                     padding:20px 0 40px;
                 "
             >
-
 
                 <!-- CABEÇALHO -->
 
@@ -434,132 +347,223 @@ window.verNotas = async function () {
                     "
                 >
 
-                    <div
-                        style="
-                            font-size:40px;
-                        "
-                    >
+                    <div style="font-size:42px;">
                         📊
                     </div>
 
-                    <h2
-                        style="
-                            margin:5px 0;
-                        "
-                    >
+                    <h2 style="margin:5px 0;">
                         Minhas Notas
                     </h2>
 
-                    <p
-                        style="
-                            margin:5px 0;
-                        "
-                    >
+                    <div>
                         ${aluno.nome || ""}
-                    </p>
+                    </div>
 
-                    <p
-                        style="
-                            margin:5px 0;
-                        "
-                    >
-                        Código:
-                        ${aluno.codigoAluno || "—"}
-                    </p>
-
-                    <p
-                        style="
-                            margin:5px 0;
-                        "
-                    >
-                        Turma:
-                        ${aluno.turmaNome || "—"}
-                    </p>
+                    <small>
+                        ${aluno.turmaNome || ""}
+                    </small>
 
                 </div>
 
+        `;
 
-                <!-- FILTRO -->
+
+        /* ==========================================
+           DISCIPLINAS
+        ========================================== */
+
+        disciplinas.forEach(
+            disciplina => {
+
+                html += `
 
                 <div
                     style="
                         background:white;
-                        margin-top:15px;
-                        padding:15px;
-                        border-radius:12px;
+                        margin-top:18px;
+                        border-radius:15px;
+                        padding:18px;
                         box-shadow:0 3px 10px rgba(0,0,0,.08);
                     "
                 >
 
-                    <label
+                    <h3
                         style="
-                            display:block;
-                            font-weight:bold;
-                            margin-bottom:7px;
-                            color:#334155;
-                        "
-                    >
-                        Ver trimestre:
-                    </label>
-
-
-                    <select
-                        id="filtroTrimestre"
-                        style="
-                            width:100%;
-                            padding:12px;
-                            border:1px solid #cbd5e1;
-                            border-radius:8px;
-                            font-size:16px;
+                            margin:0 0 15px;
+                            color:#1e3a8a;
+                            border-bottom:2px solid #e2e8f0;
+                            padding-bottom:10px;
                         "
                     >
 
-                        <option value="todos">
-                            Todos os trimestres
-                        </option>
+                        📚 ${disciplina}
 
-                        <option value="1">
-                            1.º Trimestre
-                        </option>
+                    </h3>
 
-                        <option value="2">
-                            2.º Trimestre
-                        </option>
+                `;
 
-                        <option value="3">
-                            3.º Trimestre
-                        </option>
 
-                    </select>
+                const trimestres =
+                    Object.keys(
+                        notasAluno[disciplina]
+                    ).sort(
+                        ordenarTrimestre
+                    );
+
+
+                trimestres.forEach(
+                    trimestre => {
+
+                        const nota =
+                            notasAluno
+                            [disciplina]
+                            [trimestre];
+
+
+                        html += `
+
+                        <div
+                            style="
+                                margin-bottom:15px;
+                                border:1px solid #e2e8f0;
+                                border-radius:10px;
+                                overflow:hidden;
+                            "
+                        >
+
+                            <div
+                                style="
+                                    background:#e0f2fe;
+                                    color:#1e3a8a;
+                                    padding:12px;
+                                    font-weight:bold;
+                                "
+                            >
+
+                                📝 ${formatarTrimestre(trimestre)}
+
+                            </div>
+
+
+                            <div
+                                style="
+                                    display:grid;
+                                    grid-template-columns:
+                                    repeat(4,1fr);
+                                    gap:8px;
+                                    padding:12px;
+                                    text-align:center;
+                                "
+                            >
+
+                                <div>
+
+                                    <small>MAC</small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${nota.MAC}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>NPT</small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${nota.NPT}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>MF</small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            font-size:20px;
+                                        "
+                                    >
+                                        ${nota.MF}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <small>
+                                        Classificação
+                                    </small>
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            margin-top:4px;
+                                        "
+                                    >
+                                        ${nota.classificacao || "—"}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        `;
+
+                    }
+                );
+
+
+                /*
+                Se a disciplina só tiver um trimestre,
+                mostrar aviso dos restantes
+                */
+
+                html += `
 
                 </div>
 
+                `;
 
-                <!-- NOTAS -->
-
-                <div
-                    id="conteudoNotas"
-                    style="
-                        margin-top:15px;
-                    "
-                >
-
-                </div>
+            }
+        );
 
 
-                <!-- VOLTAR -->
+        /* ==========================================
+           BOTÃO VOLTAR
+        ========================================== */
+
+        html += `
 
                 <button
                     id="fecharNotas"
                     style="
                         width:100%;
-                        padding:14px;
-                        margin-top:15px;
+                        padding:15px;
+                        margin-top:20px;
                         background:#dc2626;
                         color:white;
                         border:none;
-                        border-radius:8px;
+                        border-radius:10px;
                         font-size:16px;
+                        font-weight:bold;
                         cursor:pointer;
                     "
                 >
@@ -582,323 +586,23 @@ window.verNotas = async function () {
         );
 
 
-        /* =================================================
-           RENDERIZAR NOTAS
-        ================================================= */
+        document
+        .getElementById("fecharNotas")
+        .onclick = function () {
 
-        function renderizarNotas(filtro = "todos") {
-
-            const conteudo =
+            const janela =
                 document.getElementById(
-                    "conteudoNotas"
+                    "janelaNotas"
                 );
 
 
-            if (!conteudo) {
-                return;
-            }
+            if (janela) {
 
-
-            let resultado = "";
-
-
-            for (
-                const disciplina
-                of nomesDisciplinas
-            ) {
-
-                const notasDisciplina =
-                    disciplinas[disciplina];
-
-
-                /*
-                Verificar se a disciplina possui
-                o trimestre selecionado.
-                */
-
-                if (
-                    filtro !== "todos" &&
-                    !notasDisciplina[filtro]
-                ) {
-
-                    continue;
-
-                }
-
-
-                resultado += `
-
-                <div
-                    style="
-                        background:white;
-                        margin-bottom:18px;
-                        border-radius:14px;
-                        overflow:hidden;
-                        box-shadow:0 3px 10px rgba(0,0,0,.08);
-                    "
-                >
-
-                    <div
-                        style="
-                            background:#1e3a8a;
-                            color:white;
-                            padding:15px;
-                            font-size:18px;
-                            font-weight:bold;
-                        "
-                    >
-
-                        📚 ${disciplina}
-
-                    </div>
-
-                `;
-
-
-                const trimestres =
-                    filtro === "todos"
-                    ? ["1","2","3"]
-                    : [filtro];
-
-
-                for (
-                    const numeroTrimestre
-                    of trimestres
-                ) {
-
-                    const nota =
-                        notasDisciplina[
-                            numeroTrimestre
-                        ];
-
-
-                    if (!nota) {
-
-                        continue;
-
-                    }
-
-
-                    resultado += `
-
-                    <div
-                        style="
-                            padding:15px;
-                            border-bottom:1px solid #e2e8f0;
-                        "
-                    >
-
-                        <h3
-                            style="
-                                margin:0 0 12px;
-                                color:#1e3a8a;
-                            "
-                        >
-
-                            ${numeroTrimestre}.º Trimestre
-
-                        </h3>
-
-
-                        <div
-                            style="
-                                display:grid;
-                                grid-template-columns:
-                                repeat(4,1fr);
-                                gap:8px;
-                            "
-                        >
-
-
-                            <div
-                                style="
-                                    background:#f8fafc;
-                                    padding:10px;
-                                    text-align:center;
-                                    border-radius:8px;
-                                "
-                            >
-
-                                <strong>
-                                    MAC
-                                </strong>
-
-                                <br>
-
-                                ${nota.MAC}
-
-                            </div>
-
-
-                            <div
-                                style="
-                                    background:#f8fafc;
-                                    padding:10px;
-                                    text-align:center;
-                                    border-radius:8px;
-                                "
-                            >
-
-                                <strong>
-                                    NPT
-                                </strong>
-
-                                <br>
-
-                                ${nota.NPT}
-
-                            </div>
-
-
-                            <div
-                                style="
-                                    background:#f8fafc;
-                                    padding:10px;
-                                    text-align:center;
-                                    border-radius:8px;
-                                "
-                            >
-
-                                <strong>
-                                    MF
-                                </strong>
-
-                                <br>
-
-                                ${nota.MF}
-
-                            </div>
-
-
-                            <div
-                                style="
-                                    background:#f8fafc;
-                                    padding:10px;
-                                    text-align:center;
-                                    border-radius:8px;
-                                "
-                            >
-
-                                <strong>
-                                    Classificação
-                                </strong>
-
-                                <br>
-
-                                ${nota.classificacao}
-
-                            </div>
-
-
-                        </div>
-
-                    </div>
-
-                    `;
-
-                }
-
-
-                resultado += `
-
-                </div>
-
-                `;
+                janela.remove();
 
             }
 
-
-            if (!resultado) {
-
-                resultado = `
-
-                <div
-                    style="
-                        background:white;
-                        padding:25px;
-                        text-align:center;
-                        border-radius:12px;
-                    "
-                >
-
-                    Ainda não existem notas
-                    para este trimestre.
-
-                </div>
-
-                `;
-
-            }
-
-
-            conteudo.innerHTML =
-                resultado;
-
-        }
-
-
-        /* =================================================
-           MOSTRAR TODOS
-        ================================================= */
-
-        renderizarNotas("todos");
-
-
-        /* =================================================
-           FILTRO
-        ================================================= */
-
-        const filtro =
-            document.getElementById(
-                "filtroTrimestre"
-            );
-
-
-        if (filtro) {
-
-            filtro.addEventListener(
-                "change",
-                function () {
-
-                    renderizarNotas(
-                        this.value
-                    );
-
-                }
-            );
-
-        }
-
-
-        /* =================================================
-           FECHAR
-        ================================================= */
-
-        const fechar =
-            document.getElementById(
-                "fecharNotas"
-            );
-
-
-        if (fechar) {
-
-            fechar.onclick =
-                function () {
-
-                    const janela =
-                        document.getElementById(
-                            "janelaNotas"
-                        );
-
-                    if (janela) {
-
-                        janela.remove();
-
-                    }
-
-                };
-
-        }
+        };
 
 
     }
@@ -910,6 +614,7 @@ window.verNotas = async function () {
             error
         );
 
+
         alert(
             "Erro ao carregar notas:\n\n" +
             error.message
@@ -919,6 +624,61 @@ window.verNotas = async function () {
 
 };
 
+
+/* ==========================================
+   FORMATAR TRIMESTRE
+========================================== */
+
+function formatarTrimestre(valor) {
+
+    const v =
+        String(valor)
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        v === "1" ||
+        v === "1º" ||
+        v === "1°" ||
+        v.includes("1º trimestre") ||
+        v.includes("1° trimestre")
+    ) {
+
+        return "1.º Trimestre";
+
+    }
+
+
+    if (
+        v === "2" ||
+        v === "2º" ||
+        v === "2°" ||
+        v.includes("2º trimestre") ||
+        v.includes("2° trimestre")
+    ) {
+
+        return "2.º Trimestre";
+
+    }
+
+
+    if (
+        v === "3" ||
+        v === "3º" ||
+        v === "3°" ||
+        v.includes("3º trimestre") ||
+        v.includes("3° trimestre")
+    ) {
+
+        return "3.º Trimestre";
+
+    }
+
+
+    return valor;
+
+}
 
 /* =====================================================
    VER BOLETIM
