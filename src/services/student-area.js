@@ -955,3 +955,932 @@ window.verNotas = async function () {
     }
 
 };
+
+/* =====================================================
+   VER BOLETIM
+===================================================== */
+
+window.verBoletim = async function () {
+
+    try {
+
+        /* =================================================
+           DADOS DO ALUNO
+        ================================================= */
+
+        const turmaId =
+            String(
+                aluno.turmaId || ""
+            ).trim();
+
+
+        const alunoId =
+            String(
+                aluno.id || ""
+            ).trim();
+
+
+        const numeroAluno =
+            String(
+                aluno.numero || ""
+            ).trim();
+
+
+        const nomeAluno =
+            String(
+                aluno.nome || ""
+            ).trim();
+
+
+        if (!turmaId) {
+
+            alert(
+                "Não foi possível identificar a turma do aluno."
+            );
+
+            return;
+
+        }
+
+
+        if (!alunoId) {
+
+            alert(
+                "Não foi possível identificar o ID do aluno."
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "ALUNO:",
+            aluno
+        );
+
+
+        /* =================================================
+           BUSCAR FINANCEIRO
+        ================================================= */
+
+        const financeiroRef =
+            doc(
+                db,
+                "financeiro",
+                alunoId
+            );
+
+
+        const financeiroSnapshot =
+            await getDoc(
+                financeiroRef
+            );
+
+
+        let financeiroAluno = {};
+
+
+        if (
+            financeiroSnapshot.exists()
+        ) {
+
+            financeiroAluno =
+                financeiroSnapshot.data();
+
+        }
+
+
+        console.log(
+            "FINANCEIRO:",
+            financeiroAluno
+        );
+
+
+        /* =================================================
+           PAGAMENTOS
+        ================================================= */
+
+        const pagamentos = {
+
+            1:
+                financeiroAluno?.[
+                    "1trimestre"
+                ]?.pago === true,
+
+            2:
+                financeiroAluno?.[
+                    "2trimestre"
+                ]?.pago === true,
+
+            3:
+                financeiroAluno?.[
+                    "3trimestre"
+                ]?.pago === true
+
+        };
+
+
+        console.log(
+            "PAGAMENTOS:",
+            pagamentos
+        );
+
+
+        /* =================================================
+           BUSCAR NOTAS
+        ================================================= */
+
+        const notasSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "notas"
+                )
+            );
+
+
+        const boletim = {};
+
+
+        for (
+            const notaDoc
+            of notasSnapshot.docs
+        ) {
+
+            const dadosNota =
+                notaDoc.data();
+
+
+            if (
+                String(
+                    dadosNota.turmaId || ""
+                ).trim()
+                !== turmaId
+            ) {
+
+                continue;
+
+            }
+
+
+            const disciplina =
+                String(
+                    dadosNota.disciplina || ""
+                ).trim();
+
+
+            const trimestre =
+                String(
+                    dadosNota.trimestre || ""
+                ).trim();
+
+
+            if (
+                !disciplina ||
+                !trimestre
+            ) {
+
+                continue;
+
+            }
+
+
+            const listaAlunos =
+                Array.isArray(
+                    dadosNota.alunos
+                )
+                ? dadosNota.alunos
+                : [];
+
+
+            let registro = null;
+
+
+            /* Procurar pelo número */
+
+            if (numeroAluno) {
+
+                registro =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.numero || ""
+                            ).trim()
+                            === numeroAluno
+                    );
+
+            }
+
+
+            /* Procurar pelo nome */
+
+            if (
+                !registro &&
+                nomeAluno
+            ) {
+
+                registro =
+                    listaAlunos.find(
+                        item =>
+                            String(
+                                item.nome || ""
+                            ).trim()
+                            === nomeAluno
+                    );
+
+            }
+
+
+            if (!registro) {
+
+                continue;
+
+            }
+
+
+            if (
+                !boletim[disciplina]
+            ) {
+
+                boletim[disciplina] = {};
+
+            }
+
+
+            boletim[
+                disciplina
+            ][trimestre] = {
+
+                MAC:
+                    registro.MAC ?? "",
+
+                NPT:
+                    registro.NPT ?? "",
+
+                MF:
+                    registro.MF ?? "",
+
+                classificacao:
+                    registro.classificacao ||
+                    ""
+
+            };
+
+        }
+
+
+        const disciplinas =
+            Object.keys(
+                boletim
+            );
+
+
+        if (
+            disciplinas.length === 0
+        ) {
+
+            alert(
+                "Ainda não existem notas para este aluno."
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           CONSTRUIR JANELA
+        ================================================= */
+
+        let html = `
+
+        <div
+            id="janelaBoletim"
+            style="
+                position:fixed;
+                inset:0;
+                z-index:99999;
+                background:#f1f5f9;
+                overflow-y:auto;
+            "
+        >
+
+            <div
+                style="
+                    width:95%;
+                    max-width:1100px;
+                    margin:auto;
+                    padding:20px 0 40px;
+                "
+            >
+
+
+                <div
+                    style="
+                        background:#1e3a8a;
+                        color:white;
+                        padding:25px;
+                        border-radius:16px;
+                        text-align:center;
+                        box-shadow:
+                            0 4px 15px
+                            rgba(0,0,0,.15);
+                    "
+                >
+
+                    <div
+                        style="
+                            font-size:42px;
+                        "
+                    >
+                        📄
+                    </div>
+
+
+                    <h2>
+                        Boletim Escolar
+                    </h2>
+
+
+                    <div>
+                        ${aluno.nome || ""}
+                    </div>
+
+
+                    <small>
+                        ${aluno.turmaNome || ""}
+                    </small>
+
+                </div>
+
+        `;
+
+
+        /* =================================================
+           TRIMESTRES
+        ================================================= */
+
+        for (
+            let numeroTrimestre = 1;
+            numeroTrimestre <= 3;
+            numeroTrimestre++
+        ) {
+
+
+            const pago =
+                pagamentos[
+                    numeroTrimestre
+                ] === true;
+
+
+            const nomeTrimestre =
+                formatarTrimestre(
+                    numeroTrimestre
+                );
+
+
+            /* =================================================
+               NÃO PAGO
+            ================================================= */
+
+            if (!pago) {
+
+                html += `
+
+                <div
+                    style="
+                        background:white;
+                        margin-top:20px;
+                        padding:25px;
+                        border-radius:15px;
+                        border:
+                            1px solid #fecaca;
+                        text-align:center;
+                    "
+                >
+
+                    <div
+                        style="
+                            font-size:40px;
+                        "
+                    >
+                        🔒
+                    </div>
+
+
+                    <h3
+                        style="
+                            color:#b91c1c;
+                            margin:10px 0;
+                        "
+                    >
+
+                        ${nomeTrimestre}
+
+                    </h3>
+
+
+                    <p
+                        style="
+                            color:#64748b;
+                            margin:0;
+                        "
+                    >
+
+                        <strong>
+                            Pendente
+                        </strong>
+
+                        <br><br>
+
+                        A propina deste trimestre
+                        ainda não foi assinalada
+                        como paga.
+
+                        <br><br>
+
+                        Consulte o administrador.
+
+                    </p>
+
+                </div>
+
+                `;
+
+                continue;
+
+            }
+
+
+            /* =================================================
+               PAGO → BOLETIM LIBERADO
+            ================================================= */
+
+            html += `
+
+            <div
+                style="
+                    background:white;
+                    margin-top:20px;
+                    padding:18px;
+                    border-radius:15px;
+                    box-shadow:
+                        0 3px 12px
+                        rgba(0,0,0,.08);
+                "
+            >
+
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        margin-bottom:15px;
+                    "
+                >
+
+                    <h3
+                        style="
+                            margin:0;
+                            color:#1e3a8a;
+                        "
+                    >
+
+                        📘 ${nomeTrimestre}
+
+                    </h3>
+
+
+                    <span
+                        style="
+                            background:#dcfce7;
+                            color:#166534;
+                            padding:7px 12px;
+                            border-radius:20px;
+                            font-size:13px;
+                            font-weight:bold;
+                        "
+                    >
+
+                        ✅ Liberado
+
+                    </span>
+
+                </div>
+
+
+                <div
+                    style="
+                        overflow-x:auto;
+                    "
+                >
+
+                    <table
+                        style="
+                            width:100%;
+                            min-width:700px;
+                            border-collapse:collapse;
+                        "
+                    >
+
+                        <thead>
+
+                            <tr
+                                style="
+                                    background:#e0f2fe;
+                                    color:#1e3a8a;
+                                "
+                            >
+
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:
+                                            1px solid #cbd5e1;
+                                        text-align:left;
+                                    "
+                                >
+                                    Disciplina
+                                </th>
+
+
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:
+                                            1px solid #cbd5e1;
+                                    "
+                                >
+                                    MAC
+                                </th>
+
+
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:
+                                            1px solid #cbd5e1;
+                                    "
+                                >
+                                    NPT
+                                </th>
+
+
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:
+                                            1px solid #cbd5e1;
+                                    "
+                                >
+                                    MF
+                                </th>
+
+
+                                <th
+                                    style="
+                                        padding:10px;
+                                        border:
+                                            1px solid #cbd5e1;
+                                    "
+                                >
+                                    Classificação
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+        `;
+
+
+            /* =================================================
+               DISCIPLINAS
+            ================================================= */
+
+            disciplinas.forEach(
+                disciplina => {
+
+                    const notas =
+                        boletim[
+                            disciplina
+                        ];
+
+
+                    let notaTrimestre =
+                        null;
+
+
+                    Object.keys(
+                        notas
+                    )
+                    .forEach(
+                        chave => {
+
+                            if (
+                                obterTrimestre(
+                                    chave
+                                )
+                                ===
+                                numeroTrimestre
+                            ) {
+
+                                notaTrimestre =
+                                    notas[chave];
+
+                            }
+
+                        }
+                    );
+
+
+                    if (
+                        !notaTrimestre
+                    ) {
+
+                        html += `
+
+                        <tr>
+
+                            <td
+                                style="
+                                    padding:10px;
+                                    border:
+                                        1px solid #cbd5e1;
+                                    font-weight:bold;
+                                "
+                            >
+
+                                ${disciplina}
+
+                            </td>
+
+
+                            <td
+                                colspan="4"
+                                style="
+                                    padding:10px;
+                                    border:
+                                        1px solid #cbd5e1;
+                                    text-align:center;
+                                    color:#94a3b8;
+                                "
+                            >
+
+                                Sem notas
+
+                            </td>
+
+                        </tr>
+
+                        `;
+
+                        return;
+
+                    }
+
+
+                    html += `
+
+                    <tr>
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:
+                                    1px solid #cbd5e1;
+                                font-weight:bold;
+                            "
+                        >
+
+                            ${disciplina}
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:
+                                    1px solid #cbd5e1;
+                                text-align:center;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.MAC ||
+                                "—"
+                            }
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:
+                                    1px solid #cbd5e1;
+                                text-align:center;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.NPT ||
+                                "—"
+                            }
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:
+                                    1px solid #cbd5e1;
+                                text-align:center;
+                                font-weight:bold;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.MF ||
+                                "—"
+                            }
+
+                        </td>
+
+
+                        <td
+                            style="
+                                padding:10px;
+                                border:
+                                    1px solid #cbd5e1;
+                                text-align:center;
+                            "
+                        >
+
+                            ${
+                                notaTrimestre.classificacao ||
+                                "—"
+                            }
+
+                        </td>
+
+                    </tr>
+
+                    `;
+
+                }
+            );
+
+
+            html += `
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            `;
+
+        }
+
+
+        /* =================================================
+           COMUNICADO DA ADMINISTRAÇÃO
+        ================================================= */
+
+        const comunicado =
+            financeiroAluno.comunicado ||
+            "";
+
+
+        if (comunicado) {
+
+            html += `
+
+            <div
+                style="
+                    background:#fff7ed;
+                    border:
+                        1px solid #fed7aa;
+                    margin-top:20px;
+                    padding:18px;
+                    border-radius:14px;
+                "
+            >
+
+                <strong>
+                    📢 Comunicado da Administração
+                </strong>
+
+
+                <p
+                    style="
+                        color:#475569;
+                        margin-bottom:0;
+                    "
+                >
+
+                    ${comunicado}
+
+                </p>
+
+            </div>
+
+            `;
+
+        }
+
+
+        /* =================================================
+           BOTÃO VOLTAR
+        ================================================= */
+
+        html += `
+
+                <button
+                    id="fecharBoletim"
+                    style="
+                        width:100%;
+                        padding:15px;
+                        margin-top:20px;
+                        background:#dc2626;
+                        color:white;
+ border:none;
+                        border-radius:10px;
+                        font-size:16px;
+                        font-weight:bold;
+                        cursor:pointer;
+                    "
+                >
+
+                    ← Voltar
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+        `;
+
+
+        document.body.insertAdjacentHTML(
+            "beforeend",
+            html
+        );
+
+
+        /* =================================================
+           FECHAR
+        ================================================= */
+
+        document
+        .getElementById(
+            "fecharBoletim"
+        )
+        .onclick = function () {
+
+            const janela =
+                document.getElementById(
+                    "janelaBoletim"
+                );
+
+
+            if (janela) {
+
+                janela.remove();
+
+            }
+
+        };
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "ERRO AO GERAR BOLETIM:",
+            error
+        );
+
+
+        alert(
+            "Erro ao gerar boletim:\n\n" +
+            error.message
+        );
+
+    }
+
+};
