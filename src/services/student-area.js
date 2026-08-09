@@ -1072,6 +1072,65 @@ window.verBoletim = async function () {
 
         const boletim = {};
 
+        /* ==========================================
+   CARREGAR ESTADO FINANCEIRO
+========================================== */
+
+let financeiroBoletim = {};
+
+try {
+
+    const turmaIdFinanceiro =
+        String(aluno.turmaId || "").trim();
+
+    const alunoIdFinanceiro =
+        String(
+            aluno.alunoId ||
+            aluno.id ||
+            aluno.numero ||
+            ""
+        ).trim();
+
+
+    if (
+        turmaIdFinanceiro &&
+        alunoIdFinanceiro
+    ) {
+
+        const financeiroRef =
+            doc(
+                db,
+                "turmas",
+                turmaIdFinanceiro,
+                "alunos",
+                alunoIdFinanceiro,
+                "financeiro",
+                "estado"
+            );
+
+
+        const financeiroDoc =
+            await getDoc(financeiroRef);
+
+
+        if (financeiroDoc.exists()) {
+
+            financeiroBoletim =
+                financeiroDoc.data();
+
+        }
+
+    }
+
+}
+catch (erroFinanceiro) {
+
+    console.warn(
+        "Erro ao carregar financeiro do boletim:",
+        erroFinanceiro
+    );
+
+}
 
         for (
             const notaDoc
@@ -1586,13 +1645,29 @@ window.verBoletim = async function () {
                 const t3 =
                     trimestres[3] || {};
 
+                const pagoT1 =
+    financeiroBoletim["1trimestre"]?.pago === true;
+
+const pagoT2 =
+    financeiroBoletim["2trimestre"]?.pago === true;
+
+const pagoT3 =
+    financeiroBoletim["3trimestre"]?.pago === true;
 
                 const media =
                     calcularMediaAnual(
                         notas
                     );
 
+const mostrarT1 =
+    pagoT1 ? t1 : {};
 
+const mostrarT2 =
+    pagoT2 ? t2 : {};
+
+const mostrarT3 =
+    pagoT3 ? t3 : {};
+                
                 html += `
 
                 <tr>
@@ -1614,7 +1689,7 @@ window.verBoletim = async function () {
         text-align:center;
     "
 >
-    ${t1.MAC ?? "—"}
+    ${pagoT1 ? (t1.MAC ?? "—") : "🔒"}
 </td>
 
 <td
@@ -1623,36 +1698,7 @@ window.verBoletim = async function () {
         text-align:center;
     "
 >
-    ${t1.NPT ?? "—"}
-</td>
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-        font-weight:bold;
-    "
->
-    ${t1.MF ?? "—"}
-</td>
-
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${t2.MAC ?? "—"}
-</td>
-
-<td
-    style="
-        border:1px solid #cbd5e1;
-        text-align:center;
-    "
->
-    ${t2.NPT ?? "—"}
+    ${pagoT1 ? (t1.NPT ?? "—") : "🔒"}
 </td>
 
 <td
@@ -1662,7 +1708,7 @@ window.verBoletim = async function () {
         font-weight:bold;
     "
 >
-    ${t2.MF ?? "—"}
+    ${pagoT1 ? (t1.MF ?? "—") : "🔒"}
 </td>
 
 
@@ -1672,7 +1718,7 @@ window.verBoletim = async function () {
         text-align:center;
     "
 >
-    ${t3.MAC ?? "—"}
+    ${pagoT2 ? (t2.MAC ?? "—") : "🔒"}
 </td>
 
 <td
@@ -1681,7 +1727,7 @@ window.verBoletim = async function () {
         text-align:center;
     "
 >
-    ${t3.NPT ?? "—"}
+    ${pagoT2 ? (t2.NPT ?? "—") : "🔒"}
 </td>
 
 <td
@@ -1691,7 +1737,36 @@ window.verBoletim = async function () {
         font-weight:bold;
     "
 >
-    ${t3.MF ?? "—"}
+    ${pagoT2 ? (t2.MF ?? "—") : "🔒"}
+</td>
+
+
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${pagoT3 ? (t3.MAC ?? "—") : "🔒"}
+</td>
+
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+    "
+>
+    ${pagoT3 ? (t3.NPT ?? "—") : "🔒"}
+</td>
+
+<td
+    style="
+        border:1px solid #cbd5e1;
+        text-align:center;
+        font-weight:bold;
+    "
+>
+    ${pagoT3 ? (t3.MF ?? "—") : "🔒"}
 </td>
 
 
