@@ -103,6 +103,10 @@ async function carregarTurmas() {
    CARREGAR ALUNOS DA TURMA
 ===================================================== */
 
+/* =====================================================
+   CARREGAR ALUNOS DA TURMA
+===================================================== */
+
 async function carregarAlunos(
     turmaId
 ) {
@@ -150,7 +154,6 @@ async function carregarAlunos(
         a subcoleção "alunos" dentro da turma.
         */
 
-
         const alunosRef =
             collection(
                 db,
@@ -191,29 +194,265 @@ async function carregarAlunos(
         }
 
 
-        let numero = 1;
+        /* =================================================
+           ORGANIZAR ALUNOS
+           Primeiro pelo número do aluno
+        ================================================= */
 
+        const alunos =
+            snapshot.docs.map(
+                documento => ({
 
-        for (
-            const documento
-            of snapshot.docs
-        ) {
+                    id:
+                        documento.id,
 
-            const aluno =
-                documento.data();
+                    dados:
+                        documento.data()
 
-
-            await criarLinhaAluno(
-                documento.id,
-                aluno,
-                numero
+                })
             );
 
 
-            numero++;
+        /* =================================================
+           ORDENAR PELO NÚMERO
+        ================================================= */
+
+        alunos.sort(
+            (a, b) => {
+
+                const numeroA =
+                    parseInt(
+                        a.dados.numero,
+                        10
+                    );
+
+                const numeroB =
+                    parseInt(
+                        b.dados.numero,
+                        10
+                    );
+
+
+                /*
+                Se os dois não tiverem número,
+                ordenar pelo nome.
+                */
+
+                if (
+                    Number.isNaN(numeroA) &&
+                    Number.isNaN(numeroB)
+                ) {
+
+                    return String(
+                        a.dados.nome || ""
+                    ).localeCompare(
+                        String(
+                            b.dados.nome || ""
+                        ),
+                        "pt"
+                    );
+
+                }
+
+
+                /*
+                Aluno sem número vai para o fim.
+                */
+
+                if (
+                    Number.isNaN(numeroA)
+                ) {
+
+                    return 1;
+
+                }
+
+
+                if (
+                    Number.isNaN(numeroB)
+                ) {
+
+                    return -1;
+
+                }
+
+
+                /*
+                Ordem crescente:
+                1, 2, 3, 4...
+                */
+
+                return numeroA - numeroB;
+
+            }
+        );
+
+
+        /* =================================================
+           CRIAR LINHAS
+        ================================================= */
+
+        let numeroSequencial = 1;
+
+
+        for (
+            const alunoItem
+            of alunos
+        ) {
+
+            await criarLinhaAluno(
+
+                alunoItem.id,
+
+                alunoItem.dados,
+
+                numeroSequencial
+
+            );
+
+
+            numeroSequencial++;
 
         }
 
+
+    }
+    catch (error) {
+
+        console.error(
+            "Erro ao carregar alunos:",
+            error
+        );
+
+
+        lista.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+
+                    Erro ao carregar alunos:
+
+                    ${error.message}
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+ // =====================================================
+// ORGANIZAR ALUNOS POR NÚMERO
+// =====================================================
+
+const alunos = snapshot.docs.map(
+    documento => ({
+
+        id: documento.id,
+
+        dados: documento.data()
+
+    })
+);
+
+
+// =====================================================
+// ORDENAR DO Nº MENOR PARA O MAIOR
+// =====================================================
+
+alunos.sort(
+    (a, b) => {
+
+        const numeroA =
+            parseInt(
+                a.dados.numero,
+                10
+            );
+
+        const numeroB =
+            parseInt(
+                b.dados.numero,
+                10
+            );
+
+
+        // Se ambos não tiverem número,
+        // ordenar pelo nome
+
+        if (
+            Number.isNaN(numeroA) &&
+            Number.isNaN(numeroB)
+        ) {
+
+            return String(
+                a.dados.nome || ""
+            ).localeCompare(
+                String(
+                    b.dados.nome || ""
+                ),
+                "pt"
+            );
+
+        }
+
+
+        // Sem número vai para o fim
+
+        if (
+            Number.isNaN(numeroA)
+        ) {
+
+            return 1;
+
+        }
+
+
+        if (
+            Number.isNaN(numeroB)
+        ) {
+
+            return -1;
+
+        }
+
+
+        return numeroA - numeroB;
+
+    }
+);
+
+
+// =====================================================
+// CRIAR AS LINHAS NA ORDEM CORRETA
+// =====================================================
+
+let numeroSequencial = 1;
+
+
+for (
+    const alunoItem
+    of alunos
+) {
+
+    await criarLinhaAluno(
+
+        alunoItem.id,
+
+        alunoItem.dados,
+
+        numeroSequencial
+
+    );
+
+
+    numeroSequencial++;
+
+            }
 
     }
     catch (error) {
