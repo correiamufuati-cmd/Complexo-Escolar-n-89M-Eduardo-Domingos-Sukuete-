@@ -1,6 +1,7 @@
 // =====================================================
 // ÁREA FINANCEIRA - SGE
 // Gestão de propinas por trimestre
+// Proteção por senha
 // =====================================================
 
 alert("ÁREA FINANCEIRA CARREGADA ✅");
@@ -19,6 +20,19 @@ setDoc
 const db = getFirestore(app);
 
 // =====================================================
+// CONFIGURAÇÃO DA SENHA
+// =====================================================
+
+// Senha utilizada apenas na primeira configuração.
+// Depois de alterar, a nova senha ficará no Firestore.
+
+const SENHA_INICIAL =
+"123456";
+
+const DOCUMENTO_SENHA =
+"config/financeiro";
+
+// =====================================================
 // ELEMENTOS
 // =====================================================
 
@@ -27,6 +41,27 @@ document.getElementById("turmaSelect");
 
 const lista =
 document.getElementById("financeiroLista");
+
+const alterarSenhaBtn =
+document.getElementById("alterarSenhaBtn");
+
+const painelSenha =
+document.getElementById("painelSenha");
+
+const senhaAtual =
+document.getElementById("senhaAtual");
+
+const novaSenha =
+document.getElementById("novaSenha");
+
+const confirmarSenha =
+document.getElementById("confirmarSenha");
+
+const guardarSenhaBtn =
+document.getElementById("guardarSenhaBtn");
+
+const cancelarSenhaBtn =
+document.getElementById("cancelarSenhaBtn");
 
 // =====================================================
 // VERIFICAR ELEMENTOS
@@ -57,6 +92,242 @@ throw new Error(
 }
 
 // =====================================================
+// ESTADO DE AUTENTICAÇÃO
+// =====================================================
+
+let financeiroAutorizado = false;
+
+// =====================================================
+// BUSCAR SENHA FINANCEIRA
+// =====================================================
+
+async function obterSenhaFinanceira() {
+
+try {
+
+    const ref =
+        doc(
+            db,
+            "config",
+            "financeiro"
+        );
+
+
+    const resultado =
+        await getDoc(ref);
+
+
+    /*
+    Se ainda não existe configuração,
+    usar senha inicial e criar documento.
+    */
+
+    if (!resultado.exists()) {
+
+        await setDoc(
+            ref,
+            {
+                senha:
+                    SENHA_INICIAL,
+
+                criadoEm:
+                    new Date()
+            }
+        );
+
+
+        return SENHA_INICIAL;
+
+    }
+
+
+    const dados =
+        resultado.data();
+
+
+    return String(
+        dados.senha ||
+        SENHA_INICIAL
+    ).trim();
+
+}
+catch (error) {
+
+    console.error(
+        "Erro ao obter senha financeira:",
+        error
+    );
+
+    throw error;
+
+}
+
+}
+
+// =====================================================
+// PEDIR SENHA
+// =====================================================
+
+async function solicitarSenhaFinanceira() {
+
+try {
+
+    const senhaCorreta =
+        await obterSenhaFinanceira();
+
+
+    const senhaDigitada =
+        prompt(
+            "🔐 ÁREA FINANCEIRA\n\n" +
+            "Digite a senha para continuar:"
+        );
+
+
+    /*
+    Cancelou
+    */
+
+    if (senhaDigitada === null) {
+
+        alert(
+            "Acesso cancelado."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+    Verificar senha
+    */
+
+    if (
+        senhaDigitada.trim() !==
+        senhaCorreta
+    ) {
+
+        alert(
+            "❌ Senha incorreta."
+        );
+
+        return false;
+
+    }
+
+
+    financeiroAutorizado =
+        true;
+
+
+    alert(
+        "✅ Acesso à Área Financeira autorizado."
+    );
+
+
+    return true;
+
+}
+catch (error) {
+
+    console.error(
+        "Erro na autenticação financeira:",
+        error
+    );
+
+
+    alert(
+        "Erro ao verificar senha:\n\n" +
+        error.message
+    );
+
+
+    return false;
+
+}
+
+}
+
+// =====================================================
+// PROTEGER A ÁREA
+// =====================================================
+
+async function iniciarAreaFinanceira() {
+
+/*
+Esconder conteúdo inicialmente.
+*/
+
+if (turmaSelect) {
+
+    turmaSelect.disabled =
+        true;
+
+}
+
+
+lista.innerHTML = `
+
+    <tr>
+
+        <td colspan="7">
+
+            🔐 Área Financeira protegida.
+            Digite a senha para continuar.
+
+        </td>
+
+    </tr>
+
+`;
+
+
+const autorizado =
+    await solicitarSenhaFinanceira();
+
+
+if (!autorizado) {
+
+    /*
+    Não carregar turmas.
+    */
+
+    lista.innerHTML = `
+
+        <tr>
+
+            <td colspan="7">
+
+                🔒 Acesso bloqueado.
+
+            </td>
+
+        </tr>
+
+    `;
+
+    return;
+
+}
+
+
+/*
+Liberar seleção.
+*/
+
+turmaSelect.disabled =
+    false;
+
+
+/*
+Carregar turmas.
+*/
+
+await carregarTurmas();
+
+}
+
+// =====================================================
 // CARREGAR TURMAS
 // =====================================================
 
@@ -82,6 +353,10 @@ try {
     `;
 
 
+    /*
+    Transformar em array.
+    */
+
     const turmas =
         snapshot.docs.map(
             documento => ({
@@ -96,9 +371,9 @@ try {
         );
 
 
-    // =================================================
-    // ORDEM FIXA DAS TURMAS
-    // =================================================
+    /*
+    Ordenar turmas.
+    */
 
     turmas.sort(
         (a, b) => {
@@ -106,12 +381,12 @@ try {
             const nomeA =
                 String(
                     a.dados.nome || ""
-                ).trim();
+                );
 
             const nomeB =
                 String(
                     b.dados.nome || ""
-                ).trim();
+                );
 
 
             return nomeA.localeCompare(
@@ -122,6 +397,10 @@ try {
         }
     );
 
+
+    /*
+    Criar opções.
+    */
 
     turmas.forEach(
         turmaItem => {
@@ -178,12 +457,23 @@ catch (error) {
 }
 
 // =====================================================
-// CARREGAR ALUNOS DA TURMA
+// CARREGAR ALUNOS
 // =====================================================
 
 async function carregarAlunos(
 turmaId
 ) {
+
+if (!financeiroAutorizado) {
+
+    alert(
+        "🔒 Área Financeira bloqueada."
+    );
+
+    return;
+
+}
+
 
 if (!turmaId) {
 
@@ -223,10 +513,6 @@ try {
     `;
 
 
-    // =================================================
-    // BUSCAR ALUNOS
-    // =================================================
-
     const alunosRef =
         collection(
             db,
@@ -264,9 +550,9 @@ try {
     }
 
 
-    // =================================================
-    // TRANSFORMAR EM ARRAY
-    // =================================================
+    /*
+    Transformar documentos em array.
+    */
 
     const alunos =
         snapshot.docs.map(
@@ -282,33 +568,32 @@ try {
         );
 
 
-    // =================================================
-    // ORDEM FIXA DOS ALUNOS
-    // =================================================
+    /*
+    =================================================
+    ORDENAR PELO NÚMERO
+    =================================================
+    */
 
     alunos.sort(
         (a, b) => {
 
             const numeroA =
                 parseInt(
-                    String(
-                        a.dados.numero ?? ""
-                    ).trim(),
+                    a.dados.numero,
                     10
                 );
 
             const numeroB =
                 parseInt(
-                    String(
-                        b.dados.numero ?? ""
-                    ).trim(),
+                    b.dados.numero,
                     10
                 );
 
 
-            // -----------------------------------------
-            // Ambos sem número
-            // -----------------------------------------
+            /*
+            Ambos sem número:
+            ordenar pelo nome.
+            */
 
             if (
                 Number.isNaN(numeroA) &&
@@ -317,19 +602,19 @@ try {
 
                 return String(
                     a.dados.nome || ""
-                ).trim().localeCompare(
+                ).localeCompare(
                     String(
                         b.dados.nome || ""
-                    ).trim(),
+                    ),
                     "pt"
                 );
 
             }
 
 
-            // -----------------------------------------
-            // A sem número
-            // -----------------------------------------
+            /*
+            A sem número.
+            */
 
             if (
                 Number.isNaN(numeroA)
@@ -340,9 +625,9 @@ try {
             }
 
 
-            // -----------------------------------------
-            // B sem número
-            // -----------------------------------------
+            /*
+            B sem número.
+            */
 
             if (
                 Number.isNaN(numeroB)
@@ -353,47 +638,23 @@ try {
             }
 
 
-            // -----------------------------------------
-            // Número crescente
-            // -----------------------------------------
-
-            if (
-                numeroA !== numeroB
-            ) {
-
-                return numeroA - numeroB;
-
-            }
-
-
-            // -----------------------------------------
-            // Mesmo número:
-            // usar nome como segundo critério
-            // -----------------------------------------
-
-            return String(
-                a.dados.nome || ""
-            ).trim().localeCompare(
-                String(
-                    b.dados.nome || ""
-                ).trim(),
-                "pt"
-            );
+            return numeroA - numeroB;
 
         }
     );
 
 
-    // =================================================
-    // LIMPAR LISTA
-    // =================================================
+    /*
+    Limpar tabela somente depois
+    de ordenar os alunos.
+    */
 
     lista.innerHTML = "";
 
 
-    // =================================================
-    // CRIAR LINHAS
-    // =================================================
+    /*
+    Criar linhas.
+    */
 
     let numeroSequencial = 1;
 
@@ -420,16 +681,8 @@ try {
 
 
     console.log(
-        "Alunos carregados em ordem fixa:",
-        alunos.map(
-            aluno => ({
-                numero:
-                    aluno.dados.numero,
-
-                nome:
-                    aluno.dados.nome
-            })
-        )
+        "Alunos carregados:",
+        alunos.length
     );
 
 }
@@ -462,7 +715,7 @@ catch (error) {
 }
 
 // =====================================================
-// CRIAR LINHA DO ALUNO
+// CRIAR LINHA
 // =====================================================
 
 async function criarLinhaAluno(
@@ -484,18 +737,6 @@ const tr =
     );
 
 
-// =================================================
-// ID DA LINHA
-// =================================================
-
-tr.id =
-    `aluno-linha-${alunoId}`;
-
-
-// =================================================
-// DADOS
-// =================================================
-
 const numeroAluno =
     aluno.numero ||
     numero;
@@ -511,34 +752,21 @@ const idade =
     "—";
 
 
-// =================================================
-// HTML
-// =================================================
-
 tr.innerHTML = `
 
     <td>
-
         ${numeroAluno}
-
     </td>
-
 
     <td class="nome">
-
         ${nomeAluno}
-
     </td>
-
 
     <td>
-
         ${idade}
-
     </td>
 
-
-    <td id="pagamento-${alunoId}-1">
+    <td>
 
         ${botaoPagamento(
             alunoId,
@@ -549,8 +777,7 @@ tr.innerHTML = `
 
     </td>
 
-
-    <td id="pagamento-${alunoId}-2">
+    <td>
 
         ${botaoPagamento(
             alunoId,
@@ -561,8 +788,7 @@ tr.innerHTML = `
 
     </td>
 
-
-    <td id="pagamento-${alunoId}-3">
+    <td>
 
         ${botaoPagamento(
             alunoId,
@@ -572,7 +798,6 @@ tr.innerHTML = `
         )}
 
     </td>
-
 
     <td>
 
@@ -585,9 +810,7 @@ tr.innerHTML = `
             placeholder="Comunicado..."
         >
 
-
         <button
-            type="button"
             class="pagamento-btn"
             onclick="
                 salvarComunicado(
@@ -595,9 +818,7 @@ tr.innerHTML = `
                 )
             "
         >
-
             💾
-
         </button>
 
     </td>
@@ -605,14 +826,12 @@ tr.innerHTML = `
 `;
 
 
-lista.appendChild(
-    tr
-);
+lista.appendChild(tr);
 
 }
 
 // =====================================================
-// BUSCAR DADOS FINANCEIROS
+// BUSCAR FINANCEIRO
 // =====================================================
 
 async function obterFinanceiro(
@@ -631,9 +850,7 @@ try {
 
 
     const resultado =
-        await getDoc(
-            ref
-        );
+        await getDoc(ref);
 
 
     if (
@@ -658,23 +875,23 @@ try {
 
         "1trimestre": {
 
-            pago: false
+            pago:false
 
         },
 
         "2trimestre": {
 
-            pago: false
+            pago:false
 
         },
 
         "3trimestre": {
 
-            pago: false
+            pago:false
 
         },
 
-        comunicado: ""
+        comunicado:""
 
     };
 
@@ -690,24 +907,18 @@ catch (error) {
     return {
 
         "1trimestre": {
-
-            pago: false
-
+            pago:false
         },
 
         "2trimestre": {
-
-            pago: false
-
+            pago:false
         },
 
         "3trimestre": {
-
-            pago: false
-
+            pago:false
         },
 
-        comunicado: ""
+        comunicado:""
 
     };
 
@@ -716,7 +927,7 @@ catch (error) {
 }
 
 // =====================================================
-// BOTÃO DE PAGAMENTO
+// BOTÃO PAGAMENTO
 // =====================================================
 
 function botaoPagamento(
@@ -797,6 +1008,17 @@ alunoId,
 trimestre
 ) {
 
+if (!financeiroAutorizado) {
+
+    alert(
+        "🔒 Área Financeira bloqueada."
+    );
+
+    return;
+
+}
+
+
 try {
 
     const ref =
@@ -808,9 +1030,7 @@ try {
 
 
     const resultado =
-        await getDoc(
-            ref
-        );
+        await getDoc(ref);
 
 
     let dados =
@@ -829,24 +1049,16 @@ try {
         ]?.pago === true;
 
 
-    const novoEstado =
-        !estadoAtual;
-
-
     dados[chave] = {
 
         pago:
-            novoEstado,
+            !estadoAtual,
 
         atualizadoEm:
             new Date()
 
     };
 
-
-    // =================================================
-    // GUARDAR
-    // =================================================
 
     await setDoc(
 
@@ -855,55 +1067,26 @@ try {
         dados,
 
         {
-            merge: true
+            merge:true
         }
 
     );
 
 
     console.log(
-        `Aluno ${alunoId} - ${chave}:`,
-        novoEstado
+        `Pagamento ${trimestre}º trimestre atualizado:`,
+        !estadoAtual
     );
 
 
-    // =================================================
-    // ATUALIZAR APENAS O BOTÃO
-    // NÃO RECARREGAR A LISTA
-    // =================================================
+    /*
+    Recarregar mantendo
+    a mesma turma.
+    */
 
-    const celula =
-        document.getElementById(
-            `pagamento-${alunoId}-${trimestre}`
-        );
-
-
-    if (celula) {
-
-        celula.innerHTML =
-            botaoPagamento(
-
-                alunoId,
-
-                {},
-
-                trimestre,
-
-                {
-
-                    [chave]: {
-
-                        pago:
-                            novoEstado
-
-                    }
-
-                }
-
-            );
-
-    }
-
+    await carregarAlunos(
+        turmaSelect.value
+    );
 
 }
 catch (error) {
@@ -931,6 +1114,17 @@ window.salvarComunicado =
 async function (
 alunoId
 ) {
+
+if (!financeiroAutorizado) {
+
+    alert(
+        "🔒 Área Financeira bloqueada."
+    );
+
+    return;
+
+}
+
 
 try {
 
@@ -975,7 +1169,7 @@ try {
         },
 
         {
-            merge: true
+            merge:true
         }
 
     );
@@ -1004,23 +1198,237 @@ catch (error) {
 };
 
 // =====================================================
-// EVENTO — MUDAR TURMA
+// ABRIR PAINEL DE ALTERAR SENHA
 // =====================================================
 
-turmaSelect.addEventListener(
-"change",
-function () {
+if (alterarSenhaBtn) {
 
-    carregarAlunos(
+alterarSenhaBtn.addEventListener(
+    "click",
+    function () {
+
+        if (!financeiroAutorizado) {
+
+            alert(
+                "🔒 Área Financeira bloqueada."
+            );
+
+            return;
+
+        }
+
+
+        painelSenha.style.display =
+            "block";
+
+
+        senhaAtual.value =
+            "";
+
+        novaSenha.value =
+            "";
+
+        confirmarSenha.value =
+            "";
+
+
+        senhaAtual.focus();
+
+    }
+);
+
+}
+
+// =====================================================
+// CANCELAR ALTERAÇÃO
+// =====================================================
+
+if (cancelarSenhaBtn) {
+
+cancelarSenhaBtn.addEventListener(
+    "click",
+    function () {
+
+        painelSenha.style.display =
+            "none";
+
+    }
+);
+
+}
+
+// =====================================================
+// GUARDAR NOVA SENHA
+// =====================================================
+
+if (guardarSenhaBtn) {
+
+guardarSenhaBtn.addEventListener(
+    "click",
+    async function () {
+
+        if (!financeiroAutorizado) {
+
+            alert(
+                "🔒 Área Financeira bloqueada."
+            );
+
+            return;
+
+        }
+
+
+        const atual =
+            senhaAtual.value.trim();
+
+
+        const nova =
+            novaSenha.value.trim();
+
+
+        const confirmacao =
+            confirmarSenha.value.trim();
+
+
+        if (
+            !atual ||
+            !nova ||
+            !confirmacao
+        ) {
+
+            alert(
+                "Preencha todos os campos."
+            );
+
+            return;
+
+        }
+
+
+        if (nova.length < 6) {
+
+            alert(
+                "A nova senha deve ter pelo menos 6 caracteres."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            nova !==
+            confirmacao
+        ) {
+
+            alert(
+                "A confirmação da nova senha não coincide."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const senhaCorreta =
+                await obterSenhaFinanceira();
+
+
+            if (
+                atual !==
+                senhaCorreta
+            ) {
+
+                alert(
+                    "❌ A senha atual está incorreta."
+                );
+
+                return;
+
+            }
+
+
+            const ref =
+                doc(
+                    db,
+                    "config",
+                    "financeiro"
+                );
+
+
+            await setDoc(
+
+                ref,
+
+                {
+
+                    senha:
+                        nova,
+
+                    atualizadoEm:
+                        new Date()
+
+                },
+
+                {
+                    merge:true
+                }
+
+            );
+
+
+            alert(
+                "✅ Senha alterada com sucesso."
+            );
+
+
+            /*
+            Limpar campos.
+            */
+
+            senhaAtual.value =
+                "";
+
+            novaSenha.value =
+                "";
+
+            confirmarSenha.value =
+                "";
+
+
+            painelSenha.style.display =
+                "none";
+
+        }
+        catch (error) {
+
+            console.error(
+                "Erro ao alterar senha:",
+                error
+            );
+
+
+            alert(
+                "Erro ao alterar senha:\n\n" +
+                error.message
+            );
+
+        }
+
+    }
+);
+
+}
+
+// ===================================================== // EVENTO — MUDAR TURMA // =====================================================
+turmaSelect.addEventListener( "change", function () {
+carregarAlunos(
         this.value
     );
 
 }
-
 );
-
-// =====================================================
-// INICIAR SISTEMA
-// =====================================================
-
-carregarTurmas();
+// ===================================================== // INICIAR // =====================================================
+iniciarAreaFinanceira();
