@@ -1,30 +1,3 @@
-/* ============================================================
-PAUTAS.JS
-PAUTA GERAL - SGE
-
-Lê diretamente as notas gravadas pelo MINI-PAUTA.JS
-
-Estrutura utilizada:
-
-notas/
-turmaId_disciplina_trimestre
-turmaId
-turmaNome
-disciplina
-trimestre
-alunos: [
-{
-numero,
-nome,
-MAC,
-NPT,
-MF,
-classificacao
-}
-]
-
-============================================================ */
-
 import { db } from "./firebase.js";
 
 import {
@@ -47,20 +20,11 @@ document.getElementById("turmaSelect");
 const pautaLista =
 document.getElementById("pautaLista");
 
-const nomeEscola =
-document.getElementById("nomeEscola");
-
-const anoLectivo =
-document.getElementById("anoLectivo");
-
-const classePauta =
-document.getElementById("classePauta");
-
-const turmaPauta =
-document.getElementById("turmaPauta");
-
 const estadoPauta =
 document.getElementById("estadoPauta");
+
+const nomePauta =
+document.getElementById("nomePauta");
 
 /* ============================================================
 DADOS
@@ -76,6 +40,8 @@ let notasDaTurma = [];
 
 let disciplinas = [];
 
+let cicloSelecionado = "";
+
 /* ============================================================
 TRIMESTRES
 ============================================================ */
@@ -83,7 +49,19 @@ TRIMESTRES
 const trimestres = [1, 2, 3];
 
 /* ============================================================
-INICIALIZAÇÃO
+CONFIGURAÇÃO DAS DISCIPLINAS
+============================================================ */
+
+let disciplinasConfig = {
+
+ensinoPrimario: [],
+
+primeiroCiclo: []
+
+};
+
+/* ============================================================
+INICIAR
 ============================================================ */
 
 document.addEventListener(
@@ -99,7 +77,7 @@ try{
         "A carregar...";
 
 
-    await carregarConfiguracao();
+    await carregarConfiguracaoDisciplinas();
 
     await carregarTurmas();
 
@@ -112,7 +90,7 @@ try{
 catch(error){
 
     console.error(
-        "Erro ao iniciar Pautas:",
+        "Erro ao iniciar Pauta Geral:",
         error
     );
 
@@ -125,23 +103,29 @@ catch(error){
 }
 
 /* ============================================================
-CONFIGURAÇÃO DA ESCOLA
+CARREGAR CONFIGURAÇÃO DAS DISCIPLINAS
 ============================================================ */
 
-async function carregarConfiguracao(){
+async function carregarConfiguracaoDisciplinas(){
 
 try{
 
     /*
-     * Documento:
-     * config/escola
+     * Documento esperado:
+     *
+     * config/disciplinas
+     *
+     * contendo:
+     *
+     * ensinoPrimario: [...]
+     * primeiroCiclo: [...]
      */
 
     const ref =
         doc(
             db,
             "config",
-            "escola"
+            "disciplinas"
         );
 
 
@@ -149,51 +133,120 @@ try{
         await getDoc(ref);
 
 
-    if(snap.exists()){
+    if(!snap.exists()){
 
-        const dados =
-            snap.data();
-
-
-        const nome =
-            dados.nomeEscola ||
-            dados.nome ||
-            dados.nomeDaEscola;
+        console.warn(
+            "Documento config/disciplinas não encontrado."
+        );
 
 
-        const ano =
-            dados.anoLectivo ||
-            dados.anoLetivo ||
-            dados.anoLetivoAtual;
-
-
-        if(nome){
-
-            nomeEscola.textContent =
-                nome;
-
-        }
-
-
-        if(ano){
-
-            anoLectivo.textContent =
-                ano;
-
-        }
+        return;
 
     }
 
 
+    const dados =
+        snap.data();
+
+
+    disciplinasConfig.ensinoPrimario =
+        Array.isArray(
+            dados.ensinoPrimario
+        )
+            ? dados.ensinoPrimario
+            : [];
+
+
+    disciplinasConfig.primeiroCiclo =
+        Array.isArray(
+            dados.primeiroCiclo
+        )
+            ? dados.primeiroCiclo
+            : [];
+
+
+    /*
+     * Caso a configuração use objetos
+     * em vez de strings.
+     */
+
+    disciplinasConfig.ensinoPrimario =
+        normalizarListaDisciplinas(
+            disciplinasConfig.ensinoPrimario
+        );
+
+
+    disciplinasConfig.primeiroCiclo =
+        normalizarListaDisciplinas(
+            disciplinasConfig.primeiroCiclo
+        );
+
+
+    console.log(
+        "DISCIPLINAS ENSINO PRIMÁRIO:",
+        disciplinasConfig.ensinoPrimario
+    );
+
+
+    console.log(
+        "DISCIPLINAS 1.º CICLO:",
+        disciplinasConfig.primeiroCiclo
+    );
+
 }
 catch(error){
 
-    console.warn(
-        "Configuração não encontrada:",
+    console.error(
+        "Erro ao carregar disciplinas:",
         error
     );
 
 }
+
+}
+
+/* ============================================================
+NORMALIZAR LISTA DE DISCIPLINAS
+============================================================ */
+
+function normalizarListaDisciplinas(lista){
+
+return lista
+    .map(item => {
+
+        if(
+            typeof item === "string"
+        ){
+
+            return item.trim();
+
+        }
+
+
+        if(
+            item &&
+            typeof item === "object"
+        ){
+
+            return (
+
+                item.nome ||
+
+                item.disciplina ||
+
+                item.name ||
+
+                ""
+
+            ).trim();
+
+        }
+
+
+        return "";
+
+    })
+    .filter(Boolean);
 
 }
 
@@ -261,7 +314,7 @@ return (
 }
 
 /* ============================================================
-OBTER TURMA
+OBTER NOME DA TURMA
 ============================================================ */
 
 function obterNomeTurma(turma){
@@ -283,7 +336,135 @@ return (
 }
 
 /* ============================================================
-CLASSES
+DETERMINAR CICLO
+============================================================ */
+
+function determinarCiclo(classe){
+
+const texto =
+    normalizar(classe);
+
+
+/*
+ * 1ª até 6ª
+ * Ensino Primário
+ */
+
+const numero =
+    extrairNumeroClasse(
+        texto
+    );
+
+
+if(
+    numero >= 1 &&
+    numero <= 6
+){
+
+    return "ensinoPrimario";
+
+}
+
+
+/*
+ * 7ª até 9ª
+ * Primeiro Ciclo
+ */
+
+if(
+    numero >= 7 &&
+    numero <= 9
+){
+
+    return "primeiroCiclo";
+
+}
+
+
+/*
+ * Caso a classe esteja escrita
+ * por extenso.
+ */
+
+if(
+    texto.includes("primeir") &&
+    texto.includes("ciclo")
+){
+
+    return "primeiroCiclo";
+
+}
+
+
+return "ensinoPrimario";
+
+}
+
+/* ============================================================
+EXTRAIR NÚMERO DA CLASSE
+============================================================ */
+
+function extrairNumeroClasse(valor){
+
+const texto =
+    String(valor || "")
+        .toLowerCase();
+
+
+const numero =
+    texto.match(
+        /\d+/
+    );
+
+
+if(numero){
+
+    return Number(
+        numero[0]
+    );
+
+}
+
+
+const mapa = {
+
+    "primeira": 1,
+    "segunda": 2,
+    "terceira": 3,
+    "quarta": 4,
+    "quinta": 5,
+    "sexta": 6,
+    "setima": 7,
+    "sétima": 7,
+    "oitava": 8,
+    "nona": 9
+
+};
+
+
+for(
+    const palavra in mapa
+){
+
+    if(
+        texto.includes(
+            palavra
+        )
+    ){
+
+        return mapa[palavra];
+
+    }
+
+}
+
+
+return 0;
+
+}
+
+/* ============================================================
+PREENCHER CLASSES
 ============================================================ */
 
 function preencherClasses(){
@@ -300,79 +481,68 @@ classeSelect.innerHTML = `
 const classes = [];
 
 
-todasTurmas.forEach(turma => {
+todasTurmas.forEach(
+    turma => {
 
-    const classe =
-        obterClasse(turma);
+        const classe =
+            obterClasse(turma);
 
 
-    if(
-        classe &&
-        !classes.includes(classe)
-    ){
+        if(
+            classe &&
+            !classes.includes(classe)
+        ){
 
-        classes.push(classe);
+            classes.push(
+                classe
+            );
+
+        }
 
     }
-
-});
-
-
-classes.sort(
-    ordenarClasses
 );
 
 
-classes.forEach(classe => {
+classes.sort(
+    (a,b) => {
 
-    const option =
-        document.createElement(
-            "option"
+        return (
+            extrairNumeroClasse(a) -
+            extrairNumeroClasse(b)
         );
 
-
-    option.value =
-        classe;
-
-
-    option.textContent =
-        classe;
+    }
+);
 
 
-    classeSelect.appendChild(
-        option
-    );
+classes.forEach(
+    classe => {
 
-});
-
-}
-
-/* ============================================================
-ORDENAR CLASSES
-============================================================ */
-
-function ordenarClasses(a,b){
-
-const numeroA =
-    parseInt(
-        String(a)
-            .replace(/\D/g,"")
-    ) || 999;
+        const option =
+            document.createElement(
+                "option"
+            );
 
 
-const numeroB =
-    parseInt(
-        String(b)
-            .replace(/\D/g,"")
-    ) || 999;
+        option.value =
+            classe;
 
 
-return numeroA - numeroB;
+        option.textContent =
+            classe;
+
+
+        classeSelect.appendChild(
+            option
+        );
+
+    }
+);
 
 }
 
 /* ============================================================
-SELEÇÃO DA CLASSE
+SELECIONAR CLASSE
 ============================================================ */
 
 classeSelect.addEventListener(
@@ -395,26 +565,21 @@ classeSelect.addEventListener(
     turmaSelecionada =
         null;
 
-
     alunos = [];
 
     notasDaTurma = [];
 
-    disciplinas = [];
 
-
-    classePauta.textContent =
-        classe || "—";
-
-
-    turmaPauta.textContent =
-        "—";
-
-
-    limparPauta();
+    classePauta(
+        classe
+    );
 
 
     if(!classe){
+
+        disciplinas = [];
+
+        limparPauta();
 
         estadoPauta.textContent =
             "Aguardando seleção";
@@ -424,6 +589,50 @@ classeSelect.addEventListener(
     }
 
 
+    /*
+     * Determinar o ciclo
+     */
+
+    cicloSelecionado =
+        determinarCiclo(
+            classe
+        );
+
+
+    /*
+     * Carregar SOMENTE as
+     * disciplinas deste ciclo.
+     */
+
+    disciplinas =
+        obterDisciplinasDaClasse(
+            classe
+        );
+
+
+    console.log(
+        "CLASSE:",
+        classe
+    );
+
+
+    console.log(
+        "CICLO:",
+        cicloSelecionado
+    );
+
+
+    console.log(
+        "DISCIPLINAS DA CLASSE:",
+        disciplinas
+    );
+
+
+    /*
+     * Carregar turmas
+     * pertencentes à classe.
+     */
+
     const turmas =
         todasTurmas.filter(
             turma =>
@@ -432,27 +641,31 @@ classeSelect.addEventListener(
         );
 
 
-    turmas.forEach(turma => {
+    turmas.forEach(
+        turma => {
 
-        const option =
-            document.createElement(
-                "option"
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                turma.id;
+
+
+            option.textContent =
+                obterNomeTurma(
+                    turma
+                );
+
+
+            turmaSelect.appendChild(
+                option
             );
 
-
-        option.value =
-            turma.id;
-
-
-        option.textContent =
-            obterNomeTurma(turma);
-
-
-        turmaSelect.appendChild(
-            option
-        );
-
-    });
+        }
+    );
 
 
     estadoPauta.textContent =
@@ -460,12 +673,42 @@ classeSelect.addEventListener(
             ? "Selecione a turma"
             : "Nenhuma turma encontrada";
 
+
+    /*
+     * Atualizar cabeçalho mesmo
+     * antes de escolher a turma.
+     */
+
+    construirCabecalho();
+
 }
 
 );
 
 /* ============================================================
-SELEÇÃO DA TURMA
+DISCIPLINAS DA CLASSE
+============================================================ */
+
+function obterDisciplinasDaClasse(
+classe
+){
+
+const ciclo =
+    determinarCiclo(
+        classe
+    );
+
+
+const lista =
+    disciplinasConfig[ciclo] || [];
+
+
+return [...lista];
+
+}
+
+/* ============================================================
+SELECIONAR TURMA
 ============================================================ */
 
 turmaSelect.addEventListener(
@@ -499,33 +742,46 @@ async () => {
     }
 
 
-    classePauta.textContent =
-        obterClasse(
-            turmaSelecionada
-        );
-
-
-    turmaPauta.textContent =
-        obterNomeTurma(
-            turmaSelecionada
-        );
-
-
     estadoPauta.textContent =
         "A carregar alunos e notas...";
 
 
     await carregarAlunos();
 
-
     await carregarNotas();
-
 
     montarPauta();
 
 }
 
 );
+
+/* ============================================================
+INFORMAÇÃO DA PAUTA
+============================================================ */
+
+function classePauta(classe){
+
+if(!classe){
+
+    nomePauta.textContent =
+        "Nenhuma turma selecionada";
+
+    return;
+
+}
+
+
+nomePauta.innerHTML = `
+
+    Classe:
+    <strong>
+        ${escaparHTML(classe)}
+    </strong>
+
+`;
+
+}
 
 /* ============================================================
 CARREGAR ALUNOS
@@ -537,13 +793,6 @@ alunos = [];
 
 
 try{
-
-    /*
-     * Os alunos estão exatamente aqui,
-     * conforme o mini-pauta.js:
-     *
-     * turmas/{turmaId}/alunos
-     */
 
     const ref =
         collection(
@@ -558,23 +807,29 @@ try{
         await getDocs(ref);
 
 
-    snap.forEach(item => {
+    snap.forEach(
+        item => {
 
-        alunos.push({
+            alunos.push({
 
-            id: item.id,
+                id: item.id,
 
-            ...item.data()
+                ...item.data()
 
-        });
+            });
 
-    });
+        }
+    );
 
 
     alunos.sort(
         (a,b) =>
-            Number(a.numero || 0) -
-            Number(b.numero || 0)
+            Number(
+                a.numero || 0
+            ) -
+            Number(
+                b.numero || 0
+            )
     );
 
 
@@ -582,7 +837,6 @@ try{
         "ALUNOS:",
         alunos
     );
-
 
 }
 catch(error){
@@ -597,15 +851,12 @@ catch(error){
 }
 
 /* ============================================================
-CARREGAR TODAS AS NOTAS DA TURMA
+CARREGAR NOTAS
 ============================================================ */
 
 async function carregarNotas(){
 
 notasDaTurma = [];
-
-
-disciplinas = [];
 
 
 try{
@@ -619,82 +870,43 @@ try{
         );
 
 
-    snap.forEach(item => {
+    snap.forEach(
+        item => {
 
-        const dados =
-            item.data();
-
-
-        /*
-         * IMPORTANTE:
-         *
-         * Só queremos notas desta turma.
-         */
-
-        if(
-            String(
-                dados.turmaId
-            ) !==
-            String(
-                turmaSelecionada.id
-            )
-        ){
-
-            return;
-
-        }
+            const dados =
+                item.data();
 
 
-        notasDaTurma.push({
+            if(
+                String(
+                    dados.turmaId
+                ) !==
+                String(
+                    turmaSelecionada.id
+                )
+            ){
 
-            id: item.id,
+                return;
 
-            ...dados
-
-        });
-
-
-        /*
-         * Descobrir disciplinas
-         * automaticamente.
-         */
-
-        const disciplina =
-            dados.disciplina;
+            }
 
 
-        if(
-            disciplina &&
-            !disciplinas.includes(
-                disciplina
-            )
-        ){
+            notasDaTurma.push({
 
-            disciplinas.push(
-                disciplina
-            );
+                id: item.id,
+
+                ...dados
+
+            });
 
         }
-
-    });
+    );
 
 
     console.log(
         "NOTAS DA TURMA:",
         notasDaTurma
     );
-
-
-    console.log(
-        "DISCIPLINAS:",
-        disciplinas
-    );
-
-
-    disciplinas.sort(
-        ordenarTexto
-    );
-
 
 }
 catch(error){
@@ -709,30 +921,17 @@ catch(error){
 }
 
 /* ============================================================
-ORDENAR TEXTO
-============================================================ */
-
-function ordenarTexto(a,b){
-
-return String(a)
-    .localeCompare(
-        String(b),
-        "pt"
-    );
-
-}
-
-/* ============================================================
 MONTAR PAUTA
 ============================================================ */
 
 function montarPauta(){
 
-/*
- * Se não existem alunos
- */
+construirCabecalho();
 
-if(alunos.length === 0){
+
+if(
+    alunos.length === 0
+){
 
     pautaLista.innerHTML = `
 
@@ -762,50 +961,6 @@ if(alunos.length === 0){
 }
 
 
-/*
- * Se ainda não existem notas
- */
-
-if(disciplinas.length === 0){
-
-    construirCabecalho([]);
-
-
-    pautaLista.innerHTML = `
-
-        <tr>
-
-            <td
-                colspan="100"
-                class="estado-vazio"
-            >
-
-                📝
-                Os alunos já estão carregados,
-                mas ainda não existem notas
-                lançadas para esta turma.
-
-            </td>
-
-        </tr>
-
-    `;
-
-
-    estadoPauta.textContent =
-        "Sem notas lançadas";
-
-
-    return;
-
-}
-
-
-construirCabecalho(
-    disciplinas
-);
-
-
 construirLinhas();
 
 
@@ -815,12 +970,10 @@ estadoPauta.textContent =
 }
 
 /* ============================================================
-CABEÇALHO DINÂMICO
+CABEÇALHO
 ============================================================ */
 
-function construirCabecalho(
-listaDisciplinas
-){
+function construirCabecalho(){
 
 const tabela =
     document.querySelector(
@@ -851,14 +1004,14 @@ if(!thead){
 thead.innerHTML = "";
 
 
-/*
- * ========================================================
- * LINHA 1
- * ========================================================
- */
+/* ========================================================
+   LINHA 1
+======================================================== */
 
 const linha1 =
-    document.createElement("tr");
+    document.createElement(
+        "tr"
+    );
 
 
 linha1.innerHTML = `
@@ -874,13 +1027,27 @@ linha1.innerHTML = `
         rowspan="3"
         class="nome-aluno"
     >
-        Nome do Aluno
+        Nome Completo
+    </th>
+
+    <th
+        rowspan="3"
+        class="sexo"
+    >
+        Sexo
+    </th>
+
+    <th
+        rowspan="3"
+        class="idade"
+    >
+        Idade
     </th>
 
 `;
 
 
-listaDisciplinas.forEach(
+disciplinas.forEach(
     disciplina => {
 
         linha1.innerHTML += `
@@ -889,7 +1056,9 @@ listaDisciplinas.forEach(
                 colspan="9"
                 class="disciplina"
             >
-                ${escaparHTML(disciplina)}
+                ${escaparHTML(
+                    disciplina
+                )}
             </th>
 
         `;
@@ -899,6 +1068,13 @@ listaDisciplinas.forEach(
 
 
 linha1.innerHTML += `
+
+    <th
+        rowspan="3"
+        class="resultado"
+    >
+        Média Final
+    </th>
 
     <th
         rowspan="3"
@@ -915,22 +1091,17 @@ thead.appendChild(
 );
 
 
-/*
- * ========================================================
- * LINHA 2
- * ========================================================
- */
+/* ========================================================
+   LINHA 2
+======================================================== */
 
 const linha2 =
-    document.createElement("tr");
+    document.createElement(
+        "tr"
+    );
 
 
-/*
- * Como Nº e Nome têm rowspan=3,
- * não criamos células para eles.
- */
-
-listaDisciplinas.forEach(
+disciplinas.forEach(
     () => {
 
         linha2.innerHTML += `
@@ -967,42 +1138,40 @@ thead.appendChild(
 );
 
 
-/*
- * ========================================================
- * LINHA 3
- * ========================================================
- */
+/* ========================================================
+   LINHA 3
+======================================================== */
 
 const linha3 =
-    document.createElement("tr");
+    document.createElement(
+        "tr"
+    );
 
 
-listaDisciplinas.forEach(
+disciplinas.forEach(
     () => {
 
-        for(
-            let i = 0;
-            i < 3;
-            i++
-        ){
+        trimestres.forEach(
+            () => {
 
-            linha3.innerHTML += `
+                linha3.innerHTML += `
 
-                <th class="subcoluna">
-                    MAC
-                </th>
+                    <th class="subcoluna">
+                        MAC
+                    </th>
 
-                <th class="subcoluna">
-                    NPT
-                </th>
+                    <th class="subcoluna">
+                        NPT
+                    </th>
 
-                <th class="subcoluna">
-                    MF
-                </th>
+                    <th class="subcoluna">
+                        MF
+                    </th>
 
-            `;
+                `;
 
-        }
+            }
+        );
 
     }
 );
@@ -1015,7 +1184,7 @@ thead.appendChild(
 }
 
 /* ============================================================
-CONSTRUIR LINHAS DOS ALUNOS
+CONSTRUIR LINHAS
 ============================================================ */
 
 function construirLinhas(){
@@ -1032,25 +1201,45 @@ alunos.forEach(
             );
 
 
-        /*
-         * Nº
-         */
-
         const numero =
             aluno.numero ??
             index + 1;
 
 
-        tr.innerHTML += `
+        const nome =
+            aluno.nome ||
+            aluno.nomeCompleto ||
+            "";
+
+
+        const sexo =
+            aluno.sexo ||
+            aluno.Sexo ||
+            "—";
+
+
+        const idade =
+            obterIdade(
+                aluno
+            );
+
+
+        tr.innerHTML = `
 
             <td class="numero">
                 ${escaparHTML(numero)}
             </td>
 
             <td class="nome-aluno">
-                ${escaparHTML(
-                    aluno.nome || ""
-                )}
+                ${escaparHTML(nome)}
+            </td>
+
+            <td class="sexo">
+                ${escaparHTML(sexo)}
+            </td>
+
+            <td class="idade">
+                ${escaparHTML(idade)}
             </td>
 
         `;
@@ -1074,10 +1263,6 @@ alunos.forEach(
                             );
 
 
-                        /*
-                         * MAC
-                         */
-
                         tr.innerHTML += `
 
                             <td class="nota">
@@ -1086,29 +1271,11 @@ alunos.forEach(
                                 )}
                             </td>
 
-                        `;
-
-
-                        /*
-                         * NPT
-                         */
-
-                        tr.innerHTML += `
-
                             <td class="nota">
                                 ${mostrarNota(
                                     nota?.NPT
                                 )}
                             </td>
-
-                        `;
-
-
-                        /*
-                         * MF
-                         */
-
-                        tr.innerHTML += `
 
                             <td class="nota mf">
                                 ${mostrarNota(
@@ -1126,11 +1293,11 @@ alunos.forEach(
 
 
         /*
-         * RESULTADO FINAL
+         * MÉDIA FINAL
          */
 
-        const resultado =
-            calcularResultado(
+        const mediaFinal =
+            calcularMediaFinal(
                 aluno.numero
             );
 
@@ -1138,9 +1305,26 @@ alunos.forEach(
         tr.innerHTML += `
 
             <td class="resultado">
+                ${mediaFinal}
+            </td>
 
+        `;
+
+
+        /*
+         * RESULTADO
+         */
+
+        const resultado =
+            determinarResultado(
+                mediaFinal
+            );
+
+
+        tr.innerHTML += `
+
+            <td class="resultado">
                 ${resultado}
-
             </td>
 
         `;
@@ -1159,45 +1343,29 @@ alunos.forEach(
 PROCURAR NOTA
 ============================================================ */
 
-function procurarNota(
-numeroAluno,
-disciplina,
-trimestre
-){
-
-/*
- * Encontrar o lançamento correto:
- *
- * mesma turma
- * mesma disciplina
- * mesmo trimestre
- */
-
+function procurarNota( numeroAluno, disciplina, trimestre ){
 const lancamento =
     notasDaTurma.find(
         nota => {
 
-            const mesmaDisciplina =
+            return (
+
                 normalizar(
                     nota.disciplina
                 ) ===
                 normalizar(
                     disciplina
-                );
+                )
 
+                &&
 
-            const mesmoTrimestre =
                 String(
                     nota.trimestre
                 ) ===
                 String(
                     trimestre
-                );
+                )
 
-
-            return (
-                mesmaDisciplina &&
-                mesmoTrimestre
             );
 
         }
@@ -1211,46 +1379,37 @@ if(!lancamento){
 }
 
 
-/*
- * Encontrar aluno
- * dentro do array alunos[]
- */
-
 const alunoNota =
-    (lancamento.alunos || [])
-        .find(
-            aluno =>
-                String(
-                    aluno.numero
-                ) ===
-                String(
-                    numeroAluno
-                )
-        );
+    (
+        lancamento.alunos || []
+    ).find(
+        aluno =>
+
+            String(
+                aluno.numero
+            ) ===
+            String(
+                numeroAluno
+            )
+    );
 
 
 return alunoNota || null;
-
 }
-
-/* ============================================================
-RESULTADO FINAL
-============================================================ */
-
-function calcularResultado(
-numeroAluno
-){
+/* ============================================================ MÉDIA FINAL ============================================================ */
+function calcularMediaFinal( numeroAluno ){
+/*
+ * Só calcula usando MF existentes.
+ *
+ * Trimestres ainda não concluídos
+ * ficam fora do cálculo.
+ */
 
 const medias = [];
 
 
 disciplinas.forEach(
     disciplina => {
-
-        /*
-         * Aqui usamos apenas os trimestres
-         * que realmente têm MF.
-         */
 
         trimestres.forEach(
             trimestre => {
@@ -1270,7 +1429,7 @@ disciplinas.forEach(
                     nota.MF !== ""
                 ){
 
-                    const mf =
+                    const valor =
                         Number(
                             nota.MF
                         );
@@ -1278,12 +1437,12 @@ disciplinas.forEach(
 
                     if(
                         Number.isFinite(
-                            mf
+                            valor
                         )
                     ){
 
                         medias.push(
-                            mf
+                            valor
                         );
 
                     }
@@ -1297,7 +1456,9 @@ disciplinas.forEach(
 );
 
 
-if(medias.length === 0){
+if(
+    medias.length === 0
+){
 
     return "—";
 
@@ -1315,24 +1476,215 @@ const soma =
     );
 
 
-const resultado =
+const media =
     soma / medias.length;
 
 
 return formatarNumero(
-    resultado
+    media
 );
+}
+/* ============================================================ RESULTADO ============================================================ */
+function determinarResultado( mediaFinal ){
+if(
+    mediaFinal === "—"
+){
+
+    return "—";
 
 }
 
-/* ============================================================
-MOSTRAR NOTA
-============================================================ */
 
-function mostrarNota(
-valor
+const valor =
+    Number(
+        String(
+            mediaFinal
+        ).replace(",",".")
+    );
+
+
+if(
+    !Number.isFinite(
+        valor
+    )
 ){
 
+    return "—";
+
+}
+
+
+return valor >= 10
+    ? "APTO"
+    : "NÃO APTO";
+}
+/* ============================================================ IDADE ============================================================ */
+function obterIdade(aluno){
+if(
+    aluno.idade !== undefined &&
+    aluno.idade !== null &&
+    aluno.idade !== ""
+){
+
+    return aluno.idade;
+
+}
+
+
+if(
+    aluno.Idade !== undefined &&
+    aluno.Idade !== null &&
+    aluno.Idade !== ""
+){
+
+    return aluno.Idade;
+
+}
+
+
+const nascimento =
+    aluno.dataNascimento ||
+    aluno.dataNasc ||
+    aluno.nascimento;
+
+
+if(!nascimento){
+
+    return "—";
+
+}
+
+
+const data =
+    converterData(
+        nascimento
+    );
+
+
+if(!data){
+
+    return "—";
+
+}
+
+
+const hoje =
+    new Date();
+
+
+let idade =
+    hoje.getFullYear() -
+    data.getFullYear();
+
+
+const mes =
+    hoje.getMonth() -
+    data.getMonth();
+
+
+if(
+    mes < 0 ||
+    (
+        mes === 0 &&
+        hoje.getDate() <
+        data.getDate()
+    )
+){
+
+    idade--;
+
+}
+
+
+return idade;
+}
+/* ============================================================ CONVERTER DATA ============================================================ */
+function converterData(valor){
+if(
+    valor instanceof Date
+){
+
+    return valor;
+
+}
+
+
+if(
+    valor &&
+    typeof valor.toDate ===
+    "function"
+){
+
+    return valor.toDate();
+
+}
+
+
+const texto =
+    String(valor);
+
+
+const partes =
+    texto.split("/");
+
+
+if(
+    partes.length === 3
+){
+
+    const dia =
+        Number(
+            partes[0]
+        );
+
+
+    const mes =
+        Number(
+            partes[1]
+        ) - 1;
+
+
+    const ano =
+        Number(
+            partes[2]
+        );
+
+
+    const data =
+        new Date(
+            ano,
+            mes,
+            dia
+        );
+
+
+    if(
+        !isNaN(
+            data.getTime()
+        )
+    ){
+
+        return data;
+
+    }
+
+}
+
+
+const data =
+    new Date(
+        valor
+    );
+
+
+return isNaN(
+    data.getTime()
+)
+    ? null
+    : data;
+}
+/* ============================================================ MOSTRAR NOTA ============================================================ */
+function mostrarNota(valor){
 if(
     valor === undefined ||
     valor === null ||
@@ -1347,11 +1699,9 @@ if(
 return formatarNumero(
     valor
 );
-
 }
-
 /* ============================================================ FORMATAR NÚMERO ============================================================ */
-function formatarNumero( valor ){
+function formatarNumero(valor){
 const numero =
     Number(
         String(valor)
@@ -1360,7 +1710,9 @@ const numero =
 
 
 if(
-    !Number.isFinite(numero)
+    !Number.isFinite(
+        numero
+    )
 ){
 
     return "—";
@@ -1368,12 +1720,14 @@ if(
 }
 
 
-return Number.isInteger(numero)
+return Number.isInteger(
+    numero
+)
     ? String(numero)
     : numero.toFixed(1);
 }
 /* ============================================================ NORMALIZAR TEXTO ============================================================ */
-function normalizar( texto ){
+function normalizar(texto){
 return String(
     texto || ""
 )
@@ -1386,7 +1740,7 @@ return String(
 .trim();
 }
 /* ============================================================ ESCAPAR HTML ============================================================ */
-function escaparHTML( valor ){
+function escaparHTML(valor){
 return String(
     valor ?? ""
 )
@@ -1433,7 +1787,7 @@ pautaLista.innerHTML = `
 
 `;
 }
-/* ============================================================ DISPONIBILIZAR PARA DEBUG ============================================================ */
+/* ============================================================ DEBUG ============================================================ */
 window.pautasSGE = {
 carregarTurmas,
 
@@ -1443,6 +1797,10 @@ carregarNotas,
 
 montarPauta,
 
-procurarNota
+procurarNota,
+
+calcularMediaFinal,
+
+determinarResultado
 };
 alert( "PAUTAS.JS CARREGADO ✅" );
