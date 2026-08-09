@@ -7,7 +7,7 @@ doc,
 getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-console.log("PAUTAS.JS CARREGADO ✅");
+alert("PAUTAS.JS df CARREGADO ✅");
 
 // =====================================================
 // ELEMENTOS DO HTML
