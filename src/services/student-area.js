@@ -1,4 +1,4 @@
-alert("ÁREA DO ALUNO DF CARREGADA ✅");
+alert("ÁREA DO ALUNO CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -1475,29 +1475,226 @@ window.verBoletim = async function () {
 
 window.verDados = function () {
 
-    alert(
+    const antigo =
+        document.getElementById("janelaDadosAluno");
 
-        "👤 DADOS DO ALUNO\n\n" +
+    if (antigo) {
+        antigo.remove();
+    }
 
-        "Nome: " +
-        (aluno.nome || "—") +
 
-        "\n\nCódigo: " +
-        (aluno.codigoAluno || "—") +
+    const html = `
 
-        "\n\nNúmero: " +
-        (aluno.numero || "—") +
+    <div
+        id="janelaDadosAluno"
+        style="
+            position:fixed;
+            inset:0;
+            z-index:99999;
+            background:#f1f5f9;
+            overflow-y:auto;
+        "
+    >
 
-        "\n\nSexo: " +
-        (aluno.sexo || "—") +
+        <div
+            style="
+                width:92%;
+                max-width:650px;
+                margin:0 auto;
+                padding:20px 0 40px;
+            "
+        >
 
-        "\n\nTurma: " +
-        (aluno.turmaNome || "—") +
+            <!-- CABEÇALHO -->
 
-        "\n\nEstado: " +
-        (aluno.estado || "—")
+            <div
+                style="
+                    background:#1e3a8a;
+                    color:white;
+                    padding:25px 20px;
+                    border-radius:16px;
+                    text-align:center;
+                    box-shadow:0 3px 10px rgba(0,0,0,.15);
+                "
+            >
 
+                <div
+                    style="
+                        font-size:45px;
+                        margin-bottom:8px;
+                    "
+                >
+                    👤
+                </div>
+
+                <h2 style="margin:0;">
+                    Dados Pessoais
+                </h2>
+
+                <p style="margin:8px 0 0;">
+                    ${aluno.nome || "Aluno"}
+                </p>
+
+            </div>
+
+
+            <!-- DADOS -->
+
+            <div
+                style="
+                    background:white;
+                    margin-top:15px;
+                    border-radius:14px;
+                    box-shadow:0 3px 10px rgba(0,0,0,.08);
+                    overflow:hidden;
+                "
+            >
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Nome</strong>
+                    <br>
+                    ${aluno.nome || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Código do aluno</strong>
+                    <br>
+                    ${aluno.codigoAluno || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Número</strong>
+                    <br>
+                    ${aluno.numero || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Sexo</strong>
+                    <br>
+                    ${aluno.sexo || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Classe</strong>
+                    <br>
+                    ${aluno.classe || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Turma</strong>
+                    <br>
+                    ${aluno.turmaNome || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Ano letivo</strong>
+                    <br>
+                    ${aluno.anoLetivo || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                    border-bottom:1px solid #e2e8f0;
+                ">
+                    <strong>Ensino</strong>
+                    <br>
+                    ${aluno.ensino || "—"}
+                </div>
+
+
+                <div style="
+                    padding:16px;
+                ">
+                    <strong>Estado</strong>
+                    <br>
+                    ${aluno.estado || "—"}
+                </div>
+
+            </div>
+
+
+            <!-- VOLTAR -->
+
+            <button
+                id="fecharDadosAluno"
+                style="
+                    width:100%;
+                    padding:15px;
+                    margin-top:15px;
+                    background:#dc2626;
+                    color:white;
+                    border:none;
+                    border-radius:10px;
+                    font-size:16px;
+                    cursor:pointer;
+                "
+            >
+                ← Voltar
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+
+
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        html
     );
+
+
+    const fechar =
+        document.getElementById(
+            "fecharDadosAluno"
+        );
+
+
+    if (fechar) {
+
+        fechar.onclick = function () {
+
+            const janela =
+                document.getElementById(
+                    "janelaDadosAluno"
+                );
+
+            if (janela) {
+                janela.remove();
+            }
+
+        };
+
+    }
 
 };
 
