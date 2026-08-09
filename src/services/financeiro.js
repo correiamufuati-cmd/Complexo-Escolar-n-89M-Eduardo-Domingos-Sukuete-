@@ -1,4 +1,4 @@
-alert("ÁREA FINANCEIRA df CARREGADA ✅");
+alert("ÁREA FINANCEIRA CARREGADA ✅");
 
 import { app } from "./firebase.js";
 
