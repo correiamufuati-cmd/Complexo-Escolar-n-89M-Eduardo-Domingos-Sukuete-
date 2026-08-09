@@ -6,6 +6,7 @@ import {
     collection,
     getDocs,
     doc,
+    getDoc,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
@@ -26,6 +27,164 @@ if (!dados) {
 }
 
 const aluno = JSON.parse(dados);
+
+/* =====================================================
+   FINANCEIRO DO ALUNO
+===================================================== */
+
+async function carregarEstadoFinanceiro() {
+
+    try {
+
+        const turmaId =
+            String(aluno.turmaId || "").trim();
+
+        const alunoId =
+            String(
+                aluno.alunoId ||
+                aluno.id ||
+                aluno.numero ||
+                ""
+            ).trim();
+
+
+        if (!turmaId || !alunoId) {
+
+            console.warn(
+                "Não foi possível identificar turma/aluno para o financeiro."
+            );
+
+            return {};
+
+        }
+
+
+        const referencia =
+            doc(
+                db,
+                "turmas",
+                turmaId,
+                "alunos",
+                alunoId,
+                "financeiro",
+                "estado"
+            );
+
+
+        const resultado =
+            await getDoc(referencia);
+
+
+        if (!resultado.exists()) {
+
+            return {};
+
+        }
+
+
+        return resultado.data();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar financeiro:",
+            error
+        );
+
+        return {};
+
+    }
+
+}
+
+
+/* =====================================================
+   VERIFICAR PAGAMENTO DO TRIMESTRE
+===================================================== */
+
+function trimestreNumerico(valor) {
+
+    const v =
+        String(valor)
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        v === "1" ||
+        v === "1º" ||
+        v === "1°" ||
+        v.includes("1º trimestre") ||
+        v.includes("1° trimestre")
+    ) {
+
+        return 1;
+
+    }
+
+
+    if (
+        v === "2" ||
+        v === "2º" ||
+        v === "2°" ||
+        v.includes("2º trimestre") ||
+        v.includes("2° trimestre")
+    ) {
+
+        return 2;
+
+    }
+
+
+    if (
+        v === "3" ||
+        v === "3º" ||
+        v === "3°" ||
+        v.includes("3º trimestre") ||
+        v.includes("3° trimestre")
+    ) {
+
+        return 3;
+
+    }
+
+
+    return 0;
+
+}
+
+
+function chaveFinanceiro(trimestre) {
+
+    const numero =
+        trimestreNumerico(trimestre);
+
+
+    if (numero === 1) {
+
+        return "1trimestre";
+
+    }
+
+
+    if (numero === 2) {
+
+        return "2trimestre";
+
+    }
+
+
+    if (numero === 3) {
+
+        return "3trimestre";
+
+    }
+
+
+    return "";
+
+}
 
 
 /* =====================================================
@@ -276,6 +435,71 @@ window.verNotas = async function () {
         }
 
 
+        /* ==========================================
+   CARREGAR ESTADO FINANCEIRO
+========================================== */
+
+let financeiroAluno = {};
+
+try {
+
+    const turmaIdFinanceiro =
+        String(aluno.turmaId || "").trim();
+
+    const alunoIdFinanceiro =
+        String(
+            aluno.alunoId ||
+            aluno.id ||
+            aluno.numero ||
+            ""
+        ).trim();
+
+
+    if (
+        turmaIdFinanceiro &&
+        alunoIdFinanceiro
+    ) {
+
+        const financeiroRef =
+            doc(
+                db,
+                "turmas",
+                turmaIdFinanceiro,
+                "alunos",
+                alunoIdFinanceiro,
+                "financeiro",
+                "estado"
+            );
+
+
+        const financeiroDoc =
+            await getDoc(
+                financeiroRef
+            );
+
+
+        if (
+            financeiroDoc.exists()
+        ) {
+
+            financeiroAluno =
+                financeiroDoc.data();
+
+        }
+
+    }
+
+}
+catch (erroFinanceiro) {
+
+    console.warn(
+        "Não foi possível carregar o estado financeiro:",
+        erroFinanceiro
+    );
+
+            }
+
+        
         /* ==========================================
            ORDEM DOS TRIMESTRES
         ========================================== */
