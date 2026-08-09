@@ -355,33 +355,26 @@ async function carregarTurmasProfessor() {
 
 
 // =====================================================
-// EVENTO — ESCOLHER TURMA
+// ESCOLHER TURMA
 // =====================================================
 
 classSelect.addEventListener(
     "change",
-    async function () {
+    async function(){
 
         turmaSelecionada =
-            this.value;
+            classSelect.value;
 
-        disciplinaSelecionada = "";
-
-        trimestreSelecionado = "";
-
-        pautaAtual = null;
+        /*
+        Limpar disciplina enquanto
+        a nova turma é preparada.
+        */
 
         subject.innerHTML = `
             <option value="">
                 Selecionar disciplina
             </option>
         `;
-
-        subject.disabled = true;
-
-        trimestreSelect.value = "";
-
-        trimestreSelect.disabled = true;
 
         pautaBody.innerHTML = `
             <tr>
@@ -391,54 +384,540 @@ classSelect.addEventListener(
             </tr>
         `;
 
-        limparMensagem();
+        /*
+        Atualizar informações do cabeçalho
+        */
 
-        if (!turmaSelecionada) {
+        if(turmaSelecionada){
 
-            turmaInfo.textContent =
-                "Turma: —";
+            const option =
+                classSelect.options[
+                    classSelect.selectedIndex
+                ];
 
-            classeInfo.textContent =
-                "Classe: —";
+            if(option){
 
-            atualizarEstado(
-                "Selecione uma turma.",
-                "⏳"
-            );
+                const texto =
+                    option.textContent;
 
-            return;
+                const turmaInfo =
+                    document.getElementById(
+                        "turmaInfo"
+                    );
+
+                if(turmaInfo){
+
+                    turmaInfo.textContent =
+                        "Turma: " + texto;
+
+                }
+
+            }
 
         }
 
+        /*
+        Carregar disciplinas atribuídas
+        ao professor.
+        */
 
-        try {
+        await carregarDisciplinasProfessor();
 
-            await carregarDadosTurma();
+    }
+);
 
-            await carregarDisciplinasProfessor();
 
-            atualizarEstado(
-                "Agora selecione a disciplina.",
-                "📚"
-            );
+// =====================================================
+// ESCOLHER DISCIPLINA
+// =====================================================
 
-        }
-        catch (erro) {
+subject.addEventListener(
+    "change",
+    async function(){
 
-            console.error(
-                erro
-            );
+        /*
+        Não carregar alunos ainda
+        se faltar turma.
+        */
+
+        if(!turmaSelecionada){
 
             mostrarMensagem(
-                erro.message,
-                "erro"
+                "Selecione primeiro a turma.",
+                "aviso"
             );
+
+            subject.value = "";
+
+            return;
+        }
+
+        /*
+        Se a disciplina foi selecionada,
+        atualizar estado.
+        */
+
+        if(subject.value){
+
+            atualizarEstado();
 
         }
 
     }
 );
 
+
+// =====================================================
+// ESCOLHER TRIMESTRE
+// =====================================================
+
+const trimestreSelect =
+    document.getElementById("trimestre");
+
+
+if(trimestreSelect){
+
+    trimestreSelect.addEventListener(
+        "change",
+        async function(){
+
+            if(
+                turmaSelecionada &&
+                subject.value &&
+                trimestreSelect.value
+            ){
+
+                await carregarNotas();
+
+            }
+
+            atualizarEstado();
+
+        }
+    );
+
+}
+
+// =====================================================
+// CARREGAR TURMAS DO PROFESSOR
+// =====================================================
+
+async function carregarTurmasProfessor(){
+
+    try{
+
+        const professorRef = doc(
+            db,
+            "professores",
+            professor.id
+        );
+
+        const professorSnap =
+            await getDoc(professorRef);
+
+        if(!professorSnap.exists()){
+
+            alert("Professor não encontrado no sistema.");
+            return;
+
+        }
+
+        const dados = professorSnap.data();
+
+        const turmasProfessor =
+            Array.isArray(dados.turmas)
+                ? dados.turmas
+                : [];
+
+        classSelect.innerHTML = `
+            <option value="">
+                Selecionar turma
+            </option>
+        `;
+
+        if(turmasProfessor.length === 0){
+
+            classSelect.innerHTML = `
+                <option value="">
+                    Nenhuma turma atribuída
+                </option>
+            `;
+
+            subject.innerHTML = `
+                <option value="">
+                    Selecionar disciplina
+                </option>
+            `;
+
+            return;
+        }
+
+        for(const turmaId of turmasProfessor){
+
+            const turmaRef = doc(
+                db,
+                "turmas",
+                turmaId
+            );
+
+            const turmaSnap =
+                await getDoc(turmaRef);
+
+            if(!turmaSnap.exists()){
+                continue;
+            }
+
+            const turma = turmaSnap.data();
+
+            const option =
+                document.createElement("option");
+
+            option.value = turmaId;
+
+            option.textContent =
+                turma.nome ||
+                turma.turma ||
+                turma.designacao ||
+                "Turma";
+
+            classSelect.appendChild(option);
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "Erro ao carregar turmas:",
+            error
+        );
+
+        classSelect.innerHTML = `
+            <option value="">
+                Erro ao carregar turmas
+            </option>
+        `;
+
+        alert(
+            "Erro ao carregar as turmas:\n\n" +
+            error.message
+        );
+    }
+}
+
+
+// =====================================================
+// CARREGAR DISCIPLINAS DO PROFESSOR
+// =====================================================
+
+async function carregarDisciplinasProfessor(){
+
+    try{
+
+        subject.innerHTML = `
+            <option value="">
+                Selecionar disciplina
+            </option>
+        `;
+
+        if(!turmaSelecionada){
+            return;
+        }
+
+        const professorRef = doc(
+            db,
+            "professores",
+            professor.id
+        );
+
+        const professorSnap =
+            await getDoc(professorRef);
+
+        if(!professorSnap.exists()){
+            return;
+        }
+
+        const dadosProfessor =
+            professorSnap.data();
+
+        /*
+        =================================================
+        DISCIPLINAS ATRIBUÍDAS AO PROFESSOR
+        =================================================
+        */
+
+        let disciplinas = [];
+
+        if(Array.isArray(dadosProfessor.disciplinas)){
+
+            disciplinas =
+                dadosProfessor.disciplinas;
+
+        }
+
+        /*
+        =================================================
+        CASO A DISCIPLINA ESTEJA GUARDADA COMO MAPA
+        =================================================
+        */
+
+        else if(
+            dadosProfessor.disciplinas &&
+            typeof dadosProfessor.disciplinas === "object"
+        ){
+
+            disciplinas =
+                Object.values(
+                    dadosProfessor.disciplinas
+                ).flat();
+
+        }
+
+        /*
+        =================================================
+// =====================================================
+// CARREGAR TURMAS DO PROFESSOR
+// =====================================================
+
+async function carregarTurmasProfessor(){
+
+    try{
+
+        const professorRef = doc(
+            db,
+            "professores",
+            professor.id
+        );
+
+        const professorSnap =
+            await getDoc(professorRef);
+
+        if(!professorSnap.exists()){
+
+            alert("Professor não encontrado no sistema.");
+            return;
+
+        }
+
+        const dados = professorSnap.data();
+
+        const turmasProfessor =
+            Array.isArray(dados.turmas)
+                ? dados.turmas
+                : [];
+
+        classSelect.innerHTML = `
+            <option value="">
+                Selecionar turma
+            </option>
+        `;
+
+        if(turmasProfessor.length === 0){
+
+            classSelect.innerHTML = `
+                <option value="">
+                    Nenhuma turma atribuída
+                </option>
+            `;
+
+            subject.innerHTML = `
+                <option value="">
+                    Selecionar disciplina
+                </option>
+            `;
+
+            return;
+        }
+
+        for(const turmaId of turmasProfessor){
+
+            const turmaRef = doc(
+                db,
+                "turmas",
+                turmaId
+            );
+
+            const turmaSnap =
+                await getDoc(turmaRef);
+
+            if(!turmaSnap.exists()){
+                continue;
+            }
+
+            const turma = turmaSnap.data();
+
+            const option =
+                document.createElement("option");
+
+            option.value = turmaId;
+
+            option.textContent =
+                turma.nome ||
+                turma.turma ||
+                turma.designacao ||
+                "Turma";
+
+            classSelect.appendChild(option);
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "Erro ao carregar turmas:",
+            error
+        );
+
+        classSelect.innerHTML = `
+            <option value="">
+                Erro ao carregar turmas
+            </option>
+        `;
+
+        alert(
+            "Erro ao carregar as turmas:\n\n" +
+            error.message
+        );
+    }
+}
+
+
+// =====================================================
+// CARREGAR DISCIPLINAS DO PROFESSOR
+// =====================================================
+
+async function carregarDisciplinasProfessor(){
+
+    try{
+
+        subject.innerHTML = `
+            <option value="">
+                Selecionar disciplina
+            </option>
+        `;
+
+        if(!turmaSelecionada){
+            return;
+        }
+
+        const professorRef = doc(
+            db,
+            "professores",
+            professor.id
+        );
+
+        const professorSnap =
+            await getDoc(professorRef);
+
+        if(!professorSnap.exists()){
+            return;
+        }
+
+        const dadosProfessor =
+            professorSnap.data();
+
+        /*
+        =================================================
+        DISCIPLINAS ATRIBUÍDAS AO PROFESSOR
+        =================================================
+        */
+
+        let disciplinas = [];
+
+        if(Array.isArray(dadosProfessor.disciplinas)){
+
+            disciplinas =
+                dadosProfessor.disciplinas;
+
+        }
+
+        /*
+        =================================================
+        CASO A DISCIPLINA ESTEJA GUARDADA COMO MAPA
+        =================================================
+        */
+
+        else if(
+            dadosProfessor.disciplinas &&
+            typeof dadosProfessor.disciplinas === "object"
+        ){
+
+            disciplinas =
+                Object.values(
+                    dadosProfessor.disciplinas
+                ).flat();
+
+        }
+
+        /*
+        =================================================
+        REMOVER DUPLICADAS
+        =================================================
+        */
+
+        disciplinas =
+            [...new Set(
+                disciplinas
+                .map(d => String(d).trim())
+                .filter(d => d !== "")
+            )];
+
+        /*
+        =================================================
+        CRIAR OPTIONS
+        =================================================
+        */
+
+        disciplinas
+        .sort(
+            (a,b) =>
+                a.localeCompare(b,"pt")
+        )
+        .forEach(disciplina => {
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                disciplina;
+
+            option.textContent =
+                disciplina;
+
+            subject.appendChild(option);
+
+        });
+
+        /*
+        =================================================
+        MENSAGEM SE NÃO HOUVER DISCIPLINAS
+        =================================================
+        */
+
+        if(disciplinas.length === 0){
+
+            subject.innerHTML = `
+                <option value="">
+                    Nenhuma disciplina atribuída
+                </option>
+            `;
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "Erro ao carregar disciplinas:",
+            error
+        );
+
+        subject.innerHTML = `
+            <option value="">
+                Erro ao carregar disciplinas
+            </option>
+        `;
+
+    }
+}
 
 // =====================================================
 // CARREGAR DADOS DA TURMA
