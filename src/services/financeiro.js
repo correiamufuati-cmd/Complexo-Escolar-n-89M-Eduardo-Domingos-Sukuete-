@@ -1,4 +1,10 @@
+// =====================================================
+// ÁREA FINANCEIRA - SGE
+// Gestão de propinas por trimestre
+// =====================================================
+
 alert("ÁREA FINANCEIRA CARREGADA ✅");
+
 
 import { app } from "./firebase.js";
 
@@ -15,9 +21,9 @@ import {
 const db = getFirestore(app);
 
 
-/* =====================================================
-   ELEMENTOS
-===================================================== */
+// =====================================================
+// ELEMENTOS
+// =====================================================
 
 const turmaSelect =
     document.getElementById("turmaSelect");
@@ -26,9 +32,39 @@ const lista =
     document.getElementById("financeiroLista");
 
 
-/* =====================================================
-   CARREGAR TURMAS
-===================================================== */
+// =====================================================
+// VERIFICAR ELEMENTOS
+// =====================================================
+
+if (!turmaSelect) {
+
+    alert(
+        "Erro: elemento turmaSelect não encontrado."
+    );
+
+    throw new Error(
+        "turmaSelect não encontrado."
+    );
+
+}
+
+
+if (!lista) {
+
+    alert(
+        "Erro: elemento financeiroLista não encontrado."
+    );
+
+    throw new Error(
+        "financeiroLista não encontrado."
+    );
+
+}
+
+
+// =====================================================
+// CARREGAR TURMAS
+// =====================================================
 
 async function carregarTurmas() {
 
@@ -36,7 +72,10 @@ async function carregarTurmas() {
 
         const snapshot =
             await getDocs(
-                collection(db, "turmas")
+                collection(
+                    db,
+                    "turmas"
+                )
             );
 
 
@@ -49,11 +88,61 @@ async function carregarTurmas() {
         `;
 
 
-        snapshot.forEach(
-            documento => {
+        /*
+        Transformar as turmas em array
+        para manter uma ordem estável.
+        */
+
+        const turmas =
+            snapshot.docs.map(
+                documento => ({
+
+                    id:
+                        documento.id,
+
+                    dados:
+                        documento.data()
+
+                })
+            );
+
+
+        /*
+        Ordenar pelo nome da turma.
+        */
+
+        turmas.sort(
+            (a, b) => {
+
+                const nomeA =
+                    String(
+                        a.dados.nome || ""
+                    );
+
+                const nomeB =
+                    String(
+                        b.dados.nome || ""
+                    );
+
+
+                return nomeA.localeCompare(
+                    nomeB,
+                    "pt"
+                );
+
+            }
+        );
+
+
+        /*
+        Criar opções.
+        */
+
+        turmas.forEach(
+            turmaItem => {
 
                 const turma =
-                    documento.data();
+                    turmaItem.dados;
 
 
                 const option =
@@ -63,7 +152,7 @@ async function carregarTurmas() {
 
 
                 option.value =
-                    documento.id;
+                    turmaItem.id;
 
 
                 option.textContent =
@@ -79,6 +168,11 @@ async function carregarTurmas() {
             }
         );
 
+
+        console.log(
+            "Turmas carregadas:",
+            turmas.length
+        );
 
     }
     catch (error) {
@@ -99,17 +193,14 @@ async function carregarTurmas() {
 }
 
 
-/* =====================================================
-   CARREGAR ALUNOS DA TURMA
-===================================================== */
-
-/* =====================================================
-   CARREGAR ALUNOS DA TURMA
-===================================================== */
+// =====================================================
+// CARREGAR ALUNOS DA TURMA
+// =====================================================
 
 async function carregarAlunos(
     turmaId
 ) {
+
 
     if (!turmaId) {
 
@@ -133,6 +224,11 @@ async function carregarAlunos(
 
 
     try {
+
+
+        /*
+        Mostrar carregamento.
+        */
 
         lista.innerHTML = `
 
@@ -150,8 +246,7 @@ async function carregarAlunos(
 
 
         /*
-        A estrutura atual do sistema usa
-        a subcoleção "alunos" dentro da turma.
+        Buscar alunos da turma.
         */
 
         const alunosRef =
@@ -169,8 +264,9 @@ async function carregarAlunos(
             );
 
 
-        lista.innerHTML = "";
-
+        /*
+        Verificar se existem alunos.
+        */
 
         if (snapshot.empty) {
 
@@ -194,10 +290,11 @@ async function carregarAlunos(
         }
 
 
-        /* =================================================
-           ORGANIZAR ALUNOS
-           Primeiro pelo número do aluno
-        ================================================= */
+        /*
+        =================================================
+        TRANSFORMAR DOCUMENTOS EM ARRAY
+        =================================================
+        */
 
         const alunos =
             snapshot.docs.map(
@@ -212,170 +309,107 @@ async function carregarAlunos(
                 })
             );
 
-/* =====================================================
-   CARREGAR ALUNOS DA TURMA
-===================================================== */
 
-async function carregarAlunos(turmaId) {
+        /*
+        =================================================
+        ORDENAR ALUNOS PELO NÚMERO
+        =================================================
+        */
 
-    if (!turmaId) {
+        alunos.sort(
+            (a, b) => {
 
-        lista.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    Selecione uma turma.
-                </td>
-            </tr>
-        `;
+                const numeroA =
+                    parseInt(
+                        a.dados.numero,
+                        10
+                    );
 
-        return;
-    }
-
-
-    try {
-
-        lista.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    A carregar alunos...
-                </td>
-            </tr>
-        `;
+                const numeroB =
+                    parseInt(
+                        b.dados.numero,
+                        10
+                    );
 
 
-        /* =================================================
-           BUSCAR ALUNOS DA TURMA
-        ================================================= */
+                /*
+                Ambos sem número:
+                ordenar pelo nome.
+                */
 
-        const alunosRef =
-            collection(
-                db,
-                "turmas",
-                turmaId,
-                "alunos"
-            );
+                if (
+                    Number.isNaN(numeroA) &&
+                    Number.isNaN(numeroB)
+                ) {
+
+                    return String(
+                        a.dados.nome || ""
+                    ).localeCompare(
+                        String(
+                            b.dados.nome || ""
+                        ),
+                        "pt"
+                    );
+
+                }
 
 
-        const snapshot =
-            await getDocs(alunosRef);
+                /*
+                A não tem número:
+                vai para o fim.
+                */
 
+                if (
+                    Number.isNaN(numeroA)
+                ) {
+
+                    return 1;
+
+                }
+
+
+                /*
+                B não tem número:
+                vai para o fim.
+                */
+
+                if (
+                    Number.isNaN(numeroB)
+                ) {
+
+                    return -1;
+
+                }
+
+
+                /*
+                Ordem crescente:
+
+                1
+                2
+                3
+                4
+                ...
+                */
+
+                return numeroA - numeroB;
+
+            }
+        );
+
+
+        /*
+        Limpar tabela.
+        */
 
         lista.innerHTML = "";
 
 
-        if (snapshot.empty) {
-
-            lista.innerHTML = `
-                <tr>
-                    <td colspan="7">
-                        Nenhum aluno encontrado
-                        nesta turma.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-
-        /* =================================================
-           TRANSFORMAR DOCUMENTOS EM ARRAY
-        ================================================= */
-
-        const alunos =
-            snapshot.docs.map(documento => ({
-
-                id:
-                    documento.id,
-
-                dados:
-                    documento.data()
-
-            }));
-
-
-        /* =================================================
-           ORDENAR PELO NÚMERO DO ALUNO
-        ================================================= */
-
-        alunos.sort((a, b) => {
-
-            const numeroA =
-                parseInt(
-                    a.dados.numero,
-                    10
-                );
-
-            const numeroB =
-                parseInt(
-                    b.dados.numero,
-                    10
-                );
-
-
-            /*
-            Se ambos não tiverem número,
-            ordenar pelo nome.
-            */
-
-            if (
-                Number.isNaN(numeroA) &&
-                Number.isNaN(numeroB)
-            ) {
-
-                return String(
-                    a.dados.nome || ""
-                ).localeCompare(
-                    String(
-                        b.dados.nome || ""
-                    ),
-                    "pt"
-                );
-
-            }
-
-
-            /*
-            Aluno sem número fica no fim.
-            */
-
-            if (
-                Number.isNaN(numeroA)
-            ) {
-
-                return 1;
-
-            }
-
-
-            if (
-                Number.isNaN(numeroB)
-            ) {
-
-                return -1;
-
-            }
-
-
-            /*
-            Ordem:
-
-            1
-            2
-            3
-            4
-            5
-            ...
-            */
-
-            return numeroA - numeroB;
-
-        });
-
-
-        /* =================================================
-           CRIAR LINHAS NA ORDEM CORRETA
-        ================================================= */
+        /*
+        =================================================
+        CRIAR LINHAS
+        =================================================
+        */
 
         let numeroSequencial = 1;
 
@@ -384,6 +418,7 @@ async function carregarAlunos(turmaId) {
             const alunoItem
             of alunos
         ) {
+
 
             await criarLinhaAluno(
 
@@ -401,56 +436,10 @@ async function carregarAlunos(turmaId) {
         }
 
 
-    }
-    catch (error) {
-
-        console.error(
-            "Erro ao carregar alunos:",
-            error
+        console.log(
+            "Alunos carregados:",
+            alunos.length
         );
-
-
-        lista.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    Erro ao carregar alunos:
-                    ${error.message}
-                </td>
-            </tr>
-        `;
-
-    }
-
-        }
-        
-
-        /* =================================================
-           CRIAR LINHAS
-        ================================================= */
-
-        let numeroSequencial = 1;
-
-
-        for (
-            const alunoItem
-            of alunos
-        ) {
-
-            await criarLinhaAluno(
-
-                alunoItem.id,
-
-                alunoItem.dados,
-
-                numeroSequencial
-
-            );
-
-
-            numeroSequencial++;
-
-        }
-
 
     }
     catch (error) {
@@ -482,147 +471,9 @@ async function carregarAlunos(turmaId) {
 }
 
 
- // =====================================================
-// ORGANIZAR ALUNOS POR NÚMERO
 // =====================================================
-
-const alunos = snapshot.docs.map(
-    documento => ({
-
-        id: documento.id,
-
-        dados: documento.data()
-
-    })
-);
-
-
+// CRIAR LINHA DO ALUNO
 // =====================================================
-// ORDENAR DO Nº MENOR PARA O MAIOR
-// =====================================================
-
-alunos.sort(
-    (a, b) => {
-
-        const numeroA =
-            parseInt(
-                a.dados.numero,
-                10
-            );
-
-        const numeroB =
-            parseInt(
-                b.dados.numero,
-                10
-            );
-
-
-        // Se ambos não tiverem número,
-        // ordenar pelo nome
-
-        if (
-            Number.isNaN(numeroA) &&
-            Number.isNaN(numeroB)
-        ) {
-
-            return String(
-                a.dados.nome || ""
-            ).localeCompare(
-                String(
-                    b.dados.nome || ""
-                ),
-                "pt"
-            );
-
-        }
-
-
-        // Sem número vai para o fim
-
-        if (
-            Number.isNaN(numeroA)
-        ) {
-
-            return 1;
-
-        }
-
-
-        if (
-            Number.isNaN(numeroB)
-        ) {
-
-            return -1;
-
-        }
-
-
-        return numeroA - numeroB;
-
-    }
-);
-
-
-// =====================================================
-// CRIAR AS LINHAS NA ORDEM CORRETA
-// =====================================================
-
-let numeroSequencial = 1;
-
-
-for (
-    const alunoItem
-    of alunos
-) {
-
-    await criarLinhaAluno(
-
-        alunoItem.id,
-
-        alunoItem.dados,
-
-        numeroSequencial
-
-    );
-
-
-    numeroSequencial++;
-
-            }
-
-    }
-    catch (error) {
-
-        console.error(
-            "Erro ao carregar alunos:",
-            error
-        );
-
-
-        lista.innerHTML = `
-
-            <tr>
-
-                <td colspan="7">
-
-                    Erro ao carregar alunos:
-
-                    ${error.message}
-
-                </td>
-
-            </tr>
-
-        `;
-
-    }
-
-}
-
-
-/* =====================================================
-   CRIAR LINHA
-===================================================== */
 
 async function criarLinhaAluno(
     alunoId,
@@ -631,6 +482,10 @@ async function criarLinhaAluno(
 ) {
 
 
+    /*
+    Buscar dados financeiros.
+    */
+
     const financeiro =
         await obterFinanceiro(
             alunoId,
@@ -638,80 +493,130 @@ async function criarLinhaAluno(
         );
 
 
+    /*
+    Criar linha.
+    */
+
     const tr =
-        document.createElement("tr");
+        document.createElement(
+            "tr"
+        );
+
+
+    /*
+    Número real do aluno.
+    */
+
+    const numeroAluno =
+        aluno.numero ||
+        numero;
+
+
+    /*
+    Nome.
+    */
+
+    const nomeAluno =
+        aluno.nome ||
+        "Aluno sem nome";
+
+
+    /*
+    Idade.
+    */
+
+    const idade =
+        aluno.idade ||
+        "—";
 
 
     tr.innerHTML = `
 
+        <!-- NÚMERO -->
+
         <td>
 
-            ${
-                aluno.numero
-                ||
-                numero
-            }
+            ${numeroAluno}
 
         </td>
 
+
+        <!-- NOME -->
 
         <td class="nome">
 
-            ${
-                aluno.nome
-                ||
-                "Aluno sem nome"
-            }
+            ${nomeAluno}
 
         </td>
 
+
+        <!-- IDADE -->
 
         <td>
 
-            ${
-                aluno.idade
-                ||
-                "—"
-            }
+            ${idade}
 
         </td>
 
+
+        <!-- 1º TRIMESTRE -->
 
         <td>
 
             ${botaoPagamento(
+
                 alunoId,
+
                 aluno,
+
                 1,
+
                 financeiro
+
             )}
 
         </td>
 
 
+        <!-- 2º TRIMESTRE -->
+
         <td>
 
             ${botaoPagamento(
+
                 alunoId,
+
                 aluno,
+
                 2,
+
                 financeiro
+
             )}
 
         </td>
 
+
+        <!-- 3º TRIMESTRE -->
 
         <td>
 
             ${botaoPagamento(
+
                 alunoId,
+
                 aluno,
+
                 3,
+
                 financeiro
+
             )}
 
         </td>
 
+
+        <!-- COMUNICADO -->
 
         <td>
 
@@ -719,11 +624,11 @@ async function criarLinhaAluno(
                 class="comunicado"
                 id="comunicado-${alunoId}"
                 value="${
-                    financeiro.comunicado
-                    || ""
+                    financeiro.comunicado || ""
                 }"
                 placeholder="Comunicado..."
             >
+
 
             <button
                 class="pagamento-btn"
@@ -733,7 +638,9 @@ async function criarLinhaAluno(
                     )
                 "
             >
+
                 💾
+
             </button>
 
         </td>
@@ -741,21 +648,25 @@ async function criarLinhaAluno(
     `;
 
 
-    lista.appendChild(tr);
+    lista.appendChild(
+        tr
+    );
 
 }
 
 
-/* =====================================================
-   BUSCAR FINANCEIRO
-===================================================== */
+// =====================================================
+// BUSCAR DADOS FINANCEIROS
+// =====================================================
 
 async function obterFinanceiro(
     alunoId,
     aluno
 ) {
 
+
     try {
+
 
         const ref =
             doc(
@@ -766,8 +677,14 @@ async function obterFinanceiro(
 
 
         const resultado =
-            await getDoc(ref);
+            await getDoc(
+                ref
+            );
 
+
+        /*
+        Se já existe.
+        */
 
         if (
             resultado.exists()
@@ -778,61 +695,85 @@ async function obterFinanceiro(
         }
 
 
+        /*
+        Se ainda não existe,
+        criar estrutura padrão em memória.
+        */
+
         return {
 
             alunoId:
                 alunoId,
 
             numero:
-                aluno.numero
-                || "",
+                aluno.numero || "",
 
             nome:
-                aluno.nome
-                || "",
+                aluno.nome || "",
 
             "1trimestre": {
 
-                pago:false
+                pago: false
 
             },
 
             "2trimestre": {
 
-                pago:false
+                pago: false
 
             },
 
             "3trimestre": {
 
-                pago:false
+                pago: false
 
             },
 
-            comunicado:""
+            comunicado: ""
 
         };
-
 
     }
     catch (error) {
 
         console.error(
-            "Erro financeiro:",
+            "Erro ao buscar financeiro:",
             error
         );
 
 
-        return {};
+        return {
+
+            "1trimestre": {
+
+                pago: false
+
+            },
+
+            "2trimestre": {
+
+                pago: false
+
+            },
+
+            "3trimestre": {
+
+                pago: false
+
+            },
+
+            comunicado: ""
+
+        };
 
     }
 
 }
 
 
-/* =====================================================
-   BOTÃO PAGAMENTO
-===================================================== */
+// =====================================================
+// BOTÃO DE PAGAMENTO
+// =====================================================
 
 function botaoPagamento(
     alunoId,
@@ -852,11 +793,18 @@ function botaoPagamento(
         ]?.pago === true;
 
 
+    /*
+    =================================================
+    PAGO
+    =================================================
+    */
+
     if (pago) {
 
         return `
 
             <button
+                type="button"
                 class="
                     pagamento-btn
                     pago
@@ -878,9 +826,16 @@ function botaoPagamento(
     }
 
 
+    /*
+    =================================================
+    NÃO PAGO
+    =================================================
+    */
+
     return `
 
         <button
+            type="button"
             class="
                 pagamento-btn
                 nao-pago
@@ -902,9 +857,9 @@ function botaoPagamento(
 }
 
 
-/* =====================================================
-   ALTERAR PAGAMENTO
-===================================================== */
+// =====================================================
+// ALTERAR PAGAMENTO
+// =====================================================
 
 window.alterarPagamento =
 async function (
@@ -915,6 +870,7 @@ async function (
 
     try {
 
+
         const ref =
             doc(
                 db,
@@ -924,7 +880,9 @@ async function (
 
 
         const resultado =
-            await getDoc(ref);
+            await getDoc(
+                ref
+            );
 
 
         let dados =
@@ -933,15 +891,31 @@ async function (
             : {};
 
 
+        /*
+        Chave:
+
+        1trimestre
+        2trimestre
+        3trimestre
+        */
+
         const chave =
             `${trimestre}trimestre`;
 
+
+        /*
+        Estado atual.
+        */
 
         const estadoAtual =
             dados?.[
                 chave
             ]?.pago === true;
 
+
+        /*
+        Inverter estado.
+        */
 
         dados[chave] = {
 
@@ -954,23 +928,39 @@ async function (
         };
 
 
+        /*
+        Guardar no Firestore.
+        */
+
         await setDoc(
+
             ref,
+
             dados,
+
             {
-                merge:true
+                merge: true
             }
+
+        );
+
+
+        console.log(
+            `Pagamento ${trimestre}º trimestre atualizado:`,
+            !estadoAtual
         );
 
 
         /*
-        Recarregar a turma
+        Recarregar a lista.
+
+        A ordenação será novamente feita
+        pelo número do aluno.
         */
 
         await carregarAlunos(
             turmaSelect.value
         );
-
 
     }
     catch (error) {
@@ -991,9 +981,9 @@ async function (
 };
 
 
-/* =====================================================
-   COMUNICADO
-===================================================== */
+// =====================================================
+// SALVAR COMUNICADO
+// =====================================================
 
 window.salvarComunicado =
 async function (
@@ -1003,6 +993,7 @@ async function (
 
     try {
 
+
         const campo =
             document.getElementById(
                 `comunicado-${alunoId}`
@@ -1010,6 +1001,10 @@ async function (
 
 
         if (!campo) {
+
+            alert(
+                "Campo de comunicado não encontrado."
+            );
 
             return;
 
@@ -1029,16 +1024,20 @@ async function (
 
 
         await setDoc(
+
             ref,
+
             {
 
                 comunicado:
                     comunicado
 
             },
+
             {
-                merge:true
+                merge: true
             }
+
         );
 
 
@@ -1066,9 +1065,9 @@ async function (
 };
 
 
-/* =====================================================
-   EVENTO TURMA
-===================================================== */
+// =====================================================
+// EVENTO — MUDAR TURMA
+// =====================================================
 
 turmaSelect.addEventListener(
     "change",
@@ -1082,8 +1081,8 @@ turmaSelect.addEventListener(
 );
 
 
-/* =====================================================
-   INICIAR
-===================================================== */
+// =====================================================
+// INICIAR SISTEMA
+// =====================================================
 
 carregarTurmas();
