@@ -1,114 +1,540 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
 
-<head>
+«»
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão de Turmas - SIGEA</title><style>
 
-<title>Gestão de Turmas - SIGEA</title>
+*{
+    box-sizing:border-box;
+}
 
-</head>
+body{
 
+    margin:0;
 
-<body>
+    padding:20px;
 
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
-<div class="container">
+    background:#f1f5f9;
 
+    color:#1e293b;
 
-<h2>
-🏫 Gestão de Turmas
-</h2>
-
-
-
-<label>Ensino</label>
-
-<select id="ensino">
-
-<option value="ensinoPrimario">
-Ensino Primário
-</option>
-
-<option value="primeiroCiclo">
-Primeiro Ciclo
-</option>
-
-</select>
+}
 
 
+.container{
+
+    width:100%;
+
+    max-width:1100px;
+
+    margin:auto;
+
+}
+
+
+/* =====================================================
+   CABEÇALHO
+===================================================== */
+
+.page-header{
+
+    background:
+        linear-gradient(
+            135deg,
+            #1e3a8a,
+            #2563eb
+        );
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,.12);
+
+}
+
+
+.page-header h2{
+
+    margin:0 0 7px;
+
+    font-size:24px;
+
+}
+
+
+.page-header p{
+
+    margin:0;
+
+    opacity:.9;
+
+    font-size:14px;
+
+}
+
+
+/* =====================================================
+   CARTÃO DE CRIAÇÃO
+===================================================== */
+
+.form-card{
+
+    background:white;
+
+    padding:22px;
+
+    border-radius:16px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,0,0,.07);
+
+    margin-bottom:25px;
+
+}
+
+
+.form-title{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:#1e3a8a;
+
+    margin-bottom:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap:16px;
+
+}
+
+
+.form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.form-group.full{
+
+    grid-column:
+        1 / -1;
+
+}
+
+
+.form-group label{
+
+    font-size:13px;
+
+    font-weight:bold;
+
+    color:#475569;
+
+    margin-bottom:7px;
+
+}
+
+
+.form-group input,
+.form-group select{
+
+    width:100%;
+
+    padding:12px 13px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius:9px;
+
+    background:#f8fafc;
+
+    font-size:14px;
+
+    outline:none;
+
+    transition:.2s;
+
+}
+
+
+.form-group input:focus,
+.form-group select:focus{
+
+    border-color:#2563eb;
+
+    background:white;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.10);
+
+}
+
+
+/* =====================================================
+   BOTÃO
+===================================================== */
+
+.button-area{
+
+    margin-top:20px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+}
+
+
+#saveClass{
+
+    border:none;
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:13px 25px;
+
+    border-radius:9px;
+
+    font-size:15px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+
+#saveClass:hover{
+
+    background:#1d4ed8;
+
+    transform:translateY(-1px);
+
+}
+
+
+#saveClass:disabled{
+
+    opacity:.6;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =====================================================
+   TÍTULO DA LISTA
+===================================================== */
+
+.list-header{
+
+    background:white;
+
+    padding:18px 20px;
+
+    border-radius:14px;
+
+    margin-bottom:12px;
+
+    box-shadow:
+        0 3px 10px
+        rgba(0,0,0,.06);
+
+}
+
+
+.list-header h3{
+
+    margin:0;
+
+    color:#1e3a8a;
+
+    font-size:18px;
+
+}
+
+
+.list-header p{
+
+    margin:5px 0 0;
+
+    color:#64748b;
+
+    font-size:13px;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:700px){
+
+    body{
+
+        padding:12px;
+
+    }
+
+
+    .page-header{
+
+        padding:20px;
+
+    }
+
+
+    .page-header h2{
+
+        font-size:21px;
+
+    }
+
+
+    .form-card{
+
+        padding:16px;
+
+    }
+
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .form-group.full{
+
+        grid-column:auto;
+
+    }
+
+
+    .button-area{
+
+        justify-content:stretch;
+
+    }
+
+
+    #saveClass{
+
+        width:100%;
+
+    }
+
+}
+
+</style></head><body><div class="container"><!-- =================================================
+     CABEÇALHO
+================================================== -->
+
+<div class="page-header">
+
+    <h2>
+        🏫 Gestão de Turmas
+    </h2>
+
+    <p>
+        Crie, organize e gerencie as turmas da escola.
+    </p>
+
+</div>
 
 
 
-<label>
-Classe
-</label>
+<!-- =================================================
+     FORMULÁRIO
+================================================== -->
 
-<select id="classe">
-    </select>
-
+<div class="form-card">
 
 
+    <div class="form-title">
 
+        ➕ Criar Nova Turma
 
-<label>
-Nome da Turma
-</label>
-
-<input 
-id="className"
-placeholder="Ex: 4ª E">
+    </div>
 
 
 
+    <div class="form-grid">
 
 
-<label>
-Ano Letivo
-</label>
+        <!-- ENSINO -->
 
-<input 
-id="anoLetivo"
-placeholder="Ex: 2026">
+        <div class="form-group">
+
+            <label for="ensino">
+                Ensino
+            </label>
+
+            <select id="ensino">
+
+                <option value="ensinoPrimario">
+                    Ensino Primário
+                </option>
+
+                <option value="primeiroCiclo">
+                    Primeiro Ciclo
+                </option>
+
+            </select>
+
+        </div>
 
 
 
+        <!-- CLASSE -->
+
+        <div class="form-group">
+
+            <label for="classe">
+                Classe
+            </label>
+
+            <select id="classe">
+
+            </select>
+
+        </div>
 
 
-<button id="saveClass">
 
-Criar Turma
+        <!-- NOME DA TURMA -->
 
-</button>
+        <div class="form-group">
+
+            <label for="className">
+                Nome da Turma
+            </label>
+
+            <input
+                id="className"
+                type="text"
+                placeholder="Ex: 4ª E"
+            >
+
+        </div>
 
 
 
+        <!-- ANO -->
+
+        <div class="form-group">
+
+            <label for="anoLetivo">
+                Ano Letivo
+            </label>
+
+            <input
+                id="anoLetivo"
+                type="number"
+                placeholder="Ex: 2026"
+            >
+
+        </div>
 
 
-<h3>
-Turmas Criadas
-</h3>
+    </div>
+
+
+
+    <!-- BOTÃO -->
+
+    <div class="button-area">
+
+        <button id="saveClass">
+
+            ➕ Criar Turma
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =================================================
+     LISTA
+================================================== -->
+
+<div class="list-header">
+
+    <h3>
+        📋 Turmas Criadas
+    </h3>
+
+    <p>
+        Consulte e gerencie as turmas cadastradas.
+    </p>
+
+</div>
 
 
 
 <div id="classList">
 
-A carregar...
+    A carregar...
 
 </div>
 
-
-
-</div>
-
-
-
-
-
-<script type="module" src="../services/classes.js?v=3"></script>
-
+</div><script
+    type="module"
+    src="../services/classes.js?v=4"></script>
 
 </body>
 
-    </html>
+</html>
