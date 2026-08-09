@@ -1,9 +1,9 @@
-// ============================================================
+// =====================================================
 // GRADES.JS — MINI-PAUTA DO PROFESSOR
-// SGE - SISTEMA DE GESTÃO ESCOLAR
-// ============================================================
+// BLOCO 1/4
+// =====================================================
 
-alert("GRADES.JS PROFESSOR — NOVA VERSÃO CARREGADA ✅");
+alert("GRADES.JS — MINI-PAUTA CARREGADA ✅");
 
 import { db } from "./firebase.js";
 
@@ -17,32 +17,30 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 
-// ============================================================
+// =====================================================
 // PROFESSOR LOGADO
-// ============================================================
+// =====================================================
 
 const professor =
     JSON.parse(
         localStorage.getItem("professorLogado")
     );
 
-
 if (!professor) {
 
-    alert("Professor não encontrado.");
+    alert("Sessão do professor não encontrada.");
 
-    window.location.href = "login.html";
+    window.location.href = "login-professor.html";
 
     throw new Error(
         "Professor não autenticado."
     );
-
 }
 
 
-// ============================================================
-// ELEMENTOS DO HTML
-// ============================================================
+// =====================================================
+// ELEMENTOS HTML
+// =====================================================
 
 const classSelect =
     document.getElementById("classSelect");
@@ -50,128 +48,159 @@ const classSelect =
 const subject =
     document.getElementById("subject");
 
+const trimestreSelect =
+    document.getElementById("trimestre");
+
 const pautaBody =
     document.getElementById("pautaBody");
 
 const saveGrades =
     document.getElementById("saveGrades");
 
-const excelInput =
-    document.getElementById("excelInput");
+const limparNotas =
+    document.getElementById("limparNotas");
 
-const importExcel =
-    document.getElementById("importExcel");
+const professorInfo =
+    document.getElementById("professorInfo");
 
-const gradesList =
-    document.getElementById("gradesList");
+const classeInfo =
+    document.getElementById("classeInfo");
 
+const turmaInfo =
+    document.getElementById("turmaInfo");
 
-// ============================================================
-// VERIFICAR ELEMENTOS
-// ============================================================
+const estadoTexto =
+    document.getElementById("estadoTexto");
 
-if (!classSelect) {
+const estadoIcone =
+    document.getElementById("estadoIcone");
 
-    throw new Error(
-        "Elemento #classSelect não encontrado."
-    );
-
-}
-
-if (!subject) {
-
-    throw new Error(
-        "Elemento #subject não encontrado."
-    );
-
-}
-
-if (!pautaBody) {
-
-    throw new Error(
-        "Elemento #pautaBody não encontrado."
-    );
-
-}
+const mensagem =
+    document.getElementById("mensagem");
 
 
-// ============================================================
+// =====================================================
 // ESTADO
-// ============================================================
+// =====================================================
 
 let turmaSelecionada = "";
 
 let disciplinaSelecionada = "";
 
-let trimestreSelecionado = 1;
+let trimestreSelecionado = "";
 
 let alunos = [];
 
-let notasAtuais = {};
+let dadosProfessor = {};
 
-let turmaDados = {};
+let dadosTurma = {};
 
-
-// ============================================================
-// CICLO / CLASSE
-// ============================================================
-
-let ensinoAtual = "";
-
-let classeAtual = "";
+let pautaAtual = null;
 
 
-// ============================================================
-// CONFIGURAÇÃO DOS TRIMESTRES
-// ============================================================
+// =====================================================
+// MOSTRAR INFORMAÇÕES DO PROFESSOR
+// =====================================================
 
-const TRIMESTRES = [
-
-    {
-        numero: 1,
-        nome: "1.º Trimestre"
-    },
-
-    {
-        numero: 2,
-        nome: "2.º Trimestre"
-    },
-
-    {
-        numero: 3,
-        nome: "3.º Trimestre"
-    }
-
-];
+professorInfo.textContent =
+    `Professor: ${
+        professor.nome ||
+        professor.nomeCompleto ||
+        "—"
+    }`;
 
 
-// ============================================================
-// INICIALIZAÇÃO
-// ============================================================
+// =====================================================
+// FUNÇÃO DE MENSAGEM
+// =====================================================
+
+function mostrarMensagem(
+    texto,
+    tipo = "aviso"
+) {
+
+    mensagem.textContent = texto;
+
+    mensagem.className =
+        `mensagem ${tipo}`;
+
+}
+
+
+// =====================================================
+// LIMPAR MENSAGEM
+// =====================================================
+
+function limparMensagem() {
+
+    mensagem.textContent = "";
+
+    mensagem.className =
+        "mensagem";
+
+}
+
+
+// =====================================================
+// ESTADO DA PAUTA
+// =====================================================
+
+function atualizarEstado(
+    texto,
+    icone = "⏳",
+    classe = ""
+) {
+
+    estadoTexto.textContent =
+        texto;
+
+    estadoIcone.textContent =
+        icone;
+
+    estadoTexto.className =
+        `estado-texto ${classe}`;
+
+}
+
+
+// =====================================================
+// INICIAR
+// =====================================================
 
 async function iniciar() {
 
     try {
 
-        prepararInterface();
+        limparMensagem();
+
+        atualizarEstado(
+            "A carregar as atribuições do professor...",
+            "⏳"
+        );
+
+        await carregarProfessor();
 
         await carregarTurmasProfessor();
 
-        console.log(
-            "Mini-pauta iniciada com sucesso."
+        bloquearSelecoesIniciais();
+
+        atualizarEstado(
+            "Selecione a turma, disciplina e trimestre.",
+            "⏳"
         );
 
     }
     catch (erro) {
 
         console.error(
-            "Erro ao iniciar mini-pauta:",
+            "Erro ao iniciar Mini-Pauta:",
             erro
         );
 
-        alert(
-            "Erro ao iniciar a Mini-Pauta:\n\n" +
-            erro.message
+        mostrarMensagem(
+            "Erro ao iniciar a Mini-Pauta: " +
+            erro.message,
+            "erro"
         );
 
     }
@@ -179,191 +208,95 @@ async function iniciar() {
 }
 
 
-// ============================================================
-// PREPARAR INTERFACE
-// ============================================================
+// =====================================================
+// CARREGAR PROFESSOR
+// =====================================================
 
-function prepararInterface() {
+async function carregarProfessor() {
 
-    criarSeletorTrimestre();
-
-    criarBotoesExportacao();
-
-    if (saveGrades) {
-
-        saveGrades.textContent =
-            "💾 Guardar Mini-Pauta";
-
-    }
-
-}
-
-
-// ============================================================
-// CRIAR SELETOR DE TRIMESTRE
-// ============================================================
-
-function criarSeletorTrimestre() {
-
-    const bloco =
-        document.createElement("div");
-
-    bloco.id =
-        "blocoTrimestre";
-
-    bloco.style.marginTop =
-        "10px";
-
-    bloco.innerHTML = `
-
-        <label
-            for="trimestreSelect"
-            style="
-                display:block;
-                font-weight:bold;
-                margin-bottom:5px;
-            "
-        >
-            Trimestre
-        </label>
-
-        <select
-            id="trimestreSelect"
-            style="
-                width:100%;
-                padding:10px;
-            "
-        >
-
-            <option value="1">
-                1.º Trimestre
-            </option>
-
-            <option value="2">
-                2.º Trimestre
-            </option>
-
-            <option value="3">
-                3.º Trimestre
-            </option>
-
-        </select>
-
-    `;
-
-
-    /*
-    Colocar depois do campo disciplina.
-    */
-
-    if (subject.parentElement) {
-
-        subject.parentElement.appendChild(
-            bloco
+    const professorRef =
+        doc(
+            db,
+            "professores",
+            professor.id
         );
 
-    }
-    else {
+    const professorSnap =
+        await getDoc(
+            professorRef
+        );
 
-        subject.insertAdjacentElement(
-            "afterend",
-            bloco
+    if (!professorSnap.exists()) {
+
+        throw new Error(
+            "Professor não encontrado no Firestore."
         );
 
     }
 
+    dadosProfessor =
+        professorSnap.data();
 
-    const trimestreSelect =
-        document.getElementById(
-            "trimestreSelect"
-        );
-
-
-    trimestreSelect.addEventListener(
-        "change",
-        async function () {
-
-            trimestreSelecionado =
-                Number(
-                    this.value
-                );
-
-
-            if (
-                turmaSelecionada &&
-                disciplinaSelecionada
-            ) {
-
-                await carregarNotas();
-
-            }
-
-        }
+    console.log(
+        "Professor:",
+        dadosProfessor
     );
 
 }
 
 
-// ============================================================
+// =====================================================
+// BLOQUEAR SELEÇÕES
+// =====================================================
+
+function bloquearSelecoesIniciais() {
+
+    subject.disabled = true;
+
+    trimestreSelect.disabled = true;
+
+}
+
+
+// =====================================================
 // CARREGAR TURMAS DO PROFESSOR
-// ============================================================
+// =====================================================
 
 async function carregarTurmasProfessor() {
 
-    try {
+    classSelect.innerHTML = `
+        <option value="">
+            Selecionar turma
+        </option>
+    `;
 
-        const professorRef =
-            doc(
-                db,
-                "professores",
-                professor.id
-            );
+    const turmasProfessor =
+        Array.isArray(
+            dadosProfessor.turmas
+        )
+            ? dadosProfessor.turmas
+            : [];
 
+    if (
+        turmasProfessor.length === 0
+    ) {
 
-        const professorSnap =
-            await getDoc(
-                professorRef
-            );
+        mostrarMensagem(
+            "Nenhuma turma foi atribuída a este professor.",
+            "aviso"
+        );
 
+        return;
 
-        if (
-            !professorSnap.exists()
-        ) {
-
-            alert(
-                "O professor não existe no sistema."
-            );
-
-            return;
-
-        }
+    }
 
 
-        const dados =
-            professorSnap.data();
+    for (
+        const turmaId
+        of turmasProfessor
+    ) {
 
-
-        const turmasProfessor =
-            Array.isArray(
-                dados.turmas
-            )
-                ? dados.turmas
-                : [];
-
-
-        classSelect.innerHTML = `
-
-            <option value="">
-                Selecionar turma
-            </option>
-
-        `;
-
-
-        for (
-            const turmaId
-            of turmasProfessor
-        ) {
+        try {
 
             const turmaRef =
                 doc(
@@ -372,89 +305,58 @@ async function carregarTurmasProfessor() {
                     turmaId
                 );
 
-
             const turmaSnap =
                 await getDoc(
                     turmaRef
                 );
 
-
-            if (
-                !turmaSnap.exists()
-            ) {
-
+            if (!turmaSnap.exists()) {
                 continue;
-
             }
-
 
             const turma =
                 turmaSnap.data();
-
 
             const option =
                 document.createElement(
                     "option"
                 );
 
-
             option.value =
                 turmaId;
 
-
             option.textContent =
-                `${turma.nome || "Turma"}${
-                    turma.classe
-                        ? " — " + turma.classe
-                        : ""
-                }`;
+                turma.nome ||
+                turma.turma ||
+                turmaId;
 
+            option.dataset.classe =
+                turma.classe ||
+                "";
 
             classSelect.appendChild(
                 option
             );
 
         }
+        catch (erro) {
 
-
-        if (
-            !turmasProfessor.length
-        ) {
-
-            pautaBody.innerHTML = `
-
-                <tr>
-
-                    <td colspan="5">
-
-                        ⚠️ Nenhuma turma foi
-                        atribuída a este professor.
-
-                    </td>
-
-                </tr>
-
-            `;
+            console.error(
+                "Erro ao carregar turma:",
+                turmaId,
+                erro
+            );
 
         }
 
     }
-    catch (erro) {
 
-        console.error(
-            "Erro ao carregar turmas:",
-            erro
-        );
+}
 
-        throw erro;
 
-    }
-
-    }
-
-// ============================================================
-// ESCOLHER TURMA
-// ============================================================
+// =====================================================
+// EVENTO — ESCOLHER TURMA
+// =====================================================
 
 classSelect.addEventListener(
     "change",
@@ -463,44 +365,84 @@ classSelect.addEventListener(
         turmaSelecionada =
             this.value;
 
-        disciplinaSelecionada =
-            "";
+        disciplinaSelecionada = "";
 
-        alunos = [];
+        trimestreSelecionado = "";
 
-        notasAtuais = {};
-
-        pautaBody.innerHTML = "";
+        pautaAtual = null;
 
         subject.innerHTML = `
-
             <option value="">
                 Selecionar disciplina
             </option>
-
         `;
 
+        subject.disabled = true;
+
+        trimestreSelect.value = "";
+
+        trimestreSelect.disabled = true;
+
+        pautaBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    Selecione a disciplina e o trimestre.
+                </td>
+            </tr>
+        `;
+
+        limparMensagem();
 
         if (!turmaSelecionada) {
+
+            turmaInfo.textContent =
+                "Turma: —";
+
+            classeInfo.textContent =
+                "Classe: —";
+
+            atualizarEstado(
+                "Selecione uma turma.",
+                "⏳"
+            );
 
             return;
 
         }
 
 
-        await carregarDadosTurma();
+        try {
 
-        await carregarDisciplinasProfessor();
+            await carregarDadosTurma();
 
-        await carregarAlunos();
+            await carregarDisciplinasProfessor();
+
+            atualizarEstado(
+                "Agora selecione a disciplina.",
+                "📚"
+            );
+
+        }
+        catch (erro) {
+
+            console.error(
+                erro
+            );
+
+            mostrarMensagem(
+                erro.message,
+                "erro"
+            );
+
+        }
 
     }
 );
 
 
-// ============================================================
+// =====================================================
 // CARREGAR DADOS DA TURMA
-// ============================================================
+// =====================================================
 
 async function carregarDadosTurma() {
 
@@ -511,92 +453,61 @@ async function carregarDadosTurma() {
             turmaSelecionada
         );
 
-
     const turmaSnap =
         await getDoc(
             turmaRef
         );
 
+    if (!turmaSnap.exists()) {
 
-    if (
-        !turmaSnap.exists()
-    ) {
-
-        return;
+        throw new Error(
+            "A turma selecionada não foi encontrada."
+        );
 
     }
 
-
-    turmaDados =
+    dadosTurma =
         turmaSnap.data();
 
+    turmaInfo.textContent =
+        `Turma: ${
+            dadosTurma.nome ||
+            dadosTurma.turma ||
+            "—"
+        }`;
 
-    classeAtual =
-        turmaDados.classe ||
-        "";
-
-
-    ensinoAtual =
-        turmaDados.ensino ||
-        turmaDados.ciclo ||
-        "";
-
-
-    console.log(
-        "Turma:",
-        turmaDados
-    );
+    classeInfo.textContent =
+        `Classe: ${
+            dadosTurma.classe ||
+            "—"
+        }`;
 
 }
 
 
-// ============================================================
+// =====================================================
 // CARREGAR DISCIPLINAS DO PROFESSOR
-// ============================================================
+// =====================================================
 
 async function carregarDisciplinasProfessor() {
 
     subject.innerHTML = `
-
         <option value="">
             Selecionar disciplina
         </option>
-
     `;
 
 
-    const professorRef =
-        doc(
-            db,
-            "professores",
-            professor.id
-        );
-
-
-    const professorSnap =
-        await getDoc(
-            professorRef
-        );
-
-
-    if (
-        !professorSnap.exists()
-    ) {
-
-        return;
-
-    }
-
-
-    const dados =
-        professorSnap.data();
-
+    /*
+    As disciplinas continuam a vir
+    das atribuições do professor.
+    */
 
     let disciplinas =
         Array.isArray(
-            dados.disciplinas
+            dadosProfessor.disciplinas
         )
-            ? dados.disciplinas
+            ? [...dadosProfessor.disciplinas]
             : [];
 
 
@@ -605,41 +516,54 @@ async function carregarDisciplinasProfessor() {
     */
 
     disciplinas =
-        [...new Set(
-            disciplinas
-                .map(
-                    item =>
-                        String(item).trim()
-                )
-                .filter(Boolean)
-        )];
-
-
-    disciplinas.sort(
-        (a, b) =>
-            a.localeCompare(
-                b,
-                "pt"
+        [
+            ...new Set(
+                disciplinas
+                    .map(
+                        d => String(d).trim()
+                    )
+                    .filter(Boolean)
             )
-    );
+        ];
+
+
+    if (
+        disciplinas.length === 0
+    ) {
+
+        mostrarMensagem(
+            "Nenhuma disciplina foi atribuída a este professor.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    disciplinas
+        .sort(
+            (a,b) =>
+                a.localeCompare(
+                    b,
+                    "pt"
+                )
+        );
 
 
     disciplinas.forEach(
-        nomeDisciplina => {
+        disciplina => {
 
             const option =
                 document.createElement(
                     "option"
                 );
 
-
             option.value =
-                nomeDisciplina;
-
+                disciplina;
 
             option.textContent =
-                nomeDisciplina;
-
+                disciplina;
 
             subject.appendChild(
                 option
@@ -648,12 +572,15 @@ async function carregarDisciplinasProfessor() {
         }
     );
 
+
+    subject.disabled = false;
+
 }
 
 
-// ============================================================
-// ESCOLHER DISCIPLINA
-// ============================================================
+// =====================================================
+// EVENTO — ESCOLHER DISCIPLINA
+// =====================================================
 
 subject.addEventListener(
     "change",
@@ -662,66 +589,165 @@ subject.addEventListener(
         disciplinaSelecionada =
             this.value;
 
+        trimestreSelecionado = "";
 
-        notasAtuais = {};
+        trimestreSelect.value = "";
 
+        pautaBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    Selecione o trimestre.
+                </td>
+            </tr>
+        `;
 
-        if (
-            !turmaSelecionada ||
-            !disciplinaSelecionada
-        ) {
+        limparMensagem();
+
+        if (!disciplinaSelecionada) {
+
+            trimestreSelect.disabled = true;
+
+            atualizarEstado(
+                "Selecione a disciplina.",
+                "📚"
+            );
 
             return;
 
         }
 
 
-        await carregarNotas();
+        /*
+        IMPORTANTE:
+        existe apenas UM seletor de trimestre.
+        */
+
+        trimestreSelect.disabled = false;
+
+        atualizarEstado(
+            "Agora selecione o trimestre.",
+            "📅"
+        );
 
     }
 );
 
 
-// ============================================================
-// CARREGAR ALUNOS
-// ============================================================
+// =====================================================
+// EVENTO — ESCOLHER TRIMESTRE
+// =====================================================
 
-async function carregarAlunos() {
+trimestreSelect.addEventListener(
+    "change",
+    async function () {
+
+        trimestreSelecionado =
+            this.value;
+
+        pautaAtual = null;
+
+        pautaBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    A preparar pauta...
+                </td>
+            </tr>
+        `;
+
+        limparMensagem();
+
+        if (
+            !turmaSelecionada ||
+            !disciplinaSelecionada ||
+            !trimestreSelecionado
+        ) {
+
+            atualizarEstado(
+                "Selecione turma, disciplina e trimestre.",
+                "⏳"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            await carregarPauta();
+
+        }
+        catch (erro) {
+
+            console.error(
+                erro
+            );
+
+            mostrarMensagem(
+                "Erro ao carregar pauta: " +
+                erro.message,
+                "erro"
+            );
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// INICIAR SISTEMA
+// =====================================================
+
+iniciar();
+
+// =====================================================
+// GRADES.JS — MINI-PAUTA DO PROFESSOR
+// BLOCO 2/4
+// ALUNOS + NOTAS + MF
+// =====================================================
+
+
+// =====================================================
+// CARREGAR PAUTA
+// =====================================================
+
+async function carregarPauta() {
 
     pautaBody.innerHTML = `
-
         <tr>
-
             <td colspan="5">
-
                 ⏳ A carregar alunos...
-
             </td>
-
         </tr>
-
     `;
+
+
+    atualizarEstado(
+        "A carregar a Mini-Pauta...",
+        "⏳"
+    );
+
+
+    // -----------------------------------------------
+    // CARREGAR ALUNOS
+    // -----------------------------------------------
+
+    const alunosSnapshot =
+        await getDocs(
+            collection(
+                db,
+                "turmas",
+                turmaSelecionada,
+                "alunos"
+            )
+        );
 
 
     alunos = [];
 
 
-    const alunosRef =
-        collection(
-            db,
-            "turmas",
-            turmaSelecionada,
-            "alunos"
-        );
-
-
-    const snapshot =
-        await getDocs(
-            alunosRef
-        );
-
-
-    snapshot.forEach(
+    alunosSnapshot.forEach(
         documento => {
 
             alunos.push({
@@ -737,12 +763,12 @@ async function carregarAlunos() {
     );
 
 
-    /*
-    Ordenar pelo número.
-    */
+    // -----------------------------------------------
+    // ORDENAR ALUNOS
+    // -----------------------------------------------
 
     alunos.sort(
-        (a, b) => {
+        (a,b) => {
 
             const numeroA =
                 Number(a.numero);
@@ -792,71 +818,65 @@ async function carregarAlunos() {
     );
 
 
-    if (!alunos.length) {
+    if (
+        alunos.length === 0
+    ) {
 
         pautaBody.innerHTML = `
-
             <tr>
-
                 <td colspan="5">
-
-                    ⚠️ Nenhum aluno encontrado
-                    nesta turma.
-
+                    Nenhum aluno encontrado nesta turma.
                 </td>
-
             </tr>
-
         `;
+
+        atualizarEstado(
+            "A turma não possui alunos.",
+            "⚠️"
+        );
 
         return;
 
     }
 
+
+    // -----------------------------------------------
+    // BUSCAR NOTAS JÁ LANÇADAS
+    // -----------------------------------------------
+
+    pautaAtual =
+        await obterNotasDaPauta();
+
+
+    // -----------------------------------------------
+    // MOSTRAR TABELA
+    // -----------------------------------------------
 
     mostrarPauta();
 
-            }
 
-                // ============================================================
-// CARREGAR NOTAS EXISTENTES
-// ============================================================
+    atualizarEstado(
+        "Mini-Pauta pronta para lançamento.",
+        "📝",
+        "estado-aberto"
+    );
 
-async function carregarNotas() {
-
-    if (
-        !turmaSelecionada ||
-        !disciplinaSelecionada
-    ) {
-
-        return;
-
-    }
+}
 
 
-    pautaBody.innerHTML = `
+// =====================================================
+// OBTER NOTAS DA PAUTA
+// =====================================================
 
-        <tr>
-
-            <td colspan="5">
-
-                ⏳ A carregar notas...
-
-            </td>
-
-        </tr>
-
-    `;
-
-
-    notasAtuais = {};
-
+async function obterNotasDaPauta() {
 
     /*
-    Estrutura única da mini-pauta:
+    Documento único para cada:
 
-    notas/
-        turma_disciplina_trimestre
+    TURMA + DISCIPLINA + TRIMESTRE
+
+    Isso evita criar vários lançamentos
+    duplicados para o mesmo período.
     */
 
     const idPauta =
@@ -878,108 +898,192 @@ async function carregarNotas() {
 
 
     if (
-        pautaSnap.exists()
+        !pautaSnap.exists()
     ) {
 
-        const dados =
-            pautaSnap.data();
+        return {
 
+            existe: false,
 
-        if (
-            Array.isArray(
-                dados.alunos
-            )
-        ) {
+            alunos: {}
 
-            dados.alunos.forEach(
-                aluno => {
-
-                    notasAtuais[
-                        String(aluno.alunoId)
-                    ] = aluno;
-
-                }
-            );
-
-        }
+        };
 
     }
 
 
-    mostrarPauta();
+    const dados =
+        pautaSnap.data();
+
+
+    const mapaAlunos = {};
+
+
+    /*
+    O documento pode guardar
+    alunos como array.
+    */
+
+    if (
+        Array.isArray(
+            dados.alunos
+        )
+    ) {
+
+        dados.alunos.forEach(
+            aluno => {
+
+                if (
+                    aluno.alunoId
+                ) {
+
+                    mapaAlunos[
+                        aluno.alunoId
+                    ] = aluno;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+    Compatibilidade com estrutura
+    antiga, caso exista.
+    */
+
+    if (
+        Array.isArray(
+            dados.notas
+        )
+    ) {
+
+        dados.notas.forEach(
+            aluno => {
+
+                if (
+                    aluno.alunoId
+                ) {
+
+                    mapaAlunos[
+                        aluno.alunoId
+                    ] = aluno;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    return {
+
+        existe: true,
+
+        alunos:
+            mapaAlunos,
+
+        dados
+
+    };
 
 }
 
 
-// ============================================================
-// ID DA PAUTA
-// ============================================================
+// =====================================================
+// CRIAR ID ÚNICO DA PAUTA
+// =====================================================
 
 function criarIdPauta() {
 
     return (
 
         String(turmaSelecionada)
-        + "_"
-        +
-        limparId(
-            disciplinaSelecionada
+        .trim()
+        .replace(
+            /\s+/g,
+            "_"
         )
+
         + "_"
+
         +
+
+        String(disciplinaSelecionada)
+        .trim()
+        .replace(
+            /\s+/g,
+            "_"
+        )
+
+        + "_"
+
+        +
+
         String(trimestreSelecionado)
+        .trim()
 
     );
 
 }
 
 
-// ============================================================
-// LIMPAR TEXTO PARA ID
-// ============================================================
-
-function limparId(texto) {
-
-    return String(texto)
-        .normalize("NFD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        )
-        .replace(
-            /[^a-zA-Z0-9]/g,
-            "_"
-        )
-        .toLowerCase();
-
-}
-
-
-// ============================================================
+// =====================================================
 // MOSTRAR PAUTA
-// ============================================================
+// =====================================================
 
 function mostrarPauta() {
 
     pautaBody.innerHTML = "";
 
 
-    if (
-        !alunos.length
-    ) {
-
-        return;
-
-    }
-
-
     alunos.forEach(
         aluno => {
 
             const nota =
-                notasAtuais[
-                    String(aluno.id)
+                pautaAtual?.alunos?.[
+                    aluno.id
                 ] || {};
+
+
+            const mac =
+                nota.MAC !== undefined
+                    ? nota.MAC
+                    : "";
+
+
+            const npt =
+                nota.NPT !== undefined
+                    ? nota.NPT
+                    : "";
+
+
+            let mf =
+                nota.MF !== undefined
+                    ? nota.MF
+                    : "";
+
+
+            /*
+            Se MAC e NPT existirem,
+            recalcular MF.
+            */
+
+            if (
+                mac !== "" &&
+                npt !== ""
+            ) {
+
+                mf =
+                    calcularMedia(
+                        mac,
+                        npt
+                    );
+
+            }
 
 
             const tr =
@@ -988,28 +1092,39 @@ function mostrarPauta() {
                 );
 
 
+            tr.dataset.alunoId =
+                aluno.id;
+
+
             tr.innerHTML = `
 
                 <td>
-                    ${aluno.numero || ""}
+                    ${
+                        aluno.numero ||
+                        ""
+                    }
                 </td>
 
-                <td>
-                    ${aluno.nome || ""}
+                <td class="nome">
+                    ${
+                        escaparHTML(
+                            aluno.nome ||
+                            "Aluno sem nome"
+                        )
+                    }
                 </td>
 
                 <td>
 
                     <input
-                        class="mac"
+                        class="nota mac"
                         data-id="${aluno.id}"
                         type="number"
                         min="0"
                         max="20"
                         step="0.1"
-                        value="${
-                            nota.MAC ?? ""
-                        }"
+                        value="${mac}"
+                        placeholder="—"
                     >
 
                 </td>
@@ -1017,24 +1132,24 @@ function mostrarPauta() {
                 <td>
 
                     <input
-                        class="npt"
+                        class="nota npt"
                         data-id="${aluno.id}"
                         type="number"
                         min="0"
                         max="20"
                         step="0.1"
-                        value="${
-                            nota.NPT ?? ""
-                        }"
+                        value="${npt}"
+                        placeholder="—"
                     >
 
                 </td>
 
                 <td
+                    class="mf"
                     id="mf-${aluno.id}"
                 >
 
-                    ${nota.MF ?? ""}
+                    ${mf === "" ? "—" : mf}
 
                 </td>
 
@@ -1049,48 +1164,200 @@ function mostrarPauta() {
     );
 
 
-    ativarCalculoMF();
+    ativarCalculoNotas();
 
 }
 
 
-// ============================================================
-// CALCULAR MF
-// ============================================================
+// =====================================================
+// ESCAPAR HTML
+// =====================================================
 
-function ativarCalculoMF() {
+function escaparHTML(valor) {
 
-    document
-        .querySelectorAll(
-            "#pautaBody .mac, #pautaBody .npt"
+    return String(valor)
+        .replace(
+            /&/g,
+            "&amp;"
         )
-        .forEach(
-            input => {
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
-                input.addEventListener(
-                    "input",
-                    function () {
+}
 
-                        calcularMF(
-                            this.dataset.id
-                        );
 
-                    }
-                );
+// =====================================================
+// CALCULAR MÉDIA
+// =====================================================
 
-            }
+function calcularMedia(
+    mac,
+    npt
+) {
+
+    const valorMAC =
+        Number(mac);
+
+    const valorNPT =
+        Number(npt);
+
+
+    if (
+        Number.isNaN(valorMAC) ||
+        Number.isNaN(valorNPT)
+    ) {
+
+        return "";
+
+    }
+
+
+    return Number(
+        (
+            (valorMAC + valorNPT) /
+            2
+        ).toFixed(1)
+    );
+
+}
+
+
+// =====================================================
+// ATIVAR CÁLCULO AUTOMÁTICO
+// =====================================================
+
+function ativarCalculoNotas() {
+
+    const inputs =
+        pautaBody.querySelectorAll(
+            ".nota"
         );
 
 
-    /*
-    Calcular as notas já existentes.
-    */
+    inputs.forEach(
+        input => {
 
-    alunos.forEach(
-        aluno => {
+            input.addEventListener(
+                "input",
+                function () {
 
-            calcularMF(
-                aluno.id
+                    const alunoId =
+                        this.dataset.id;
+
+
+                    const linha =
+                        pautaBody.querySelector(
+                            `tr[data-aluno-id="${alunoId}"]`
+                        );
+
+
+                    if (!linha) {
+                        return;
+                    }
+
+
+                    const macInput =
+                        linha.querySelector(
+                            ".mac"
+                        );
+
+
+                    const nptInput =
+                        linha.querySelector(
+                            ".npt"
+                        );
+
+
+                    const mfElemento =
+                        linha.querySelector(
+                            ".mf"
+                        );
+
+
+                    const mac =
+                        macInput.value;
+
+
+                    const npt =
+                        nptInput.value;
+
+
+                    /*
+                    Se um dos campos estiver vazio,
+                    não mostrar MF.
+                    */
+
+                    if (
+                        mac === "" ||
+                        npt === ""
+                    ) {
+
+                        mfElemento.textContent =
+                            "—";
+
+                        mfElemento.classList
+                            .remove(
+                                "mf-reprovado"
+                            );
+
+                        return;
+
+                    }
+
+
+                    const mf =
+                        calcularMedia(
+                            mac,
+                            npt
+                        );
+
+
+                    mfElemento.textContent =
+                        mf;
+
+
+                    /*
+                    Classificação visual.
+                    */
+
+                    const limite =
+                        obterLimiteAprovacao();
+
+
+                    if (
+                        Number(mf) < limite
+                    ) {
+
+                        mfElemento.classList
+                            .add(
+                                "mf-reprovado"
+                            );
+
+                    }
+                    else {
+
+                        mfElemento.classList
+                            .remove(
+                                "mf-reprovado"
+                            );
+
+                    }
+
+                }
             );
 
         }
@@ -1099,107 +1366,1084 @@ function ativarCalculoMF() {
 }
 
 
-// ============================================================
-// CÁLCULO DA MF
-// ============================================================
+// =====================================================
+// LIMITE DE APROVAÇÃO
+// =====================================================
 
-function calcularMF(alunoId) {
+function obterLimiteAprovacao() {
 
-    const macInput =
-        document.querySelector(
-            `.mac[data-id="${alunoId}"]`
-        );
+    /*
+    Ensino Primário:
+    escala 0–10 e aprovação a partir de 5.
 
-
-    const nptInput =
-        document.querySelector(
-            `.npt[data-id="${alunoId}"]`
-        );
+    Primeiro Ciclo:
+    escala 0–20 e aprovação a partir de 10.
+    */
 
 
-    const mfCell =
-        document.getElementById(
-            `mf-${alunoId}`
-        );
+    const ensino =
+        String(
+            dadosTurma.ensino ||
+            ""
+        ).toLowerCase();
 
 
     if (
-        !macInput ||
-        !nptInput ||
-        !mfCell
+        ensino.includes(
+            "prim"
+        )
     ) {
 
-        return;
+        return 5;
 
     }
 
 
-    const mac =
-        macInput.value === ""
-            ? null
-            : Number(macInput.value);
-
-
-    const npt =
-        nptInput.value === ""
-            ? null
-            : Number(nptInput.value);
-
-
-    if (
-        mac === null ||
-        npt === null
-    ) {
-
-        mfCell.textContent = "";
-
-        return;
-
-    }
-
-
-    const mf =
-        Number(
-            (
-                (mac + npt) / 2
-            ).toFixed(1)
-        );
-
-
-    mfCell.textContent =
-        mf;
+    return 10;
 
 }
 
 
-// ============================================================
-// CLASSIFICAÇÃO
-// ============================================================
+// =====================================================
+// LIMPAR NOTAS DA TELA
+// =====================================================
 
-function classificarNota(nota) {
+limparNotas.addEventListener(
+    "click",
+    function () {
+
+        if (
+            !turmaSelecionada ||
+            !disciplinaSelecionada ||
+            !trimestreSelecionado
+        ) {
+
+            mostrarMensagem(
+                "Selecione primeiro a turma, disciplina e trimestre.",
+                "aviso"
+            );
+
+            return;
+
+        }
+
+
+        const confirmar =
+            confirm(
+                "Tem certeza que deseja limpar as notas que estão preenchidas na tela?"
+            );
+
+
+        if (!confirmar) {
+            return;
+        }
+
+
+        pautaBody
+            .querySelectorAll(
+                "input.nota"
+            )
+            .forEach(
+                input => {
+
+                    input.value = "";
+
+                }
+            );
+
+
+        pautaBody
+            .querySelectorAll(
+                ".mf"
+            )
+            .forEach(
+                elemento => {
+
+                    elemento.textContent =
+                        "—";
+
+                    elemento.classList
+                        .remove(
+                            "mf-reprovado"
+                        );
+
+                }
+            );
+
+
+        limparMensagem();
+
+
+        atualizarEstado(
+            "Notas limpas apenas da tela.",
+            "🧹"
+        );
+
+    }
+);
+
+// =====================================================
+// GRADES.JS — MINI-PAUTA DO PROFESSOR
+// BLOCO 3/4
+// GUARDAR NOTAS + CONTROLO DE LANÇAMENTO
+// =====================================================
+
+
+// =====================================================
+// VERIFICAR CONFIGURAÇÃO DO LANÇAMENTO
+// =====================================================
+
+async function verificarEstadoLancamento() {
+
+    /*
+    Configuração global:
+
+    config/notas
+
+    Exemplo:
+
+    {
+        lancamentoAtivo: true,
+
+        trimestres: {
+            "1": {
+                aberto: true,
+                fechado: false
+            },
+            "2": {
+                aberto: false,
+                fechado: false
+            },
+            "3": {
+                aberto: false,
+                fechado: false
+            }
+        }
+    }
+    */
+
+    try {
+
+        const ref =
+            doc(
+                db,
+                "config",
+                "notas"
+            );
+
+
+        const snap =
+            await getDoc(ref);
+
+
+        /*
+        Se ainda não existe configuração,
+        permitir o primeiro trimestre.
+        */
+
+        if (!snap.exists()) {
+
+            return {
+
+                lancamentoAtivo: true,
+
+                trimestreAberto: true,
+
+                trimestreFechado: false
+
+            };
+
+        }
+
+
+        const config =
+            snap.data();
+
+
+        /*
+        Lançamento global.
+        */
+
+        const lancamentoAtivo =
+            config.lancamentoAtivo !== false;
+
+
+        /*
+        Configuração do trimestre.
+        */
+
+        const trimestreConfig =
+            config?.trimestres?.[
+                String(
+                    trimestreSelecionado
+                )
+            ] || {};
+
+
+        /*
+        Compatibilidade com nomes
+        diferentes usados no sistema.
+        */
+
+        const fechado =
+            trimestreConfig.fechado === true;
+
+
+        const aberto =
+            trimestreConfig.aberto !== false &&
+            !fechado;
+
+
+        return {
+
+            lancamentoAtivo,
+
+            trimestreAberto:
+                aberto,
+
+            trimestreFechado:
+                fechado
+
+        };
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao verificar estado do lançamento:",
+            erro
+        );
+
+
+        /*
+        Em caso de erro,
+        bloquear por segurança.
+        */
+
+        return {
+
+            lancamentoAtivo: false,
+
+            trimestreAberto: false,
+
+            trimestreFechado: false
+
+        };
+
+    }
+
+}
+
+
+// =====================================================
+// APLICAR BLOQUEIO NA TELA
+// =====================================================
+
+async function atualizarPermissaoPauta() {
 
     if (
-        nota === null ||
-        nota === undefined ||
-        nota === ""
+        !turmaSelecionada ||
+        !disciplinaSelecionada ||
+        !trimestreSelecionado
     ) {
 
-        return "";
+        return;
 
     }
 
 
-    const valor =
-        Number(nota);
+    const estado =
+        await verificarEstadoLancamento();
+
+
+    const inputs =
+        pautaBody.querySelectorAll(
+            "input.nota"
+        );
+
+
+    const podeEditar =
+        estado.lancamentoAtivo &&
+        estado.trimestreAberto;
+
+
+    inputs.forEach(
+        input => {
+
+            input.disabled =
+                !podeEditar;
+
+        }
+    );
+
+
+    saveGrades.disabled =
+        !podeEditar;
+
+
+    if (!podeEditar) {
+
+        saveGrades.classList.add(
+            "botao-bloqueado"
+        );
+
+    }
+    else {
+
+        saveGrades.classList.remove(
+            "botao-bloqueado"
+        );
+
+    }
 
 
     /*
-    Ensino Primário
+    Mensagem correspondente.
     */
 
     if (
-        ensinoAtual ===
-        "ensinoPrimario"
+        estado.trimestreFechado
+    ) {
+
+        atualizarEstado(
+            "Este trimestre está fechado. Não é possível alterar notas.",
+            "🔒",
+            "estado-fechado"
+        );
+
+        mostrarMensagem(
+            "O administrador fechou este trimestre. O lançamento está bloqueado.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !estado.lancamentoAtivo
+    ) {
+
+        atualizarEstado(
+            "O lançamento de notas está desligado.",
+            "🔒",
+            "estado-bloqueado"
+        );
+
+        mostrarMensagem(
+            "O administrador desligou o lançamento de notas.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        estado.trimestreAberto
+    ) {
+
+        atualizarEstado(
+            "Lançamento aberto. Pode introduzir ou alterar notas.",
+            "🟢",
+            "estado-aberto"
+        );
+
+        limparMensagem();
+
+    }
+
+}
+
+
+// =====================================================
+// VERIFICAR ANTES DE GUARDAR
+// =====================================================
+
+async function podeGuardar() {
+
+    const estado =
+        await verificarEstadoLancamento();
+
+
+    if (
+        estado.trimestreFechado
+    ) {
+
+        mostrarMensagem(
+            "Este trimestre já foi fechado pelo administrador. Não é possível guardar alterações.",
+            "erro"
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        !estado.lancamentoAtivo
+    ) {
+
+        mostrarMensagem(
+            "O lançamento de notas está desligado pelo administrador.",
+            "erro"
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        !estado.trimestreAberto
+    ) {
+
+        mostrarMensagem(
+            "Este trimestre não está aberto para lançamento.",
+            "erro"
+        );
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// =====================================================
+// VALIDAR NOTAS
+// =====================================================
+
+function validarNotas() {
+
+    const linhas =
+        pautaBody.querySelectorAll(
+            "tr[data-aluno-id]"
+        );
+
+
+    const limiteMaximo =
+        obterLimiteMaximo();
+
+
+    for (
+        const linha
+        of linhas
+    ) {
+
+        const macInput =
+            linha.querySelector(
+                ".mac"
+            );
+
+
+        const nptInput =
+            linha.querySelector(
+                ".npt"
+            );
+
+
+        if (
+            !macInput ||
+            !nptInput
+        ) {
+
+            continue;
+
+        }
+
+
+        const mac =
+            macInput.value.trim();
+
+
+        const npt =
+            nptInput.value.trim();
+
+
+        /*
+        Permitir aluno ainda sem nota.
+        */
+
+        if (
+            mac === "" &&
+            npt === ""
+        ) {
+
+            continue;
+
+        }
+
+
+        /*
+        Não permitir apenas uma nota.
+        */
+
+        if (
+            mac === "" ||
+            npt === ""
+        ) {
+
+            const nome =
+                linha.children[1]
+                    ?.textContent
+                    ?.trim() ||
+                "Aluno";
+
+
+            return {
+
+                valido: false,
+
+                mensagem:
+                    `Preencha MAC e NPT do aluno: ${nome}.`
+
+            };
+
+        }
+
+
+        const valorMAC =
+            Number(mac);
+
+
+        const valorNPT =
+            Number(npt);
+
+
+        if (
+            Number.isNaN(valorMAC) ||
+            Number.isNaN(valorNPT)
+        ) {
+
+            return {
+
+                valido: false,
+
+                mensagem:
+                    "Existem notas inválidas na pauta."
+
+            };
+
+        }
+
+
+        if (
+            valorMAC < 0 ||
+            valorMAC > limiteMaximo
+        ) {
+
+            const nome =
+                linha.children[1]
+                    ?.textContent
+                    ?.trim() ||
+                "Aluno";
+
+
+            return {
+
+                valido: false,
+
+                mensagem:
+                    `A nota MAC do aluno ${nome} deve estar entre 0 e ${limiteMaximo}.`
+
+            };
+
+        }
+
+
+        if (
+            valorNPT < 0 ||
+            valorNPT > limiteMaximo
+        ) {
+
+            const nome =
+                linha.children[1]
+                    ?.textContent
+                    ?.trim() ||
+                "Aluno";
+
+
+            return {
+
+                valido: false,
+
+                mensagem:
+                    `A nota NPT do aluno ${nome} deve estar entre 0 e ${limiteMaximo}.`
+
+            };
+
+        }
+
+    }
+
+
+    return {
+
+        valido: true,
+
+        mensagem: ""
+
+    };
+
+}
+
+
+// =====================================================
+// LIMITE MÁXIMO DA NOTA
+// =====================================================
+
+function obterLimiteMaximo() {
+
+    const ensino =
+        String(
+            dadosTurma.ensino ||
+            ""
+        ).toLowerCase();
+
+
+    if (
+        ensino.includes(
+            "prim"
+        )
+    ) {
+
+        return 10;
+
+    }
+
+
+    return 20;
+
+}
+
+
+// =====================================================
+// GUARDAR MINI-PAUTA
+// =====================================================
+
+saveGrades.addEventListener(
+    "click",
+    async function () {
+
+        /*
+        Evitar duplo clique.
+        */
+
+        if (
+            saveGrades.disabled
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !turmaSelecionada ||
+            !disciplinaSelecionada ||
+            !trimestreSelecionado
+        ) {
+
+            mostrarMensagem(
+                "Selecione turma, disciplina e trimestre.",
+                "aviso"
+            );
+
+            return;
+
+        }
+
+
+        /*
+        Verificar se o administrador
+        permite o lançamento.
+        */
+
+        const permitido =
+            await podeGuardar();
+
+
+        if (!permitido) {
+
+            return;
+
+        }
+
+
+        /*
+        Validar notas.
+        */
+
+        const validacao =
+            validarNotas();
+
+
+        if (
+            !validacao.valido
+        ) {
+
+            mostrarMensagem(
+                validacao.mensagem,
+                "erro"
+            );
+
+            return;
+
+        }
+
+
+        /*
+        Evitar múltiplos cliques.
+        */
+
+        const textoOriginal =
+            saveGrades.textContent;
+
+
+        saveGrades.disabled =
+            true;
+
+
+        saveGrades.textContent =
+            "⏳ A guardar...";
+
+
+        try {
+
+            const idPauta =
+                criarIdPauta();
+
+
+            const alunosNotas = [];
+
+
+            const linhas =
+                pautaBody.querySelectorAll(
+                    "tr[data-aluno-id]"
+                );
+
+
+            linhas.forEach(
+                linha => {
+
+                    const alunoId =
+                        linha.dataset.alunoId;
+
+
+                    const aluno =
+                        alunos.find(
+                            item =>
+                                item.id ===
+                                alunoId
+                        );
+
+
+                    if (!aluno) {
+                        return;
+                    }
+
+
+                    const macInput =
+                        linha.querySelector(
+                            ".mac"
+                        );
+
+
+                    const nptInput =
+                        linha.querySelector(
+                            ".npt"
+                        );
+
+
+                    const mfElemento =
+                        linha.querySelector(
+                            ".mf"
+                        );
+
+
+                    const mac =
+                        macInput.value === ""
+                            ? null
+                            : Number(
+                                macInput.value
+                            );
+
+
+                    const npt =
+                        nptInput.value === ""
+                            ? null
+                            : Number(
+                                nptInput.value
+                            );
+
+
+                    const mf =
+                        (
+                            mac !== null &&
+                            npt !== null
+                        )
+                            ? calcularMedia(
+                                mac,
+                                npt
+                            )
+                            : null;
+
+
+                    /*
+                    Guardar somente
+                    alunos identificados.
+                    */
+
+                    alunosNotas.push({
+
+                        alunoId,
+
+                        numero:
+                            aluno.numero ||
+                            "",
+
+                        nome:
+                            aluno.nome ||
+                            "",
+
+                        sexo:
+                            aluno.sexo ||
+                            "",
+
+                        idade:
+                            aluno.idade ||
+                            "",
+
+                        MAC:
+                            mac,
+
+                        NPT:
+                            npt,
+
+                        MF:
+                            mf
+
+                    });
+
+                }
+            );
+
+
+            /*
+            Guardar documento único.
+            */
+
+            await setDoc(
+
+                doc(
+                    db,
+                    "notas",
+                    idPauta
+                ),
+
+                {
+
+                    turmaId:
+                        turmaSelecionada,
+
+                    turmaNome:
+                        dadosTurma.nome ||
+                        dadosTurma.turma ||
+                        "",
+
+                    classe:
+                        dadosTurma.classe ||
+                        "",
+
+                    disciplina:
+                        disciplinaSelecionada,
+
+                    trimestre:
+                        trimestreSelecionado,
+
+                    professorId:
+                        professor.id,
+
+                    professorNome:
+                        dadosProfessor.nome ||
+                        dadosProfessor.nomeCompleto ||
+                        professor.nome ||
+                        "",
+
+                    alunos:
+                        alunosNotas,
+
+                    atualizadoEm:
+                        serverTimestamp(),
+
+                    criadoEm:
+                        pautaAtual?.dados?.criadoEm ||
+                        serverTimestamp()
+
+                },
+
+                {
+                    merge: true
+                }
+
+            );
+
+
+            /*
+            Atualizar memória local.
+            */
+
+            pautaAtual = {
+
+                existe: true,
+
+                alunos:
+                    Object.fromEntries(
+                        alunosNotas.map(
+                            aluno => [
+                                aluno.alunoId,
+                                aluno
+                            ]
+                        )
+                    ),
+
+                dados: {
+
+                    turmaId:
+                        turmaSelecionada,
+
+                    disciplina:
+                        disciplinaSelecionada,
+
+                    trimestre:
+                        trimestreSelecionado
+
+                }
+
+            };
+
+
+            mostrarMensagem(
+                "Mini-Pauta guardada com sucesso ✅",
+                "sucesso"
+            );
+
+
+            atualizarEstado(
+                "Notas guardadas. Pode continuar a editar enquanto o lançamento estiver aberto.",
+                "✅",
+                "estado-aberto"
+            );
+
+
+        }
+        catch (erro) {
+
+            console.error(
+                "Erro ao guardar Mini-Pauta:",
+                erro
+            );
+
+
+            mostrarMensagem(
+                "Erro ao guardar notas: " +
+                erro.message,
+                "erro"
+            );
+
+        }
+        finally {
+
+            saveGrades.disabled =
+                false;
+
+
+            saveGrades.textContent =
+                textoOriginal;
+
+
+            /*
+            Reaplicar a permissão,
+            pois o administrador pode
+            ter alterado o estado.
+            */
+
+            await atualizarPermissaoPauta();
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// ATUALIZAR PERMISSÃO APÓS CARREGAR PAUTA
+// =====================================================
+
+const atualizarPermissaoOriginal =
+    atualizarPermissaoPauta;
+
+
+// Substituir comportamento do carregamento
+// para verificar o estado administrativo.
+
+const observerPauta =
+    new MutationObserver(
+        async function () {
+
+            if (
+                turmaSelecionada &&
+                disciplinaSelecionada &&
+                trimestreSelecionado
+            ) {
+
+                await atualizarPermissaoOriginal();
+
+            }
+
+        }
+    );
+
+
+observerPauta.observe(
+    pautaBody,
+    {
+        childList: true
+    }
+);
+
+
+// =====================================================
+// GRADES.JS — MINI-PAUTA DO PROFESSOR
+// BLOCO 4/4
+// CLASSIFICAÇÃO + EXPORTAÇÃO + IMPRESSÃO + FINALIZAÇÃO
+// =====================================================
+
+
+// =====================================================
+// CLASSIFICAÇÃO
+// =====================================================
+
+function classificarNota(nota) {
+
+    const valor =
+        Number(nota);
+
+    const ensino =
+        String(
+            dadosTurma.ensino ||
+            ""
+        ).toLowerCase();
+
+
+    if (
+        ensino.includes("prim")
     ) {
 
         if (valor <= 2)
@@ -1219,9 +2463,9 @@ function classificarNota(nota) {
     }
 
 
-    /*
-    Primeiro Ciclo
-    */
+    // =============================================
+    // PRIMEIRO CICLO
+    // =============================================
 
     if (valor <= 4)
         return "Mau";
@@ -1240,537 +2484,423 @@ function classificarNota(nota) {
 }
 
 
-// ============================================================
-// GUARDAR MINI-PAUTA
-// ============================================================
+// =====================================================
+// ATUALIZAR CLASSIFICAÇÃO VISUAL
+// =====================================================
 
-if (saveGrades) {
+function atualizarClassificacoes() {
 
-    saveGrades.addEventListener(
-        "click",
-        guardarMiniPauta
-    );
+    pautaBody
+        .querySelectorAll(
+            "tr[data-aluno-id]"
+        )
+        .forEach(
+            linha => {
 
-}
+                const mfElemento =
+                    linha.querySelector(
+                        ".mf"
+                    );
 
 
-async function guardarMiniPauta() {
+                if (!mfElemento) {
+                    return;
+                }
 
-    if (
-        !turmaSelecionada
-    ) {
 
-        alert(
-            "Selecione uma turma."
-        );
+                const valor =
+                    Number(
+                        mfElemento.textContent
+                    );
 
-        return;
 
-    }
+                if (
+                    Number.isNaN(valor)
+                ) {
 
+                    return;
 
-    if (
-        !disciplinaSelecionada
-    ) {
+                }
 
-        alert(
-            "Selecione uma disciplina."
-        );
 
-        return;
-
-    }
-
-
-    /*
-    Verificar se o trimestre está fechado.
-    */
-
-    const trimestreAberto =
-        await verificarTrimestreAberto();
-
-
-    if (!trimestreAberto) {
-
-        alert(
-            "🔒 Este trimestre está fechado pelo administrador."
-        );
-
-        return;
-
-    }
-
-
-    const alunosNotas = [];
-
-
-    for (
-        const aluno
-        of alunos
-    ) {
-
-        const macInput =
-            document.querySelector(
-                `.mac[data-id="${aluno.id}"]`
-            );
-
-
-        const nptInput =
-            document.querySelector(
-                `.npt[data-id="${aluno.id}"]`
-            );
-
-
-        const mfCell =
-            document.getElementById(
-                `mf-${aluno.id}`
-            );
-
-
-        const MAC =
-            macInput?.value === ""
-                ? null
-                : Number(
-                    macInput.value
-                );
-
-
-        const NPT =
-            nptInput?.value === ""
-                ? null
-                : Number(
-                    nptInput.value
-                );
-
-
-        const MF =
-            mfCell?.textContent === ""
-                ? null
-                : Number(
-                    mfCell.textContent
-                );
-
-
-        alunosNotas.push({
-
-            alunoId:
-                aluno.id,
-
-            numero:
-                aluno.numero || "",
-
-            nome:
-                aluno.nome || "",
-
-            sexo:
-                aluno.sexo || "",
-
-            idade:
-                aluno.idade || "",
-
-            MAC,
-
-            NPT,
-
-            MF,
-
-            classificacao:
-                classificarNota(MF)
-
-        });
-
-    }
-
-
-    try {
-
-        const idPauta =
-            criarIdPauta();
-
-
-        await setDoc(
-
-            doc(
-                db,
-                "notas",
-                idPauta
-            ),
-
-            {
-
-                turmaId:
-                    turmaSelecionada,
-
-                turmaNome:
-                    turmaDados.nome || "",
-
-                classe:
-                    classeAtual,
-
-                ensino:
-                    ensinoAtual,
-
-                disciplina:
-                    disciplinaSelecionada,
-
-                trimestre:
-                    trimestreSelecionado,
-
-                professorId:
-                    professor.id,
-
-                professorNome:
-                    professor.nome || "",
-
-                alunos:
-                    alunosNotas,
-
-                atualizadoEm:
-                    serverTimestamp()
-
-            },
-
-            {
-                merge: true
-            }
-
-        );
-
-
-        /*
-        Atualizar memória local.
-        */
-
-        notasAtuais = {};
-
-
-        alunosNotas.forEach(
-            aluno => {
-
-                notasAtuais[
-                    String(
-                        aluno.alunoId
-                    )
-                ] = aluno;
+                mfElemento.title =
+                    classificarNota(
+                        valor
+                    );
 
             }
         );
 
-
-        alert(
-            "✅ Mini-pauta guardada com sucesso."
-        );
-
-    }
-    catch (erro) {
-
-        console.error(
-            "Erro ao guardar mini-pauta:",
-            erro
-        );
-
-
-        alert(
-            "❌ Erro ao guardar mini-pauta:\n\n" +
-            erro.message
-        );
-
-    }
-
 }
 
 
-// ============================================================
-// VERIFICAR TRIMESTRE ABERTO
-// ============================================================
+// =====================================================
+// ATUALIZAR PERMISSÃO PERIODICAMENTE
+// =====================================================
 
-async function verificarTrimestreAberto() {
-
-    /*
-    Por enquanto, se ainda não existir
-    configuração de fecho, fica aberto.
-
-    Depois o painel do administrador
-    vai controlar estes campos.
-    */
-
-    try {
-
-        const ref =
-            doc(
-                db,
-                "config",
-                "notas"
-            );
-
-
-        const snap =
-            await getDoc(ref);
-
+setInterval(
+    async function () {
 
         if (
-            !snap.exists()
+            turmaSelecionada &&
+            disciplinaSelecionada &&
+            trimestreSelecionado
         ) {
 
-            return true;
+            try {
+
+                await atualizarPermissaoPauta();
+
+            }
+            catch (erro) {
+
+                console.error(
+                    "Erro ao atualizar estado:",
+                    erro
+                );
+
+            }
 
         }
 
-
-        const dados =
-            snap.data();
-
-
-        const chave =
-            `trimestre${trimestreSelecionado}Fechado`;
+    },
+    30000
+);
 
 
-        if (
-            dados[chave] === true
-        ) {
-
-            return false;
-
-        }
-
-
-        return true;
-
-    }
-    catch (erro) {
-
-        console.warn(
-            "Não foi possível verificar o fecho:",
-            erro
-        );
-
-
-        /*
-        Não bloquear o professor
-        enquanto a configuração
-        ainda não existir.
-        */
-
-        return true;
-
-    }
-
-    }
-
-// ============================================================
-// EXPORTAÇÃO
-// ============================================================
+// =====================================================
+// CRIAR BOTÕES DE EXPORTAÇÃO
+// =====================================================
 
 function criarBotoesExportacao() {
 
-    const area =
+    const acoes =
+        document.querySelector(
+            ".acoes"
+        );
+
+
+    if (!acoes) {
+        return;
+    }
+
+
+    /*
+    Evitar criar duas vezes.
+    */
+
+    if (
+        document.getElementById(
+            "exportarExcel"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    // =============================================
+    // BOTÃO EXCEL
+    // =============================================
+
+    const excel =
         document.createElement(
-            "div"
+            "button"
         );
 
+    excel.id =
+        "exportarExcel";
 
-    area.id =
-        "areaExportacao";
+    excel.type =
+        "button";
 
-
-    area.style.display =
-        "flex";
-
-    area.style.flexWrap =
-        "wrap";
-
-    area.style.gap =
-        "10px";
-
-    area.style.margin =
-        "15px 0";
+    excel.textContent =
+        "📊 Excel";
 
 
-    area.innerHTML = `
+    // =============================================
+    // BOTÃO PDF
+    // =============================================
 
-        <button
-            type="button"
-            id="exportExcel"
-        >
-            📊 Exportar Excel
-        </button>
-
-        <button
-            type="button"
-            id="exportPDF"
-        >
-            📄 Exportar PDF
-        </button>
-
-        <button
-            type="button"
-            id="printPauta"
-        >
-            🖨️ Imprimir
-        </button>
-
-    `;
-
-
-    if (saveGrades) {
-
-        saveGrades.parentElement
-            .insertBefore(
-                area,
-                saveGrades
-            );
-
-    }
-    else {
-
-        document
-            .querySelector(".main")
-            ?.prepend(area);
-
-    }
-
-
-    document
-        .getElementById("exportExcel")
-        .addEventListener(
-            "click",
-            exportarExcel
+    const pdf =
+        document.createElement(
+            "button"
         );
 
+    pdf.id =
+        "exportarPDF";
 
-    document
-        .getElementById("exportPDF")
-        .addEventListener(
-            "click",
-            exportarPDF
+    pdf.type =
+        "button";
+
+    pdf.textContent =
+        "📄 PDF";
+
+
+    // =============================================
+    // BOTÃO IMPRIMIR
+    // =============================================
+
+    const imprimir =
+        document.createElement(
+            "button"
         );
 
+    imprimir.id =
+        "imprimirPauta";
 
-    document
-        .getElementById("printPauta")
-        .addEventListener(
-            "click",
-            imprimirPauta
-        );
+    imprimir.type =
+        "button";
+
+    imprimir.textContent =
+        "🖨️ Imprimir";
+
+
+    acoes.appendChild(
+        excel
+    );
+
+    acoes.appendChild(
+        pdf
+    );
+
+    acoes.appendChild(
+        imprimir
+    );
+
+
+    excel.addEventListener(
+        "click",
+        exportarExcel
+    );
+
+
+    pdf.addEventListener(
+        "click",
+        exportarPDF
+    );
+
+
+    imprimir.addEventListener(
+        "click",
+        imprimirPauta
+    );
 
 }
 
 
-// ============================================================
-// CARREGAR XLSX
-// ============================================================
+// =====================================================
+// VERIFICAR PAUTA PARA EXPORTAÇÃO
+// =====================================================
 
-async function carregarXLSX() {
+function verificarPautaExportacao() {
 
     if (
-        window.XLSX
+        !turmaSelecionada ||
+        !disciplinaSelecionada ||
+        !trimestreSelecionado
     ) {
 
-        return window.XLSX;
+        mostrarMensagem(
+            "Selecione turma, disciplina e trimestre antes de exportar.",
+            "aviso"
+        );
+
+        return false;
 
     }
 
-
-    await carregarScript(
-        "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
-    );
-
-
-    return window.XLSX;
-
-}
-
-
-// ============================================================
-// CARREGAR JSPDF
-// ============================================================
-
-async function carregarJsPDF() {
-
-    if (
-        window.jspdf
-    ) {
-
-        return window.jspdf;
-
-    }
-
-
-    await carregarScript(
-        "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
-    );
-
-
-    return window.jspdf;
-
-}
-
-
-// ============================================================
-// CARREGAR SCRIPT EXTERNO
-// ============================================================
-
-function carregarScript(url) {
-
-    return new Promise(
-        (
-            resolve,
-            reject
-        ) => {
-
-            const script =
-                document.createElement(
-                    "script"
-                );
-
-
-            script.src =
-                url;
-
-
-            script.onload =
-                resolve;
-
-
-            script.onerror =
-                reject;
-
-
-            document.head.appendChild(
-                script
-            );
-
-        }
-    );
-
-}
-
-
-// ============================================================
-// EXPORTAR EXCEL
-// ============================================================
-
-async function exportarExcel() {
 
     if (
         !alunos.length
     ) {
 
-        alert(
-            "Não existem alunos para exportar."
+        mostrarMensagem(
+            "Não existem alunos para exportar.",
+            "aviso"
         );
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// =====================================================
+// OBTER DADOS DA TABELA
+// =====================================================
+
+function obterDadosTabela() {
+
+    const dados = [];
+
+
+    const linhas =
+        pautaBody.querySelectorAll(
+            "tr[data-aluno-id]"
+        );
+
+
+    linhas.forEach(
+        linha => {
+
+            const numero =
+                linha.children[0]
+                    ?.textContent
+                    ?.trim() || "";
+
+
+            const nome =
+                linha.children[1]
+                    ?.textContent
+                    ?.trim() || "";
+
+
+            const macInput =
+                linha.querySelector(
+                    ".mac"
+                );
+
+
+            const nptInput =
+                linha.querySelector(
+                    ".npt"
+                );
+
+
+            const mf =
+                linha.querySelector(
+                    ".mf"
+                )
+                ?.textContent
+                ?.trim() || "";
+
+
+            const aluno =
+                alunos.find(
+                    item =>
+                        item.id ===
+                        linha.dataset.alunoId
+                );
+
+
+            dados.push({
+
+                numero,
+
+                nome,
+
+                sexo:
+                    aluno?.sexo ||
+                    "",
+
+                idade:
+                    aluno?.idade ||
+                    "",
+
+                MAC:
+                    macInput?.value ||
+                    "",
+
+                NPT:
+                    nptInput?.value ||
+                    "",
+
+                MF:
+                    mf === "—"
+                        ? ""
+                        : mf,
+
+                classificacao:
+                    mf !== "" &&
+                    mf !== "—"
+                        ? classificarNota(
+                            mf
+                        )
+                        : ""
+
+            });
+
+        }
+    );
+
+
+    return dados;
+
+}
+
+
+// =====================================================
+// EXPORTAR EXCEL
+// =====================================================
+
+function exportarExcel() {
+
+    if (
+        !verificarPautaExportacao()
+    ) {
 
         return;
 
     }
+
+
+    const dados =
+        obterDadosTabela();
 
 
     if (
-        !disciplinaSelecionada
+        !dados.length
     ) {
 
-        alert(
-            "Selecione primeiro a disciplina."
+        return;
+
+    }
+
+
+    /*
+    Carregar SheetJS automaticamente.
+    */
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        const script =
+            document.createElement(
+                "script"
+            );
+
+        script.src =
+            "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js";
+
+
+        script.onload =
+            function () {
+
+                gerarExcel();
+
+            };
+
+
+        script.onerror =
+            function () {
+
+                alert(
+                    "Não foi possível carregar o exportador Excel."
+                );
+
+            };
+
+
+        document.head.appendChild(
+            script
         );
 
         return;
@@ -1778,90 +2908,88 @@ async function exportarExcel() {
     }
 
 
-    try {
-
-        const XLSX =
-            await carregarXLSX();
+    gerarExcel();
 
 
-        const dados = [];
+    function gerarExcel() {
+
+        const dados =
+            obterDadosTabela();
 
 
-        dados.push([
-            "ESCOLA",
-            turmaDados.escola ||
-            turmaDados.nomeEscola ||
-            ""
-        ]);
+        const linhas = [
+
+            [
+                "MINI-PAUTA"
+            ],
+
+            [
+                "Professor",
+                dadosProfessor.nome ||
+                dadosProfessor.nomeCompleto ||
+                professor.nome ||
+                ""
+            ],
+
+            [
+                "Classe",
+                dadosTurma.classe ||
+                ""
+            ],
+
+            [
+                "Turma",
+                dadosTurma.nome ||
+                dadosTurma.turma ||
+                ""
+            ],
+
+            [
+                "Disciplina",
+                disciplinaSelecionada
+            ],
+
+            [
+                "Trimestre",
+                `${trimestreSelecionado}º Trimestre`
+            ],
+
+            [],
+
+            [
+                "Nº",
+                "Nome Completo",
+                "Sexo",
+                "Idade",
+                "MAC",
+                "NPT",
+                "MF",
+                "Classificação"
+            ]
+
+        ];
 
 
-        dados.push([
-            "CLASSE",
-            classeAtual
-        ]);
-
-
-        dados.push([
-            "TURMA",
-            turmaDados.nome || ""
-        ]);
-
-
-        dados.push([
-            "DISCIPLINA",
-            disciplinaSelecionada
-        ]);
-
-
-        dados.push([
-            "TRIMESTRE",
-            `${trimestreSelecionado}.º Trimestre`
-        ]);
-
-
-        dados.push([]);
-
-
-        dados.push([
-            "Nº",
-            "Nome",
-            "Sexo",
-            "Idade",
-            "MAC",
-            "NPT",
-            "MF",
-            "Classificação"
-        ]);
-
-
-        alunos.forEach(
+        dados.forEach(
             aluno => {
 
-                const nota =
-                    notasAtuais[
-                        String(aluno.id)
-                    ] || {};
+                linhas.push([
 
+                    aluno.numero,
 
-                dados.push([
+                    aluno.nome,
 
-                    aluno.numero || "",
+                    aluno.sexo,
 
-                    aluno.nome || "",
+                    aluno.idade,
 
-                    aluno.sexo || "",
+                    aluno.MAC,
 
-                    aluno.idade || "",
+                    aluno.NPT,
 
-                    nota.MAC ?? "",
+                    aluno.MF,
 
-                    nota.NPT ?? "",
-
-                    nota.MF ?? "",
-
-                    classificarNota(
-                        nota.MF
-                    )
+                    aluno.classificacao
 
                 ]);
 
@@ -1871,7 +2999,7 @@ async function exportarExcel() {
 
         const worksheet =
             XLSX.utils.aoa_to_sheet(
-                dados
+                linhas
             );
 
 
@@ -1887,7 +3015,12 @@ async function exportarExcel() {
 
 
         const nomeArquivo =
-            `Mini-Pauta_${classeAtual}_${turmaDados.nome || "Turma"}_${disciplinaSelecionada}_${trimestreSelecionado}T.xlsx`;
+            `Mini-Pauta-${limparNomeArquivo(
+                dadosTurma.nome ||
+                "Turma"
+            )}-${limparNomeArquivo(
+                disciplinaSelecionada
+            )}-${trimestreSelecionado}T.xlsx`;
 
 
         XLSX.writeFile(
@@ -1896,17 +3029,9 @@ async function exportarExcel() {
         );
 
 
-    }
-    catch (erro) {
-
-        console.error(
-            erro
-        );
-
-
-        alert(
-            "Erro ao exportar Excel:\n\n" +
-            erro.message
+        mostrarMensagem(
+            "Excel exportado com sucesso ✅",
+            "sucesso"
         );
 
     }
@@ -1914,60 +3039,145 @@ async function exportarExcel() {
 }
 
 
-// ============================================================
+// =====================================================
 // EXPORTAR PDF
-// ============================================================
+// =====================================================
 
-async function exportarPDF() {
+function exportarPDF() {
 
     if (
-        !alunos.length
+        !verificarPautaExportacao()
     ) {
-
-        alert(
-            "Não existem alunos para exportar."
-        );
 
         return;
 
     }
 
 
+    /*
+    Carregar jsPDF automaticamente.
+    */
+
     if (
-        !disciplinaSelecionada
+        typeof window.jspdf ===
+        "undefined"
     ) {
 
-        alert(
-            "Selecione primeiro a disciplina."
+        const script =
+            document.createElement(
+                "script"
+            );
+
+
+        script.src =
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+
+
+        script.onload =
+            function () {
+
+                carregarAutoTable();
+
+            };
+
+
+        script.onerror =
+            function () {
+
+                alert(
+                    "Não foi possível carregar o exportador PDF."
+                );
+
+            };
+
+
+        document.head.appendChild(
+            script
         );
+
 
         return;
 
     }
 
 
-    try {
+    carregarAutoTable();
 
-        const jsPDF =
-            await carregarJsPDF();
 
+    function carregarAutoTable() {
+
+        if (
+            typeof window.jspdf
+                .jsPDF
+                === "undefined"
+        ) {
+
+            alert(
+                "Biblioteca PDF não disponível."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            typeof window.jspdf
+                .jsPDF
+                .prototype
+                .autoTable
+                !== "function"
+        ) {
+
+            const script =
+                document.createElement(
+                    "script"
+                );
+
+
+            script.src =
+                "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js";
+
+
+            script.onload =
+                function () {
+
+                    gerarPDF();
+
+                };
+
+
+            document.head.appendChild(
+                script
+            );
+
+        }
+        else {
+
+            gerarPDF();
+
+        }
+
+    }
+
+
+    function gerarPDF() {
 
         const {
-            jsPDF: PDF
-        } = jsPDF;
+            jsPDF
+        } = window.jspdf;
 
 
         const pdf =
-            new PDF({
-                orientation:
-                    "landscape",
+            new jsPDF(
+                "l",
+                "mm",
+                "a4"
+            );
 
-                unit:
-                    "mm",
 
-                format:
-                    "a4"
-            });
+        const dados =
+            obterDadosTabela();
 
 
         pdf.setFontSize(
@@ -1976,233 +3186,161 @@ async function exportarPDF() {
 
 
         pdf.text(
-            turmaDados.escola ||
-            turmaDados.nomeEscola ||
-            "SGE — Gestão Escolar",
-            148,
-            12,
-            {
-                align:
-                    "center"
-            }
+            "MINI-PAUTA",
+            14,
+            15
         );
 
 
         pdf.setFontSize(
-            11
+            10
         );
 
 
         pdf.text(
-            `Classe: ${classeAtual}    Turma: ${turmaDados.nome || ""}`,
-            148,
-            20,
-            {
-                align:
-                    "center"
-            }
+            `Professor: ${
+                dadosProfessor.nome ||
+                dadosProfessor.nomeCompleto ||
+                professor.nome ||
+                ""
+            }`,
+            14,
+            23
         );
 
 
         pdf.text(
-            `Disciplina: ${disciplinaSelecionada}    ${trimestreSelecionado}.º Trimestre`,
-            148,
-            27,
-            {
-                align:
-                    "center"
-            }
+            `Classe: ${
+                dadosTurma.classe ||
+                ""
+            }`,
+            14,
+            29
         );
 
 
-        let y =
-            38;
-
-
-        const colunas = [
-            {
-                texto:"Nº",
-                x:10,
-                largura:12
-            },
-            {
-                texto:"Nome",
-                x:22,
-                largura:70
-            },
-            {
-                texto:"Sexo",
-                x:92,
-                largura:15
-            },
-            {
-                texto:"Idade",
-                x:107,
-                largura:15
-            },
-            {
-                texto:"MAC",
-                x:122,
-                largura:20
-            },
-            {
-                texto:"NPT",
-                x:142,
-                largura:20
-            },
-            {
-                texto:"MF",
-                x:162,
-                largura:20
-            },
-            {
-                texto:"Classificação",
-                x:182,
-                largura:35
-            }
-        ];
-
-
-        pdf.setFontSize(
-            9
+        pdf.text(
+            `Turma: ${
+                dadosTurma.nome ||
+                dadosTurma.turma ||
+                ""
+            }`,
+            14,
+            35
         );
 
 
-        colunas.forEach(
-            coluna => {
-
-                pdf.rect(
-                    coluna.x,
-                    y - 5,
-                    coluna.largura,
-                    8
-                );
-
-
-                pdf.text(
-                    coluna.texto,
-                    coluna.x + 2,
-                    y
-                );
-
-            }
+        pdf.text(
+            `Disciplina: ${
+                disciplinaSelecionada
+            }`,
+            80,
+            23
         );
 
 
-        y += 8;
+        pdf.text(
+            `Trimestre: ${
+                trimestreSelecionado
+            }º`,
+            80,
+            29
+        );
 
 
-        alunos.forEach(
-            aluno => {
+        const corpo =
+            dados.map(
+                aluno => [
 
-                if (
-                    y > 190
-                ) {
+                    aluno.numero,
 
-                    pdf.addPage();
+                    aluno.nome,
 
-                    y = 15;
+                    aluno.sexo,
 
-                }
+                    aluno.idade,
 
+                    aluno.MAC,
 
-                const nota =
-                    notasAtuais[
-                        String(aluno.id)
-                    ] || {};
+                    aluno.NPT,
 
+                    aluno.MF,
 
-                const valores = [
+                    aluno.classificacao
 
-                    aluno.numero || "",
-
-                    aluno.nome || "",
-
-                    aluno.sexo || "",
-
-                    String(
-                        aluno.idade || ""
-                    ),
-
-                    String(
-                        nota.MAC ?? ""
-                    ),
-
-                    String(
-                        nota.NPT ?? ""
-                    ),
-
-                    String(
-                        nota.MF ?? ""
-                    ),
-
-                    classificarNota(
-                        nota.MF
-                    )
-
-                ];
+                ]
+            );
 
 
-                valores.forEach(
-                    (
-                        valor,
-                        indice
-                    ) => {
+        pdf.autoTable({
 
-                        const coluna =
-                            colunas[indice];
+            startY: 42,
 
+            head: [[
 
-                        pdf.rect(
-                            coluna.x,
-                            y - 5,
-                            coluna.largura,
-                            7
-                        );
+                "Nº",
+                "Nome Completo",
+                "Sexo",
+                "Idade",
+                "MAC",
+                "NPT",
+                "MF",
+                "Classificação"
 
+            ]],
 
-                        pdf.text(
-                            String(valor)
-                                .substring(
-                                    0,
-                                    indice === 1
-                                        ? 38
-                                        : 18
-                                ),
-                            coluna.x + 2,
-                            y
-                        );
+            body: corpo,
 
-                    }
-                );
+            styles: {
 
+                fontSize: 8,
 
-                y += 7;
+                cellPadding: 3
+
+            },
+
+            headStyles: {
+
+                fillColor: [
+                    30,
+                    58,
+                    138
+                ],
+
+                textColor: 255
+
+            },
+
+            alternateRowStyles: {
+
+                fillColor: [
+                    248,
+                    250,
+                    252
+                ]
 
             }
-        );
+
+        });
 
 
         const nomeArquivo =
-            `Mini-Pauta_${classeAtual}_${turmaDados.nome || "Turma"}_${disciplinaSelecionada}_${trimestreSelecionado}T.pdf`;
+            `Mini-Pauta-${limparNomeArquivo(
+                dadosTurma.nome ||
+                "Turma"
+            )}-${limparNomeArquivo(
+                disciplinaSelecionada
+            )}-${trimestreSelecionado}T.pdf`;
 
 
         pdf.save(
             nomeArquivo
         );
 
-    }
-    catch (erro) {
 
-        console.error(
-            "Erro PDF:",
-            erro
-        );
-
-
-        alert(
-            "Erro ao exportar PDF:\n\n" +
-            erro.message
+        mostrarMensagem(
+            "PDF exportado com sucesso ✅",
+            "sucesso"
         );
 
     }
@@ -2210,265 +3348,14 @@ async function exportarPDF() {
 }
 
 
-// ============================================================
+// =====================================================
 // IMPRIMIR
-// ============================================================
+// =====================================================
 
 function imprimirPauta() {
 
     if (
-        !alunos.length
-    ) {
-
-        alert(
-            "Não existem alunos para imprimir."
-        );
-
-        return;
-
-    }
-
-
-    const janela =
-        window.open(
-            "",
-            "_blank"
-        );
-
-
-    if (!janela) {
-
-        alert(
-            "O navegador bloqueou a janela de impressão."
-        );
-
-        return;
-
-    }
-
-
-    let linhas = "";
-
-
-    alunos.forEach(
-        aluno => {
-
-            const nota =
-                notasAtuais[
-                    String(aluno.id)
-                ] || {};
-
-
-            linhas += `
-
-                <tr>
-
-                    <td>
-                        ${aluno.numero || ""}
-                    </td>
-
-                    <td>
-                        ${aluno.nome || ""}
-                    </td>
-
-                    <td>
-                        ${aluno.sexo || ""}
-                    </td>
-
-                    <td>
-                        ${aluno.idade || ""}
-                    </td>
-
-                    <td>
-                        ${nota.MAC ?? ""}
-                    </td>
-
-                    <td>
-                        ${nota.NPT ?? ""}
-                    </td>
-
-                    <td>
-                        ${nota.MF ?? ""}
-                    </td>
-
-                    <td>
-                        ${classificarNota(
-                            nota.MF
-                        )}
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-    );
-
-
-    janela.document.write(`
-
-        <!DOCTYPE html>
-
-        <html>
-
-        <head>
-
-            <meta charset="UTF-8">
-
-            <title>
-                Mini-Pauta
-            </title>
-
-            <style>
-
-                body{
-                    font-family:Arial;
-                    padding:20px;
-                }
-
-                h1{
-                    text-align:center;
-                    margin:0;
-                }
-
-                h2{
-                    text-align:center;
-                    margin:6px 0;
-                }
-
-                table{
-                    width:100%;
-                    border-collapse:collapse;
-                    margin-top:20px;
-                }
-
-                th,
-                td{
-                    border:1px solid #000;
-                    padding:6px;
-                    text-align:center;
-                }
-
-                th{
-                    background:#ddd;
-                }
-
-                td:nth-child(2){
-                    text-align:left;
-                }
-
-                @media print{
-
-                    body{
-                        margin:0;
-                    }
-
-                }
-
-            </style>
-
-        </head>
-
-        <body>
-
-            <h1>
-                ${
-                    turmaDados.escola ||
-                    turmaDados.nomeEscola ||
-                    "SGE — Gestão Escolar"
-                }
-            </h1>
-
-            <h2>
-                Classe: ${classeAtual}
-                |
-                Turma: ${turmaDados.nome || ""}
-            </h2>
-
-            <h2>
-                Disciplina:
-                ${disciplinaSelecionada}
-                |
-                ${trimestreSelecionado}.º Trimestre
-            </h2>
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>Nº</th>
-
-                        <th>Nome</th>
-
-                        <th>Sexo</th>
-
-                        <th>Idade</th>
-
-                        <th>MAC</th>
-
-                        <th>NPT</th>
-
-                        <th>MF</th>
-
-                        <th>Classificação</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    ${linhas}
-
-                </tbody>
-
-            </table>
-
-        </body>
-
-        </html>
-
-    `);
-
-
-    janela.document.close();
-
-
-    janela.focus();
-
-
-    setTimeout(
-        () => {
-
-            janela.print();
-
-        },
-        500
-    );
-
-}
-
-
-// ============================================================
-// IMPORTAR NOTAS DO CAMPO DE TEXTO
-// ============================================================
-
-if (importExcel) {
-
-    importExcel.addEventListener(
-        "click",
-        importarNotasTexto
-    );
-
-}
-
-
-function importarNotasTexto() {
-
-    if (
-        !excelInput
+        !verificarPautaExportacao()
     ) {
 
         return;
@@ -2476,125 +3363,127 @@ function importarNotasTexto() {
     }
 
 
-    const texto =
-        excelInput.value.trim();
-
-
-    if (!texto) {
-
-        alert(
-            "Cole primeiro os dados das notas."
-        );
-
-        return;
-
-    }
-
-
-    const linhas =
-        texto
-            .split("\n")
-            .map(
-                linha =>
-                    linha.trim()
-            )
-            .filter(Boolean);
-
-
-    let importados = 0;
-
-
-    linhas.forEach(
-        linha => {
-
-            const partes =
-                linha.split(";");
-
-
-            if (
-                partes.length < 4
-            ) {
-
-                return;
-
-            }
-
-
-            const numero =
-                partes[0].trim();
-
-
-            const mac =
-                partes[2].trim();
-
-
-            const npt =
-                partes[3].trim();
-
-
-            const aluno =
-                alunos.find(
-                    item =>
-                        String(
-                            item.numero
-                        ).trim()
-                        === numero
-                );
-
-
-            if (!aluno) {
-
-                return;
-
-            }
-
-
-            const macInput =
-                document.querySelector(
-                    `.mac[data-id="${aluno.id}"]`
-                );
-
-
-            const nptInput =
-                document.querySelector(
-                    `.npt[data-id="${aluno.id}"]`
-                );
-
-
-            if (
-                macInput &&
-                nptInput
-            ) {
-
-                macInput.value =
-                    mac;
-
-                nptInput.value =
-                    npt;
-
-
-                calcularMF(
-                    aluno.id
-                );
-
-
-                importados++;
-
-            }
-
-        }
-    );
-
-
-    alert(
-        `${importados} aluno(s) importado(s) com sucesso.`
-    );
+    window.print();
 
 }
 
 
-// ============================================================
-// INICIAR SISTEMA
-// ============================================================
+// =====================================================
+// LIMPAR NOME DO ARQUIVO
+// =====================================================
 
-iniciar();
+function limparNomeArquivo(
+    nome
+) {
+
+    return String(
+        nome || ""
+    )
+        .replace(
+            /[\\/:*?"<>|]/g,
+            ""
+        )
+        .replace(
+            /\s+/g,
+            "_"
+        );
+
+}
+
+
+// =====================================================
+// ATUALIZAR CLASSIFICAÇÃO QUANDO NOTAS MUDAM
+// =====================================================
+
+pautaBody.addEventListener(
+    "input",
+    function () {
+
+        atualizarClassificacoes();
+
+    }
+);
+
+
+// =====================================================
+// CRIAR BOTÕES
+// =====================================================
+
+criarBotoesExportacao();
+
+
+// =====================================================
+// EXPORTAR TAMBÉM PELO TECLADO
+// =====================================================
+
+document.addEventListener(
+    "keydown",
+    function (evento) {
+
+        /*
+        Ctrl + P
+        */
+
+        if (
+            evento.ctrlKey &&
+            evento.key.toLowerCase() === "p"
+        ) {
+
+            evento.preventDefault();
+
+            imprimirPauta();
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// ESTADO INICIAL
+// =====================================================
+
+pautaBody.innerHTML = `
+    <tr>
+        <td colspan="5">
+            Selecione os dados acima para carregar os alunos.
+        </td>
+    </tr>
+`;
+
+
+atualizarEstado(
+    "Selecione a turma, disciplina e trimestre.",
+    "⏳"
+);
+
+
+console.log(
+    "GRADES.JS — BLOCO 4/4 CARREGADO ✅"
+);
+
+
+// =====================================================
+// FINAL
+// =====================================================
+
+/*
+O sistema agora possui:
+
+✔ Professor autenticado
+✔ Turmas atribuídas
+✔ Disciplinas atribuídas
+✔ Um único seletor de trimestre
+✔ Alunos da turma
+✔ MAC
+✔ NPT
+✔ MF automática
+✔ Classificação
+✔ Guardar/atualizar Mini-Pauta
+✔ Bloqueio administrativo
+✔ Fecho de trimestre
+✔ Exportação Excel
+✔ Exportação PDF
+✔ Impressão
+✔ Sexo e idade preparados para exportação
+*/
