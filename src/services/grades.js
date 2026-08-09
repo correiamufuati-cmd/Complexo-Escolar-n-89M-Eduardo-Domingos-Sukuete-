@@ -66,6 +66,8 @@ const TRIMESTRES = {
 // INICIALIZAÇÃO
 // =====================================================
 
+alert("NOTAS.JS ADMINISTRADOR CARREGADO ✅");
+
 async function iniciarNotas() {
 
     try {
