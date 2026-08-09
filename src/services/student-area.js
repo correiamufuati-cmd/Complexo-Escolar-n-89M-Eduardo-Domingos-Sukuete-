@@ -644,6 +644,26 @@ catch (erroFinanceiro) {
                             [disciplina]
                             [trimestre];
 
+                        const numeroTrimestre =
+    trimestreNumerico(trimestre);
+
+const chavePagamento =
+    numeroTrimestre === 1
+        ? "1trimestre"
+        : numeroTrimestre === 2
+            ? "2trimestre"
+            : numeroTrimestre === 3
+                ? "3trimestre"
+                : "";
+
+const dadosPagamento =
+    financeiroAluno[chavePagamento] || {};
+
+const pago =
+    dadosPagamento.pago === true;
+
+const comunicado =
+    dadosPagamento.comunicado || "";
 
                         html += `
 
@@ -853,6 +873,52 @@ catch (erroFinanceiro) {
 /* ==========================================
    FORMATAR TRIMESTRE
 ========================================== */
+
+function trimestreNumerico(valor) {
+
+    const v =
+        String(valor)
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        v === "1" ||
+        v === "1º" ||
+        v === "1°" ||
+        v.includes("1º trimestre") ||
+        v.includes("1° trimestre")
+    ) {
+        return 1;
+    }
+
+
+    if (
+        v === "2" ||
+        v === "2º" ||
+        v === "2°" ||
+        v.includes("2º trimestre") ||
+        v.includes("2° trimestre")
+    ) {
+        return 2;
+    }
+
+
+    if (
+        v === "3" ||
+        v === "3º" ||
+        v === "3°" ||
+        v.includes("3º trimestre") ||
+        v.includes("3° trimestre")
+    ) {
+        return 3;
+    }
+
+
+    return 0;
+
+                   }
+
 
 function formatarTrimestre(valor) {
 
