@@ -1,178 +1,541 @@
-alert("DEFINIÇÕES CARREGADAS ✅");
+// =====================================================
+// DEFINIÇÕES — SIGEA
+// =====================================================
 
 import { db } from "./firebase.js";
 
 import {
     doc,
     getDoc,
-    setDoc
+    setDoc,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
-
-// =====================================================
-// ELEMENTOS
-// =====================================================
-
-const nomeEscola =
-    document.getElementById("nomeEscola");
-
-const anoLetivo =
-    document.getElementById("anoLetivo");
-
-const provincia =
-    document.getElementById("provincia");
-
-const municipio =
-    document.getElementById("municipio");
-
-const telefone =
-    document.getElementById("telefone");
-
-const email =
-    document.getElementById("email");
-
-const ciclo =
-    document.getElementById("ciclo");
-
-const classe =
-    document.getElementById("classe");
-
-const disciplina =
-    document.getElementById("disciplina");
-
-const classeDisciplina =
-    document.getElementById("classeDisciplina");
-
-const listaClasses =
-    document.getElementById("listaClasses");
-
-const listaDisciplinas =
-    document.getElementById("listaDisciplinas");
-
-const mensagem =
-    document.getElementById("mensagem");
 
 
 // =====================================================
 // CONFIGURAÇÃO
 // =====================================================
 
-const CONFIG_ID =
-"escola";
+const CONFIG_ID = "escola";
+
+const configRef = doc(
+    db,
+    "config",
+    CONFIG_ID
+);
 
 
 // =====================================================
-// ESTRUTURA INICIAL
+// ELEMENTOS
 // =====================================================
 
-let configuracao = {
-
-    escola: {
-
-        nome: "",
-
-        anoLetivo: "",
-
-        provincia: "",
-
-        municipio: "",
-
-        telefone: "",
-
-        email: ""
-
-    },
-
-    classes: [],
-
-    disciplinas: {}
-
-};
+const mensagem =
+    document.getElementById("mensagem");
 
 
 // =====================================================
-// MENSAGEM
+// UTILITÁRIOS
 // =====================================================
 
 function mostrarMensagem(
     texto,
-    tipo="sucesso"
+    tipo = "sucesso"
 ){
 
-    mensagem.className =
-        "mensagem " + tipo;
+    if(!mensagem) return;
 
-    mensagem.textContent =
-        texto;
+    mensagem.textContent = texto;
 
+    mensagem.className = "";
 
-    setTimeout(
-        ()=>{
+    mensagem.id = "mensagem";
 
-            mensagem.className =
-                "mensagem";
+    mensagem.classList.add(tipo);
 
-        },
-        3000
+    clearTimeout(
+        window._mensagemTimer
     );
+
+    window._mensagemTimer =
+        setTimeout(()=>{
+
+            mensagem.className = "";
+
+            mensagem.textContent = "";
+
+        },4000);
 
 }
 
 
 // =====================================================
-// CARREGAR CONFIGURAÇÃO
+// LER ELEMENTO
 // =====================================================
 
-async function carregarConfiguracao(){
+function valor(id){
 
-    try{
+    const elemento =
+        document.getElementById(id);
 
-        const referencia =
-            doc(
-                db,
-                "config",
-                CONFIG_ID
-            );
+    if(!elemento) return "";
 
+    return elemento.value;
 
-        const resultado =
-            await getDoc(
-                referencia
-            );
+}
 
 
-        if(
-            resultado.exists()
-        ){
+function marcado(id){
 
-            configuracao = {
+    const elemento =
+        document.getElementById(id);
 
-                ...configuracao,
+    return elemento
+        ? elemento.checked
+        : false;
 
-                ...resultado.data()
+}
 
-            };
+
+// =====================================================
+// DEFINIR ELEMENTO
+// =====================================================
+
+function preencher(id, valorRecebido){
+
+    const elemento =
+        document.getElementById(id);
+
+    if(!elemento) return;
+
+    if(elemento.type === "checkbox"){
+
+        elemento.checked =
+            Boolean(valorRecebido);
+
+        return;
+
+    }
+
+    if(
+        elemento.type === "color"
+    ){
+
+        if(valorRecebido){
+
+            elemento.value =
+                valorRecebido;
 
         }
 
+        return;
 
-        preencherDados();
+    }
 
-        mostrarClasses();
+    elemento.value =
+        valorRecebido ?? "";
 
-        atualizarSelectClasses();
+}
 
-        mostrarDisciplinas();
+
+// =====================================================
+// ATIVIDADES
+// =====================================================
+
+async function registrarAtividade(
+    descricao,
+    tipo = "configuracao"
+){
+
+    try{
+
+        const utilizador =
+            localStorage.getItem(
+                "usuarioLogado"
+            ) ||
+            localStorage.getItem(
+                "professorLogado"
+            ) ||
+            "Administrador";
+
+        await addDoc(
+            collection(
+                db,
+                "atividades"
+            ),
+            {
+
+                tipo,
+
+                descricao,
+
+                utilizador,
+
+                data:
+                    serverTimestamp()
+
+            }
+        );
 
     }
     catch(erro){
 
         console.error(
+            "Erro ao registrar atividade:",
+            erro
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// MENU DAS DEFINIÇÕES
+// =====================================================
+
+function iniciarMenu(){
+
+    const botoes =
+        document.querySelectorAll(
+            ".menu-btn"
+        );
+
+    const paineis =
+        document.querySelectorAll(
+            ".painel"
+        );
+
+
+    botoes.forEach(botao => {
+
+        botao.addEventListener(
+            "click",
+            ()=>{
+
+                const nome =
+                    botao.dataset.painel;
+
+
+                botoes.forEach(b=>{
+                    b.classList.remove(
+                        "ativo"
+                    );
+                });
+
+
+                paineis.forEach(p=>{
+                    p.classList.remove(
+                        "ativo"
+                    );
+                });
+
+
+                botao.classList.add(
+                    "ativo"
+                );
+
+
+                const painel =
+                    document.getElementById(
+                        "painel-" + nome
+                    );
+
+
+                if(painel){
+
+                    painel.classList.add(
+                        "ativo"
+                    );
+
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
+// =====================================================
+// CARREGAR CONFIGURAÇÕES
+// =====================================================
+
+async function carregarConfiguracoes(){
+
+    try{
+
+        const snapshot =
+            await getDoc(
+                configRef
+            );
+
+
+        if(!snapshot.exists()){
+
+            return;
+
+        }
+
+
+        const dados =
+            snapshot.data();
+
+
+        // =============================================
+        // ESCOLA
+        // =============================================
+
+        preencher(
+            "escolaNome",
+            dados.escola?.nome
+        );
+
+        preencher(
+            "escolaNumero",
+            dados.escola?.numero
+        );
+
+        preencher(
+            "escolaProvincia",
+            dados.escola?.provincia
+        );
+
+        preencher(
+            "escolaMunicipio",
+            dados.escola?.municipio
+        );
+
+        preencher(
+            "escolaTelefone",
+            dados.escola?.telefone
+        );
+
+        preencher(
+            "escolaEmail",
+            dados.escola?.email
+        );
+
+        preencher(
+            "escolaGestor",
+            dados.escola?.gestor
+        );
+
+        preencher(
+            "escolaEndereco",
+            dados.escola?.endereco
+        );
+
+
+        // =============================================
+        // ANO
+        // =============================================
+
+        preencher(
+            "anoLetivo",
+            dados.anoLetivo?.ano
+        );
+
+        preencher(
+            "dataInicio",
+            dados.anoLetivo?.inicio
+        );
+
+        preencher(
+            "dataFim",
+            dados.anoLetivo?.fim
+        );
+
+
+        // =============================================
+        // NOTAS
+        // =============================================
+
+        preencher(
+            "notaMinima",
+            dados.notas?.minima
+        );
+
+        preencher(
+            "notaMaxima",
+            dados.notas?.maxima
+        );
+
+        preencher(
+            "pesoMAC",
+            dados.notas?.pesoMAC
+        );
+
+        preencher(
+            "pesoNPT",
+            dados.notas?.pesoNPT
+        );
+
+        preencher(
+            "lancamentoNotas",
+            dados.notas?.lancamento
+        );
+
+        preencher(
+            "alteracaoNotas",
+            dados.notas?.alteracao
+        );
+
+
+        // =============================================
+        // PROFESSORES
+        // =============================================
+
+        preencher(
+            "professorLancamento",
+            dados.professores?.lancamento
+        );
+
+        preencher(
+            "professorEdicao",
+            dados.professores?.edicao
+        );
+
+        preencher(
+            "professorImpressao",
+            dados.professores?.impressao
+        );
+
+
+        // =============================================
+        // ALUNOS
+        // =============================================
+
+        preencher(
+            "matriculaAutomatica",
+            dados.alunos?.matriculaAutomatica
+        );
+
+        preencher(
+            "exigirSexo",
+            dados.alunos?.exigirSexo
+        );
+
+        preencher(
+            "exigirNascimento",
+            dados.alunos?.exigirNascimento
+        );
+
+
+        // =============================================
+        // FINANCEIRO
+        // =============================================
+
+        preencher(
+            "valorPropina",
+            dados.financeiro?.propina
+        );
+
+        preencher(
+            "moeda",
+            dados.financeiro?.moeda
+        );
+
+        preencher(
+            "financeiroAtivo",
+            dados.financeiro?.ativo
+        );
+
+
+        // =============================================
+        // DOCUMENTOS
+        // =============================================
+
+        preencher(
+            "cabecalhoDocumento",
+            dados.documentos?.cabecalho
+        );
+
+        preencher(
+            "assinaturaDiretor",
+            dados.documentos?.diretor
+        );
+
+        preencher(
+            "mostrarLogo",
+            dados.documentos?.mostrarLogo
+        );
+
+
+        // =============================================
+        // NOTIFICAÇÕES
+        // =============================================
+
+        preencher(
+            "notificarProfessores",
+            dados.notificacoes?.professores
+        );
+
+        preencher(
+            "notificarTrimestre",
+            dados.notificacoes?.trimestre
+        );
+
+
+        // =============================================
+        // SEGURANÇA
+        // =============================================
+
+        preencher(
+            "acessoProfessores",
+            dados.seguranca?.professores
+        );
+
+        preencher(
+            "acessoAlunos",
+            dados.seguranca?.alunos
+        );
+
+        preencher(
+            "acessoEncarregados",
+            dados.seguranca?.encarregados
+        );
+
+
+        // =============================================
+        // APARÊNCIA
+        // =============================================
+
+        preencher(
+            "corPrincipal",
+            dados.aparencia?.cor
+        );
+
+        preencher(
+            "tema",
+            dados.aparencia?.tema
+        );
+
+
+        // =============================================
+        // MANUTENÇÃO
+        // =============================================
+
+        preencher(
+            "historicoAtivo",
+            dados.manutencao?.historico
+        );
+
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao carregar configurações:",
             erro
         );
 
         mostrarMensagem(
-            "Erro ao carregar definições.",
+            "Erro ao carregar as configurações.",
             "erro"
         );
 
@@ -182,59 +545,33 @@ async function carregarConfiguracao(){
 
 
 // =====================================================
-// PREENCHER DADOS
+// GUARDAR CONFIGURAÇÃO
 // =====================================================
 
-function preencherDados(){
-
-    nomeEscola.value =
-        configuracao.escola?.nome || "";
-
-    anoLetivo.value =
-        configuracao.escola?.anoLetivo || "";
-
-    provincia.value =
-        configuracao.escola?.provincia || "";
-
-    municipio.value =
-        configuracao.escola?.municipio || "";
-
-    telefone.value =
-        configuracao.escola?.telefone || "";
-
-    email.value =
-        configuracao.escola?.email || "";
-
-}
-
-
-// =====================================================
-// GUARDAR TUDO
-// =====================================================
-
-async function guardarConfiguracao(){
+async function guardarConfiguracao(
+    dados,
+    descricao
+){
 
     try{
 
         await setDoc(
-
-            doc(
-                db,
-                "config",
-                CONFIG_ID
-            ),
-
-            configuracao,
-
+            configRef,
+            dados,
             {
                 merge:true
             }
+        );
 
+
+        await registrarAtividade(
+            descricao
         );
 
 
         mostrarMensagem(
-            "Configurações guardadas com sucesso ✅"
+            "Configuração guardada com sucesso.",
+            "sucesso"
         );
 
     }
@@ -245,7 +582,7 @@ async function guardarConfiguracao(){
         );
 
         mostrarMensagem(
-            "Erro ao guardar configurações.",
+            "Não foi possível guardar a configuração.",
             "erro"
         );
 
@@ -255,604 +592,688 @@ async function guardarConfiguracao(){
 
 
 // =====================================================
-// GUARDAR DADOS DA ESCOLA
+// ESCOLA
 // =====================================================
 
 document
 .getElementById("guardarEscola")
-.addEventListener(
+?.addEventListener(
 "click",
 async()=>{
 
-    configuracao.escola = {
+    await guardarConfiguracao({
 
-        nome:
-            nomeEscola.value.trim(),
+        escola:{
 
-        anoLetivo:
-            anoLetivo.value.trim(),
+            nome:
+                valor("escolaNome"),
 
-        provincia:
-            provincia.value.trim(),
+            numero:
+                valor("escolaNumero"),
 
-        municipio:
-            municipio.value.trim(),
+            provincia:
+                valor("escolaProvincia"),
 
-        telefone:
-            telefone.value.trim(),
+            municipio:
+                valor("escolaMunicipio"),
 
-        email:
-            email.value.trim()
+            telefone:
+                valor("escolaTelefone"),
 
-    };
+            email:
+                valor("escolaEmail"),
 
+            gestor:
+                valor("escolaGestor"),
 
-    await guardarConfiguracao();
+            endereco:
+                valor("escolaEndereco")
+
+        }
+
+    },"Dados da escola atualizados");
 
 });
 
 
 // =====================================================
-// ADICIONAR CLASSE
+// ANO LETIVO
 // =====================================================
 
 document
-.getElementById("guardarClasse")
-.addEventListener(
+.getElementById("guardarAno")
+?.addEventListener(
 "click",
 async()=>{
 
-    const cicloValor =
-        ciclo.value.trim();
+    await guardarConfiguracao({
 
-    const classeValor =
-        classe.value.trim();
+        anoLetivo:{
 
+            ano:
+                valor("anoLetivo"),
 
-    if(
-        !cicloValor ||
-        !classeValor
-    ){
+            inicio:
+                valor("dataInicio"),
 
-        mostrarMensagem(
-            "Selecione o ciclo e indique a classe.",
-            "erro"
-        );
+            fim:
+                valor("dataFim"),
 
-        return;
+            encerrado:false
 
-    }
+        }
 
-
-    /*
-    Evitar classe duplicada
-    */
-
-    const existe =
-        configuracao.classes.some(
-            item =>
-
-            item.nome
-                .toLowerCase() ===
-            classeValor
-                .toLowerCase()
-
-        );
-
-
-    if(existe){
-
-        mostrarMensagem(
-            "Esta classe já está cadastrada.",
-            "erro"
-        );
-
-        return;
-
-    }
-
-
-    configuracao.classes.push({
-
-        id:
-            Date.now().toString(),
-
-        nome:
-            classeValor,
-
-        ciclo:
-            cicloValor
-
-    });
-
-
-    configuracao.disciplinas[
-        classeValor
-    ] ||= [];
-
-
-    await guardarConfiguracao();
-
-
-    classe.value = "";
-
-    ciclo.value = "";
-
-
-    mostrarClasses();
-
-    atualizarSelectClasses();
-
-    mostrarDisciplinas();
+    },"Ano letivo atualizado");
 
 });
 
 
 // =====================================================
-// MOSTRAR CLASSES
+// ENCERRAR ANO
 // =====================================================
 
-function mostrarClasses(){
-
-    listaClasses.innerHTML = "";
-
-
-    if(
-        configuracao.classes.length === 0
-    ){
-
-        listaClasses.innerHTML = `
-
-            <p>
-                Nenhuma classe cadastrada.
-            </p>
-
-        `;
-
-        return;
-
-    }
-
-
-    configuracao.classes.forEach(
-        item => {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.className =
-                "item";
-
-
-            const nomeCiclo =
-                item.ciclo ===
-                "ensinoPrimario"
-
-                ? "Ensino Primário"
-
-                : "1.º Ciclo";
-
-
-            div.innerHTML = `
-
-                <div class="item-info">
-
-                    <strong>
-                        ${item.nome}
-                    </strong>
-
-                    <small>
-                        ${nomeCiclo}
-                    </small>
-
-                </div>
-
-                <button
-                    class="btn-perigo"
-                    data-id="${item.id}"
-                >
-
-                    🗑️ Eliminar
-
-                </button>
-
-            `;
-
-
-            div
-            .querySelector("button")
-            .addEventListener(
-                "click",
-                ()=>eliminarClasse(
-                    item.id
-                )
-            );
-
-
-            listaClasses.appendChild(
-                div
-            );
-
-        }
-    );
-
-}
-
-
-// =====================================================
-// ELIMINAR CLASSE
-// =====================================================
-
-async function eliminarClasse(
-    id
-){
+document
+.getElementById("encerrarAno")
+?.addEventListener(
+"click",
+async()=>{
 
     const confirmar =
         confirm(
-            "Tem certeza que deseja eliminar esta classe?"
+            "Tem certeza que deseja encerrar o ano letivo?"
         );
 
 
-    if(!confirmar){
-        return;
-    }
+    if(!confirmar) return;
 
 
-    const encontrada =
-        configuracao.classes.find(
-            item =>
-                item.id === id
-        );
+    await guardarConfiguracao({
 
+        anoLetivo:{
 
-    if(!encontrada){
-        return;
-    }
-
-
-    configuracao.classes =
-        configuracao.classes.filter(
-            item =>
-                item.id !== id
-        );
-
-
-    delete configuracao.disciplinas[
-        encontrada.nome
-    ];
-
-
-    await guardarConfiguracao();
-
-
-    mostrarClasses();
-
-    atualizarSelectClasses();
-
-    mostrarDisciplinas();
-
-}
-
-
-// =====================================================
-// ATUALIZAR SELECT DE CLASSES
-// =====================================================
-
-function atualizarSelectClasses(){
-
-    classeDisciplina.innerHTML = `
-
-        <option value="">
-            Selecionar classe
-        </option>
-
-    `;
-
-
-    configuracao.classes.forEach(
-        item => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                item.nome;
-
-
-            option.textContent =
-                `${item.nome} — ${
-                    item.ciclo ===
-                    "ensinoPrimario"
-                        ? "Ensino Primário"
-                        : "1.º Ciclo"
-                }`;
-
-
-            classeDisciplina.appendChild(
-                option
-            );
+            encerrado:true
 
         }
-    );
 
-}
-
-
-// =====================================================
-// ADICIONAR DISCIPLINA
-// =====================================================
-
-document
-.getElementById("guardarDisciplina")
-.addEventListener(
-"click",
-async()=>{
-
-    const classeEscolhida =
-        classeDisciplina.value;
-
-    const nomeDisciplina =
-        disciplina.value.trim();
-
-
-    if(
-        !classeEscolhida ||
-        !nomeDisciplina
-    ){
-
-        mostrarMensagem(
-            "Selecione a classe e indique a disciplina.",
-            "erro"
-        );
-
-        return;
-
-    }
-
-
-    if(
-        !configuracao.disciplinas[
-            classeEscolhida
-        ]
-    ){
-
-        configuracao.disciplinas[
-            classeEscolhida
-        ] = [];
-
-    }
-
-
-    const existe =
-        configuracao
-        .disciplinas[
-            classeEscolhida
-        ]
-        .some(
-            item =>
-                item.toLowerCase() ===
-                nomeDisciplina.toLowerCase()
-        );
-
-
-    if(existe){
-
-        mostrarMensagem(
-            "Esta disciplina já existe nesta classe.",
-            "erro"
-        );
-
-        return;
-
-    }
-
-
-    configuracao
-        .disciplinas[
-            classeEscolhida
-        ]
-        .push(
-            nomeDisciplina
-        );
-
-
-    await guardarConfiguracao();
-
-
-    disciplina.value = "";
-
-
-    mostrarDisciplinas();
+    },"Ano letivo encerrado");
 
 });
 
 
 // =====================================================
-// MOSTRAR DISCIPLINAS
+// NOTAS
 // =====================================================
 
-function mostrarDisciplinas(){
+document
+.getElementById("guardarNotas")
+?.addEventListener(
+"click",
+async()=>{
 
-    listaDisciplinas.innerHTML = "";
+    const minima =
+        Number(
+            valor("notaMinima")
+        );
 
+    const maxima =
+        Number(
+            valor("notaMaxima")
+        );
 
-    configuracao.classes.forEach(
-        item => {
+    const mac =
+        Number(
+            valor("pesoMAC")
+        );
 
-            const disciplinas =
-                configuracao
-                .disciplinas[
-                    item.nome
-                ] || [];
-
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.className =
-                "item";
-
-
-            let html = `
-
-                <div class="item-info">
-
-                    <strong>
-                        ${item.nome}
-                    </strong>
-
-                    <div class="disciplinas">
-
-            `;
+    const npt =
+        Number(
+            valor("pesoNPT")
+        );
 
 
-            if(
-                disciplinas.length === 0
-            ){
+    if(minima > maxima){
 
-                html += `
-                    <span>
-                        Nenhuma disciplina.
-                    </span>
-                `;
+        mostrarMensagem(
+            "A nota mínima não pode ser maior que a máxima.",
+            "erro"
+        );
 
-            }
-            else{
+        return;
 
-                disciplinas.forEach(
-                    nome => {
-
-                        html += `
-
-                            <span class="disciplina">
-
-                                ${nome}
-
-                                <button
-                                    type="button"
-                                    data-classe="${item.nome}"
-                                    data-disciplina="${nome}"
-                                    style="
-                                        padding:2px 5px;
-                                        margin-left:4px;
-                                        background:none;
-                                        color:#b91c1c;
-                                    "
-                                >
-
-                                    ×
-
-                                </button>
-
-                            </span>
-
-                        `;
-
-                    }
-                );
-
-            }
+    }
 
 
-            html += `
+    if(mac + npt !== 100){
 
-                    </div>
+        mostrarMensagem(
+            "O peso MAC + NPT deve ser exatamente 100%.",
+            "erro"
+        );
 
-                </div>
+        return;
 
-            `;
-
-
-            div.innerHTML =
-                html;
+    }
 
 
-            div
-            .querySelectorAll(
-                "button[data-disciplina]"
-            )
-            .forEach(
-                botao => {
+    await guardarConfiguracao({
 
-                    botao.addEventListener(
-                        "click",
-                        ()=>eliminarDisciplina(
+        notas:{
 
-                            botao.dataset.classe,
+            minima,
 
-                            botao.dataset.disciplina
+            maxima,
 
-                        )
-                    );
+            pesoMAC:mac,
 
+            pesoNPT:npt,
+
+            lancamento:
+                marcado("lancamentoNotas"),
+
+            alteracao:
+                marcado("alteracaoNotas")
+
+        }
+
+    },"Configuração de notas atualizada");
+
+});
+
+
+// =====================================================
+// PROFESSORES
+// =====================================================
+
+document
+.getElementById("guardarProfessores")
+?.addEventListener(
+"click",
+async()=>{
+
+    await guardarConfiguracao({
+
+        professores:{
+
+            lancamento:
+                marcado(
+                    "professorLancamento"
+                ),
+
+            edicao:
+                marcado(
+                    "professorEdicao"
+                ),
+
+            impressao:
+                marcado(
+                    "professorImpressao"
+                )
+
+        }
+
+    },"Permissões dos professores atualizadas");
+
+});
+
+
+// =====================================================
+// ALUNOS
+// =====================================================
+
+document
+.getElementById("guardarAlunos")
+?.addEventListener(
+"click",
+async()=>{
+
+    await guardarConfiguracao({
+
+        alunos:{
+
+            matriculaAutomatica:
+                marcado(
+                    "matriculaAutomatica"
+                ),
+
+            exigirSexo:
+                marcado(
+                    "exigirSexo"
+                ),
+
+            exigirNascimento:
+                marcado(
+                    "exigirNascimento"
+                )
+
+        }
+
+    },"Configuração dos alunos atualizada");
+
+});
+
+
+// =====================================================
+// FINANCEIRO
+// =====================================================
+
+document
+.getElementById("guardarFinanceiro")
+?.addEventListener(
+"click",
+async()=>{
+
+    await guardarConfiguracao({
+
+        financeiro:{
+
+            propina:
+                Number(
+                    valor("valorPropina")
+                ) || 0,
+
+            moeda:
+                valor("moeda"),
+
+            ativo:
+                marcado("financeiroAtivo")
+
+        }
+
+    },"Configuração financeira atualizada");
+
+});
+
+
+// =====================================================
+// DOCUMENTOS
+// =====================================================
+
+document
+.getElementById("guardarDocumentos")
+?.addEventListener(
+"click",
+async()=>{
+
+    await guardarConfiguracao({
+
+        documentos:{
+
+            cabecalho:
+                valor(
+                    "cabecalhoDocumento"
+                ),
+
+            diretor:
+                valor(
+                    "assinaturaDiretor"
+                ),
+
+            mostrarLogo:
+                marcado(
+                    "mostrarLogo"
+                )
+
+        }
+
+    },"Configuração dos documentos atualizada");
+
+});
+
+
+// =====================================================
+// NOTIFICAÇÕES
+// =====================================================
+
+document
+.getElementById("guardarNotificacoes")
+?.addEventListener(
+"click",
+async()=>{
+
+    await guardarConfiguracao({
+
+        notificacoes:{
+
+            professores:
+                marcado(
+                    "notificarProfessores"
+                ),
+
+            trimestre:
+                marcado(
+                    "notificarTrimestre"
+                )
+
+        }
+
+    },"Configuração das notificações atualizada");
+
+});
+
+
+// =====================================================
+// SEGURANÇA
+// =====================================================
+
+document
+.getElementById("guardarSeguranca")
+?.addEventListener(
+"click",
+async()=>{
+
+    await guardarConfiguracao({
+
+        seguranca:{
+
+            professores:
+                marcado(
+                    "acessoProfessores"
+                ),
+
+            alunos:
+                marcado(
+                    "acessoAlunos"
+                ),
+
+            encarregados:
+                marcado(
+                    "acessoEncarregados"
+                )
+
+        }
+
+    },"Permissões de acesso atualizadas");
+
+});
+
+
+// =====================================================
+// APARÊNCIA
+// =====================================================
+
+document
+.getElementById("guardarAparencia")
+?.addEventListener(
+"click",
+async()=>{
+
+    await guardarConfiguracao({
+
+        aparencia:{
+
+            cor:
+                valor("corPrincipal"),
+
+            tema:
+                valor("tema")
+
+        }
+
+    },"Aparência do sistema atualizada");
+
+});
+
+
+// =====================================================
+// MANUTENÇÃO
+// =====================================================
+
+document
+.getElementById("exportarConfiguracoes")
+?.addEventListener(
+"click",
+async()=>{
+
+    try{
+
+        const snapshot =
+            await getDoc(
+                configRef
+            );
+
+
+        if(!snapshot.exists()){
+
+            mostrarMensagem(
+                "Não existem configurações para exportar.",
+                "aviso"
+            );
+
+            return;
+
+        }
+
+
+        const dados =
+            snapshot.data();
+
+
+        const conteudo =
+            JSON.stringify(
+                dados,
+                null,
+                2
+            );
+
+
+        const blob =
+            new Blob(
+                [conteudo],
+                {
+                    type:
+                        "application/json"
                 }
             );
 
 
-            listaDisciplinas.appendChild(
-                div
+        const url =
+            URL.createObjectURL(
+                blob
             );
 
-        }
-    );
 
-}
+        const a =
+            document.createElement(
+                "a"
+            );
+
+
+        a.href = url;
+
+        a.download =
+            "configuracoes-sigea.json";
+
+        a.click();
+
+
+        URL.revokeObjectURL(url);
+
+
+        await registrarAtividade(
+            "Configurações exportadas"
+        );
+
+
+        mostrarMensagem(
+            "Configurações exportadas.",
+            "sucesso"
+        );
+
+    }
+    catch(erro){
+
+        console.error(
+            erro
+        );
+
+        mostrarMensagem(
+            "Erro ao exportar configurações.",
+            "erro"
+        );
+
+    }
+
+});
 
 
 // =====================================================
-// ELIMINAR DISCIPLINA
+// LIMPAR CACHE
 // =====================================================
 
-async function eliminarDisciplina(
-    classeNome,
-    disciplinaNome
-){
+document
+.getElementById("limparCache")
+?.addEventListener(
+"click",
+()=>{
 
     const confirmar =
         confirm(
-            `Eliminar "${disciplinaNome}" da ${classeNome}?`
+            "Deseja limpar os dados locais deste navegador?"
         );
 
 
-    if(!confirmar){
-        return;
+    if(!confirmar) return;
+
+
+    localStorage.clear();
+
+    sessionStorage.clear();
+
+
+    mostrarMensagem(
+        "Cache local limpo. A página será recarregada.",
+        "sucesso"
+    );
+
+
+    setTimeout(
+        ()=>{
+            location.reload();
+        },
+        1200
+    );
+
+});
+
+
+// =====================================================
+// LIMPAR ATIVIDADES
+// =====================================================
+
+document
+.getElementById("limparAtividades")
+?.addEventListener(
+"click",
+async()=>{
+
+    const confirmar =
+        confirm(
+            "ATENÇÃO: deseja apagar todas as atividades registadas?"
+        );
+
+
+    if(!confirmar) return;
+
+
+    try{
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "atividades"
+                )
+            );
+
+
+        for(
+            const item
+            of snapshot.docs
+        ){
+
+            await deleteDoc(
+                item.ref
+            );
+
+        }
+
+
+        mostrarMensagem(
+            "Histórico de atividades limpo.",
+            "sucesso"
+        );
+
+    }
+    catch(erro){
+
+        console.error(
+            erro
+        );
+
+        mostrarMensagem(
+            "Não foi possível limpar as atividades.",
+            "erro"
+        );
+
     }
 
-
-    configuracao.disciplinas[
-        classeNome
-    ] =
-        (
-            configuracao
-            .disciplinas[
-                classeNome
-            ] || []
-        )
-        .filter(
-            item =>
-                item !== disciplinaNome
-        );
+});
 
 
-    await guardarConfiguracao();
+// =====================================================
+// INTERRUPTORES — GUARDAR AUTOMATICAMENTE
+// =====================================================
 
+document
+.getElementById("lancamentoNotas")
+?.addEventListener(
+"change",
+async(e)=>{
 
-    mostrarDisciplinas();
+    await guardarConfiguracao({
 
-}
+        notas:{
+
+            lancamento:
+                e.target.checked
+
+        },
+
+        professores:{
+
+            lancamento:
+                e.target.checked
+
+        }
+
+    },"Lançamento de notas " +
+      (
+        e.target.checked
+        ? "ativado"
+        : "bloqueado"
+      )
+    );
+
+});
 
 
 // =====================================================
 // INICIAR
 // =====================================================
 
-carregarConfiguracao();
+async function iniciar(){
+
+    console.log(
+        "DEFINIÇÕES.JS CARREGADO ✅"
+    );
+
+
+    iniciarMenu();
+
+
+    await carregarConfiguracoes();
+
+}
+
+
+iniciar();
