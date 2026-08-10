@@ -12,40 +12,680 @@
 
     <title>Boletins - Administrador</title>
 
+
+    <style>
+
+        *{
+            box-sizing:border-box;
+        }
+
+
+        body{
+
+            margin:0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:#f1f5f9;
+
+            color:#1e293b;
+
+        }
+
+
+        .main{
+
+            width:100%;
+
+            padding:25px;
+
+        }
+
+
+        /* =====================================
+           CABEÇALHO
+        ===================================== */
+
+        .cabecalho{
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1e3a8a,
+                    #2563eb
+                );
+
+            color:white;
+
+            padding:25px;
+
+            border-radius:18px;
+
+            margin-bottom:20px;
+
+            box-shadow:
+                0 5px 18px
+                rgba(0,0,0,.12);
+
+        }
+
+
+        .cabecalho h1{
+
+            margin:0 0 8px;
+
+            font-size:26px;
+
+        }
+
+
+        .cabecalho p{
+
+            margin:0;
+
+            opacity:.9;
+
+        }
+
+
+        /* =====================================
+           SEÇÕES
+        ===================================== */
+
+        .section{
+
+            background:white;
+
+            padding:20px;
+
+            border-radius:16px;
+
+            margin-bottom:20px;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0,0,0,.07);
+
+        }
+
+
+        .section h2{
+
+            margin-top:0;
+
+            color:#1e3a8a;
+
+        }
+
+
+        /* =====================================
+           FILTROS
+        ===================================== */
+
+        .filtros{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    minmax(160px,1fr)
+                );
+
+            gap:15px;
+
+        }
+
+
+        .campo{
+
+            display:flex;
+
+            flex-direction:column;
+
+            gap:7px;
+
+        }
+
+
+        .campo label{
+
+            font-weight:bold;
+
+            color:#334155;
+
+        }
+
+
+        select,
+        input{
+
+            width:100%;
+
+            padding:12px;
+
+            border:
+                1px solid
+                #cbd5e1;
+
+            border-radius:9px;
+
+            background:white;
+
+            font-size:15px;
+
+        }
+
+
+        select:focus,
+        input:focus{
+
+            outline:none;
+
+            border-color:#2563eb;
+
+        }
+
+
+        /* =====================================
+           RESUMO
+        ===================================== */
+
+        .resumo{
+
+            display:flex;
+
+            justify-content:
+                space-between;
+
+            align-items:center;
+
+            gap:15px;
+
+            flex-wrap:wrap;
+
+            margin-bottom:15px;
+
+        }
+
+
+        #contadorBoletins{
+
+            font-weight:bold;
+
+            color:#2563eb;
+
+        }
+
+
+        /* =====================================
+           LISTA DE BOLETINS
+        ===================================== */
+
+        #boletinsContainer{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(300px,1fr)
+                );
+
+            gap:15px;
+
+        }
+
+
+        .boletim-card{
+
+            border:
+                1px solid
+                #e2e8f0;
+
+            border-radius:14px;
+
+            padding:18px;
+
+            background:white;
+
+            transition:
+                .2s;
+
+        }
+
+
+        .boletim-card:hover{
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 6px 18px
+                rgba(0,0,0,.08);
+
+        }
+
+
+        .boletim-info{
+
+            display:flex;
+
+            align-items:center;
+
+            gap:12px;
+
+        }
+
+
+        .boletim-avatar{
+
+            width:48px;
+
+            height:48px;
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:50%;
+
+            background:#dbeafe;
+
+            font-size:24px;
+
+        }
+
+
+        .boletim-info h3{
+
+            margin:0 0 5px;
+
+            font-size:16px;
+
+        }
+
+
+        .boletim-info p{
+
+            margin:3px 0;
+
+            font-size:13px;
+
+            color:#64748b;
+
+        }
+
+
+        /* =====================================
+           ESTADO
+        ===================================== */
+
+        .boletim-estado{
+
+            margin-top:15px;
+
+        }
+
+
+        .disponivel{
+
+            color:#15803d;
+
+            font-weight:bold;
+
+        }
+
+
+        .indisponivel{
+
+            color:#dc2626;
+
+            font-weight:bold;
+
+        }
+
+
+        /* =====================================
+           BOTÕES
+        ===================================== */
+
+        .boletim-acoes{
+
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:8px;
+
+            margin-top:15px;
+
+        }
+
+
+        button{
+
+            border:0;
+
+            border-radius:8px;
+
+            padding:
+                9px 13px;
+
+            cursor:pointer;
+
+            font-weight:bold;
+
+        }
+
+
+        .btn-ver{
+
+            background:#dbeafe;
+
+            color:#1d4ed8;
+
+        }
+
+
+        .btn-imprimir{
+
+            background:#e2e8f0;
+
+            color:#334155;
+
+        }
+
+
+        .btn-pdf{
+
+            background:#fee2e2;
+
+            color:#b91c1c;
+
+        }
+
+
+        .btn-excel{
+
+            background:#dcfce7;
+
+            color:#15803d;
+
+        }
+
+
+        .botao-desativado{
+
+            background:#e2e8f0;
+
+            color:#94a3b8;
+
+            cursor:not-allowed;
+
+        }
+
+
+        /* =====================================
+           VAZIO
+        ===================================== */
+
+        .boletim-vazio{
+
+            grid-column:1/-1;
+
+            padding:40px;
+
+            text-align:center;
+
+            color:#64748b;
+
+            border:
+                2px dashed
+                #cbd5e1;
+
+            border-radius:12px;
+
+        }
+
+
+        /* =====================================
+           RESPONSIVO
+        ===================================== */
+
+        @media(max-width:900px){
+
+            .filtros{
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+
+            }
+
+        }
+
+
+        @media(max-width:600px){
+
+            .main{
+
+                padding:12px;
+
+            }
+
+
+            .filtros{
+
+                grid-template-columns:1fr;
+
+            }
+
+
+            #boletinsContainer{
+
+                grid-template-columns:1fr;
+
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
 <body>
 
-    <h1>📄 Boletins</h1>
 
-    <p>
-        Área de gestão de boletins
-    </p>
+<div class="main">
 
 
-    <hr>
+    <!-- =====================================
+         CABEÇALHO
+    ====================================== -->
+
+    <div class="cabecalho">
+
+        <h1>
+            📄 Gestão de Boletins
+        </h1>
+
+        <p>
+            Consulte, visualize, imprima e
+            exporte os boletins dos alunos.
+        </p>
+
+    </div>
 
 
-    <h2>
-        Teste do Menu Boletins
-    </h2>
+
+    <!-- =====================================
+         FILTROS
+    ====================================== -->
+
+    <div class="section">
+
+        <h2>
+            🔎 Selecionar Boletins
+        </h2>
 
 
-    <p id="status">
-        Aguardando JavaScript...
-    </p>
+        <div class="filtros">
 
 
-    <!--
-        JavaScript
-    -->
+            <div class="campo">
 
-    <script
-        type="module"
-        src="../services/boletins.js">
-    </script>
+                <label for="classeSelect">
+                    Classe
+                </label>
+
+                <select id="classeSelect">
+
+                    <option value="">
+                        Todas as classes
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <div class="campo">
+
+                <label for="turmaSelect">
+                    Turma
+                </label>
+
+                <select id="turmaSelect">
+
+                    <option value="">
+                        Todas as turmas
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <div class="campo">
+
+                <label for="trimestreSelect">
+                    Trimestre
+                </label>
+
+                <select id="trimestreSelect">
+
+                    <option value="">
+                        Todos os trimestres
+                    </option>
+
+                    <option value="1">
+                        1.º Trimestre
+                    </option>
+
+                    <option value="2">
+                        2.º Trimestre
+                    </option>
+
+                    <option value="3">
+                        3.º Trimestre
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <div class="campo">
+
+                <label for="pesquisaAluno">
+                    Pesquisar aluno
+                </label>
+
+                <input
+                    id="pesquisaAluno"
+                    type="search"
+                    placeholder="Nome ou matrícula..."
+                >
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         LISTA
+    ====================================== -->
+
+    <div class="section">
+
+
+        <div class="resumo">
+
+            <h2>
+                📋 Boletins dos Alunos
+            </h2>
+
+
+            <span id="contadorBoletins">
+                0 alunos
+            </span>
+
+        </div>
+
+
+
+        <div id="boletinsContainer">
+
+
+            <div class="boletim-vazio">
+
+                📄
+
+                <br><br>
+
+                Selecione os filtros
+                ou aguarde o carregamento
+                dos boletins.
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
+
+<script
+    type="module"
+    src="../services/boletins.js">
+</script>
+
 
 </body>
 
-  </html>
+    </html>
