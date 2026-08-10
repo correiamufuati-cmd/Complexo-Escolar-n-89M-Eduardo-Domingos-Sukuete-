@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS 1 CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 
 const classeSelect =
@@ -121,6 +121,92 @@ trimestreSelect.addEventListener(
         alert(
             "✅ TRIMESTRE FUNCIONOU!\n\n" +
             "Valor selecionado: " +
+            this.value
+        );
+
+    }
+);
+
+// =====================================================
+// ETAPA 5 — TESTAR CLASSE E TURMA
+// =====================================================
+
+
+// TESTE DAS CLASSES
+
+classeSelect.innerHTML = `
+
+    <option value="">
+        Selecionar classe
+    </option>
+
+    <option value="7">
+        7.ª Classe
+    </option>
+
+    <option value="8">
+        8.ª Classe
+    </option>
+
+    <option value="9">
+        9.ª Classe
+    </option>
+
+`;
+
+
+// TESTE DAS TURMAS
+
+turmaSelect.innerHTML = `
+
+    <option value="">
+        Selecionar turma
+    </option>
+
+    <option value="A">
+        Turma A
+    </option>
+
+    <option value="B">
+        Turma B
+    </option>
+
+    <option value="C">
+        Turma C
+    </option>
+
+`;
+
+
+// =====================================================
+// EVENTO CLASSE
+// =====================================================
+
+classeSelect.addEventListener(
+    "change",
+    function(){
+
+        alert(
+            "✅ CLASSE FUNCIONOU!\n\n" +
+            "Classe selecionada: " +
+            this.value
+        );
+
+    }
+);
+
+
+// =====================================================
+// EVENTO TURMA
+// =====================================================
+
+turmaSelect.addEventListener(
+    "change",
+    function(){
+
+        alert(
+            "✅ TURMA FUNCIONOU!\n\n" +
+            "Turma selecionada: " +
             this.value
         );
 
