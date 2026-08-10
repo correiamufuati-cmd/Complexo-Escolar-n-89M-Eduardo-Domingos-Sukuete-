@@ -1,466 +1,409 @@
-import { app } from "./firebase.js";
+// =====================================================
+// DASHBOARD GESTOR - SIGEA
+// =====================================================
+
+alert("DASHBOARD-GESTOR.JS CARREGADO ✅");
+
+
+// =====================================================
+// FIREBASE
+// =====================================================
+
+import { db } from "./firebase.js";
 
 import {
-getAuth,
-onAuthStateChanged,
-signOut
-} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-
-import {
-getFirestore,
-collection,
-getDocs,
-doc,
-getDoc
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    limit
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-const auth =
-getAuth(app);
-
-const db =
-getFirestore(app);
 
 // =====================================================
 // ELEMENTOS
 // =====================================================
 
-const escolaNome =
-document.getElementById("schoolName");
+const schoolName =
+    document.getElementById("schoolName");
 
 const userInfo =
-document.getElementById("userInfo");
+    document.getElementById("userInfo");
 
-const totalAlunos =
-document.getElementById("totalStudents");
+const totalStudents =
+    document.getElementById("totalStudents");
 
-const totalProfessores =
-document.getElementById("totalTeachers");
+const totalTeachers =
+    document.getElementById("totalTeachers");
 
-const totalTurmas =
-document.getElementById("totalClasses");
+const totalClasses =
+    document.getElementById("totalClasses");
 
-const totalDisciplinas =
-document.getElementById("totalSubjects");
+const totalSubjects =
+    document.getElementById("totalSubjects");
+
+const activity =
+    document.getElementById("activity");
+
+const logoutBtn =
+    document.getElementById("logoutBtn");
+
 
 // =====================================================
-// AUTENTICAÇÃO
+// CARREGAR DASHBOARD
 // =====================================================
 
-onAuthStateChanged(
-auth,
-async (user) => {
+async function iniciarDashboard() {
 
-    if (!user) {
+    console.log(
+        "Iniciando Dashboard do Gestor..."
+    );
 
-        window.location.href =
-            "login.html";
+
+    await carregarInformacoesUsuario();
+
+    await carregarEstatisticas();
+
+    await carregarAtividadesRecentes();
+
+}
+
+
+// =====================================================
+// INFORMAÇÕES DO UTILIZADOR
+// =====================================================
+
+async function carregarInformacoesUsuario() {
+
+    try {
+
+        const gestor =
+            JSON.parse(
+                localStorage.getItem(
+                    "gestorLogado"
+                ) || "null"
+            );
+
+
+        if (gestor) {
+
+            if (userInfo) {
+
+                userInfo.textContent =
+                    `Administrador: ${
+                        gestor.nome ||
+                        gestor.email ||
+                        "Gestor"
+                    }`;
+
+            }
+
+        }
+        else {
+
+            if (userInfo) {
+
+                userInfo.textContent =
+                    "Administrador";
+
+            }
+
+        }
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao carregar utilizador:",
+            erro
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// ESTATÍSTICAS
+// =====================================================
+
+async function carregarEstatisticas() {
+
+    // -------------------------------------------------
+    // ALUNOS
+    // -------------------------------------------------
+
+    try {
+
+        let total = 0;
+
+
+        const turmasSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas"
+                )
+            );
+
+
+        for (
+            const turmaDoc
+            of turmasSnapshot.docs
+        ) {
+
+            const alunosSnapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "turmas",
+                        turmaDoc.id,
+                        "alunos"
+                    )
+                );
+
+
+            total +=
+                alunosSnapshot.size;
+
+        }
+
+
+        if (totalStudents) {
+
+            totalStudents.textContent =
+                total;
+
+        }
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao contar alunos:",
+            erro
+        );
+
+        if (totalStudents) {
+
+            totalStudents.textContent =
+                "0";
+
+        }
+
+    }
+
+
+    // -------------------------------------------------
+    // PROFESSORES
+    // -------------------------------------------------
+
+    try {
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "professores"
+                )
+            );
+
+
+        if (totalTeachers) {
+
+            totalTeachers.textContent =
+                snapshot.size;
+
+        }
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao contar professores:",
+            erro
+        );
+
+        if (totalTeachers) {
+
+            totalTeachers.textContent =
+                "0";
+
+        }
+
+    }
+
+
+    // -------------------------------------------------
+    // TURMAS
+    // -------------------------------------------------
+
+    try {
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas"
+                )
+            );
+
+
+        if (totalClasses) {
+
+            totalClasses.textContent =
+                snapshot.size;
+
+        }
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao contar turmas:",
+            erro
+        );
+
+        if (totalClasses) {
+
+            totalClasses.textContent =
+                "0";
+
+        }
+
+    }
+
+
+    // -------------------------------------------------
+    // DISCIPLINAS
+    // -------------------------------------------------
+
+    try {
+
+        const configRef =
+            collection(
+                db,
+                "config"
+            );
+
+
+        const snapshot =
+            await getDocs(
+                configRef
+            );
+
+
+        let totalDisciplinas = 0;
+
+
+        snapshot.forEach(
+            documento => {
+
+                const dados =
+                    documento.data();
+
+
+                if (
+                    dados.disciplinas
+                ) {
+
+                    const disciplinas =
+                        dados.disciplinas;
+
+
+                    Object.values(
+                        disciplinas
+                    ).forEach(
+                        lista => {
+
+                            if (
+                                Array.isArray(
+                                    lista
+                                )
+                            ) {
+
+                                totalDisciplinas +=
+                                    lista.length;
+
+                            }
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+
+        if (totalSubjects) {
+
+            totalSubjects.textContent =
+                totalDisciplinas;
+
+        }
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao contar disciplinas:",
+            erro
+        );
+
+        if (totalSubjects) {
+
+            totalSubjects.textContent =
+                "0";
+
+        }
+
+    }
+
+}
+
+
+// =====================================================
+// ATIVIDADES RECENTES
+// =====================================================
+
+async function carregarAtividadesRecentes() {
+
+    if (!activity) {
+
+        console.warn(
+            "Elemento #activity não encontrado."
+        );
 
         return;
 
     }
 
 
-    userInfo.textContent =
-        user.email;
-
-
-    await carregarEscola();
-
-
-    await carregarTotais();
-
-}
-
-);
-
-// =====================================================
-// ESCOLA
-// =====================================================
-
-async function carregarEscola() {
-
-try {
-
-    const dados =
-        await getDocs(
-            collection(
-                db,
-                "escolas"
-            )
-        );
-
-
-    if (!dados.empty) {
-
-        const escola =
-            dados.docs[0].data();
-
-
-        escolaNome.textContent =
-            escola.nome ||
-            "SIGEA";
-
-    }
-    else {
-
-        escolaNome.textContent =
-            "SIGEA";
-
-    }
-
-}
-
-catch (error) {
-
-    console.error(
-        "Erro ao carregar escola:",
-        error
-    );
-
-    escolaNome.textContent =
-        "SIGEA";
-
-}
-
-}
-
-// =====================================================
-// CARREGAR TOTAIS
-// =====================================================
-
-async function carregarTotais() {
-
-try {
-
-
-    // =============================================
-    // TURMAS
-    // =============================================
-
-    const turmasSnapshot =
-        await getDocs(
-            collection(
-                db,
-                "turmas"
-            )
-        );
-
-
-    totalTurmas.textContent =
-        turmasSnapshot.size;
-
-
-    // =============================================
-    // PROFESSORES
-    // =============================================
-
-    const professoresSnapshot =
-        await getDocs(
-            collection(
-                db,
-                "professores"
-            )
-        );
-
-
-    totalProfessores.textContent =
-        professoresSnapshot.size;
-
-
-    // =============================================
-    // ALUNOS
-    // =============================================
-
-    let totalAlunosEncontrados = 0;
-
-
-    /*
-     * Os alunos estão dentro de:
-     *
-     * turmas
-     *   └── turmaId
-     *        └── alunos
-     *
-     */
-
-
-    for (
-        const turmaDoc
-        of turmasSnapshot.docs
-    ) {
-
-        const alunosRef =
-            collection(
-                db,
-                "turmas",
-                turmaDoc.id,
-                "alunos"
-            );
-
-
-        const alunosSnapshot =
-            await getDocs(
-                alunosRef
-            );
-
-
-        totalAlunosEncontrados +=
-            alunosSnapshot.size;
-
-    }
-
-
-    totalAlunos.textContent =
-        totalAlunosEncontrados;
-
-
-    // =============================================
-    // DISCIPLINAS
-    // =============================================
-
-    const disciplinasRef =
-        doc(
-            db,
-            "config",
-            "disciplinas"
-        );
-
-
-    const disciplinasSnapshot =
-        await getDoc(
-            disciplinasRef
-        );
-
-
-    let totalDisciplinasEncontradas =
-        0;
-
-
-    if (
-        disciplinasSnapshot.exists()
-    ) {
-
-        const dados =
-            disciplinasSnapshot.data();
-
-
-        /*
-         * Estrutura:
-         *
-         * config
-         *   disciplinas
-         *      ensinoPrimario
-         *          1classe
-         *              disciplinas: [...]
-         *
-         *      primeiroCiclo
-         *          7classe
-         *              disciplinas: [...]
-         *
-         */
-
-
-        const ensinos = [
-
-            "ensinoPrimario",
-
-            "primeiroCiclo"
-
-        ];
-
-
-        ensinos.forEach(
-            ensino => {
-
-                const classes =
-                    dados[ensino];
-
-
-                if (
-                    !classes ||
-                    typeof classes !==
-                    "object"
-                ) {
-
-                    return;
-
-                }
-
-
-                Object.keys(
-                    classes
-                ).forEach(
-                    classe => {
-
-                        const dadosClasse =
-                            classes[classe];
-
-
-                        if (
-                            dadosClasse &&
-                            Array.isArray(
-                                dadosClasse
-                                    .disciplinas
-                            )
-                        ) {
-
-                            totalDisciplinasEncontradas +=
-                                dadosClasse
-                                    .disciplinas
-                                    .length;
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-    }
-
-
-    totalDisciplinas.textContent =
-        totalDisciplinasEncontradas;
-
-
-    // =============================================
-    // CONSOLE PARA CONFERÊNCIA
-    // =============================================
-
-    console.log(
-        "===== TOTAIS SIGEA ====="
-    );
-
-
-    console.log(
-        "Alunos:",
-        totalAlunosEncontrados
-    );
-
-
-    console.log(
-        "Professores:",
-        professoresSnapshot.size
-    );
-
-
-    console.log(
-        "Turmas:",
-        turmasSnapshot.size
-    );
-
-
-    console.log(
-        "Disciplinas:",
-        totalDisciplinasEncontradas
-    );
-
-
-}
-
-catch (error) {
-
-    console.error(
-        "Erro ao carregar totais:",
-        error
-    );
-
-
-    totalAlunos.textContent =
-        "—";
-
-
-    totalProfessores.textContent =
-        "—";
-
-
-    totalTurmas.textContent =
-        "—";
-
-
-    totalDisciplinas.textContent =
-        "—";
-
-}
-
-}
-
-// =====================================================
-// SAIR
-// =====================================================
-
-document
-.getElementById("logoutBtn")
-.addEventListener(
-"click",
-async () => {
-
-        try {
-
-            await signOut(auth);
-
-
-            window.location.href =
-                "login.html";
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Erro ao sair:",
-                error
-            );
-
-        }
-
-    }
-);
-
-// =====================================================
-// ATIVIDADES RECENTES
-// =====================================================
-
-import {
-    collection,
-    query,
-    orderBy,
-    limit,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
-
-// =====================================================
-// ELEMENTO
-// =====================================================
-
-const activity =
-    document.getElementById("activity");
-
-
-// =====================================================
-// CARREGAR ATIVIDADES
-// =====================================================
-
-async function carregarAtividadesRecentes() {
-
-    if (!activity) return;
-
     try {
 
         const referencia =
-            collection(db, "atividades");
+            collection(
+                db,
+                "atividades"
+            );
+
 
         const consulta =
             query(
                 referencia,
-                orderBy("data", "desc"),
+                orderBy(
+                    "data",
+                    "desc"
+                ),
                 limit(10)
             );
 
+
         const resultado =
-            await getDocs(consulta);
+            await getDocs(
+                consulta
+            );
 
 
         // =============================================
@@ -470,16 +413,22 @@ async function carregarAtividadesRecentes() {
         if (resultado.empty) {
 
             activity.innerHTML = `
+
                 <div style="
                     padding:15px;
                     text-align:center;
                     color:#64748b;
                 ">
-                    Nenhuma atividade ainda.
+
+                    📭 Nenhuma atividade
+                    registada ainda.
+
                 </div>
+
             `;
 
             return;
+
         }
 
 
@@ -494,90 +443,109 @@ async function carregarAtividadesRecentes() {
         // MOSTRAR
         // =============================================
 
-        resultado.forEach(documento => {
+        resultado.forEach(
+            documento => {
 
-            const dados =
-                documento.data();
-
-
-            const item =
-                document.createElement("div");
+                const dados =
+                    documento.data();
 
 
-            item.style.padding =
-                "12px 0";
-
-            item.style.borderBottom =
-                "1px solid #e2e8f0";
-
-
-            const icone =
-                obterIconeAtividade(
-                    dados.tipo
-                );
+                const item =
+                    document.createElement(
+                        "div"
+                    );
 
 
-            const descricao =
-                dados.descricao ||
-                "Atividade realizada";
+                item.style.padding =
+                    "12px 0";
 
 
-            const utilizador =
-                dados.utilizador ||
-                "Sistema";
+                item.style.borderBottom =
+                    "1px solid #e2e8f0";
 
 
-            const data =
-                formatarDataAtividade(
-                    dados.data
-                );
+                const icone =
+                    obterIconeAtividade(
+                        dados.tipo
+                    );
 
 
-            item.innerHTML = `
+                const descricao =
+                    dados.descricao ||
+                    "Atividade realizada";
 
-                <div style="
-                    display:flex;
-                    gap:12px;
-                    align-items:flex-start;
-                ">
+
+                const utilizador =
+                    dados.utilizador ||
+                    "Sistema";
+
+
+                const data =
+                    formatarDataAtividade(
+                        dados.data
+                    );
+
+
+                item.innerHTML = `
 
                     <div style="
-                        font-size:22px;
-                    ">
-                        ${icone}
-                    </div>
-
-                    <div style="
-                        flex:1;
+                        display:flex;
+                        gap:12px;
+                        align-items:flex-start;
                     ">
 
                         <div style="
-                            font-weight:bold;
-                            color:#1e293b;
+                            font-size:22px;
                         ">
-                            ${descricao}
+
+                            ${icone}
+
                         </div>
 
+
                         <div style="
-                            font-size:13px;
-                            color:#64748b;
-                            margin-top:4px;
+                            flex:1;
                         ">
-                            👤 ${utilizador}
-                            ${data ? " • " + data : ""}
+
+                            <div style="
+                                font-weight:bold;
+                                color:#1e293b;
+                            ">
+
+                                ${descricao}
+
+                            </div>
+
+
+                            <div style="
+                                font-size:13px;
+                                color:#64748b;
+                                margin-top:4px;
+                            ">
+
+                                👤 ${utilizador}
+
+                                ${
+                                    data
+                                    ? " • " + data
+                                    : ""
+                                }
+
+                            </div>
+
                         </div>
 
                     </div>
 
-                </div>
-
-            `;
+                `;
 
 
-            activity.appendChild(item);
+                activity.appendChild(
+                    item
+                );
 
-        });
-
+            }
+        );
 
     }
     catch (erro) {
@@ -611,39 +579,61 @@ async function carregarAtividadesRecentes() {
 // ÍCONE DA ATIVIDADE
 // =====================================================
 
-function obterIconeAtividade(tipo) {
+function obterIconeAtividade(
+    tipo
+) {
 
     switch (tipo) {
 
         case "aluno":
+
             return "👨‍🎓";
 
+
         case "professor":
+
             return "👨‍🏫";
 
+
         case "turma":
+
             return "🏫";
 
+
         case "disciplina":
+
             return "📚";
 
+
         case "nota":
+
             return "📝";
 
+
         case "financeiro":
+
             return "💰";
 
+
         case "pauta":
+
             return "📑";
 
+
         case "configuracao":
+
             return "⚙️";
 
+
         case "sistema":
+
             return "🔧";
 
+
         default:
+
             return "📌";
+
     }
 
 }
@@ -653,32 +643,51 @@ function obterIconeAtividade(tipo) {
 // FORMATAR DATA
 // =====================================================
 
-function formatarDataAtividade(timestamp) {
+function formatarDataAtividade(
+    timestamp
+) {
 
     if (!timestamp) {
+
         return "";
+
     }
 
 
     try {
 
-        const data =
-            timestamp.toDate();
+        if (
+            typeof timestamp.toDate ===
+            "function"
+        ) {
+
+            const data =
+                timestamp.toDate();
 
 
-        return data.toLocaleString(
-            "pt-PT",
-            {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
+            return data.toLocaleString(
+                "pt-PT",
+                {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        }
+
+
+        return "";
 
     }
-    catch {
+    catch (erro) {
+
+        console.error(
+            "Erro ao formatar data:",
+            erro
+        );
 
         return "";
 
@@ -688,7 +697,58 @@ function formatarDataAtividade(timestamp) {
 
 
 // =====================================================
+// SAIR
+// =====================================================
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+        "click",
+        () => {
+
+            const confirmar =
+                confirm(
+                    "Deseja realmente sair?"
+                );
+
+
+            if (!confirmar) {
+
+                return;
+
+            }
+
+
+            localStorage.removeItem(
+                "gestorLogado"
+            );
+
+
+            localStorage.removeItem(
+                "professorLogado"
+            );
+
+
+            window.location.href =
+                "login.html";
+
+        }
+    );
+
+}
+
+
+// =====================================================
 // INICIAR
 // =====================================================
 
-carregarAtividadesRecentes();
+iniciarDashboard();
+
+
+// =====================================================
+// FIM
+// =====================================================
+
+alert(
+    "DASHBOARD-GESTOR.JS CARREGADO COMPLETAMENTE ✅"
+);
