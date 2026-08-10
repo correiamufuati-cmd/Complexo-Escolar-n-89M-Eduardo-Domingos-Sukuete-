@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS 1 CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 
 const classeSelect =
@@ -41,23 +41,6 @@ else{
     );
 
 }
-
-
-// =====================================================
-// TESTAR CLASSE
-// =====================================================
-
-classeSelect?.addEventListener(
-    "change",
-    function(){
-
-        alert(
-            "Classe selecionada: " +
-            this.value
-        );
-
-    }
-);
 
 
 // =====================================================
@@ -126,56 +109,6 @@ trimestreSelect.addEventListener(
 
     }
 );
-
-// =====================================================
-// ETAPA 5 — TESTAR CLASSE E TURMA
-// =====================================================
-
-
-// TESTE DAS CLASSES
-
-classeSelect.innerHTML = `
-
-    <option value="">
-        Selecionar classe
-    </option>
-
-    <option value="7">
-        7.ª Classe
-    </option>
-
-    <option value="8">
-        8.ª Classe
-    </option>
-
-    <option value="9">
-        9.ª Classe
-    </option>
-
-`;
-
-
-// TESTE DAS TURMAS
-
-turmaSelect.innerHTML = `
-
-    <option value="">
-        Selecionar turma
-    </option>
-
-    <option value="A">
-        Turma A
-    </option>
-
-    <option value="B">
-        Turma B
-    </option>
-
-    <option value="C">
-        Turma C
-    </option>
-
-`;
 
 
 // =====================================================
@@ -334,3 +267,162 @@ async function carregarTurmas(){
 // =====================================================
 
 carregarTurmas();
+
+// =====================================================
+// ETAPA 6 — CARREGAR CLASSES REAIS DO FIREBASE
+// =====================================================
+
+async function carregarClasses(){
+
+    try{
+
+        alert("🔵 A PROCURAR CLASSES NO FIREBASE...");
+
+
+        const resultado =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas"
+                )
+            );
+
+
+        // =============================================
+        // LIMPAR CLASSES DE TESTE
+        // =============================================
+
+        classeSelect.innerHTML = `
+
+            <option value="">
+                Selecionar classe
+            </option>
+
+        `;
+
+
+        // =============================================
+        // VERIFICAR SE EXISTEM TURMAS
+        // =============================================
+
+        if(resultado.empty){
+
+            alert(
+                "⚠️ NÃO EXISTEM TURMAS NO FIREBASE."
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // GUARDAR CLASSES SEM REPETIR
+        // =============================================
+
+        const classes =
+            new Map();
+
+
+        resultado.forEach(
+            documento => {
+
+                const turma =
+                    documento.data();
+
+
+                const classe =
+                    turma.classe ||
+                    turma.nomeClasse ||
+                    turma.classeNome ||
+                    "";
+
+
+                if(!classe){
+
+                    return;
+
+                }
+
+
+                const chave =
+                    String(
+                        classe
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                if(!classes.has(chave)){
+
+                    classes.set(
+                        chave,
+                        classe
+                    );
+
+                }
+
+            }
+        );
+
+
+        // =============================================
+        // COLOCAR CLASSES NO SELECT
+        // =============================================
+
+        classes.forEach(
+            (nomeClasse) => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    nomeClasse;
+
+
+                option.textContent =
+                    nomeClasse;
+
+
+                classeSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        alert(
+            "✅ CLASSES CARREGADAS!\n\n" +
+            "Total de classes: " +
+            classes.size
+        );
+
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao carregar classes:",
+            erro
+        );
+
+
+        alert(
+            "❌ ERRO AO CARREGAR CLASSES!\n\n" +
+            erro.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// INICIAR
+// =====================================================
+
+carregarClasses();
