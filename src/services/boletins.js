@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS CARREGOU!");
+alert("✅ BOLETINS.JS 1 CARREGOU!");
 
 
 const classeSelect =
@@ -212,3 +212,125 @@ turmaSelect.addEventListener(
 
     }
 );
+
+// =====================================================
+// ETAPA 6 — LER TURMAS DO FIREBASE
+// =====================================================
+
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+import { db } from "./firebase.js";
+
+
+alert("🔵 INICIANDO LEITURA DAS TURMAS...");
+
+
+// =====================================================
+// CARREGAR TURMAS
+// =====================================================
+
+async function carregarTurmas(){
+
+    try{
+
+        const resultado =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas"
+                )
+            );
+
+
+        alert(
+            "✅ FIREBASE RESPONDEU!\n\n" +
+            "Turmas encontradas: " +
+            resultado.size
+        );
+
+
+        if(resultado.empty){
+
+            alert(
+                "⚠️ A coleção turmas está vazia."
+            );
+
+            return;
+
+        }
+
+
+        // Limpar opções de teste
+
+        turmaSelect.innerHTML = `
+
+            <option value="">
+                Selecionar turma
+            </option>
+
+        `;
+
+
+        resultado.forEach(
+            documento => {
+
+                const turma =
+                    documento.data();
+
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    documento.id;
+
+
+                option.textContent =
+                    turma.nome ||
+                    turma.turma ||
+                    "Turma sem nome";
+
+
+                turmaSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        alert(
+            "✅ TURMAS COLOCADAS NO SELECT!"
+        );
+
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao carregar turmas:",
+            erro
+        );
+
+
+        alert(
+            "❌ ERRO AO LER TURMAS!\n\n" +
+            erro.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// EXECUTAR
+// =====================================================
+
+carregarTurmas();
