@@ -109,3 +109,20 @@ pesquisaAluno?.addEventListener(
 
     }
 );
+
+// =====================================================
+// ETAPA 4 — TESTAR TRIMESTRE
+// =====================================================
+
+trimestreSelect.addEventListener(
+    "change",
+    function(){
+
+        alert(
+            "✅ TRIMESTRE FUNCIONOU!\n\n" +
+            "Valor selecionado: " +
+            this.value
+        );
+
+    }
+);
