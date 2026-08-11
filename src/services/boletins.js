@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS df CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 
 const classeSelect =
@@ -905,3 +905,180 @@ trimestreSelect.addEventListener(
 
     }
 );
+
+// =====================================================
+// ETAPA 11 — TESTAR NOTAS DO PRIMEIRO ALUNO
+// =====================================================
+
+async function testarNotasDoAluno(){
+
+    const turmaId =
+        turmaSelect.value;
+
+
+    if(!turmaId){
+
+        alert(
+            "⚠️ Primeiro selecione uma turma."
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        // =============================================
+        // BUSCAR ALUNOS
+        // =============================================
+
+        const alunosSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas",
+                    turmaId,
+                    "alunos"
+                )
+            );
+
+
+        if(alunosSnapshot.empty){
+
+            alert(
+                "⚠️ Esta turma não possui alunos."
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // PRIMEIRO ALUNO
+        // =============================================
+
+        const primeiroAluno =
+            alunosSnapshot.docs[0];
+
+
+        const aluno =
+            primeiroAluno.data();
+
+
+        const alunoId =
+            primeiroAluno.id;
+
+
+        // =============================================
+        // BUSCAR NOTAS
+        // =============================================
+
+        const notasSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas",
+                    turmaId,
+                    "alunos",
+                    alunoId,
+                    "notas"
+                )
+            );
+
+
+        // =============================================
+        // RESULTADO
+        // =============================================
+
+        alert(
+
+            "📝 TESTE DAS NOTAS\n\n" +
+
+            "Aluno:\n" +
+            (
+                aluno.nome ||
+                "Sem nome"
+            ) +
+
+            "\n\nID do aluno:\n" +
+            alunoId +
+
+            "\n\nNotas encontradas:\n" +
+            notasSnapshot.size
+
+        );
+
+
+        // =============================================
+        // MOSTRAR DADOS DA PRIMEIRA NOTA
+        // =============================================
+
+        if(
+            !notasSnapshot.empty
+        ){
+
+            const primeiraNota =
+                notasSnapshot.docs[0]
+                    .data();
+
+
+            console.log(
+                "PRIMEIRA NOTA:",
+                primeiraNota
+            );
+
+
+            alert(
+
+                "✅ PRIMEIRA NOTA ENCONTRADA!\n\n" +
+
+                JSON.stringify(
+                    primeiraNota,
+                    null,
+                    2
+                )
+
+            );
+
+        }
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao testar notas:",
+            erro
+        );
+
+
+        alert(
+
+            "❌ ERRO AO PROCURAR NOTAS!\n\n" +
+            erro.message
+
+        );
+
+    }
+
+                }
+
+id="l8n0n5"
+const botaoTesteNotas =
+    document.createElement("button");
+
+botaoTesteNotas.textContent =
+    "📝 Testar notas";
+
+botaoTesteNotas.style.marginTop =
+    "15px";
+
+botaoTesteNotas.onclick =
+    testarNotasDoAluno;
+
+document
+    .querySelector(".section:last-child")
+    ?.appendChild(
+        botaoTesteNotas
+    );
