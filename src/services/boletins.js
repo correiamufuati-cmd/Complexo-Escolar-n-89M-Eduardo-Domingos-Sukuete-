@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS df CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 
 const classeSelect =
@@ -1125,4 +1125,150 @@ document.body.appendChild(
 
 alert(
     "✅ BOTÃO TESTAR NOTAS CRIADO!"
+);
+
+// =====================================================
+// ETAPA 12 — TESTAR COLEÇÃO PRINCIPAL "notas"
+// =====================================================
+
+async function testarColecaoNotas(){
+
+    try{
+
+        alert(
+            "🔵 A PROCURAR NA COLEÇÃO PRINCIPAL 'notas'..."
+        );
+
+
+        const resultado =
+            await getDocs(
+                collection(
+                    db,
+                    "notas"
+                )
+            );
+
+
+        alert(
+            "📝 DOCUMENTOS NA COLEÇÃO NOTAS:\n\n" +
+            resultado.size
+        );
+
+
+        if(resultado.empty){
+
+            alert(
+                "⚠️ A COLEÇÃO 'notas' ESTÁ VAZIA."
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // MOSTRAR PRIMEIRO DOCUMENTO
+        // =============================================
+
+        const documento =
+            resultado.docs[0];
+
+
+        const dados =
+            documento.data();
+
+
+        console.log(
+            "PRIMEIRO DOCUMENTO DA COLEÇÃO NOTAS:",
+            dados
+        );
+
+
+        alert(
+            "✅ ENCONTRAMOS UMA NOTA!\n\n" +
+            "ID:\n" +
+            documento.id +
+            "\n\nDADOS:\n" +
+            JSON.stringify(
+                dados,
+                null,
+                2
+            )
+        );
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao procurar coleção notas:",
+            erro
+        );
+
+
+        alert(
+            "❌ ERRO:\n\n" +
+            erro.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// BOTÃO TESTAR COLEÇÃO NOTAS
+// =====================================================
+
+const botaoColecaoNotas =
+    document.createElement("button");
+
+
+botaoColecaoNotas.type =
+    "button";
+
+
+botaoColecaoNotas.textContent =
+    "🔎 Ver estrutura das notas";
+
+
+botaoColecaoNotas.style.display =
+    "block";
+
+
+botaoColecaoNotas.style.margin =
+    "20px";
+
+
+botaoColecaoNotas.style.padding =
+    "12px 20px";
+
+
+botaoColecaoNotas.style.background =
+    "#16a34a";
+
+
+botaoColecaoNotas.style.color =
+    "white";
+
+
+botaoColecaoNotas.style.border =
+    "none";
+
+
+botaoColecaoNotas.style.borderRadius =
+    "8px";
+
+
+botaoColecaoNotas.style.cursor =
+    "pointer";
+
+
+botaoColecaoNotas.addEventListener(
+    "click",
+    testarColecaoNotas
+);
+
+
+document.body.appendChild(
+    botaoColecaoNotas
 );
