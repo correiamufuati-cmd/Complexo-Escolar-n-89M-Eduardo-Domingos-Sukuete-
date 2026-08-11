@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS CARREGOU!");
+alert("✅ BOLETINS.JS df CARREGOU!");
 
 
 const classeSelect =
@@ -1064,21 +1064,65 @@ async function testarNotasDoAluno(){
 
                 }
 
-id="l8n0n5"
+// =====================================================
+// BOTÃO DE TESTE DAS NOTAS
+// =====================================================
+
+alert("🔵 A CRIAR BOTÃO TESTAR NOTAS...");
+
+
 const botaoTesteNotas =
     document.createElement("button");
+
+
+botaoTesteNotas.id =
+    "botaoTesteNotas";
+
+
+botaoTesteNotas.type =
+    "button";
+
 
 botaoTesteNotas.textContent =
     "📝 Testar notas";
 
-botaoTesteNotas.style.marginTop =
-    "15px";
 
-botaoTesteNotas.onclick =
-    testarNotasDoAluno;
+botaoTesteNotas.style.display =
+    "block";
 
-document
-    .querySelector(".section:last-child")
-    ?.appendChild(
-        botaoTesteNotas
-    );
+botaoTesteNotas.style.margin =
+    "20px";
+
+botaoTesteNotas.style.padding =
+    "12px 20px";
+
+botaoTesteNotas.style.background =
+    "#2563eb";
+
+botaoTesteNotas.style.color =
+    "white";
+
+botaoTesteNotas.style.border =
+    "none";
+
+botaoTesteNotas.style.borderRadius =
+    "8px";
+
+botaoTesteNotas.style.cursor =
+    "pointer";
+
+
+botaoTesteNotas.addEventListener(
+    "click",
+    testarNotasDoAluno
+);
+
+
+document.body.appendChild(
+    botaoTesteNotas
+);
+
+
+alert(
+    "✅ BOTÃO TESTAR NOTAS CRIADO!"
+);
