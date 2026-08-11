@@ -1973,11 +1973,162 @@ botaoImprimirTodos.addEventListener(
     "click",
     function(){
 
-        alert(
-            "🖨️ BOTÃO DE IMPRIMIR TODOS FUNCIONOU!\n\n" +
-            "Posteriormente vamos imprimir todos os boletins " +
-            "da turma numa única operação."
-        );
+const conteudo =
+    boletinsContainer.innerHTML;
+
+if(!conteudo.trim()){
+
+    alert(
+        "⚠️ Primeiro carregue os boletins da turma."
+    );
+
+    return;
+
+}
+
+
+const janela =
+    window.open(
+        "",
+        "_blank"
+    );
+
+
+if(!janela){
+
+    alert(
+        "❌ O navegador bloqueou a janela de impressão."
+    );
+
+    return;
+
+}
+
+
+janela.document.write(`
+
+<!DOCTYPE html>
+
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+Boletins da Turma
+</title>
+
+<style>
+
+    *{
+        box-sizing:border-box;
+    }
+
+    body{
+        font-family:Arial,sans-serif;
+        margin:20px;
+        color:#1e293b;
+    }
+
+    .boletim-card{
+
+        page-break-after:always;
+
+        margin-bottom:30px;
+
+        padding:20px;
+
+        border:1px solid #cbd5e1;
+
+        border-radius:8px;
+
+    }
+
+    .boletim-card:last-child{
+
+        page-break-after:auto;
+
+    }
+
+    table{
+
+        width:100%;
+
+        border-collapse:collapse;
+
+        margin-top:15px;
+
+    }
+
+    th,
+    td{
+
+        border:1px solid #cbd5e1;
+
+        padding:8px;
+
+        text-align:center;
+
+    }
+
+    th{
+
+        background:#e2e8f0;
+
+    }
+
+    td:first-child,
+    th:first-child{
+
+        text-align:left;
+
+    }
+
+    button{
+
+        display:none !important;
+
+    }
+
+    @media print{
+
+        body{
+
+            margin:10mm;
+
+        }
+
+    }
+
+</style>
+
+</head>
+
+<body>
+
+${conteudo}
+
+</body>
+
+</html>
+
+`);
+
+
+janela.document.close();
+
+
+// Esperar o conteúdo carregar
+// antes de abrir a impressão
+
+janela.onload = function(){
+
+    janela.focus();
+
+    janela.print();
+
+};
 
     }
 );
