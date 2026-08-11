@@ -1274,7 +1274,7 @@ document.body.appendChild(
 );
 
 // =====================================================
-// ETAPA 12 — BOLETIM COMPLETO DE UM ALUNO
+// ETAPA 13 — TODOS OS BOLETINS DA TURMA
 // =====================================================
 
 async function testarBoletimCompleto(){
@@ -1311,42 +1311,12 @@ async function testarBoletimCompleto(){
     try{
 
         alert(
-            "🔵 A PROCURAR TODAS AS NOTAS DA TURMA..."
+            "🔵 A PREPARAR OS BOLETINS DA TURMA..."
         );
 
 
         // =================================================
-        // 1. BUSCAR TODOS OS DOCUMENTOS DE NOTAS
-        // =================================================
-
-        const notasSnapshot =
-            await getDocs(
-                collection(
-                    db,
-                    "notas"
-                )
-            );
-
-
-        alert(
-            "📝 DOCUMENTOS DE NOTAS ENCONTRADOS:\n\n" +
-            notasSnapshot.size
-        );
-
-
-        if(notasSnapshot.empty){
-
-            alert(
-                "⚠️ A coleção notas está vazia."
-            );
-
-            return;
-
-        }
-
-
-        // =================================================
-        // 2. BUSCAR ALUNOS DA TURMA
+        // BUSCAR ALUNOS
         // =================================================
 
         const alunosSnapshot =
@@ -1371,190 +1341,23 @@ async function testarBoletimCompleto(){
         }
 
 
-        const primeiroAluno =
-            alunosSnapshot.docs[0];
-
-
-        const aluno =
-            primeiroAluno.data();
-
-
-        const nomeAluno =
-            String(
-                aluno.nome || ""
-            )
-            .trim();
-
-
-        const numeroAluno =
-            String(
-                aluno.numero || ""
-            )
-            .trim();
-
-
-        alert(
-            "👨‍🎓 ALUNO DE TESTE:\n\n" +
-            nomeAluno +
-            "\n\nNº: " +
-            numeroAluno
-        );
-
-
         // =================================================
-        // 3. PROCURAR NOTAS DESSE ALUNO
+        // BUSCAR NOTAS
         // =================================================
 
-        const disciplinas = [];
+        const notasSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "notas"
+                )
+            );
 
 
-        notasSnapshot.forEach(
-            documento => {
-
-                const dados =
-                    documento.data();
-
-
-                if(
-                    !Array.isArray(
-                        dados.alunos
-                    )
-                ){
-
-                    return;
-
-                }
-
-
-                // =========================================
-                // PROCURAR O ALUNO DENTRO DO ARRAY
-                // =========================================
-
-                const registro =
-                    dados.alunos.find(
-                        item => {
-
-                            const nomeNota =
-                                String(
-                                    item.nome || ""
-                                )
-                                .trim();
-
-
-                            const numeroNota =
-                                String(
-                                    item.numero || ""
-                                )
-                                .trim();
-
-
-                            return (
-
-                                (
-                                    numeroAluno &&
-                                    numeroNota ===
-                                    numeroAluno
-                                )
-
-                                ||
-
-                                (
-                                    nomeAluno &&
-                                    nomeNota ===
-                                    nomeAluno
-                                )
-
-                            );
-
-                        }
-                    );
-
-
-                if(!registro){
-
-                    return;
-
-                }
-
-
-                // =========================================
-                // IDENTIFICAR DISCIPLINA PELO ID
-                // =========================================
-
-                const id =
-                    documento.id;
-
-
-                let disciplina =
-                    id;
-
-
-                // Retirar possível trimestre
-                // do final do ID
-
-                disciplina =
-                    disciplina
-                    .replace(
-                        /_[123]$/,
-                        ""
-                    );
-
-
-                // Retirar possível ID da turma
-                // quando existir no início
-
-                if(
-                    disciplina.includes("_")
-                ){
-
-                    const partes =
-                        disciplina.split("_");
-
-
-                    disciplina =
-                        partes
-                        .slice(1)
-                        .join("_");
-
-                }
-
-
-                disciplinas.push({
-
-                    disciplina:
-                        disciplina,
-
-                    MAC:
-                        registro.MAC ?? "",
-
-                    NPT:
-                        registro.NPT ?? "",
-
-                    MF:
-                        registro.MF ?? "",
-
-                    classificacao:
-                        registro.classificacao ||
-                        ""
-
-                });
-
-            }
-        );
-
-
-        // =================================================
-        // 4. RESULTADO
-        // =================================================
-
-        if(
-            disciplinas.length === 0
-        ){
+        if(notasSnapshot.empty){
 
             alert(
-                "⚠️ NÃO ENCONTRÁMOS NOTAS PARA:\n\n" +
-                nomeAluno +
-                "\n\nVerifique a estrutura dos documentos."
+                "⚠️ A coleção notas está vazia."
             );
 
             return;
@@ -1562,234 +1365,431 @@ async function testarBoletimCompleto(){
         }
 
 
-        let texto =
-            "📋 BOLETIM DO ALUNO\n\n" +
+        // =================================================
+        // LIMPAR ÁREA
+        // =================================================
 
-            "Aluno: " +
-            nomeAluno +
-
-            "\nNº: " +
-            numeroAluno +
-
-            "\n\n";
+        boletinsContainer.innerHTML = "";
 
 
-        disciplinas.forEach(
-            item => {
-
-                texto +=
-
-                    "📚 " +
-                    item.disciplina +
-
-                    "\n" +
-
-                    "MAC: " +
-                    item.MAC +
-
-                    " | NPT: " +
-                    item.NPT +
-
-                    " | MF: " +
-                    item.MF +
-
-                    "\n" +
-
-                    "Classificação: " +
-                    (
-                        item.classificacao ||
-                        "—"
-                    ) +
-
-                    "\n\n";
-
-            }
-        );
+        let totalBoletins = 0;
 
 
-        // =====================================================
-// MOSTRAR BOLETIM NA PÁGINA
-// =====================================================
+        // =================================================
+        // PERCORRER TODOS OS ALUNOS
+        // =================================================
 
-boletinsContainer.innerHTML = `
+        alunosSnapshot.forEach(
+            alunoDocumento => {
 
-    <div class="boletim-card">
-
-        <div class="boletim-info">
-
-            <div class="boletim-avatar">
-                👨‍🎓
-            </div>
-
-            <div>
-
-                <h3>
-                    ${nomeAluno}
-                </h3>
-
-                <p>
-                    Nº: ${numeroAluno}
-                </p>
-
-                <p>
-                    Trimestre: ${trimestre}
-                </p>
-
-            </div>
-
-        </div>
+                const aluno =
+                    alunoDocumento.data();
 
 
-        <div style="
-            overflow-x:auto;
-            margin-top:20px;
-        ">
+                const nomeAluno =
+                    String(
+                        aluno.nome || ""
+                    )
+                    .trim();
 
-            <table style="
-                width:100%;
-                border-collapse:collapse;
-            ">
 
-                <thead>
+                const numeroAluno =
+                    String(
+                        aluno.numero || ""
+                    )
+                    .trim();
 
-                    <tr>
 
-                        <th style="
-                            padding:10px;
-                            border:1px solid #cbd5e1;
+                const disciplinas = [];
+
+
+                // =================================================
+                // PROCURAR NOTAS DO ALUNO
+                // =================================================
+
+                notasSnapshot.forEach(
+                    notaDocumento => {
+
+                        const dados =
+                            notaDocumento.data();
+
+
+                        if(
+                            !Array.isArray(
+                                dados.alunos
+                            )
+                        ){
+
+                            return;
+
+                        }
+
+
+                        const registro =
+                            dados.alunos.find(
+                                item => {
+
+                                    const nomeNota =
+                                        String(
+                                            item.nome || ""
+                                        )
+                                        .trim();
+
+
+                                    const numeroNota =
+                                        String(
+                                            item.numero || ""
+                                        )
+                                        .trim();
+
+
+                                    return (
+
+                                        (
+                                            numeroAluno &&
+                                            numeroNota ===
+                                            numeroAluno
+                                        )
+
+                                        ||
+
+                                        (
+                                            nomeAluno &&
+                                            nomeNota ===
+                                            nomeAluno
+                                        )
+
+                                    );
+
+                                }
+                            );
+
+
+                        if(!registro){
+
+                            return;
+
+                        }
+
+
+                        // =================================================
+                        // IDENTIFICAR DISCIPLINA
+                        // =================================================
+
+                        let disciplina =
+                            notaDocumento.id;
+
+
+                        disciplina =
+                            disciplina.replace(
+                                /_[123]$/,
+                                ""
+                            );
+
+
+                        if(
+                            disciplina.includes("_")
+                        ){
+
+                            const partes =
+                                disciplina.split("_");
+
+
+                            disciplina =
+                                partes
+                                    .slice(1)
+                                    .join("_");
+
+                        }
+
+
+                        // =================================================
+                        // EVITAR DISCIPLINAS REPETIDAS
+                        // =================================================
+
+                        const jaExiste =
+                            disciplinas.some(
+                                item =>
+                                    item.disciplina ===
+                                    disciplina
+                            );
+
+
+                        if(jaExiste){
+
+                            return;
+
+                        }
+
+
+                        // =================================================
+                        // ADICIONAR DISCIPLINA
+                        // =================================================
+
+                        disciplinas.push({
+
+                            disciplina:
+                                disciplina,
+
+                            MAC:
+                                registro.MAC ?? "",
+
+                            NPT:
+                                registro.NPT ?? "",
+
+                            MF:
+                                registro.MF ?? "",
+
+                            classificacao:
+                                registro.classificacao ||
+                                ""
+
+                        });
+
+                    }
+                );
+
+
+                // =================================================
+                // CRIAR BOLETIM
+                // =================================================
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "boletim-card";
+
+
+                card.style.marginBottom =
+                    "25px";
+
+
+                card.style.padding =
+                    "20px";
+
+
+                card.style.background =
+                    "white";
+
+
+                card.style.borderRadius =
+                    "12px";
+
+
+                card.style.boxShadow =
+                    "0 3px 12px rgba(0,0,0,.08)";
+
+
+                let linhas = "";
+
+
+                disciplinas.forEach(
+                    item => {
+
+                        linhas += `
+
+                            <tr>
+
+                                <td>
+                                    ${item.disciplina}
+                                </td>
+
+                                <td>
+                                    ${item.MAC}
+                                </td>
+
+                                <td>
+                                    ${item.NPT}
+                                </td>
+
+                                <td>
+                                    ${item.MF}
+                                </td>
+
+                                <td>
+                                    ${item.classificacao || "—"}
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+                );
+
+
+                if(
+                    disciplinas.length === 0
+                ){
+
+                    linhas = `
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                style="
+                                    text-align:center;
+                                    padding:15px;
+                                    color:#b91c1c;
+                                "
+                            >
+
+                                ⚠️ Nenhuma nota
+                                encontrada.
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+
+
+                card.innerHTML = `
+
+                    <div style="
+                        margin-bottom:15px;
+                    ">
+
+                        <h3 style="
+                            margin:0 0 8px;
                         ">
-                            Disciplina
-                        </th>
 
-                        <th style="
-                            padding:10px;
-                            border:1px solid #cbd5e1;
+                            👨‍🎓
+                            ${nomeAluno || "Aluno sem nome"}
+
+                        </h3>
+
+
+                        <div style="
+                            color:#64748b;
+                            font-size:14px;
                         ">
-                            MAC
-                        </th>
 
-                        <th style="
-                            padding:10px;
-                            border:1px solid #cbd5e1;
+                            Nº:
+                            ${numeroAluno || "—"}
+
+                            &nbsp; | &nbsp;
+
+                            Trimestre:
+                            ${trimestre}
+
+                        </div>
+
+                    </div>
+
+
+                    <div style="
+                        overflow-x:auto;
+                    ">
+
+                        <table style="
+                            width:100%;
+                            border-collapse:collapse;
                         ">
-                            NPT
-                        </th>
 
-                        <th style="
-                            padding:10px;
-                            border:1px solid #cbd5e1;
-                        ">
-                            MF
-                        </th>
-
-                        <th style="
-                            padding:10px;
-                            border:1px solid #cbd5e1;
-                        ">
-                            Classificação
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    ${
-                        disciplinas.map(
-                            item => `
+                            <thead>
 
                                 <tr>
 
-                                    <td style="
-                                        padding:9px;
-                                        border:1px solid #cbd5e1;
-                                    ">
-                                        ${item.disciplina}
-                                    </td>
+                                    <th>
+                                        Disciplina
+                                    </th>
 
-                                    <td style="
-                                        padding:9px;
-                                        border:1px solid #cbd5e1;
-                                        text-align:center;
-                                    ">
-                                        ${item.MAC}
-                                    </td>
+                                    <th>
+                                        MAC
+                                    </th>
 
-                                    <td style="
-                                        padding:9px;
-                                        border:1px solid #cbd5e1;
-                                        text-align:center;
-                                    ">
-                                        ${item.NPT}
-                                    </td>
+                                    <th>
+                                        NPT
+                                    </th>
 
-                                    <td style="
-                                        padding:9px;
-                                        border:1px solid #cbd5e1;
-                                        text-align:center;
-                                        font-weight:bold;
-                                    ">
-                                        ${item.MF}
-                                    </td>
+                                    <th>
+                                        MF
+                                    </th>
 
-                                    <td style="
-                                        padding:9px;
-                                        border:1px solid #cbd5e1;
-                                        text-align:center;
-                                    ">
-                                        ${item.classificacao || "—"}
-                                    </td>
+                                    <th>
+                                        Classificação
+                                    </th>
 
                                 </tr>
 
-                            `
-                        ).join("")
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-`;
+                            </thead>
 
 
-        console.log(
-            "📋 BOLETIM COMPLETO:",
-            {
-                aluno:
-                    nomeAluno,
+                            <tbody>
 
-                numero:
-                    numeroAluno,
+                                ${linhas}
 
-                disciplinas:
-                    disciplinas
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                `;
+
+
+                boletinsContainer.appendChild(
+                    card
+                );
+
+
+                totalBoletins++;
+
             }
         );
+
+
+        // =================================================
+        // CONTADOR
+        // =================================================
+
+        if(contadorBoletins){
+
+            contadorBoletins.textContent =
+
+                totalBoletins +
+
+                (
+                    totalBoletins === 1
+                        ? " boletim"
+                        : " boletins"
+                );
+
+        }
+
+
+        alert(
+            "✅ BOLETINS GERADOS!\n\n" +
+            "Total de alunos: " +
+            totalBoletins
+        );
+
 
     }
     catch(erro){
 
         console.error(
-            "Erro ao montar boletim:",
+            "Erro ao gerar boletins:",
             erro
         );
 
 
         alert(
-            "❌ ERRO AO MONTAR BOLETIM!\n\n" +
+            "❌ ERRO AO GERAR BOLETINS!\n\n" +
             erro.message
         );
 
     }
 
-}
-
+    }
 
 // =====================================================
 // BOTÃO DE TESTE
