@@ -1653,88 +1653,221 @@ async function testarBoletimCompleto(){
 
                 card.innerHTML = `
 
-                    <div style="
-                        margin-bottom:15px;
+    <!-- =========================================
+         CABEÇALHO DO BOLETIM
+    ========================================== -->
+
+    <div style="
+        text-align:center;
+        margin-bottom:20px;
+        border-bottom:2px solid #1e3a8a;
+        padding-bottom:15px;
+    ">
+
+        <h2 style="
+            margin:0;
+            color:#1e3a8a;
+        ">
+            BOLETIM DE AVALIAÇÃO
+        </h2>
+
+        <p style="
+            margin:6px 0;
+            font-size:14px;
+        ">
+            Ano Lectivo
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         DADOS DO ALUNO
+    ========================================== -->
+
+    <div style="
+        display:grid;
+        grid-template-columns:
+            repeat(auto-fit,minmax(180px,1fr));
+        gap:10px;
+        margin-bottom:20px;
+        background:#f8fafc;
+        padding:15px;
+        border-radius:8px;
+    ">
+
+        <div>
+            <strong>Aluno:</strong><br>
+            ${nomeAluno || "—"}
+        </div>
+
+        <div>
+            <strong>Nº:</strong><br>
+            ${numeroAluno || "—"}
+        </div>
+
+        <div>
+            <strong>Turma:</strong><br>
+            ${
+                turmaSelect.options[
+                    turmaSelect.selectedIndex
+                ]?.textContent || "—"
+            }
+        </div>
+
+        <div>
+            <strong>Trimestre:</strong><br>
+            ${trimestre}
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         TABELA DE NOTAS
+    ========================================== -->
+
+    <div style="
+        overflow-x:auto;
+    ">
+
+        <table style="
+            width:100%;
+            border-collapse:collapse;
+            min-width:600px;
+        ">
+
+            <thead>
+
+                <tr>
+
+                    <th style="
+                        padding:10px;
+                        border:1px solid #cbd5e1;
+                        background:#e2e8f0;
+                        text-align:left;
                     ">
+                        Disciplina
+                    </th>
 
-                        <h3 style="
-                            margin:0 0 8px;
-                        ">
-
-                            👨‍🎓
-                            ${nomeAluno || "Aluno sem nome"}
-
-                        </h3>
-
-
-                        <div style="
-                            color:#64748b;
-                            font-size:14px;
-                        ">
-
-                            Nº:
-                            ${numeroAluno || "—"}
-
-                            &nbsp; | &nbsp;
-
-                            Trimestre:
-                            ${trimestre}
-
-                        </div>
-
-                    </div>
-
-
-                    <div style="
-                        overflow-x:auto;
+                    <th style="
+                        padding:10px;
+                        border:1px solid #cbd5e1;
+                        background:#e2e8f0;
                     ">
+                        MAC
+                    </th>
 
-                        <table style="
-                            width:100%;
-                            border-collapse:collapse;
-                        ">
+                    <th style="
+                        padding:10px;
+                        border:1px solid #cbd5e1;
+                        background:#e2e8f0;
+                    ">
+                        NPT
+                    </th>
 
-                            <thead>
+                    <th style="
+                        padding:10px;
+                        border:1px solid #cbd5e1;
+                        background:#e2e8f0;
+                    ">
+                        MF
+                    </th>
 
-                                <tr>
+                    <th style="
+                        padding:10px;
+                        border:1px solid #cbd5e1;
+                        background:#e2e8f0;
+                    ">
+                        Classificação
+                    </th>
 
-                                    <th>
-                                        Disciplina
-                                    </th>
+                </tr>
 
-                                    <th>
-                                        MAC
-                                    </th>
-
-                                    <th>
-                                        NPT
-                                    </th>
-
-                                    <th>
-                                        MF
-                                    </th>
-
-                                    <th>
-                                        Classificação
-                                    </th>
-
-                                </tr>
-
-                            </thead>
+            </thead>
 
 
-                            <tbody>
+            <tbody>
 
-                                ${linhas}
+                ${linhas}
 
-                            </tbody>
+            </tbody>
 
-                        </table>
+        </table>
 
-                    </div>
+    </div>
 
-                `;
 
+    <!-- =========================================
+         AÇÕES
+    ========================================== -->
+
+    <div style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:20px;
+    ">
+
+        <button
+            type="button"
+            disabled
+            style="
+                padding:9px 14px;
+                border:0;
+                border-radius:7px;
+                background:#94a3b8;
+                color:white;
+            "
+        >
+            👁️ Ver
+        </button>
+
+        <button
+            type="button"
+            disabled
+            style="
+                padding:9px 14px;
+                border:0;
+                border-radius:7px;
+                background:#94a3b8;
+                color:white;
+            "
+        >
+            🖨️ Imprimir
+        </button>
+
+        <button
+            type="button"
+            disabled
+            style="
+                padding:9px 14px;
+                border:0;
+                border-radius:7px;
+                background:#94a3b8;
+                color:white;
+            "
+        >
+            📄 PDF
+        </button>
+
+        <button
+            type="button"
+            disabled
+            style="
+                padding:9px 14px;
+                border:0;
+                border-radius:7px;
+                background:#94a3b8;
+                color:white;
+            "
+        >
+            📊 Excel
+        </button>
+
+    </div>
+
+`;
 
                 boletinsContainer.appendChild(
                     card
