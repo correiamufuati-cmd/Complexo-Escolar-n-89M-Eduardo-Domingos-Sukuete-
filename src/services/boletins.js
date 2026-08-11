@@ -852,3 +852,56 @@ turmaSelect.addEventListener(
 );
 
 
+// =====================================================
+// ETAPA 10 — CLASSE + TURMA + TRIMESTRE
+// =====================================================
+
+trimestreSelect.addEventListener(
+    "change",
+    function(){
+
+        const classe =
+            classeSelect.value;
+
+        const turma =
+            turmaSelect.value;
+
+        const trimestre =
+            this.value;
+
+
+        if(
+            !classe ||
+            !turma ||
+            !trimestre
+        ){
+
+            return;
+
+        }
+
+
+        const turmaNome =
+            turmaSelect.options[
+                turmaSelect.selectedIndex
+            ]?.textContent;
+
+
+        alert(
+            "✅ DADOS DA PAUTA IDENTIFICADOS!\n\n" +
+
+            "Classe: " +
+            classe +
+
+            "\n\nTurma: " +
+            turmaNome +
+
+            "\n\nID da turma: " +
+            turma +
+
+            "\n\nTrimestre: " +
+            trimestre
+        );
+
+    }
+);
