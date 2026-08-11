@@ -583,3 +583,44 @@ classeSelect.addEventListener(
 
     }
 );
+
+// =====================================================
+// ETAPA 8 — TESTAR TURMA SELECIONADA
+// =====================================================
+
+turmaSelect.addEventListener(
+    "change",
+    function(){
+
+        const turmaId =
+            this.value;
+
+
+        const turmaNome =
+            this.options[
+                this.selectedIndex
+            ]?.textContent;
+
+
+        if(!turmaId){
+
+            return;
+
+        }
+
+
+        alert(
+            "✅ TURMA SELECIONADA!\n\n" +
+
+            "ID da turma:\n" +
+            turmaId +
+
+            "\n\nNome da turma:\n" +
+            turmaNome +
+
+            "\n\nClasse:\n" +
+            classeSelect.value
+        );
+
+    }
+);
