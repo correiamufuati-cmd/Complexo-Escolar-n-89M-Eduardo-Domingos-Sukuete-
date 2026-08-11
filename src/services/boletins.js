@@ -624,3 +624,140 @@ turmaSelect.addEventListener(
 
     }
 );
+
+// =====================================================
+// ETAPA 9 — CARREGAR ALUNOS DA TURMA
+// =====================================================
+
+async function carregarAlunosDaTurma(
+    turmaId
+){
+
+    if(!turmaId){
+
+        return;
+
+    }
+
+
+    alert(
+        "🔵 A PROCURAR ALUNOS...\n\n" +
+        "Turma: " +
+        turmaId
+    );
+
+
+    try{
+
+        const resultado =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas",
+                    turmaId,
+                    "alunos"
+                )
+            );
+
+
+        alert(
+            "✅ FIREBASE RESPONDEU!\n\n" +
+            "Alunos encontrados: " +
+            resultado.size
+        );
+
+
+        if(resultado.empty){
+
+            alert(
+                "⚠️ ESTA TURMA NÃO POSSUI ALUNOS."
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // MOSTRAR OS ALUNOS TEMPORARIAMENTE
+        // =============================================
+
+        let lista = "";
+
+
+        resultado.forEach(
+            documento => {
+
+                const aluno =
+                    documento.data();
+
+
+                lista +=
+
+                    "\n\n" +
+
+                    "Nº: " +
+                    (
+                        aluno.numero ||
+                        "—"
+                    ) +
+
+                    "\n" +
+
+                    "Nome: " +
+                    (
+                        aluno.nome ||
+                        "Sem nome"
+                    ) +
+
+                    "\n" +
+
+                    "Matrícula: " +
+                    (
+                        aluno.matricula ||
+                        "—"
+                    );
+
+            }
+        );
+
+
+        alert(
+            "👨‍🎓 ALUNOS DA TURMA:" +
+            lista
+        );
+
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao carregar alunos:",
+            erro
+        );
+
+
+        alert(
+            "❌ ERRO AO CARREGAR ALUNOS!\n\n" +
+            erro.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// LIGAR TURMA → ALUNOS
+// =====================================================
+
+turmaSelect.addEventListener(
+    "change",
+    function(){
+
+        carregarAlunosDaTurma(
+            this.value
+        );
+
+    }
+);
