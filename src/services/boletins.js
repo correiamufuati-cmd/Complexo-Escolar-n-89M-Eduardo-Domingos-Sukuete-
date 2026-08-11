@@ -426,3 +426,160 @@ async function carregarClasses(){
 // =====================================================
 
 carregarClasses();
+
+// =====================================================
+// ETAPA 7 — CLASSE → TURMAS REAIS
+// =====================================================
+
+classeSelect.addEventListener(
+    "change",
+    async function(){
+
+        const classeSelecionada =
+            this.value;
+
+
+        // =============================================
+        // LIMPAR TURMAS
+        // =============================================
+
+        turmaSelect.innerHTML = `
+
+            <option value="">
+                Selecionar turma
+            </option>
+
+        `;
+
+
+        if(!classeSelecionada){
+
+            return;
+
+        }
+
+
+        alert(
+            "🔵 CLASSE SELECIONADA:\n\n" +
+            classeSelecionada +
+            "\n\nA procurar as turmas..."
+        );
+
+
+        try{
+
+            // =========================================
+            // LER TURMAS
+            // =========================================
+
+            const resultado =
+                await getDocs(
+                    collection(
+                        db,
+                        "turmas"
+                    )
+                );
+
+
+            let total = 0;
+
+
+            // =========================================
+            // FILTRAR PELA CLASSE
+            // =========================================
+
+            resultado.forEach(
+                documento => {
+
+                    const turma =
+                        documento.data();
+
+
+                    if(
+                        String(
+                            turma.classe
+                        ).trim() !==
+                        String(
+                            classeSelecionada
+                        ).trim()
+                    ){
+
+                        return;
+
+                    }
+
+
+                    // =================================
+                    // CRIAR OPÇÃO
+                    // =================================
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        documento.id;
+
+
+                    option.textContent =
+                        turma.nome ||
+                        "Turma sem nome";
+
+
+                    turmaSelect.appendChild(
+                        option
+                    );
+
+
+                    total++;
+
+                }
+            );
+
+
+            // =========================================
+            // RESULTADO
+            // =========================================
+
+            if(total === 0){
+
+                alert(
+                    "⚠️ Nenhuma turma encontrada " +
+                    "para esta classe."
+                );
+
+            }
+            else{
+
+                alert(
+                    "✅ TURMAS CARREGADAS!\n\n" +
+                    "Classe: " +
+                    classeSelecionada +
+                    "\n\n" +
+                    "Total de turmas: " +
+                    total
+                );
+
+            }
+
+
+        }
+        catch(erro){
+
+            console.error(
+                "Erro ao carregar turmas:",
+                erro
+            );
+
+
+            alert(
+                "❌ ERRO AO CARREGAR TURMAS!\n\n" +
+                erro.message
+            );
+
+        }
+
+    }
+);
