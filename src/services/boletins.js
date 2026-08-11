@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS df CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 
 const classeSelect =
@@ -1607,7 +1607,155 @@ async function testarBoletimCompleto(){
         );
 
 
-        alert(texto);
+        // =====================================================
+// MOSTRAR BOLETIM NA PÁGINA
+// =====================================================
+
+boletinsContainer.innerHTML = `
+
+    <div class="boletim-card">
+
+        <div class="boletim-info">
+
+            <div class="boletim-avatar">
+                👨‍🎓
+            </div>
+
+            <div>
+
+                <h3>
+                    ${nomeAluno}
+                </h3>
+
+                <p>
+                    Nº: ${numeroAluno}
+                </p>
+
+                <p>
+                    Trimestre: ${trimestre}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div style="
+            overflow-x:auto;
+            margin-top:20px;
+        ">
+
+            <table style="
+                width:100%;
+                border-collapse:collapse;
+            ">
+
+                <thead>
+
+                    <tr>
+
+                        <th style="
+                            padding:10px;
+                            border:1px solid #cbd5e1;
+                        ">
+                            Disciplina
+                        </th>
+
+                        <th style="
+                            padding:10px;
+                            border:1px solid #cbd5e1;
+                        ">
+                            MAC
+                        </th>
+
+                        <th style="
+                            padding:10px;
+                            border:1px solid #cbd5e1;
+                        ">
+                            NPT
+                        </th>
+
+                        <th style="
+                            padding:10px;
+                            border:1px solid #cbd5e1;
+                        ">
+                            MF
+                        </th>
+
+                        <th style="
+                            padding:10px;
+                            border:1px solid #cbd5e1;
+                        ">
+                            Classificação
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${
+                        disciplinas.map(
+                            item => `
+
+                                <tr>
+
+                                    <td style="
+                                        padding:9px;
+                                        border:1px solid #cbd5e1;
+                                    ">
+                                        ${item.disciplina}
+                                    </td>
+
+                                    <td style="
+                                        padding:9px;
+                                        border:1px solid #cbd5e1;
+                                        text-align:center;
+                                    ">
+                                        ${item.MAC}
+                                    </td>
+
+                                    <td style="
+                                        padding:9px;
+                                        border:1px solid #cbd5e1;
+                                        text-align:center;
+                                    ">
+                                        ${item.NPT}
+                                    </td>
+
+                                    <td style="
+                                        padding:9px;
+                                        border:1px solid #cbd5e1;
+                                        text-align:center;
+                                        font-weight:bold;
+                                    ">
+                                        ${item.MF}
+                                    </td>
+
+                                    <td style="
+                                        padding:9px;
+                                        border:1px solid #cbd5e1;
+                                        text-align:center;
+                                    ">
+                                        ${item.classificacao || "—"}
+                                    </td>
+
+                                </tr>
+
+                            `
+                        ).join("")
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+`;
 
 
         console.log(
