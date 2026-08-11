@@ -57,17 +57,7 @@ else{
 // TESTAR TURMA
 // =====================================================
 
-turmaSelect?.addEventListener(
-    "change",
-    function(){
 
-        alert(
-            "Turma selecionada: " +
-            this.value
-        );
-
-    }
-);
 
 
 // =====================================================
@@ -595,55 +585,16 @@ classeSelect.addEventListener(
 );
 
 // =====================================================
-// ETAPA 8 — TESTAR TURMA SELECIONADA
+// ETAPA 8/9 — TURMA → ALUNOS
 // =====================================================
 
-turmaSelect.addEventListener(
-    "change",
-    function(){
-
-        const turmaId =
-            this.value;
-
-
-        const turmaNome =
-            this.options[
-                this.selectedIndex
-            ]?.textContent;
-
-
-        if(!turmaId){
-
-            return;
-
-        }
-
-
-        alert(
-            "✅ TURMA SELECIONADA!\n\n" +
-
-            "ID da turma:\n" +
-            turmaId +
-
-            "\n\nNome da turma:\n" +
-            turmaNome +
-
-            "\n\nClasse:\n" +
-            classeSelect.value
-        );
-
-    }
-);
-
-// =====================================================
-// ETAPA 9 — CARREGAR ALUNOS DA TURMA
-// =====================================================
-
-async function carregarAlunosDaTurma(
-    turmaId
-){
+async function carregarAlunosDaTurma(turmaId){
 
     if(!turmaId){
+
+        boletinsContainer.innerHTML = "";
+
+        contadorBoletins.textContent = "0 alunos";
 
         return;
 
@@ -677,11 +628,33 @@ async function carregarAlunosDaTurma(
         );
 
 
+        boletinsContainer.innerHTML = "";
+
+
+        // =============================================
+        // NENHUM ALUNO
+        // =============================================
+
         if(resultado.empty){
 
-            alert(
-                "⚠️ ESTA TURMA NÃO POSSUI ALUNOS."
-            );
+            contadorBoletins.textContent =
+                "0 alunos";
+
+
+            boletinsContainer.innerHTML = `
+
+                <div style="
+                    padding:25px;
+                    text-align:center;
+                    color:#64748b;
+                ">
+
+                    ⚠️ Esta turma não possui
+                    alunos cadastrados.
+
+                </div>
+
+            `;
 
             return;
 
@@ -689,154 +662,193 @@ async function carregarAlunosDaTurma(
 
 
         // =============================================
-// MOSTRAR OS ALUNOS NA PÁGINA
-// =============================================
+        // MOSTRAR ALUNOS
+        // =============================================
 
-boletinsContainer.innerHTML = "";
+        resultado.forEach(
+            documento => {
 
-
-resultado.forEach(
-    documento => {
-
-        const aluno =
-            documento.data();
+                const aluno =
+                    documento.data();
 
 
-        const card =
-            document.createElement(
-                "div"
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "boletim-card";
+
+
+                card.innerHTML = `
+
+                    <div class="boletim-info">
+
+                        <div class="boletim-avatar">
+                            👨‍🎓
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                ${
+                                    aluno.nome ||
+                                    "Aluno sem nome"
+                                }
+                            </h3>
+
+
+                            <p>
+                                Nº:
+                                ${
+                                    aluno.numero ||
+                                    "—"
+                                }
+                            </p>
+
+
+                            <p>
+                                Matrícula:
+                                ${
+                                    aluno.matricula ||
+                                    "—"
+                                }
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="boletim-estado">
+
+                        ⚠️ Boletim ainda não
+                        carregado
+
+                    </div>
+
+
+                    <div class="boletim-acoes">
+
+                        <button
+                            type="button"
+                            disabled
+                            class="botao-desativado"
+                        >
+                            👁️ Ver
+                        </button>
+
+
+                        <button
+                            type="button"
+                            disabled
+                            class="botao-desativado"
+                        >
+                            🖨️ Imprimir
+                        </button>
+
+
+                        <button
+                            type="button"
+                            disabled
+                            class="botao-desativado"
+                        >
+                            📄 PDF
+                        </button>
+
+
+                        <button
+                            type="button"
+                            disabled
+                            class="botao-desativado"
+                        >
+                            📊 Excel
+                        </button>
+
+                    </div>
+
+                `;
+
+
+                boletinsContainer.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+        // =============================================
+        // CONTADOR
+        // =============================================
+
+        contadorBoletins.textContent =
+
+            resultado.size +
+
+            (
+                resultado.size === 1
+                    ? " aluno"
+                    : " alunos"
             );
 
 
-        card.className =
-            "boletim-card";
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao carregar alunos:",
+            erro
+        );
 
 
-        card.innerHTML = `
-
-            <div class="boletim-info">
-
-                <div class="boletim-avatar">
-                    👨‍🎓
-                </div>
-
-
-                <div>
-
-                    <h3>
-                        ${
-                            aluno.nome ||
-                            "Aluno sem nome"
-                        }
-                    </h3>
-
-
-                    <p>
-                        Nº:
-                        ${
-                            aluno.numero ||
-                            "—"
-                        }
-                    </p>
-
-
-                    <p>
-                        Matrícula:
-                        ${
-                            aluno.matricula ||
-                            "—"
-                        }
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="boletim-estado">
-
-                ⚠️ Boletim ainda não
-                carregado
-
-            </div>
-
-
-            <div class="boletim-acoes">
-
-                <button
-                    type="button"
-                    disabled
-                    class="botao-desativado"
-                >
-                    👁️ Ver
-                </button>
-
-
-                <button
-                    type="button"
-                    disabled
-                    class="botao-desativado"
-                >
-                    🖨️ Imprimir
-                </button>
-
-
-                <button
-                    type="button"
-                    disabled
-                    class="botao-desativado"
-                >
-                    📄 PDF
-                </button>
-
-
-                <button
-                    type="button"
-                    disabled
-                    class="botao-desativado"
-                >
-                    📊 Excel
-                </button>
-
-            </div>
-
-        `;
-
-
-        boletinsContainer.appendChild(
-            card
+        alert(
+            "❌ ERRO AO CARREGAR ALUNOS!\n\n" +
+            erro.message
         );
 
     }
-);
 
-
-// =============================================
-// ATUALIZAR CONTADOR
-// =============================================
-
-contadorBoletins.textContent =
-
-    resultado.size +
-
-    (
-        resultado.size === 1
-            ? " aluno"
-            : " alunos"
-    );
+}
 
 
 // =====================================================
-// LIGAR TURMA → ALUNOS
+// TURMA → ALUNOS
 // =====================================================
 
 turmaSelect.addEventListener(
     "change",
     function(){
 
+        const turmaId =
+            this.value;
+
+
+        if(!turmaId){
+
+            return;
+
+        }
+
+
+        alert(
+            "✅ TURMA SELECIONADA!\n\n" +
+            "ID:\n" +
+            turmaId +
+
+            "\n\nClasse:\n" +
+            classeSelect.value
+        );
+
+
         carregarAlunosDaTurma(
-            this.value
+            turmaId
         );
 
     }
 );
+
+
