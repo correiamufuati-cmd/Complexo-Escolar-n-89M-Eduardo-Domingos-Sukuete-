@@ -1925,6 +1925,79 @@ async function testarBoletimCompleto(){
     }
 
 // =====================================================
+// BOTÃO — IMPRIMIR TODOS OS BOLETINS DA TURMA
+// =====================================================
+
+const botaoImprimirTodos =
+    document.createElement("button");
+
+botaoImprimirTodos.type =
+    "button";
+
+botaoImprimirTodos.id =
+    "botaoImprimirTodos";
+
+botaoImprimirTodos.textContent =
+    "🖨️ Imprimir todos os boletins";
+
+botaoImprimirTodos.style.display =
+    "block";
+
+botaoImprimirTodos.style.margin =
+    "20px 0";
+
+botaoImprimirTodos.style.padding =
+    "12px 20px";
+
+botaoImprimirTodos.style.background =
+    "#1e3a8a";
+
+botaoImprimirTodos.style.color =
+    "white";
+
+botaoImprimirTodos.style.border =
+    "none";
+
+botaoImprimirTodos.style.borderRadius =
+    "8px";
+
+botaoImprimirTodos.style.cursor =
+    "pointer";
+
+
+// =====================================================
+// TESTE DO BOTÃO
+// =====================================================
+
+botaoImprimirTodos.addEventListener(
+    "click",
+    function(){
+
+        alert(
+            "🖨️ BOTÃO DE IMPRIMIR TODOS FUNCIONOU!\n\n" +
+            "Posteriormente vamos imprimir todos os boletins " +
+            "da turma numa única operação."
+        );
+
+    }
+);
+
+
+// =====================================================
+// COLOCAR NA PÁGINA
+// =====================================================
+
+if(boletinsContainer){
+
+    boletinsContainer.parentElement
+        ?.insertBefore(
+            botaoImprimirTodos,
+            boletinsContainer
+        );
+
+}
+
+// =====================================================
 // BOTÃO DE TESTE
 // =====================================================
 
