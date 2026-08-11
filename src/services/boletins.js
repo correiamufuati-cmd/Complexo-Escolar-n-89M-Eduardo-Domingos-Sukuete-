@@ -21,6 +21,16 @@ const trimestreSelect =
 const pesquisaAluno =
     document.getElementById("pesquisaAluno");
 
+const boletinsContainer =
+    document.getElementById(
+        "boletinsContainer"
+    );
+
+
+const contadorBoletins =
+    document.getElementById(
+        "contadorBoletins"
+    );
 
 if(
     !classeSelect ||
@@ -679,72 +689,141 @@ async function carregarAlunosDaTurma(
 
 
         // =============================================
-        // MOSTRAR OS ALUNOS TEMPORARIAMENTE
-        // =============================================
+// MOSTRAR OS ALUNOS NA PÁGINA
+// =============================================
 
-        let lista = "";
-
-
-        resultado.forEach(
-            documento => {
-
-                const aluno =
-                    documento.data();
+boletinsContainer.innerHTML = "";
 
 
-                lista +=
+resultado.forEach(
+    documento => {
 
-                    "\n\n" +
+        const aluno =
+            documento.data();
 
-                    "Nº: " +
-                    (
-                        aluno.numero ||
-                        "—"
-                    ) +
 
-                    "\n" +
+        const card =
+            document.createElement(
+                "div"
+            );
 
-                    "Nome: " +
-                    (
-                        aluno.nome ||
-                        "Sem nome"
-                    ) +
 
-                    "\n" +
+        card.className =
+            "boletim-card";
 
-                    "Matrícula: " +
-                    (
-                        aluno.matricula ||
-                        "—"
-                    );
 
-            }
+        card.innerHTML = `
+
+            <div class="boletim-info">
+
+                <div class="boletim-avatar">
+                    👨‍🎓
+                </div>
+
+
+                <div>
+
+                    <h3>
+                        ${
+                            aluno.nome ||
+                            "Aluno sem nome"
+                        }
+                    </h3>
+
+
+                    <p>
+                        Nº:
+                        ${
+                            aluno.numero ||
+                            "—"
+                        }
+                    </p>
+
+
+                    <p>
+                        Matrícula:
+                        ${
+                            aluno.matricula ||
+                            "—"
+                        }
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="boletim-estado">
+
+                ⚠️ Boletim ainda não
+                carregado
+
+            </div>
+
+
+            <div class="boletim-acoes">
+
+                <button
+                    type="button"
+                    disabled
+                    class="botao-desativado"
+                >
+                    👁️ Ver
+                </button>
+
+
+                <button
+                    type="button"
+                    disabled
+                    class="botao-desativado"
+                >
+                    🖨️ Imprimir
+                </button>
+
+
+                <button
+                    type="button"
+                    disabled
+                    class="botao-desativado"
+                >
+                    📄 PDF
+                </button>
+
+
+                <button
+                    type="button"
+                    disabled
+                    class="botao-desativado"
+                >
+                    📊 Excel
+                </button>
+
+            </div>
+
+        `;
+
+
+        boletinsContainer.appendChild(
+            card
         );
-
-
-        alert(
-            "👨‍🎓 ALUNOS DA TURMA:" +
-            lista
-        );
-
 
     }
-    catch(erro){
-
-        console.error(
-            "Erro ao carregar alunos:",
-            erro
-        );
+);
 
 
-        alert(
-            "❌ ERRO AO CARREGAR ALUNOS!\n\n" +
-            erro.message
-        );
+// =============================================
+// ATUALIZAR CONTADOR
+// =============================================
 
-    }
+contadorBoletins.textContent =
 
-}
+    resultado.size +
+
+    (
+        resultado.size === 1
+            ? " aluno"
+            : " alunos"
+    );
 
 
 // =====================================================
