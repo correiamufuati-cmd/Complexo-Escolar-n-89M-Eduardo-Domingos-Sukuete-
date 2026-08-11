@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS CARREGOU!");
+alert("✅ BOLETINS.JS df CARREGOU!");
 
 
 const classeSelect =
@@ -1271,4 +1271,434 @@ botaoColecaoNotas.addEventListener(
 
 document.body.appendChild(
     botaoColecaoNotas
+);
+
+// =====================================================
+// ETAPA 12 — BOLETIM COMPLETO DE UM ALUNO
+// =====================================================
+
+async function testarBoletimCompleto(){
+
+    const turmaId =
+        turmaSelect.value;
+
+    const trimestre =
+        trimestreSelect.value;
+
+
+    if(!turmaId){
+
+        alert(
+            "⚠️ Selecione primeiro uma turma."
+        );
+
+        return;
+
+    }
+
+
+    if(!trimestre){
+
+        alert(
+            "⚠️ Selecione primeiro o trimestre."
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        alert(
+            "🔵 A PROCURAR TODAS AS NOTAS DA TURMA..."
+        );
+
+
+        // =================================================
+        // 1. BUSCAR TODOS OS DOCUMENTOS DE NOTAS
+        // =================================================
+
+        const notasSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "notas"
+                )
+            );
+
+
+        alert(
+            "📝 DOCUMENTOS DE NOTAS ENCONTRADOS:\n\n" +
+            notasSnapshot.size
+        );
+
+
+        if(notasSnapshot.empty){
+
+            alert(
+                "⚠️ A coleção notas está vazia."
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // 2. BUSCAR ALUNOS DA TURMA
+        // =================================================
+
+        const alunosSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "turmas",
+                    turmaId,
+                    "alunos"
+                )
+            );
+
+
+        if(alunosSnapshot.empty){
+
+            alert(
+                "⚠️ Esta turma não possui alunos."
+            );
+
+            return;
+
+        }
+
+
+        const primeiroAluno =
+            alunosSnapshot.docs[0];
+
+
+        const aluno =
+            primeiroAluno.data();
+
+
+        const nomeAluno =
+            String(
+                aluno.nome || ""
+            )
+            .trim();
+
+
+        const numeroAluno =
+            String(
+                aluno.numero || ""
+            )
+            .trim();
+
+
+        alert(
+            "👨‍🎓 ALUNO DE TESTE:\n\n" +
+            nomeAluno +
+            "\n\nNº: " +
+            numeroAluno
+        );
+
+
+        // =================================================
+        // 3. PROCURAR NOTAS DESSE ALUNO
+        // =================================================
+
+        const disciplinas = [];
+
+
+        notasSnapshot.forEach(
+            documento => {
+
+                const dados =
+                    documento.data();
+
+
+                if(
+                    !Array.isArray(
+                        dados.alunos
+                    )
+                ){
+
+                    return;
+
+                }
+
+
+                // =========================================
+                // PROCURAR O ALUNO DENTRO DO ARRAY
+                // =========================================
+
+                const registro =
+                    dados.alunos.find(
+                        item => {
+
+                            const nomeNota =
+                                String(
+                                    item.nome || ""
+                                )
+                                .trim();
+
+
+                            const numeroNota =
+                                String(
+                                    item.numero || ""
+                                )
+                                .trim();
+
+
+                            return (
+
+                                (
+                                    numeroAluno &&
+                                    numeroNota ===
+                                    numeroAluno
+                                )
+
+                                ||
+
+                                (
+                                    nomeAluno &&
+                                    nomeNota ===
+                                    nomeAluno
+                                )
+
+                            );
+
+                        }
+                    );
+
+
+                if(!registro){
+
+                    return;
+
+                }
+
+
+                // =========================================
+                // IDENTIFICAR DISCIPLINA PELO ID
+                // =========================================
+
+                const id =
+                    documento.id;
+
+
+                let disciplina =
+                    id;
+
+
+                // Retirar possível trimestre
+                // do final do ID
+
+                disciplina =
+                    disciplina
+                    .replace(
+                        /_[123]$/,
+                        ""
+                    );
+
+
+                // Retirar possível ID da turma
+                // quando existir no início
+
+                if(
+                    disciplina.includes("_")
+                ){
+
+                    const partes =
+                        disciplina.split("_");
+
+
+                    disciplina =
+                        partes
+                        .slice(1)
+                        .join("_");
+
+                }
+
+
+                disciplinas.push({
+
+                    disciplina:
+                        disciplina,
+
+                    MAC:
+                        registro.MAC ?? "",
+
+                    NPT:
+                        registro.NPT ?? "",
+
+                    MF:
+                        registro.MF ?? "",
+
+                    classificacao:
+                        registro.classificacao ||
+                        ""
+
+                });
+
+            }
+        );
+
+
+        // =================================================
+        // 4. RESULTADO
+        // =================================================
+
+        if(
+            disciplinas.length === 0
+        ){
+
+            alert(
+                "⚠️ NÃO ENCONTRÁMOS NOTAS PARA:\n\n" +
+                nomeAluno +
+                "\n\nVerifique a estrutura dos documentos."
+            );
+
+            return;
+
+        }
+
+
+        let texto =
+            "📋 BOLETIM DO ALUNO\n\n" +
+
+            "Aluno: " +
+            nomeAluno +
+
+            "\nNº: " +
+            numeroAluno +
+
+            "\n\n";
+
+
+        disciplinas.forEach(
+            item => {
+
+                texto +=
+
+                    "📚 " +
+                    item.disciplina +
+
+                    "\n" +
+
+                    "MAC: " +
+                    item.MAC +
+
+                    " | NPT: " +
+                    item.NPT +
+
+                    " | MF: " +
+                    item.MF +
+
+                    "\n" +
+
+                    "Classificação: " +
+                    (
+                        item.classificacao ||
+                        "—"
+                    ) +
+
+                    "\n\n";
+
+            }
+        );
+
+
+        alert(texto);
+
+
+        console.log(
+            "📋 BOLETIM COMPLETO:",
+            {
+                aluno:
+                    nomeAluno,
+
+                numero:
+                    numeroAluno,
+
+                disciplinas:
+                    disciplinas
+            }
+        );
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao montar boletim:",
+            erro
+        );
+
+
+        alert(
+            "❌ ERRO AO MONTAR BOLETIM!\n\n" +
+            erro.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// BOTÃO DE TESTE
+// =====================================================
+
+const botaoBoletimCompleto =
+    document.createElement(
+        "button"
+    );
+
+
+botaoBoletimCompleto.type =
+    "button";
+
+
+botaoBoletimCompleto.textContent =
+    "📋 Testar boletim completo";
+
+
+botaoBoletimCompleto.style.display =
+    "block";
+
+
+botaoBoletimCompleto.style.margin =
+    "20px";
+
+
+botaoBoletimCompleto.style.padding =
+    "12px 20px";
+
+
+botaoBoletimCompleto.style.background =
+    "#7c3aed";
+
+
+botaoBoletimCompleto.style.color =
+    "white";
+
+
+botaoBoletimCompleto.style.border =
+    "none";
+
+
+botaoBoletimCompleto.style.borderRadius =
+    "8px";
+
+
+botaoBoletimCompleto.style.cursor =
+    "pointer";
+
+
+botaoBoletimCompleto.addEventListener(
+    "click",
+    testarBoletimCompleto
+);
+
+
+document.body.appendChild(
+    botaoBoletimCompleto
 );
