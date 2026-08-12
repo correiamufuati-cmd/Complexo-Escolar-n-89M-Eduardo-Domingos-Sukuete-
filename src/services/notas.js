@@ -5,7 +5,7 @@
 // Professor → Classe → Turma → Disciplina → Trimestre
 // =====================================================
 
-alert("🔥 NOTAS.JS — BLOCO 1CARREGADO!");
+alert("🔥 NOTAS.JS — BLOCO CARREGADO!");
 
 import { db } from "./firebase.js";
 
@@ -23,6 +23,11 @@ filtroProfessor.addEventListener("change", function () {
 
     const professorId = this.value;
 
+    if (!professorId) {
+        alert("⚠️ Nenhum professor selecionado.");
+        return;
+    }
+
     const professor = professores.find(
         p => p.id === professorId
     );
@@ -33,9 +38,17 @@ filtroProfessor.addEventListener("change", function () {
     }
 
     alert(
-        "📦 DADOS REAIS DO PROFESSOR\n\n" +
+        "👨‍🏫 PROFESSOR\n\n" +
+
+        "Nome: " +
+        (professor.nome || "Sem nome") +
+
+        "\n\n" +
+
+        "📚 ATRIBUIÇÕES:\n\n" +
+
         JSON.stringify(
-            professor,
+            professor.atribuicoes || [],
             null,
             2
         )
