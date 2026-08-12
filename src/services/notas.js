@@ -20,7 +20,6 @@ import {
 // =====================================================
 
 filtroProfessor.addEventListener("change", function () {
-filtroProfessor.addEventListener("change", function () {
 
     const professorId = this.value;
 
