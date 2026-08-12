@@ -23,7 +23,6 @@ filtroProfessor.addEventListener("change", function () {
 
     const professorId = this.value;
 
-    // Limpar campos seguintes
     filtroClasse.innerHTML = `
         <option value="">
             Selecionar classe
@@ -36,124 +35,97 @@ filtroProfessor.addEventListener("change", function () {
         </option>
     `;
 
-    filtroDisciplina.innerHTML = `
-        <option value="">
-            Selecione primeiro a turma
-        </option>
-    `;
-
-    filtroClasse.disabled = true;
-    filtroTurma.disabled = true;
-    filtroDisciplina.disabled = true;
-
-
     if (!professorId) {
-
-        alert(
-            "⚠️ Selecione um professor."
-        );
-
         return;
-
     }
 
-
-    const professor =
-        professores.find(
-            p => p.id === professorId
-        );
-
+    const professor = professores.find(
+        p => p.id === professorId
+    );
 
     if (!professor) {
-
-        alert(
-            "❌ Professor não encontrado."
-        );
-
+        alert("❌ Professor não encontrado.");
         return;
-
     }
 
-
     const atribuicoes =
-        Array.isArray(
-            professor.atribuicoes
-        )
+        Array.isArray(professor.atribuicoes)
             ? professor.atribuicoes
             : [];
 
-
     if (!atribuicoes.length) {
-
         alert(
             "⚠️ Este professor não possui atribuições."
         );
-
         return;
-
     }
 
+    // ============================================
+    // PEGAR AS CLASSES
+    // ============================================
 
-    // =================================================
-    // OBTER CLASSES
-    // =================================================
+    const classes = [];
 
-    const classes = [
-        ...new Set(
-            atribuicoes
-                .map(
-                    item =>
-                        item.classe
-                )
-                .filter(Boolean)
-        )
-    ];
+    atribuicoes.forEach(item => {
 
+        const classe =
+            String(
+                item.classe ?? ""
+            ).trim();
 
-    classes.forEach(
-        classe => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                classe;
-
-            option.textContent =
-                classe;
-
-            filtroClasse.appendChild(
-                option
-            );
-
+        if (
+            classe &&
+            !classes.includes(classe)
+        ) {
+            classes.push(classe);
         }
-    );
 
+    });
 
-    filtroClasse.disabled =
-        classes.length === 0;
+    // ============================================
+    // COLOCAR NO SELECT
+    // ============================================
 
+    classes.forEach(classe => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = classe;
+
+        option.textContent = classe;
+
+        filtroClasse.appendChild(option);
+
+    });
+
+    // ============================================
+    // TESTE
+    // ============================================
 
     alert(
-        "✅ PROFESSOR ENCONTRADO!\n\n" +
-
-        "Professor: " +
+        "👨‍🏫 Professor:\n" +
         (professor.nome || "Sem nome") +
 
         "\n\n" +
 
-        "Atribuições: " +
-        atribuicoes.length +
+        "📚 Classes encontradas:\n" +
+
+        (
+            classes.length
+                ? classes.join("\n")
+                : "NENHUMA"
+        ) +
 
         "\n\n" +
 
-        "Classes encontradas:\n" +
+        "Quantidade: " +
+        classes.length +
 
-        classes.join(
-            "\n"
-        )
+        "\n\n" +
+
+        "Opções no SELECT: " +
+        filtroClasse.options.length
     );
 
 });
