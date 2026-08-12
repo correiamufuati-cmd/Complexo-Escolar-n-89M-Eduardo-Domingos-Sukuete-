@@ -1720,6 +1720,11 @@ async function testarBoletimCompleto(){
             ${trimestre}
         </div>
 
+<div>
+    <strong>Professor:</strong><br>
+    ${"Nome do Professor"}
+</div>
+
     </div>
 
 
@@ -2031,19 +2036,37 @@ Boletins da Turma
         color:#1e293b;
     }
 
-    .boletim-card{
+  .boletim-card{
 
-        page-break-after:always;
+    height: 31%;
 
-        margin-bottom:30px;
+    margin-bottom: 1%;
 
-        padding:20px;
+    padding: 10px;
 
-        border:1px solid #cbd5e1;
+    border: 1px solid #cbd5e1;
 
-        border-radius:8px;
+    border-radius: 6px;
 
-    }
+    page-break-inside: avoid;
+
+    overflow: hidden;
+
+}
+
+
+.boletim-card:nth-child(3n){
+
+    page-break-after: always;
+
+}
+
+
+.boletim-card:last-child{
+
+    page-break-after: auto;
+
+}
 
     .boletim-card:last-child{
 
@@ -2091,15 +2114,35 @@ Boletins da Turma
 
     }
 
-    @media print{
+   @media print{
 
-        body{
+    @page{
 
-            margin:10mm;
+        size:A4 portrait;
 
-        }
+        margin:8mm;
 
     }
+
+    body{
+
+        margin:0;
+
+    }
+
+    .boletim-card{
+
+        height:31%;
+
+        margin-bottom:1%;
+
+        padding:10px;
+
+        page-break-inside:avoid;
+
+    }
+
+}
 
 </style>
 
