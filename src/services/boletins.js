@@ -2,7 +2,7 @@
 // BOLETINS.JS
 // =====================================================
 
-alert("✅ BOLETINS.JS CARREGOU!");
+alert("✅ BOLETINS.JS df CARREGOU!");
 
 import {
     collection,
@@ -722,45 +722,44 @@ async function carregarAlunosDaTurma(turmaId){
 
 </div>
 
+<div class="boletim-acoes">
 
-                    <div class="boletim-acoes">
-
-                        <button
-                            type="button"
-                            disabled
-                            class="botao-desativado"
-                        >
-                            👁️ Ver
-                        </button>
-
-
-                        <button
-                            type="button"
-                            disabled
-                            class="botao-desativado"
-                        >
-                            🖨️ Imprimir
-                        </button>
+    <button
+        type="button"
+        class="botao-ver"
+        data-aluno-id="${documento.id}"
+    >
+        👁️ Ver
+    </button>
 
 
-                        <button
-                            type="button"
-                            disabled
-                            class="botao-desativado"
-                        >
-                            📄 PDF
-                        </button>
+    <button
+        type="button"
+        class="botao-imprimir"
+        data-aluno-id="${documento.id}"
+    >
+        🖨️ Imprimir
+    </button>
 
 
-                        <button
-                            type="button"
-                            disabled
-                            class="botao-desativado"
-                        >
-                            📊 Excel
-                        </button>
+    <button
+        type="button"
+        class="botao-pdf"
+        data-aluno-id="${documento.id}"
+    >
+        📄 PDF
+    </button>
 
-                    </div>
+
+    <button
+        type="button"
+        class="botao-excel"
+        data-aluno-id="${documento.id}"
+    >
+        📊 Excel
+    </button>
+
+</div>
 
                 `;
 
@@ -2495,4 +2494,125 @@ document.body.appendChild(
     botaoBoletimCompleto
 );
 
+// =====================================================
+// BOTÕES DOS BOLETINS
+// =====================================================
 
+document.addEventListener(
+    "click",
+    async function(event){
+
+        const botao =
+            event.target.closest(
+                ".botao-ver, .botao-imprimir, .botao-pdf, .botao-excel"
+            );
+
+
+        if(!botao){
+            return;
+        }
+
+
+        const alunoId =
+            botao.dataset.alunoId;
+
+
+        const turmaId =
+            turmaSelect.value;
+
+
+        if(!alunoId || !turmaId){
+
+            alert(
+                "⚠️ Não foi possível identificar o aluno ou a turma."
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // VER
+        // =============================================
+
+        if(
+            botao.classList.contains(
+                "botao-ver"
+            )
+        ){
+
+            await abrirBoletimIndividual(
+                turmaId,
+                alunoId,
+                false
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // IMPRIMIR
+        // =============================================
+
+        if(
+            botao.classList.contains(
+                "botao-imprimir"
+            )
+        ){
+
+            await abrirBoletimIndividual(
+                turmaId,
+                alunoId,
+                true
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // PDF
+        // =============================================
+
+        if(
+            botao.classList.contains(
+                "botao-pdf"
+            )
+        ){
+
+            await abrirBoletimIndividual(
+                turmaId,
+                alunoId,
+                true
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // EXCEL
+        // =============================================
+
+        if(
+            botao.classList.contains(
+                "botao-excel"
+            )
+        ){
+
+            await exportarBoletimExcel(
+                turmaId,
+                alunoId
+            );
+
+            return;
+
+        }
+
+    }
+);
