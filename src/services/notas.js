@@ -5,7 +5,7 @@
 // Professor → Classe → Turma → Disciplina → Trimestre
 // =====================================================
 
-alert("🔥 NOTAS.JS — BLOCO 1 CARREGADO!");
+alert("🔥 NOTAS.JS — BLOCO CARREGADO!");
 
 import { db } from "./firebase.js";
 
