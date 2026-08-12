@@ -2,7 +2,7 @@
 // BOLETINS.JS
 // =====================================================
 
-alert("✅ BOLETINS.JS df CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 import {
     collection,
@@ -2065,11 +2065,34 @@ botaoImprimirTodos.style.cursor =
 
 // =====================================================
 // IMPRIMIR TODOS OS BOLETINS COMPLETOS
-// =====================================================
+// ==========
 
 botaoImprimirTodos.addEventListener(
     "click",
     async function(){
+
+        // =============================================
+        // ABRIR A JANELA IMEDIATAMENTE
+        // =============================================
+
+        const janela =
+            window.open(
+                "",
+                "_blank"
+            );
+
+
+        if(!janela){
+
+            alert(
+                "❌ O navegador bloqueou a janela de impressão.\n\n" +
+                "Permita pop-ups para este site e tente novamente."
+            );
+
+            return;
+
+        }
+
 
         // =============================================
         // VERIFICAR TURMA
@@ -2078,7 +2101,10 @@ botaoImprimirTodos.addEventListener(
         const turmaId =
             turmaSelect.value;
 
+
         if(!turmaId){
+
+            janela.close();
 
             alert(
                 "⚠️ Primeiro selecione uma turma."
@@ -2096,7 +2122,10 @@ botaoImprimirTodos.addEventListener(
         const trimestre =
             trimestreSelect.value;
 
+
         if(!trimestre){
+
+            janela.close();
 
             alert(
                 "⚠️ Primeiro selecione o trimestre."
@@ -2108,63 +2137,63 @@ botaoImprimirTodos.addEventListener(
 
 
         // =============================================
-        // GERAR OS BOLETINS COMPLETOS
-        // =============================================
-
-        alert(
-            "🔵 A PREPARAR TODOS OS BOLETINS..."
-        );
-
-
-        await testarBoletimCompleto();
-
-
-        // =============================================
-        // PEGAR OS BOLETINS GERADOS
-        // =============================================
-
-        const conteudo =
-            boletinsContainer.innerHTML;
-
-
-        if(!conteudo.trim()){
-
-            alert(
-                "⚠️ Não foram gerados boletins."
-            );
-
-            return;
-
-        }
-
-
-        // =============================================
-        // ABRIR JANELA
-        // =============================================
-
-        const janela =
-            window.open(
-                "",
-                "_blank"
-            );
-
-
-        if(!janela){
-
-            alert(
-                "❌ O navegador bloqueou a janela de impressão."
-            );
-
-            return;
-
-        }
-
-
-        // =============================================
-        // DOCUMENTO DE IMPRESSÃO
+        // AVISAR NA JANELA
         // =============================================
 
         janela.document.write(`
+            <html>
+            <body style="
+                font-family:Arial;
+                text-align:center;
+                padding:40px;
+            ">
+                <h3>A preparar os boletins...</h3>
+                <p>Aguarde...</p>
+            </body>
+            </html>
+        `);
+
+        janela.document.close();
+
+
+        try{
+
+            // =========================================
+            // GERAR BOLETINS COMPLETOS
+            // =========================================
+
+            await testarBoletimCompleto();
+
+
+            // =========================================
+            // PEGAR BOLETINS COMPLETOS
+            // =========================================
+
+            const conteudo =
+                boletinsContainer.innerHTML;
+
+
+            if(!conteudo.trim()){
+
+                janela.close();
+
+                alert(
+                    "⚠️ Nenhum boletim foi gerado."
+                );
+
+                return;
+
+            }
+
+
+            // =========================================
+            // ESCREVER CONTEÚDO FINAL
+            // =========================================
+
+            janela.document.open();
+
+
+            janela.document.write(`
 
 <!DOCTYPE html>
 
@@ -2184,7 +2213,6 @@ Boletins da Turma
     box-sizing:border-box;
 }
 
-
 body{
 
     font-family:Arial,sans-serif;
@@ -2198,11 +2226,6 @@ body{
     font-size:9px;
 
 }
-
-
-/* =========================================
-   BOLETIM
-========================================= */
 
 .boletim-card{
 
@@ -2222,11 +2245,6 @@ body{
 
 }
 
-
-/* =========================================
-   TÍTULOS
-========================================= */
-
 .boletim-card h2{
 
     font-size:13px;
@@ -2234,7 +2252,6 @@ body{
     margin:0 0 3px 0;
 
 }
-
 
 .boletim-card h3{
 
@@ -2244,7 +2261,6 @@ body{
 
 }
 
-
 .boletim-card p{
 
     font-size:8px;
@@ -2252,11 +2268,6 @@ body{
     margin:1px 0;
 
 }
-
-
-/* =========================================
-   TABELA
-========================================= */
 
 table{
 
@@ -2270,7 +2281,6 @@ table{
 
 }
 
-
 th,
 td{
 
@@ -2282,7 +2292,6 @@ td{
 
 }
 
-
 th{
 
     background:#e2e8f0;
@@ -2291,18 +2300,12 @@ th{
 
 }
 
-
 td:first-child,
 th:first-child{
 
     text-align:left;
 
 }
-
-
-/* =========================================
-   PROFESSOR
-========================================= */
 
 .professor-assinatura{
 
@@ -2316,17 +2319,11 @@ th:first-child{
 
 }
 
-
-/* =========================================
-   3 BOLETINS POR PÁGINA
-========================================= */
-
 .boletim-card:nth-child(3n){
 
     page-break-after:always;
 
 }
-
 
 .boletim-card:last-child{
 
@@ -2334,21 +2331,11 @@ th:first-child{
 
 }
 
-
-/* =========================================
-   ESCONDER BOTÕES
-========================================= */
-
 button{
 
     display:none !important;
 
 }
-
-
-/* =========================================
-   A4
-========================================= */
 
 @media print{
 
@@ -2360,7 +2347,6 @@ button{
 
     }
 
-
     body{
 
         margin:0;
@@ -2368,7 +2354,6 @@ button{
         padding:0;
 
     }
-
 
     .boletim-card{
 
@@ -2399,25 +2384,44 @@ ${conteudo}
 `);
 
 
-        janela.document.close();
+            janela.document.close();
 
 
-        // =============================================
-        // IMPRIMIR
-        // =============================================
+            // =========================================
+            // IMPRIMIR
+            // =========================================
 
-        janela.onload =
-            function(){
+            janela.onload =
+                function(){
 
-                janela.focus();
+                    janela.focus();
 
-                janela.print();
+                    janela.print();
 
-            };
+                };
+
+
+        }
+        catch(erro){
+
+            console.error(
+                "Erro ao preparar impressão:",
+                erro
+            );
+
+            janela.close();
+
+            alert(
+                "❌ ERRO AO PREPARAR IMPRESSÃO!\n\n" +
+                erro.message
+            );
+
+        }
 
     }
 );
 
+    
 // =====================================================
 // COLOCAR NA PÁGINA
 // =====================================================
