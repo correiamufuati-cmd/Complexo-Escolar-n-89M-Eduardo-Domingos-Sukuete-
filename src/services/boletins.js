@@ -5,6 +5,12 @@
 
 alert("✅ BOLETINS.JS CARREGOU!");
 
+import {
+    collection,
+    getDocs,
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 const classeSelect =
     document.getElementById("classeSelect");
@@ -1941,6 +1947,96 @@ async function testarBoletimCompleto(){
     }
 
 // =====================================================
+// TESTE — DADOS DA TURMA E PROFESSORES
+// =====================================================
+
+async function testarDadosProfessor(){
+
+    const turmaId =
+        turmaSelect.value;
+
+
+    if(!turmaId){
+
+        alert(
+            "⚠️ Primeiro selecione uma turma."
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        const turmaRef =
+            doc(
+                db,
+                "turmas",
+                turmaId
+            );
+
+
+        const turmaSnap =
+            await getDoc(
+                turmaRef
+            );
+
+
+        if(!turmaSnap.exists()){
+
+            alert(
+                "❌ A turma não foi encontrada."
+            );
+
+            return;
+
+        }
+
+
+        const dados =
+            turmaSnap.data();
+
+
+        alert(
+
+            "🏫 DADOS DA TURMA\n\n" +
+
+            JSON.stringify(
+                dados,
+                null,
+                2
+            )
+
+        );
+
+
+        console.log(
+            "DADOS COMPLETOS DA TURMA:",
+            dados
+        );
+
+    }
+    catch(erro){
+
+        console.error(
+            "Erro ao procurar dados da turma:",
+            erro
+        );
+
+
+        alert(
+
+            "❌ ERRO!\n\n" +
+            erro.message
+
+        );
+
+    }
+
+    }
+
+// =====================================================
 // BOTÃO — IMPRIMIR TODOS OS BOLETINS DA TURMA
 // =====================================================
 
@@ -2348,3 +2444,31 @@ botaoBoletimCompleto.addEventListener(
 document.body.appendChild(
     botaoBoletimCompleto
 );
+
+// =====================================================
+// BOTÃO — TESTAR PROFESSOR
+// =====================================================
+
+const botaoProfessor =
+    document.createElement("button");
+
+botaoProfessor.type =
+    "button";
+
+botaoProfessor.textContent =
+    "👨‍🏫 Testar professor";
+
+botaoProfessor.style.margin =
+    "10px 0";
+
+botaoProfessor.style.padding =
+    "10px 15px";
+
+botaoProfessor.onclick =
+    testarDadosProfessor;
+
+boletinsContainer.parentElement
+    ?.insertBefore(
+        botaoProfessor,
+        boletinsContainer
+    );
