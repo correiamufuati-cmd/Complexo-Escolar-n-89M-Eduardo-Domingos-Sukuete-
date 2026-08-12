@@ -2063,48 +2063,108 @@ botaoImprimirTodos.style.borderRadius =
 botaoImprimirTodos.style.cursor =
     "pointer";
 
-
 // =====================================================
-// TESTE DO BOTÃO
+// IMPRIMIR TODOS OS BOLETINS COMPLETOS
 // =====================================================
 
 botaoImprimirTodos.addEventListener(
     "click",
-    function(){
+    async function(){
 
-const conteudo =
-    boletinsContainer.innerHTML;
+        // =============================================
+        // VERIFICAR TURMA
+        // =============================================
 
-if(!conteudo.trim()){
+        const turmaId =
+            turmaSelect.value;
 
-    alert(
-        "⚠️ Primeiro carregue os boletins da turma."
-    );
+        if(!turmaId){
 
-    return;
+            alert(
+                "⚠️ Primeiro selecione uma turma."
+            );
 
-}
+            return;
 
-
-const janela =
-    window.open(
-        "",
-        "_blank"
-    );
+        }
 
 
-if(!janela){
+        // =============================================
+        // VERIFICAR TRIMESTRE
+        // =============================================
 
-    alert(
-        "❌ O navegador bloqueou a janela de impressão."
-    );
+        const trimestre =
+            trimestreSelect.value;
 
-    return;
+        if(!trimestre){
 
-}
+            alert(
+                "⚠️ Primeiro selecione o trimestre."
+            );
+
+            return;
+
+        }
 
 
-janela.document.write(`
+        // =============================================
+        // GERAR OS BOLETINS COMPLETOS
+        // =============================================
+
+        alert(
+            "🔵 A PREPARAR TODOS OS BOLETINS..."
+        );
+
+
+        await testarBoletimCompleto();
+
+
+        // =============================================
+        // PEGAR OS BOLETINS GERADOS
+        // =============================================
+
+        const conteudo =
+            boletinsContainer.innerHTML;
+
+
+        if(!conteudo.trim()){
+
+            alert(
+                "⚠️ Não foram gerados boletins."
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // ABRIR JANELA
+        // =============================================
+
+        const janela =
+            window.open(
+                "",
+                "_blank"
+            );
+
+
+        if(!janela){
+
+            alert(
+                "❌ O navegador bloqueou a janela de impressão."
+            );
+
+            return;
+
+        }
+
+
+        // =============================================
+        // DOCUMENTO DE IMPRESSÃO
+        // =============================================
+
+        janela.document.write(`
 
 <!DOCTYPE html>
 
@@ -2120,214 +2180,213 @@ Boletins da Turma
 
 <style>
 
-    *{
-        box-sizing:border-box;
+*{
+    box-sizing:border-box;
+}
+
+
+body{
+
+    font-family:Arial,sans-serif;
+
+    margin:0;
+
+    padding:0;
+
+    color:#1e293b;
+
+    font-size:9px;
+
+}
+
+
+/* =========================================
+   BOLETIM
+========================================= */
+
+.boletim-card{
+
+    height:32%;
+
+    margin:0 0 1% 0;
+
+    padding:7px;
+
+    border:1px solid #94a3b8;
+
+    border-radius:4px;
+
+    page-break-inside:avoid;
+
+    overflow:hidden;
+
+}
+
+
+/* =========================================
+   TÍTULOS
+========================================= */
+
+.boletim-card h2{
+
+    font-size:13px;
+
+    margin:0 0 3px 0;
+
+}
+
+
+.boletim-card h3{
+
+    font-size:11px;
+
+    margin:0 0 3px 0;
+
+}
+
+
+.boletim-card p{
+
+    font-size:8px;
+
+    margin:1px 0;
+
+}
+
+
+/* =========================================
+   TABELA
+========================================= */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:5px;
+
+    font-size:7.5px;
+
+}
+
+
+th,
+td{
+
+    border:1px solid #94a3b8;
+
+    padding:3px 4px;
+
+    line-height:1.05;
+
+}
+
+
+th{
+
+    background:#e2e8f0;
+
+    font-weight:bold;
+
+}
+
+
+td:first-child,
+th:first-child{
+
+    text-align:left;
+
+}
+
+
+/* =========================================
+   PROFESSOR
+========================================= */
+
+.professor-assinatura{
+
+    margin-top:5px;
+
+    padding-top:3px;
+
+    border-top:1px solid #cbd5e1;
+
+    font-size:8px;
+
+}
+
+
+/* =========================================
+   3 BOLETINS POR PÁGINA
+========================================= */
+
+.boletim-card:nth-child(3n){
+
+    page-break-after:always;
+
+}
+
+
+.boletim-card:last-child{
+
+    page-break-after:auto;
+
+}
+
+
+/* =========================================
+   ESCONDER BOTÕES
+========================================= */
+
+button{
+
+    display:none !important;
+
+}
+
+
+/* =========================================
+   A4
+========================================= */
+
+@media print{
+
+    @page{
+
+        size:A4 portrait;
+
+        margin:6mm;
+
     }
 
 
     body{
 
-        font-family:Arial,sans-serif;
-
         margin:0;
 
         padding:0;
 
-        color:#1e293b;
-
-        font-size:9px;
-
     }
 
-
-    /* =========================================
-       BOLETIM INDIVIDUAL
-    ========================================= */
 
     .boletim-card{
 
         height:32%;
 
-        margin:0 0 1% 0;
+        margin-bottom:1%;
 
         padding:7px;
 
-        border:1px solid #94a3b8;
-
-        border-radius:4px;
-
         page-break-inside:avoid;
 
-        overflow:hidden;
-
     }
 
-
-    /* =========================================
-       TÍTULOS
-    ========================================= */
-
-    .boletim-card h2{
-
-        font-size:13px;
-
-        margin:0 0 3px 0;
-
-    }
-
-
-    .boletim-card h3{
-
-        font-size:11px;
-
-        margin:0 0 3px 0;
-
-    }
-
-
-    .boletim-card p{
-
-        font-size:8px;
-
-        margin:1px 0;
-
-    }
-
-
-    /* =========================================
-       TABELA
-    ========================================= */
-
-    table{
-
-        width:100%;
-
-        border-collapse:collapse;
-
-        margin-top:5px;
-
-        font-size:7.5px;
-
-    }
-
-
-    th,
-    td{
-
-        border:1px solid #94a3b8;
-
-        padding:3px 4px;
-
-        line-height:1.05;
-
-    }
-
-
-    th{
-
-        background:#e2e8f0;
-
-        font-weight:bold;
-
-    }
-
-
-    td:first-child,
-    th:first-child{
-
-        text-align:left;
-
-    }
-
-
-    /* =========================================
-       PROFESSOR
-    ========================================= */
-
-    .professor-assinatura{
-
-        margin-top:5px;
-
-        padding-top:3px;
-
-        border-top:1px solid #cbd5e1;
-
-        font-size:8px;
-
-    }
-
-
-    /* =========================================
-       3 BOLETINS POR PÁGINA
-    ========================================= */
-
-    .boletim-card:nth-child(3n){
-
-        page-break-after:always;
-
-    }
-
-
-    .boletim-card:last-child{
-
-        page-break-after:auto;
-
-    }
-
-
-    /* =========================================
-       ESCONDER BOTÕES
-    ========================================= */
-
-    button{
-
-        display:none !important;
-
-    }
-
-
-    /* =========================================
-       IMPRESSÃO A4
-    ========================================= */
-
-    @media print{
-
-        @page{
-
-            size:A4 portrait;
-
-            margin:6mm;
-
-        }
-
-
-        body{
-
-            margin:0;
-
-            padding:0;
-
-        }
-
-
-        .boletim-card{
-
-            height:32%;
-
-            margin-bottom:1%;
-
-            padding:7px;
-
-            page-break-inside:avoid;
-
-        }
-
-    }
+}
 
 </style>
 
 </head>
-
 
 <body>
 
@@ -2340,23 +2399,24 @@ ${conteudo}
 `);
 
 
-janela.document.close();
+        janela.document.close();
 
 
-// =========================================
-// ESPERAR A JANELA CARREGAR
-// =========================================
+        // =============================================
+        // IMPRIMIR
+        // =============================================
 
-janela.onload = function(){
+        janela.onload =
+            function(){
 
-    janela.focus();
+                janela.focus();
 
-    janela.print();
+                janela.print();
 
-};
+            };
+
     }
 );
-
 
 // =====================================================
 // COLOCAR NA PÁGINA
@@ -2432,30 +2492,4 @@ document.body.appendChild(
     botaoBoletimCompleto
 );
 
-// =====================================================
-// BOTÃO — TESTAR PROFESSOR
-// =====================================================
 
-const botaoProfessor =
-    document.createElement("button");
-
-botaoProfessor.type =
-    "button";
-
-botaoProfessor.textContent =
-    "👨‍🏫 Testar professor";
-
-botaoProfessor.style.margin =
-    "10px 0";
-
-botaoProfessor.style.padding =
-    "10px 15px";
-
-botaoProfessor.onclick =
-    testarDadosProfessor;
-
-boletinsContainer.parentElement
-    ?.insertBefore(
-        botaoProfessor,
-        boletinsContainer
-    );
