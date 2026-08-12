@@ -23,35 +23,275 @@ filtroProfessor.addEventListener("change", function () {
 
     const professorId = this.value;
 
+    // Limpar campos seguintes
+    filtroClasse.innerHTML = `
+        <option value="">
+            Selecionar classe
+        </option>
+    `;
+
+    filtroTurma.innerHTML = `
+        <option value="">
+            Selecione primeiro a classe
+        </option>
+    `;
+
+    filtroDisciplina.innerHTML = `
+        <option value="">
+            Selecione primeiro a turma
+        </option>
+    `;
+
+    filtroClasse.disabled = true;
+    filtroTurma.disabled = true;
+    filtroDisciplina.disabled = true;
+
+
     if (!professorId) {
-        alert("⚠️ Nenhum professor selecionado.");
+
+        alert(
+            "⚠️ Selecione um professor."
+        );
+
         return;
+
     }
 
-    const professor = professores.find(
-        p => p.id === professorId
-    );
+
+    const professor =
+        professores.find(
+            p => p.id === professorId
+        );
+
 
     if (!professor) {
-        alert("❌ Professor não encontrado.");
+
+        alert(
+            "❌ Professor não encontrado."
+        );
+
         return;
+
     }
 
-    alert(
-        "👨‍🏫 PROFESSOR\n\n" +
 
-        "Nome: " +
+    const atribuicoes =
+        Array.isArray(
+            professor.atribuicoes
+        )
+            ? professor.atribuicoes
+            : [];
+
+
+    if (!atribuicoes.length) {
+
+        alert(
+            "⚠️ Este professor não possui atribuições."
+        );
+
+        return;
+
+    }
+
+
+    // =================================================
+    // OBTER CLASSES
+    // =================================================
+
+    const classes = [
+        ...new Set(
+            atribuicoes
+                .map(
+                    item =>
+                        item.classe
+                )
+                .filter(Boolean)
+        )
+    ];
+
+
+    classes.forEach(
+        classe => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                classe;
+
+            option.textContent =
+                classe;
+
+            filtroClasse.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    filtroClasse.disabled =
+        classes.length === 0;
+
+
+    alert(
+        "✅ PROFESSOR ENCONTRADO!\n\n" +
+
+        "Professor: " +
         (professor.nome || "Sem nome") +
 
         "\n\n" +
 
-        "📚 ATRIBUIÇÕES:\n\n" +
+        "Atribuições: " +
+        atribuicoes.length +
 
-        JSON.stringify(
-            professor.atribuicoes || [],
-            null,
-            2
+        "\n\n" +
+
+        "Classes encontradas:\n" +
+
+        classes.join(
+            "\n"
         )
+    );
+
+});
+
+// ====================================================
+// ELEMENTOS DA CLASSE 
+// =====================================================
+
+filtroClasse.addEventListener("change", function () {
+
+    const professorId =
+        filtroProfessor.value;
+
+    const classeSelecionada =
+        this.value;
+
+
+    filtroTurma.innerHTML = `
+        <option value="">
+            Selecionar turma
+        </option>
+    `;
+
+    filtroDisciplina.innerHTML = `
+        <option value="">
+            Selecione primeiro a turma
+        </option>
+    `;
+
+
+    filtroTurma.disabled = true;
+    filtroDisciplina.disabled = true;
+
+
+    if (
+        !professorId ||
+        !classeSelecionada
+    ) {
+
+        return;
+
+    }
+
+
+    const professor =
+        professores.find(
+            p => p.id === professorId
+        );
+
+
+    if (!professor) {
+
+        return;
+
+    }
+
+
+    const atribuicoes =
+        Array.isArray(
+            professor.atribuicoes
+        )
+            ? professor.atribuicoes
+            : [];
+
+
+    // =================================================
+    // TURMAS DA CLASSE SELECIONADA
+    // =================================================
+
+    const turmasClasse =
+        [
+            ...new Map(
+
+                atribuicoes
+                    .filter(
+                        item =>
+                            String(
+                                item.classe
+                            ).trim() ===
+                            String(
+                                classeSelecionada
+                            ).trim()
+                    )
+                    .map(
+                        item => [
+
+                            item.turmaId,
+
+                            item
+
+                        ]
+                    )
+
+            ).values()
+
+        ];
+
+
+    turmasClasse.forEach(
+        item => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                item.turmaId;
+
+
+            option.textContent =
+                item.turmaNome ||
+                "Turma";
+
+
+            filtroTurma.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    filtroTurma.disabled =
+        turmasClasse.length === 0;
+
+
+    alert(
+        "📚 CLASSE SELECIONADA\n\n" +
+
+        "Classe: " +
+        classeSelecionada +
+
+        "\n\n" +
+
+        "Turmas encontradas: " +
+        turmasClasse.length
     );
 
 });
