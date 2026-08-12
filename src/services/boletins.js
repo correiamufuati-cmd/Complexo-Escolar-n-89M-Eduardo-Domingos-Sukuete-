@@ -1,9 +1,8 @@
 // =====================================================
 // BOLETINS.JS
-// ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS df CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 import {
     collection,
@@ -12,31 +11,30 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+import { db } from "./firebase.js";
+
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
 const classeSelect =
     document.getElementById("classeSelect");
-
 
 const turmaSelect =
     document.getElementById("turmaSelect");
 
-
 const trimestreSelect =
     document.getElementById("trimestreSelect");
-
 
 const pesquisaAluno =
     document.getElementById("pesquisaAluno");
 
 const boletinsContainer =
-    document.getElementById(
-        "boletinsContainer"
-    );
-
+    document.getElementById("boletinsContainer");
 
 const contadorBoletins =
-    document.getElementById(
-        "contadorBoletins"
-    );
+    document.getElementById("contadorBoletins");
 
 if(
     !classeSelect ||
@@ -155,17 +153,6 @@ turmaSelect.addEventListener(
 // =====================================================
 // ETAPA 6 — LER TURMAS DO FIREBASE
 // =====================================================
-
-import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
-import { db } from "./firebase.js";
-
-
-alert("🔵 INICIANDO LEITURA DAS TURMAS...");
-
 
 // =====================================================
 // CARREGAR TURMAS
