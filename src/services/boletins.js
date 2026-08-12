@@ -2,7 +2,7 @@
 // BOLETINS.JS
 // =====================================================
 
-alert("✅ BOLETINS.JS fCARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 import {
     collection,
