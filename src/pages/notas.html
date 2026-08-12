@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Notas — Administrador | SGE
+    </title>
+
+
+    <style>
+
+        *{
+            box-sizing:border-box;
+        }
+
+
+        body{
+
+            margin:0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:#f1f5f9;
+
+            color:#1e293b;
+
+        }
+
+
+        .pagina{
+
+            width:100%;
+
+            max-width:1200px;
+
+            margin:auto;
+
+            padding:20px;
+
+        }
+
+
+        /* =========================================
+           CABEÇALHO
+        ========================================= */
+
+        .cabecalho{
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1e3a8a,
+                    #2563eb
+                );
+
+            color:white;
+
+            padding:25px;
+
+            border-radius:16px;
+
+            margin-bottom:20px;
+
+        }
+
+
+        .cabecalho h1{
+
+            margin:0 0 8px;
+
+            font-size:26px;
+
+        }
+
+
+        .cabecalho p{
+
+            margin:0;
+
+            opacity:.9;
+
+        }
+
+
+        /* =========================================
+           CONTROLE DO SISTEMA
+        ========================================= */
+
+        .controle{
+
+            background:white;
+
+            padding:20px;
+
+            border-radius:14px;
+
+            margin-bottom:20px;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0,0,0,.07);
+
+        }
+
+
+        .controle h2{
+
+            margin-top:0;
+
+            color:#1e3a8a;
+
+        }
+
+
+        .estado-sistema{
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:space-between;
+
+            gap:15px;
+
+            flex-wrap:wrap;
+
+            padding:15px;
+
+            border-radius:10px;
+
+            background:#f8fafc;
+
+            margin-bottom:15px;
+
+        }
+
+
+        #estadoSistema{
+
+            font-weight:bold;
+
+            font-size:16px;
+
+        }
+
+
+        .aberto{
+
+            color:#15803d;
+
+        }
+
+
+        .fechado{
+
+            color:#dc2626;
+
+        }
+
+
+        .botoes{
+
+            display:flex;
+
+            gap:10px;
+
+            flex-wrap:wrap;
+
+        }
+
+
+        button{
+
+            border:0;
+
+            border-radius:8px;
+
+            padding:11px 18px;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+            font-size:14px;
+
+        }
+
+
+        #btnAbrir{
+
+            background:#16a34a;
+
+            color:white;
+
+        }
+
+
+        #btnFechar{
+
+            background:#dc2626;
+
+            color:white;
+
+        }
+
+
+        button:disabled{
+
+            opacity:.5;
+
+            cursor:not-allowed;
+
+        }
+
+
+        /* =========================================
+           FILTROS
+        ========================================= */
+
+        .filtros{
+
+            background:white;
+
+            padding:20px;
+
+            border-radius:14px;
+
+            margin-bottom:20px;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0,0,0,.07);
+
+        }
+
+
+        .filtros h2{
+
+            margin-top:0;
+
+            color:#1e3a8a;
+
+        }
+
+
+        .filtros-grid{
+
+            display:grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    minmax(180px,1fr)
+                );
+
+            gap:15px;
+
+        }
+
+
+        .campo{
+
+            display:flex;
+
+            flex-direction:column;
+
+            gap:6px;
+
+        }
+
+
+        .campo label{
+
+            font-weight:bold;
+
+            color:#334155;
+
+        }
+
+
+        select{
+
+            width:100%;
+
+            padding:11px;
+
+            border:
+                1px solid
+                #cbd5e1;
+
+            border-radius:8px;
+
+            background:white;
+
+            font-size:14px;
+
+        }
+
+
+        /* =========================================
+           LANÇAMENTOS
+        ========================================= */
+
+        .lancamentos{
+
+            background:white;
+
+            padding:20px;
+
+            border-radius:14px;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0,0,0,.07);
+
+        }
+
+
+        .lancamentos h2{
+
+            margin-top:0;
+
+            color:#1e3a8a;
+
+        }
+
+
+        .tabela-container{
+
+            width:100%;
+
+            overflow-x:auto;
+
+        }
+
+
+        table{
+
+            width:100%;
+
+            min-width:800px;
+
+            border-collapse:collapse;
+
+        }
+
+
+        th{
+
+            background:#1e3a8a;
+
+            color:white;
+
+            padding:12px;
+
+            text-align:center;
+
+        }
+
+
+        td{
+
+            border:
+                1px solid
+                #cbd5e1;
+
+            padding:10px;
+
+            text-align:center;
+
+        }
+
+
+        .vazio{
+
+            padding:30px;
+
+            text-align:center;
+
+            color:#64748b;
+
+        }
+
+
+        /* =========================================
+           RESPONSIVO
+        ========================================= */
+
+        @media(max-width:850px){
+
+            .filtros-grid{
+
+                grid-template-columns:1fr;
+
+            }
+
+
+            .pagina{
+
+                padding:12px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="pagina">
+
+
+    <!-- =========================================
+         CABEÇALHO
+    ========================================== -->
+
+    <div class="cabecalho">
+
+        <h1>
+            📝 Notas
+        </h1>
+
+        <p>
+            Supervisão e controlo do lançamento
+            de notas dos professores
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         CONTROLE DO SISTEMA
+    ========================================== -->
+
+    <div class="controle">
+
+        <h2>
+            🔐 Sistema de lançamento
+        </h2>
+
+
+        <div class="estado-sistema">
+
+            <span id="estadoSistema">
+                ⏳ A verificar...
+            </span>
+
+
+            <span id="ultimaAlteracao">
+                —
+            </span>
+
+        </div>
+
+
+        <div class="botoes">
+
+            <button
+                id="btnAbrir"
+                type="button"
+            >
+
+                🟢 Abrir lançamento
+
+            </button>
+
+
+            <button
+                id="btnFechar"
+                type="button"
+            >
+
+                🔴 Fechar lançamento
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         FILTROS
+    ========================================== -->
+
+    <div class="filtros">
+
+        <h2>
+            🔎 Consultar lançamentos
+        </h2>
+
+
+        <div class="filtros-grid">
+
+
+            <div class="campo">
+
+                <label
+                    for="filtroProfessor"
+                >
+                    Professor
+                </label>
+
+                <select
+                    id="filtroProfessor"
+                >
+
+                    <option value="">
+                        Todos os professores
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label
+                    for="filtroClasse"
+                >
+                    Classe
+                </label>
+
+                <select
+                    id="filtroClasse"
+                >
+
+                    <option value="">
+                        Todas as classes
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label
+                    for="filtroTurma"
+                >
+                    Turma
+                </label>
+
+                <select
+                    id="filtroTurma"
+                >
+
+                    <option value="">
+                        Todas as turmas
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label
+                    for="filtroTrimestre"
+                >
+                    Trimestre
+                </label>
+
+                <select
+                    id="filtroTrimestre"
+                >
+
+                    <option value="">
+                        Todos os trimestres
+                    </option>
+
+                    <option value="1">
+                        1.º Trimestre
+                    </option>
+
+                    <option value="2">
+                        2.º Trimestre
+                    </option>
+
+                    <option value="3">
+                        3.º Trimestre
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         LANÇAMENTOS
+    ========================================== -->
+
+    <div class="lancamentos">
+
+        <h2>
+            📋 Mini-Pautas lançadas
+        </h2>
+
+
+        <div class="tabela-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Professor
+                        </th>
+
+                        <th>
+                            Classe
+                        </th>
+
+                        <th>
+                            Turma
+                        </th>
+
+                        <th>
+                            Disciplina
+                        </th>
+
+                        <th>
+                            Trimestre
+                        </th>
+
+                        <th>
+                            Estado
+                        </th>
+
+                        <th>
+                            Ação
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="notasLista"
+                >
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="vazio"
+                        >
+
+                            ⏳ A carregar...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================== -->
+
+<script
+    type="module"
+    src="./notas.js?v=1"
+></script>
+
+
+</body>
+
+    </html>
