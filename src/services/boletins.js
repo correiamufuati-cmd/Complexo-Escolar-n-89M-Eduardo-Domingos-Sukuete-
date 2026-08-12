@@ -2,7 +2,7 @@
 // BOLETINS.JS
 // =====================================================
 
-alert("✅ BOLETINS.JS df CARREGOU!");
+alert("✅ BOLETINS.JS CARREGOU!");
 
 import {
     collection,
@@ -2613,6 +2613,40 @@ document.addEventListener(
             return;
 
         }
+
+    }
+);
+// =====================================================
+// TESTE DOS BOTÕES DOS BOLETINS
+// =====================================================
+
+document.addEventListener(
+    "click",
+    function(event){
+
+        const botao =
+            event.target.closest(
+                ".botao-ver, .botao-imprimir, .botao-pdf, .botao-excel"
+            );
+
+
+        if(!botao){
+            return;
+        }
+
+
+        alert(
+            "✅ BOTÃO FUNCIONOU!\n\n" +
+
+            "Classe do botão:\n" +
+            botao.className +
+
+            "\n\nAluno ID:\n" +
+            (
+                botao.dataset.alunoId ||
+                "NÃO ENCONTRADO"
+            )
+        );
 
     }
 );
