@@ -1802,6 +1802,17 @@ async function testarBoletimCompleto(){
 
     </div>
 
+<!-- =========================================
+     PROFESSOR
+========================================== -->
+
+<div class="professor-assinatura">
+
+    <strong>Professor:</strong>
+
+    ______________________________
+
+</div>
 
     <!-- =========================================
          AÇÕES
@@ -2030,49 +2041,79 @@ Boletins da Turma
         box-sizing:border-box;
     }
 
+
     body{
+
         font-family:Arial,sans-serif;
-        margin:20px;
+
+        margin:0;
+
+        padding:0;
+
         color:#1e293b;
-    }
 
-  .boletim-card{
-
-    height: 31%;
-
-    margin-bottom: 1%;
-
-    padding: 10px;
-
-    border: 1px solid #cbd5e1;
-
-    border-radius: 6px;
-
-    page-break-inside: avoid;
-
-    overflow: hidden;
-
-}
-
-
-.boletim-card:nth-child(3n){
-
-    page-break-after: always;
-
-}
-
-
-.boletim-card:last-child{
-
-    page-break-after: auto;
-
-}
-
-    .boletim-card:last-child{
-
-        page-break-after:auto;
+        font-size:9px;
 
     }
+
+
+    /* =========================================
+       BOLETIM INDIVIDUAL
+    ========================================= */
+
+    .boletim-card{
+
+        height:32%;
+
+        margin:0 0 1% 0;
+
+        padding:7px;
+
+        border:1px solid #94a3b8;
+
+        border-radius:4px;
+
+        page-break-inside:avoid;
+
+        overflow:hidden;
+
+    }
+
+
+    /* =========================================
+       TÍTULOS
+    ========================================= */
+
+    .boletim-card h2{
+
+        font-size:13px;
+
+        margin:0 0 3px 0;
+
+    }
+
+
+    .boletim-card h3{
+
+        font-size:11px;
+
+        margin:0 0 3px 0;
+
+    }
+
+
+    .boletim-card p{
+
+        font-size:8px;
+
+        margin:1px 0;
+
+    }
+
+
+    /* =========================================
+       TABELA
+    ========================================= */
 
     table{
 
@@ -2080,26 +2121,33 @@ Boletins da Turma
 
         border-collapse:collapse;
 
-        margin-top:15px;
+        margin-top:5px;
+
+        font-size:7.5px;
 
     }
+
 
     th,
     td{
 
-        border:1px solid #cbd5e1;
+        border:1px solid #94a3b8;
 
-        padding:8px;
+        padding:3px 4px;
 
-        text-align:center;
+        line-height:1.05;
 
     }
+
 
     th{
 
         background:#e2e8f0;
 
+        font-weight:bold;
+
     }
+
 
     td:first-child,
     th:first-child{
@@ -2108,45 +2156,95 @@ Boletins da Turma
 
     }
 
+
+    /* =========================================
+       PROFESSOR
+    ========================================= */
+
+    .professor-assinatura{
+
+        margin-top:5px;
+
+        padding-top:3px;
+
+        border-top:1px solid #cbd5e1;
+
+        font-size:8px;
+
+    }
+
+
+    /* =========================================
+       3 BOLETINS POR PÁGINA
+    ========================================= */
+
+    .boletim-card:nth-child(3n){
+
+        page-break-after:always;
+
+    }
+
+
+    .boletim-card:last-child{
+
+        page-break-after:auto;
+
+    }
+
+
+    /* =========================================
+       ESCONDER BOTÕES
+    ========================================= */
+
     button{
 
         display:none !important;
 
     }
 
-   @media print{
 
-    @page{
+    /* =========================================
+       IMPRESSÃO A4
+    ========================================= */
 
-        size:A4 portrait;
+    @media print{
 
-        margin:8mm;
+        @page{
+
+            size:A4 portrait;
+
+            margin:6mm;
+
+        }
+
+
+        body{
+
+            margin:0;
+
+            padding:0;
+
+        }
+
+
+        .boletim-card{
+
+            height:32%;
+
+            margin-bottom:1%;
+
+            padding:7px;
+
+            page-break-inside:avoid;
+
+        }
 
     }
-
-    body{
-
-        margin:0;
-
-    }
-
-    .boletim-card{
-
-        height:31%;
-
-        margin-bottom:1%;
-
-        padding:10px;
-
-        page-break-inside:avoid;
-
-    }
-
-}
 
 </style>
 
 </head>
+
 
 <body>
 
@@ -2162,8 +2260,9 @@ ${conteudo}
 janela.document.close();
 
 
-// Esperar o conteúdo carregar
-// antes de abrir a impressão
+// =========================================
+// ESPERAR A JANELA CARREGAR
+// =========================================
 
 janela.onload = function(){
 
@@ -2172,7 +2271,6 @@ janela.onload = function(){
     janela.print();
 
 };
-
     }
 );
 
