@@ -3,7 +3,7 @@
 // ETAPA 3 — TESTE DOS FILTROS
 // =====================================================
 
-alert("✅ BOLETINS.JS CARREGOU!");
+alert("✅ BOLETINS.JS df CARREGOU!");
 
 import {
     collection,
