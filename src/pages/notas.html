@@ -11,405 +11,392 @@
     >
 
     <title>
-        Notas — Administrador | SGE
+        Gestão de Notas — Administrador
     </title>
 
+    <link
+        rel="stylesheet"
+        href="../styles/dashboard.css"
+    >
 
     <style>
 
-        *{
-            box-sizing:border-box;
+        * {
+            box-sizing: border-box;
         }
 
-
-        body{
-
-            margin:0;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background:#f1f5f9;
-
-            color:#1e293b;
-
+        body {
+            margin: 0;
+            background: #f1f5f9;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1e293b;
         }
 
-
-        .pagina{
-
-            width:100%;
-
-            max-width:1200px;
-
-            margin:auto;
-
-            padding:20px;
-
+        .main {
+            width: 100%;
+            padding: 25px;
         }
-
 
         /* =========================================
            CABEÇALHO
         ========================================= */
 
-        .cabecalho{
+        .cabecalho {
+            background: linear-gradient(
+                135deg,
+                #1e3a8a,
+                #2563eb
+            );
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #1e3a8a,
-                    #2563eb
-                );
+            color: white;
 
-            color:white;
+            padding: 25px;
 
-            padding:25px;
+            border-radius: 18px;
 
-            border-radius:16px;
+            margin-bottom: 20px;
 
-            margin-bottom:20px;
-
+            box-shadow:
+                0 5px 18px
+                rgba(0,0,0,.12);
         }
 
-
-        .cabecalho h1{
-
-            margin:0 0 8px;
-
-            font-size:26px;
-
+        .cabecalho h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
         }
 
-
-        .cabecalho p{
-
-            margin:0;
-
-            opacity:.9;
-
+        .cabecalho p {
+            margin: 0;
+            opacity: .9;
         }
-
 
         /* =========================================
-           CONTROLE DO SISTEMA
+           CARTÃO
         ========================================= */
 
-        .controle{
+        .section {
+            background: white;
 
-            background:white;
+            padding: 20px;
 
-            padding:20px;
+            border-radius: 16px;
 
-            border-radius:14px;
-
-            margin-bottom:20px;
+            margin-bottom: 20px;
 
             box-shadow:
                 0 3px 12px
                 rgba(0,0,0,.07);
-
         }
 
+        .section h2 {
+            margin-top: 0;
 
-        .controle h2{
+            color: #1e3a8a;
 
-            margin-top:0;
-
-            color:#1e3a8a;
-
+            font-size: 20px;
         }
-
-
-        .estado-sistema{
-
-            display:flex;
-
-            align-items:center;
-
-            justify-content:space-between;
-
-            gap:15px;
-
-            flex-wrap:wrap;
-
-            padding:15px;
-
-            border-radius:10px;
-
-            background:#f8fafc;
-
-            margin-bottom:15px;
-
-        }
-
-
-        #estadoSistema{
-
-            font-weight:bold;
-
-            font-size:16px;
-
-        }
-
-
-        .aberto{
-
-            color:#15803d;
-
-        }
-
-
-        .fechado{
-
-            color:#dc2626;
-
-        }
-
-
-        .botoes{
-
-            display:flex;
-
-            gap:10px;
-
-            flex-wrap:wrap;
-
-        }
-
-
-        button{
-
-            border:0;
-
-            border-radius:8px;
-
-            padding:11px 18px;
-
-            font-weight:bold;
-
-            cursor:pointer;
-
-            font-size:14px;
-
-        }
-
-
-        #btnAbrir{
-
-            background:#16a34a;
-
-            color:white;
-
-        }
-
-
-        #btnFechar{
-
-            background:#dc2626;
-
-            color:white;
-
-        }
-
-
-        button:disabled{
-
-            opacity:.5;
-
-            cursor:not-allowed;
-
-        }
-
 
         /* =========================================
            FILTROS
         ========================================= */
 
-        .filtros{
-
-            background:white;
-
-            padding:20px;
-
-            border-radius:14px;
-
-            margin-bottom:20px;
-
-            box-shadow:
-                0 3px 12px
-                rgba(0,0,0,.07);
-
-        }
-
-
-        .filtros h2{
-
-            margin-top:0;
-
-            color:#1e3a8a;
-
-        }
-
-
-        .filtros-grid{
-
-            display:grid;
+        .filtros {
+            display: grid;
 
             grid-template-columns:
                 repeat(
                     4,
-                    minmax(180px,1fr)
+                    minmax(180px, 1fr)
                 );
 
-            gap:15px;
-
+            gap: 15px;
         }
 
+        .campo {
+            display: flex;
 
-        .campo{
+            flex-direction: column;
 
-            display:flex;
-
-            flex-direction:column;
-
-            gap:6px;
-
+            gap: 7px;
         }
 
+        .campo label {
+            font-weight: bold;
 
-        .campo label{
-
-            font-weight:bold;
-
-            color:#334155;
-
+            color: #1e3a8a;
         }
 
+        select {
+            width: 100%;
 
-        select{
-
-            width:100%;
-
-            padding:11px;
+            padding: 12px;
 
             border:
                 1px solid
                 #cbd5e1;
 
-            border-radius:8px;
+            border-radius: 9px;
 
-            background:white;
+            background: white;
 
-            font-size:14px;
+            font-size: 15px;
 
+            color: #1e293b;
         }
 
+        select:focus {
+            outline: none;
 
-        /* =========================================
-           LANÇAMENTOS
-        ========================================= */
-
-        .lancamentos{
-
-            background:white;
-
-            padding:20px;
-
-            border-radius:14px;
+            border-color: #2563eb;
 
             box-shadow:
-                0 3px 12px
-                rgba(0,0,0,.07);
-
+                0 0 0 2px
+                rgba(37,99,235,.12);
         }
 
+        /* =========================================
+           ESTADO DO SISTEMA
+        ========================================= */
 
-        .lancamentos h2{
+        .estado-sistema {
+            display: flex;
 
-            margin-top:0;
+            justify-content: space-between;
 
-            color:#1e3a8a;
+            align-items: center;
 
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+            margin-top: 18px;
+
+            padding: 15px;
+
+            border-radius: 10px;
+
+            background: #f8fafc;
+
+            border:
+                1px solid
+                #e2e8f0;
         }
 
+        .sistema-aberto {
+            color: #15803d;
 
-        .tabela-container{
-
-            width:100%;
-
-            overflow-x:auto;
-
+            font-weight: bold;
         }
 
+        .sistema-fechado {
+            color: #dc2626;
 
-        table{
-
-            width:100%;
-
-            min-width:800px;
-
-            border-collapse:collapse;
-
+            font-weight: bold;
         }
 
+        .botao-sistema {
+            border: 0;
 
-        th{
+            border-radius: 9px;
 
-            background:#1e3a8a;
+            padding: 11px 18px;
 
-            color:white;
+            cursor: pointer;
 
-            padding:12px;
+            font-weight: bold;
 
-            text-align:center;
-
+            color: white;
         }
 
+        .botao-abrir {
+            background: #16a34a;
+        }
 
-        td{
+        .botao-fechar {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           TABELA
+        ========================================= */
+
+        .tabela-container {
+            width: 100%;
+
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            min-width: 850px;
+
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #1e3a8a;
+
+            color: white;
+
+            padding: 11px;
 
             border:
                 1px solid
                 #cbd5e1;
 
-            padding:10px;
-
-            text-align:center;
-
+            text-align: center;
         }
 
+        td {
+            border:
+                1px solid
+                #cbd5e1;
 
-        .vazio{
+            padding: 10px;
 
-            padding:30px;
-
-            text-align:center;
-
-            color:#64748b;
-
+            text-align: center;
         }
 
+        td.nome {
+            text-align: left;
+
+            font-weight: bold;
+        }
+
+        /* =========================================
+           ESTADOS
+        ========================================= */
+
+        .estado-nota {
+            display: inline-block;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: bold;
+        }
+
+        .pendente {
+            background: #fef3c7;
+
+            color: #92400e;
+        }
+
+        .lancado {
+            background: #dcfce7;
+
+            color: #166534;
+        }
+
+        .fechado {
+            background: #ede9fe;
+
+            color: #6d28d9;
+        }
+
+        /* =========================================
+           BOTÃO CONTROLAR
+        ========================================= */
+
+        .botao-controlar {
+            border: 0;
+
+            border-radius: 7px;
+
+            padding: 8px 12px;
+
+            background: #2563eb;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        .botao-controlar:hover {
+            background: #1d4ed8;
+        }
+
+        /* =========================================
+           MENSAGENS
+        ========================================= */
+
+        .mensagem {
+            padding: 15px;
+
+            border-radius: 10px;
+
+            margin-bottom: 15px;
+
+            display: none;
+
+            font-weight: bold;
+        }
+
+        .mensagem.visivel {
+            display: block;
+        }
+
+        .mensagem.erro {
+            background: #fef2f2;
+
+            color: #b91c1c;
+        }
+
+        .mensagem.sucesso {
+            background: #f0fdf4;
+
+            color: #166534;
+        }
+
+        .mensagem.aviso {
+            background: #fffbeb;
+
+            color: #92400e;
+        }
+
+        .carregando {
+            text-align: center;
+
+            padding: 25px;
+
+            color: #64748b;
+        }
 
         /* =========================================
            RESPONSIVO
         ========================================= */
 
-        @media(max-width:850px){
+        @media(max-width: 900px) {
 
-            .filtros-grid{
-
-                grid-template-columns:1fr;
-
+            .filtros {
+                grid-template-columns: 1fr 1fr;
             }
 
+        }
 
-            .pagina{
+        @media(max-width: 600px) {
 
-                padding:12px;
+            .main {
+                padding: 12px;
+            }
 
+            .cabecalho {
+                padding: 20px;
+            }
+
+            .cabecalho h1 {
+                font-size: 22px;
+            }
+
+            .filtros {
+                grid-template-columns: 1fr;
             }
 
         }
@@ -422,7 +409,7 @@
 <body>
 
 
-<div class="pagina">
+<div class="main">
 
 
     <!-- =========================================
@@ -432,7 +419,7 @@
     <div class="cabecalho">
 
         <h1>
-            📝 Notas
+            📝 Gestão de Notas
         </h1>
 
         <p>
@@ -443,85 +430,93 @@
     </div>
 
 
+
     <!-- =========================================
-         CONTROLE DO SISTEMA
+         CONTROLO DO SISTEMA
     ========================================== -->
 
-    <div class="controle">
+    <div class="section">
 
         <h2>
-            🔐 Sistema de lançamento
+            ⚙️ Sistema de Lançamento
         </h2>
 
 
         <div class="estado-sistema">
 
-            <span id="estadoSistema">
-                ⏳ A verificar...
-            </span>
 
+            <div>
 
-            <span id="ultimaAlteracao">
-                —
-            </span>
+                <span>
+                    Estado do sistema:
+                </span>
 
-        </div>
+                <span
+                    id="estadoSistema"
+                    class="sistema-fechado"
+                >
+                    🔴 Fechado
+                </span>
 
-
-        <div class="botoes">
-
-            <button
-                id="btnAbrir"
-                type="button"
-            >
-
-                🟢 Abrir lançamento
-
-            </button>
+            </div>
 
 
             <button
-                id="btnFechar"
+                id="botaoSistema"
                 type="button"
+                class="botao-sistema botao-abrir"
             >
 
-                🔴 Fechar lançamento
+                🔓 Abrir sistema
 
             </button>
+
 
         </div>
 
     </div>
+
 
 
     <!-- =========================================
          FILTROS
     ========================================== -->
 
-    <div class="filtros">
+    <div class="section">
 
         <h2>
-            🔎 Consultar lançamentos
+            🔎 Selecionar lançamento
         </h2>
 
 
-        <div class="filtros-grid">
+        <div
+            id="mensagem"
+            class="mensagem"
+        ></div>
 
+
+        <div class="filtros">
+
+
+            <!-- PROFESSOR -->
 
             <div class="campo">
 
-                <label
-                    for="filtroProfessor"
-                >
+                <label for="filtroProfessor">
+
                     Professor
+
                 </label>
+
 
                 <select
                     id="filtroProfessor"
                 >
 
                     <option value="">
-                        Todos os professores
+
+                        Selecionar professor
+
                     </option>
 
                 </select>
@@ -529,20 +524,28 @@
             </div>
 
 
+
+            <!-- CLASSE -->
+
             <div class="campo">
 
-                <label
-                    for="filtroClasse"
-                >
+                <label for="filtroClasse">
+
                     Classe
+
                 </label>
+
 
                 <select
                     id="filtroClasse"
+                    disabled
                 >
 
                     <option value="">
-                        Todas as classes
+
+                        Primeiro selecione
+                        o professor
+
                     </option>
 
                 </select>
@@ -550,20 +553,27 @@
             </div>
 
 
+
+            <!-- TURMA -->
+
             <div class="campo">
 
-                <label
-                    for="filtroTurma"
-                >
+                <label for="filtroTurma">
+
                     Turma
+
                 </label>
+
 
                 <select
                     id="filtroTurma"
+                    disabled
                 >
 
                     <option value="">
-                        Todas as turmas
+
+                        Selecione a classe
+
                     </option>
 
                 </select>
@@ -571,32 +581,75 @@
             </div>
 
 
+
+            <!-- DISCIPLINA -->
+
             <div class="campo">
 
-                <label
-                    for="filtroTrimestre"
-                >
-                    Trimestre
+                <label for="filtroDisciplina">
+
+                    Disciplina
+
                 </label>
+
+
+                <select
+                    id="filtroDisciplina"
+                    disabled
+                >
+
+                    <option value="">
+
+                        Selecione a turma
+
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- TRIMESTRE -->
+
+            <div class="campo">
+
+                <label for="filtroTrimestre">
+
+                    Trimestre
+
+                </label>
+
 
                 <select
                     id="filtroTrimestre"
                 >
 
                     <option value="">
+
                         Todos os trimestres
+
                     </option>
+
 
                     <option value="1">
+
                         1.º Trimestre
+
                     </option>
+
 
                     <option value="2">
+
                         2.º Trimestre
+
                     </option>
 
+
                     <option value="3">
+
                         3.º Trimestre
+
                     </option>
 
                 </select>
@@ -609,14 +662,15 @@
     </div>
 
 
+
     <!-- =========================================
-         LANÇAMENTOS
+         MINI-PAUTAS / LANÇAMENTOS
     ========================================== -->
 
-    <div class="lancamentos">
+    <div class="section">
 
         <h2>
-            📋 Mini-Pautas lançadas
+            📋 Lançamentos de Notas
         </h2>
 
 
@@ -645,11 +699,15 @@
                         </th>
 
                         <th>
-                            Trimestre
+                            1.º Trimestre
                         </th>
 
                         <th>
-                            Estado
+                            2.º Trimestre
+                        </th>
+
+                        <th>
+                            3.º Trimestre
                         </th>
 
                         <th>
@@ -661,18 +719,19 @@
                 </thead>
 
 
-                <tbody
-                    id="notasLista"
-                >
+                <tbody id="notasLista">
 
                     <tr>
 
                         <td
-                            colspan="7"
-                            class="vazio"
+                            colspan="8"
+                            class="carregando"
                         >
 
-                            ⏳ A carregar...
+                            ⏳
+                            Selecione um professor
+                            para visualizar
+                            os lançamentos.
 
                         </td>
 
@@ -690,15 +749,16 @@
 </div>
 
 
+
 <!-- =========================================
      JAVASCRIPT
 ========================================== -->
 
 <script
     type="module"
-    src="../services/notas.js?v=1">
-    
-</script>
+    src="../services/notas.js?v=10">
+
+    </script>
 
 
 </body>
