@@ -1,9 +1,3 @@
-// =====================================================
-// NOTAS.JS — PAINEL DO ADMINISTRADOR
-// SGE
-// BLOCO 1/4 — BASE + PROFESSORES + TURMAS + FILTROS
-// =====================================================
-
 alert("✅ NOTAS.JS — BLOCO 1 CARREGADO!");
 
 
