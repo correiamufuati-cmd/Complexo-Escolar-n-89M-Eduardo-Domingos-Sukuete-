@@ -2618,7 +2618,7 @@ document.addEventListener(
 );
 
 // =====================================================
-// BOTÕES DOS BOLETINS — AÇÕES
+// TESTE — ABRIR BOLETIM INDIVIDUAL
 // =====================================================
 
 document.addEventListener(
@@ -2627,7 +2627,7 @@ document.addEventListener(
 
         const botao =
             event.target.closest(
-                ".botao-ver, .botao-imprimir, .botao-pdf, .botao-excel"
+                ".botao-ver"
             );
 
 
@@ -2636,45 +2636,35 @@ document.addEventListener(
         }
 
 
+        alert("1️⃣ CLIQUE NO BOTÃO VER");
+
+
         const alunoId =
             botao.dataset.alunoId;
+
+
+        alert(
+            "2️⃣ ID DO ALUNO:\n\n" +
+            alunoId
+        );
 
 
         const turmaId =
             turmaSelect.value;
 
 
-        if(!alunoId){
+        alert(
+            "3️⃣ ID DA TURMA:\n\n" +
+            turmaId
+        );
+
+
+        try{
 
             alert(
-                "❌ ID do aluno não encontrado."
+                "4️⃣ VOU CHAMAR abrirBoletimIndividual()"
             );
 
-            return;
-
-        }
-
-
-        if(!turmaId){
-
-            alert(
-                "❌ Turma não selecionada."
-            );
-
-            return;
-
-        }
-
-
-        // =============================================
-        // VER
-        // =============================================
-
-        if(
-            botao.classList.contains(
-                "botao-ver"
-            )
-        ){
 
             await abrirBoletimIndividual(
                 turmaId,
@@ -2682,69 +2672,23 @@ document.addEventListener(
                 false
             );
 
-            return;
-
-        }
-
-
-        // =============================================
-        // IMPRIMIR
-        // =============================================
-
-        if(
-            botao.classList.contains(
-                "botao-imprimir"
-            )
-        ){
-
-            await abrirBoletimIndividual(
-                turmaId,
-                alunoId,
-                true
-            );
-
-            return;
-
-        }
-
-
-        // =============================================
-        // PDF
-        // =============================================
-
-        if(
-            botao.classList.contains(
-                "botao-pdf"
-            )
-        ){
-
-            await abrirBoletimIndividual(
-                turmaId,
-                alunoId,
-                true
-            );
-
-            return;
-
-        }
-
-
-        // =============================================
-        // EXCEL — POR ENQUANTO
-        // =============================================
-
-        if(
-            botao.classList.contains(
-                "botao-excel"
-            )
-        ){
 
             alert(
-                "📊 EXPORTAÇÃO PARA EXCEL\n\n" +
-                "Vamos ligar esta função na próxima etapa."
+                "5️⃣ A FUNÇÃO TERMINOU"
             );
 
-            return;
+        }
+        catch(erro){
+
+            console.error(
+                erro
+            );
+
+
+            alert(
+                "❌ ERRO:\n\n" +
+                erro.message
+            );
 
         }
 
