@@ -716,12 +716,11 @@ async function carregarAlunosDaTurma(turmaId){
                     </div>
 
 
-                    <div class="boletim-estado">
+<div class="boletim-estado">
 
-                        ⚠️ Boletim ainda não
-                        carregado
+    📋 Boletim disponível para geração
 
-                    </div>
+</div>
 
 
                     <div class="boletim-acoes">
