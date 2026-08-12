@@ -5,7 +5,7 @@
 // Professor → Classe → Turma → Disciplina → Trimestre
 // =====================================================
 
-alert("🔥 NOTAS.JS — BLOCO CARREGADO!");
+alert("🔥 NOTAS.JS — BLOCO1 CARREGADO!");
 
 import { db } from "./firebase.js";
 
@@ -19,24 +19,37 @@ import {
 // ELEMENTOS
 // =====================================================
 
-const filtroProfessor =
-    document.getElementById("filtroProfessor");
+filtroProfessor.addEventListener("change", function () {
 
-const filtroClasse =
-    document.getElementById("filtroClasse");
+    const professorId = this.value;
 
-const filtroTurma =
-    document.getElementById("filtroTurma");
+    if (!professorId) {
+        alert("⚠️ Nenhum professor selecionado.");
+        return;
+    }
 
-const filtroDisciplina =
-    document.getElementById("filtroDisciplina");
+    const professor = professores.find(
+        p => p.id === professorId
+    );
 
-const filtroTrimestre =
-    document.getElementById("filtroTrimestre");
+    if (!professor) {
+        alert("❌ Professor não encontrado.");
+        return;
+    }
 
-const notasLista =
-    document.getElementById("notasLista");
+    alert(
+        "👨‍🏫 PROFESSOR SELECIONADO\n\n" +
+        "Nome: " +
+        (professor.nome || "Sem nome") +
+        "\n\n" +
+        "ID: " +
+        professor.id +
+        "\n\n" +
+        "Dados encontrados:\n" +
+        JSON.stringify(professor, null, 2)
+    );
 
+});
 
 // =====================================================
 // DADOS
