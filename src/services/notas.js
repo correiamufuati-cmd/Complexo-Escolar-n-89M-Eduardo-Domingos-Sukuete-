@@ -459,145 +459,131 @@ function carregarClassesDoProfessor(
 // CLASSE → TURMAS
 // =====================================================
 
-function carregarTurmasDaClasse(
-    classeSelecionada
-) {
-
-    if (!filtroTurma) return;
-
-
-    filtroTurma.innerHTML = `
-
-        <option value="">
-            Selecionar turma
-        </option>
-
-    `;
-
-
-    filtroTurma.disabled = true;
-
+function carregarTurmasDaClasse(classe) {
 
     const professorId =
-        filtroProfessor?.value;
-
-
-    if (
-        !professorId ||
-        !classeSelecionada
-    ) {
-
-        return;
-
-    }
-
+        filtroProfessor?.value || "";
 
     const professor =
         professores.find(
-            item =>
-                item.id === professorId
+            item => item.id === professorId
         );
 
-
-    if (!professor) return;
-
+    if (!professor) {
+        alert("❌ Professor não encontrado.");
+        return;
+    }
 
     const atribuicoes =
-        Array.isArray(
-            professor.atribuicoes
-        )
+        Array.isArray(professor.atribuicoes)
             ? professor.atribuicoes
             : [];
 
+    // =============================================
+    // FILTRAR PELA CLASSE
+    // =============================================
 
-    // -----------------------------------------------
-    // TURMAS DA CLASSE
-    // -----------------------------------------------
+    const encontradas =
+        atribuicoes.filter(item => {
 
-    const turmas =
-        new Map();
+            return String(
+                item.classe ?? ""
+            ).trim() === String(
+                classe ?? ""
+            ).trim();
 
-
-    atribuicoes.forEach(
-        item => {
-
-            const classe =
-                String(
-                    item.classe ?? ""
-                ).trim();
+        });
 
 
-            if (
-                classe !==
-                String(
-                    classeSelecionada
-                ).trim()
-            ) {
+    // =============================================
+    // ALERTA DE TESTE
+    // =============================================
 
-                return;
+    alert(
+        "🔎 TESTE DAS TURMAS\n\n" +
 
-            }
+        "Professor: " +
+        (professor.nome || "—") +
 
+        "\n\nClasse selecionada: " +
+        classe +
 
-            const turmaId =
-                String(
-                    item.turmaId ?? ""
-                ).trim();
+        "\n\nAtribuições encontradas: " +
+        encontradas.length +
 
-
-            if (!turmaId) return;
-
-
-            const turmaNome =
-                String(
-                    item.turmaNome ??
-                    item.turma ??
-                    ""
-                ).trim();
-
-
-            if (!turmas.has(turmaId)) {
-
-                turmas.set(
-                    turmaId,
-                    {
-
-                        turmaId:
-                            turmaId,
-
-                        turmaNome:
-                            turmaNome ||
-                            "Turma"
-
-                    }
-                );
-
-            }
-
-        }
+        "\n\nDADOS:\n" +
+        JSON.stringify(
+            encontradas,
+            null,
+            2
+        )
     );
 
 
-    // -----------------------------------------------
-    // COLOCAR TURMAS
-    // -----------------------------------------------
+    // =============================================
+    // LIMPAR SELECT
+    // =============================================
 
-    turmas.forEach(
-        turma => {
+    filtroTurma.innerHTML = `
+        <option value="">
+            Selecionar turma
+        </option>
+    `;
+
+
+    // =============================================
+    // COLOCAR TURMAS
+    // =============================================
+
+    const mapa =
+        new Map();
+
+
+    encontradas.forEach(item => {
+
+        const turmaId =
+            String(
+                item.turmaId ?? ""
+            ).trim();
+
+        const turmaNome =
+            String(
+                item.turmaNome ??
+                item.turma ??
+                ""
+            ).trim();
+
+
+        if (!turmaId) {
+            return;
+        }
+
+
+        if (!mapa.has(turmaId)) {
+
+            mapa.set(
+                turmaId,
+                turmaNome || "Turma"
+            );
+
+        }
+
+    });
+
+
+    mapa.forEach(
+        (turmaNome, turmaId) => {
 
             const option =
                 document.createElement(
                     "option"
                 );
 
-
             option.value =
-                turma.turmaId;
-
+                turmaId;
 
             option.textContent =
-                turma.turmaNome;
-
+                turmaNome;
 
             filtroTurma.appendChild(
                 option
@@ -608,44 +594,15 @@ function carregarTurmasDaClasse(
 
 
     filtroTurma.disabled =
-        turmas.size === 0;
+        mapa.size === 0;
 
 
     console.log(
         "🏫 TURMAS ENCONTRADAS:",
-        [...turmas.values()]
+        [...mapa.entries()]
     );
-
-
-    alert(
-
-        "📚 CLASSE SELECIONADA\n\n" +
-
-        "Classe: " +
-        classeSelecionada +
-
-        "\n\n" +
-
-        "Turmas encontradas: " +
-        turmas.size
-
-    );
-
-
-    if (!turmas.size) {
-
-        filtroTurma.innerHTML = `
-
-            <option value="">
-                Nenhuma turma encontrada
-            </option>
-
-        `;
-
-    }
 
 }
-
 
 // =====================================================
 // TURMA → DISCIPLINAS
