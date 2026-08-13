@@ -5,7 +5,7 @@
 // Professor → Classe → Turma → Disciplina → Trimestre
 // =====================================================
 
-alert("🔥 NOTAS.JS ADMINISTRADOR fCARREGADO!");
+alert("🔥 NOTAS.JS ADMINISTRADOR CARREGADO!");
 
 
 import { db } from "./firebase.js";
