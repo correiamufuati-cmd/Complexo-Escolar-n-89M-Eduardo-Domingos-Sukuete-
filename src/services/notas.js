@@ -5,7 +5,7 @@
 // Professor → Classe → Turma → Disciplina → Trimestre
 // =====================================================
 
-alert("🔥 NOTAS.JS ADMINISTRADOR CARREGADO!");
+alert("🔥 NOTAS.JS ADMINISTRADOR gCARREGADO!");
 
 
 import { db } from "./firebase.js";
@@ -459,10 +459,26 @@ function carregarClassesDoProfessor(
 // CLASSE → TURMAS
 // =====================================================
 
+// =====================================================
+// CLASSE → TURMAS
+// =====================================================
+
 function carregarTurmasDaClasse(classe) {
 
+    if (!filtroTurma) return;
+
+    filtroTurma.innerHTML = `
+        <option value="">
+            Selecionar turma
+        </option>
+    `;
+
     const professorId =
-        filtroProfessor?.value || "";
+        filtroProfessor?.value;
+
+    if (!professorId || !classe) {
+        return;
+    }
 
     const professor =
         professores.find(
@@ -479,100 +495,78 @@ function carregarTurmasDaClasse(classe) {
             ? professor.atribuicoes
             : [];
 
-    // =============================================
-    // FILTRAR PELA CLASSE
-    // =============================================
+    // =================================================
+    // ATRIBUIÇÕES DA CLASSE SELECIONADA
+    // =================================================
 
-    const encontradas =
-        atribuicoes.filter(item => {
+    const atribuicoesClasse =
+        atribuicoes.filter(
+            item =>
+                String(item.classe || "").trim() ===
+                String(classe || "").trim()
+        );
 
-            return String(
-                item.classe ?? ""
-            ).trim() === String(
-                classe ?? ""
-            ).trim();
+    if (!atribuicoesClasse.length) {
 
-        });
+        filtroTurma.innerHTML = `
+            <option value="">
+                Nenhuma turma encontrada
+            </option>
+        `;
 
+        return;
+    }
 
-    // =============================================
-    // ALERTA DE TESTE
-    // =============================================
+    // =================================================
+    // TURMAS SEM REPETIÇÃO
+    // =================================================
 
-    alert(
-        "🔎 TESTE DAS TURMAS\n\n" +
-
-        "Professor: " +
-        (professor.nome || "—") +
-
-        "\n\nClasse selecionada: " +
-        classe +
-
-        "\n\nAtribuições encontradas: " +
-        encontradas.length +
-
-        "\n\nDADOS:\n" +
-        JSON.stringify(
-            encontradas,
-            null,
-            2
+    const idsTurmas = [
+        ...new Set(
+            atribuicoesClasse
+                .map(item => item.turmaId)
+                .filter(Boolean)
         )
+    ];
+
+    console.log(
+        "🆔 IDs das turmas encontradas:",
+        idsTurmas
+    );
+
+    // =================================================
+    // PROCURAR OS DADOS REAIS DAS TURMAS
+    // NA COLEÇÃO turmas
+    // =================================================
+
+    const turmasEncontradas =
+        idsTurmas
+            .map(turmaId => {
+
+                const turma =
+                    turmas.find(
+                        item =>
+                            item.id === turmaId
+                    );
+
+                return turma;
+
+            })
+            .filter(Boolean);
+
+
+    console.log(
+        "🏫 TURMAS ENCONTRADAS:",
+        turmasEncontradas
     );
 
 
-    // =============================================
-    // LIMPAR SELECT
-    // =============================================
+    // =================================================
+    // CRIAR AS OPÇÕES
+    // =================================================
 
-    filtroTurma.innerHTML = `
-        <option value="">
-            Selecionar turma
-        </option>
-    `;
-
-
-    // =============================================
-    // COLOCAR TURMAS
-    // =============================================
-
-    const mapa =
-        new Map();
-
-
-    encontradas.forEach(item => {
-
-        const turmaId =
-            String(
-                item.turmaId ?? ""
-            ).trim();
-
-        const turmaNome =
-            String(
-                item.turmaNome ??
-                item.turma ??
-                ""
-            ).trim();
-
-
-        if (!turmaId) {
-            return;
-        }
-
-
-        if (!mapa.has(turmaId)) {
-
-            mapa.set(
-                turmaId,
-                turmaNome || "Turma"
-            );
-
-        }
-
-    });
-
-
-    mapa.forEach(
-        (turmaNome, turmaId) => {
+    turmasEncontradas.forEach(
+        turma => {
 
             const option =
                 document.createElement(
@@ -580,10 +574,18 @@ function carregarTurmasDaClasse(classe) {
                 );
 
             option.value =
-                turmaId;
+                turma.id;
+
+            // Tentar vários nomes possíveis
+            const nomeTurma =
+                turma.nome ||
+                turma.turma ||
+                turma.designacao ||
+                turma.codigo ||
+                `Turma ${turma.id}`;
 
             option.textContent =
-                turmaNome;
+                nomeTurma;
 
             filtroTurma.appendChild(
                 option
@@ -593,16 +595,51 @@ function carregarTurmasDaClasse(classe) {
     );
 
 
-    filtroTurma.disabled =
-        mapa.size === 0;
+    // =================================================
+    // TESTE
+    // =================================================
 
+    alert(
 
-    console.log(
-        "🏫 TURMAS ENCONTRADAS:",
-        [...mapa.entries()]
+        "🏫 TURMAS DA CLASSE\n\n" +
+
+        "Professor: " +
+        (professor.nome || "Sem nome") +
+
+        "\n\n" +
+
+        "Classe: " +
+        classe +
+
+        "\n\n" +
+
+        "IDs encontrados: " +
+        idsTurmas.length +
+
+        "\n\n" +
+
+        "Turmas carregadas: " +
+        turmasEncontradas.length +
+
+        "\n\n" +
+
+        "Opções no SELECT: " +
+        filtroTurma.options.length
+
     );
 
-}
+
+    if (!turmasEncontradas.length) {
+
+        filtroTurma.innerHTML = `
+            <option value="">
+                Nenhuma turma encontrada
+            </option>
+        `;
+
+    }
+
+        }
 
 // =====================================================
 // TURMA → DISCIPLINAS
